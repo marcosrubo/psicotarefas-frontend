@@ -2,56 +2,94 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
   <title>PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="PsicoTarefas - acompanhamento de atividades terapêuticas" />
+  <meta
+    name="description"
+    content="PsicoTarefas - acompanhamento de atividades terapêuticas"
+  />
 
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero__badge">PWA • Mobile First</div>
 
-<div class="container">
+      <h1 class="hero__title">PsicoTarefas</h1>
 
-  <h1>PsicoTarefas</h1>
-  <p>Organize pacientes, atividades e acompanhamentos de forma simples.</p>
+      <p class="hero__subtitle">
+        Organize pacientes, atividades e acompanhamentos de forma simples, bonita e prática.
+      </p>
+    </header>
 
-  <div class="card">
-    <h2>👩‍⚕️ Pacientes</h2>
-    <p>Cadastre e acompanhe os pacientes.</p>
+    <main class="main-content">
+      <section class="quick-actions">
+        <a class="action-card" href="./pacientes/index.html">
+          <div class="action-card__icon">🧑‍⚕️</div>
+          <div class="action-card__text">
+            <h2>Pacientes</h2>
+            <p>Cadastre e acompanhe os pacientes.</p>
+          </div>
+        </a>
+
+        <a class="action-card" href="./atividades/index.html">
+          <div class="action-card__icon">📝</div>
+          <div class="action-card__text">
+            <h2>Atividades</h2>
+            <p>Crie tarefas e exercícios para casa.</p>
+          </div>
+        </a>
+
+        <a class="action-card action-card--disabled" href="javascript:void(0)">
+          <div class="action-card__icon">💬</div>
+          <div class="action-card__text">
+            <h2>Respostas</h2>
+            <p>Em breve: retorno e acompanhamento do paciente.</p>
+          </div>
+        </a>
+      </section>
+
+      <section class="highlight">
+        <h3>Diferencial do sistema</h3>
+        <p>
+          O foco do PsicoTarefas é ajudar a psicóloga a propor atividades terapêuticas
+          para o paciente realizar em casa e acompanhar esse processo de forma organizada.
+        </p>
+      </section>
+
+      <section class="install-section">
+        <section class="install-box" id="installBox" hidden>
+          <div class="install-box__content">
+            <h3>Instalar App (Android)</h3>
+            <p>Adicione o PsicoTarefas à tela inicial para usar como aplicativo.</p>
+          </div>
+          <button id="btnInstall" class="btn-primary">Instalar (Android)</button>
+        </section>
+
+        <section class="ios-box">
+          <div class="ios-box__content">
+            <h3>Para instalar no iPhone (iOS)</h3>
+            <p>Clique em <strong>Compartilhar</strong></p>
+            <p>Depois em <strong>Adicionar à Tela de Início</strong></p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>PsicoTarefas</span>
+      <small>Projeto RuboWeb</small>
+    </footer>
   </div>
 
-  <div class="card">
-    <h2>📝 Atividades</h2>
-    <p>Crie tarefas e exercícios para casa.</p>
-  </div>
-
-  <div class="card">
-    <h2>💡 Diferencial do sistema</h2>
-    <p>Propor atividades terapêuticas e acompanhar o progresso do paciente.</p>
-  </div>
-
-  <!-- 🔥 NOVA PARTE CORRETA -->
-  <div class="card">
-
-    <h3>📲 Instalar App</h3>
-
-    <p><strong>Android:</strong></p>
-    <button id="btnInstall" class="btn">Instalar (Android)</button>
-
-    <br><br>
-
-    <p><strong>iPhone (iOS):</strong></p>
-    <p>1. Toque em <b>Compartilhar</b></p>
-    <p>2. Toque em <b>Adicionar à Tela de Início</b></p>
-
-  </div>
-
-</div>
-
-<script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
 

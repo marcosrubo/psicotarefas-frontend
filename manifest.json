@@ -1,57 +1,23 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PsicoTarefas</title>
-
-  <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="PsicoTarefas - acompanhamento de atividades terapêuticas" />
-
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-
-<div class="container">
-
-  <h1>PsicoTarefas</h1>
-  <p>Organize pacientes, atividades e acompanhamentos de forma simples.</p>
-
-  <div class="card">
-    <h2>👩‍⚕️ Pacientes</h2>
-    <p>Cadastre e acompanhe os pacientes.</p>
-  </div>
-
-  <div class="card">
-    <h2>📝 Atividades</h2>
-    <p>Crie tarefas e exercícios para casa.</p>
-  </div>
-
-  <div class="card">
-    <h2>💡 Diferencial do sistema</h2>
-    <p>Propor atividades terapêuticas e acompanhar o progresso do paciente.</p>
-  </div>
-
-  <!-- 🔥 NOVA PARTE CORRETA -->
-  <div class="card">
-
-    <h3>📲 Instalar App</h3>
-
-    <p><strong>Android:</strong></p>
-    <button id="btnInstall" class="btn">Instalar (Android)</button>
-
-    <br><br>
-
-    <p><strong>iPhone (iOS):</strong></p>
-    <p>1. Toque em <b>Compartilhar</b></p>
-    <p>2. Toque em <b>Adicionar à Tela de Início</b></p>
-
-  </div>
-
-</div>
-
-<script src="app.js"></script>
-</body>
-</html>
+{
+  "name": "PsicoTarefas",
+  "short_name": "PsicoTarefas",
+  "description": "Acompanhamento de atividades terapêuticas",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#6d5efc",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
 
