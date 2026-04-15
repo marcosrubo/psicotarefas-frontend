@@ -128,7 +128,8 @@ a {
 }
 
 .highlight,
-.install-box {
+.install-box,
+.ios-box {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -141,17 +142,24 @@ a {
 }
 
 .highlight h3,
-.install-box h3 {
+.install-box h3,
+.ios-box h3 {
   margin: 0 0 8px;
   font-size: 17px;
 }
 
 .highlight p,
-.install-box p {
+.install-box p,
+.ios-box p {
   margin: 0;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.5;
+}
+
+.install-section {
+  display: grid;
+  gap: 14px;
 }
 
 .install-box {
@@ -165,6 +173,12 @@ a {
   flex: 1;
 }
 
+.ios-box__content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .btn-primary {
   border: none;
   border-radius: 14px;
@@ -174,7 +188,8 @@ a {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  min-width: 100px;
+  min-width: 130px;
+  white-space: nowrap;
 }
 
 .btn-primary:active {
