@@ -60,8 +60,23 @@ a {
   margin-bottom: 14px;
 }
 
+.hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.hero__logo {
+  width: 62px;
+  height: 62px;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  flex-shrink: 0;
+}
+
 .hero__title {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 32px;
   line-height: 1.05;
 }
@@ -72,6 +87,13 @@ a {
   line-height: 1.5;
   color: var(--muted);
   max-width: 520px;
+}
+
+.hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 22px;
 }
 
 .main-content {
@@ -185,19 +207,26 @@ a {
   gap: 6px;
 }
 
-.btn-primary {
+.btn-primary,
+.btn-secondary {
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
   padding: 12px 18px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   min-width: 170px;
   white-space: nowrap;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
   box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
-  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .btn-primary:hover {
@@ -208,6 +237,25 @@ a {
   transform: scale(0.98);
 }
 
+.btn-secondary {
+  background: #ffffff;
+  color: var(--primary-dark);
+  border: 1px solid rgba(109, 94, 252, 0.22);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-secondary:hover {
+  background: #f8f7ff;
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary--button {
+  font-family: inherit;
+}
+
 .footer {
   padding: 14px 18px 24px;
   color: var(--muted);
@@ -215,6 +263,36 @@ a {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .hero__brand {
+    align-items: flex-start;
+  }
+
+  .hero__logo {
+    width: 54px;
+    height: 54px;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .install-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primary--button {
+    width: 100%;
+  }
 }
 
 @media (min-width: 768px) {
@@ -233,6 +311,11 @@ a {
     font-size: 40px;
   }
 
+  .hero__logo {
+    width: 72px;
+    height: 72px;
+  }
+
   .main-content {
     padding: 24px 24px 34px;
   }
@@ -245,4 +328,6 @@ a {
     grid-column: 1 / -1;
   }
 }
+
+
 

@@ -15,6 +15,8 @@
   />
 
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -22,11 +24,23 @@
     <header class="hero">
       <div class="hero__badge">PWA • Mobile First</div>
 
-      <h1 class="hero__title">PsicoTarefas</h1>
+      <div class="hero__brand">
+        <img
+          src="./assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="hero__logo"
+        />
+        <h1 class="hero__title">PsicoTarefas</h1>
+      </div>
 
       <p class="hero__subtitle">
         Organize pacientes, atividades e acompanhamentos de forma simples, bonita e prática.
       </p>
+
+      <div class="hero__actions">
+        <a class="btn-primary" href="./auth/index.html">ENTRAR</a>
+        <a class="btn-secondary" href="./auth/index.html?modo=signup">CRIAR CONTA</a>
+      </div>
     </header>
 
     <main class="main-content">
@@ -70,7 +84,9 @@
             <h3>Instalar App (Android)</h3>
             <p>Adicione o PsicoTarefas à tela inicial para usar como aplicativo.</p>
           </div>
-          <button id="btnInstall" class="btn-primary">Instalar (Android)</button>
+          <button id="btnInstall" class="btn-primary btn-primary--button">
+            Instalar (Android)
+          </button>
         </section>
 
         <section class="ios-box">
@@ -92,4 +108,6 @@
   <script src="./app.js"></script>
 </body>
 </html>
+
+
 
