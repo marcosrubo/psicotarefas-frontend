@@ -36,6 +36,12 @@ a {
   color: inherit;
 }
 
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -64,7 +70,6 @@ a {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 10px;
 }
 
 .hero__logo {
@@ -73,6 +78,12 @@ a {
   border-radius: 16px;
   box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
   flex-shrink: 0;
+}
+
+.hero__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .hero__title {
@@ -84,16 +95,9 @@ a {
 .hero__subtitle {
   margin: 0;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--muted);
-  max-width: 520px;
-}
-
-.hero__actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 22px;
+  max-width: 620px;
 }
 
 .main-content {
@@ -101,58 +105,105 @@ a {
   padding: 16px 16px 28px;
 }
 
-.quick-actions {
+.audience-section {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 18px;
 }
 
-.action-card {
-  display: flex;
-  gap: 14px;
-  align-items: center;
+.audience-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px 16px;
+  padding: 20px 16px;
   box-shadow: var(--shadow);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.action-card:hover {
-  box-shadow: 0 14px 34px rgba(41, 47, 76, 0.12);
+.audience-card--patient {
+  background:
+    linear-gradient(180deg, rgba(109, 94, 252, 0.05), rgba(255, 255, 255, 1) 48%);
 }
 
-.action-card:active {
-  transform: scale(0.99);
+.audience-card--professional {
+  background:
+    linear-gradient(180deg, rgba(52, 168, 83, 0.05), rgba(255, 255, 255, 1) 48%);
 }
 
-.action-card__icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+.audience-card__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.audience-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
   background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(109, 94, 252, 0.22));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 26px;
   flex-shrink: 0;
 }
 
-.action-card__text h2 {
-  margin: 0 0 6px;
-  font-size: 18px;
+.audience-card--professional .audience-card__icon {
+  background: linear-gradient(135deg, rgba(52, 168, 83, 0.10), rgba(52, 168, 83, 0.20));
 }
 
-.action-card__text p {
+.audience-card__label {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--primary-dark);
+}
+
+.audience-card--professional .audience-card__label {
+  color: #2f855a;
+}
+
+.audience-card h2 {
   margin: 0;
+  font-size: 22px;
+}
+
+.audience-card__description {
+  margin: 0 0 14px;
   color: var(--muted);
   font-size: 14px;
+  line-height: 1.6;
+}
+
+.audience-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.audience-list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 14px;
+  color: #334155;
   line-height: 1.45;
 }
 
-.action-card--disabled {
-  opacity: 0.72;
+.audience-list li::before {
+  content: "•";
+  position: absolute;
+  left: 6px;
+  top: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.audience-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .highlight,
@@ -221,6 +272,7 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .btn-primary {
@@ -233,7 +285,8 @@ a {
   box-shadow: 0 14px 30px rgba(109, 94, 252, 0.34);
 }
 
-.btn-primary:active {
+.btn-primary:active,
+.btn-secondary:active {
   transform: scale(0.98);
 }
 
@@ -246,10 +299,6 @@ a {
 
 .btn-secondary:hover {
   background: #f8f7ff;
-}
-
-.btn-secondary:active {
-  transform: scale(0.98);
 }
 
 .btn-primary--button {
@@ -275,21 +324,13 @@ a {
     height: 54px;
   }
 
-  .hero__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    width: 100%;
-  }
-
   .install-box {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .btn-primary,
+  .btn-secondary,
   .btn-primary--button {
     width: 100%;
   }
@@ -297,7 +338,7 @@ a {
 
 @media (min-width: 768px) {
   .app-shell {
-    max-width: 760px;
+    max-width: 900px;
     margin: 0 auto;
   }
 
@@ -320,14 +361,11 @@ a {
     padding: 24px 24px 34px;
   }
 
-  .quick-actions {
+  .audience-section {
     grid-template-columns: 1fr 1fr;
   }
 
-  .action-card--disabled {
-    grid-column: 1 / -1;
+  .audience-card {
+    padding: 22px 20px;
   }
 }
-
-
-

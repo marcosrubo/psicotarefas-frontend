@@ -34,5 +34,3 @@ window.addEventListener("appinstalled", () => {
   }
 });
 
-
-

@@ -30,51 +30,85 @@
           alt="Ícone do PsicoTarefas"
           class="hero__logo"
         />
-        <h1 class="hero__title">PsicoTarefas</h1>
-      </div>
-
-      <p class="hero__subtitle">
-        Organize pacientes, atividades e acompanhamentos de forma simples, bonita e prática.
-      </p>
-
-      <div class="hero__actions">
-        <a class="btn-primary" href="./auth/index.html">ENTRAR</a>
-        <a class="btn-secondary" href="./auth/index.html?modo=signup">CRIAR CONTA</a>
+        <div class="hero__brand-text">
+          <h1 class="hero__title">PsicoTarefas</h1>
+          <p class="hero__subtitle">
+            Um espaço organizado para conectar profissional e paciente por meio
+            de tarefas terapêuticas, respostas e acompanhamento.
+          </p>
+        </div>
       </div>
     </header>
 
     <main class="main-content">
-      <section class="quick-actions">
-        <a class="action-card" href="javascript:void(0)">
-          <div class="action-card__icon">🧑‍⚕️</div>
-          <div class="action-card__text">
-            <h2>Pacientes</h2>
-            <p>Cadastre e acompanhe os pacientes.</p>
+      <section class="audience-section">
+        <article class="audience-card audience-card--patient">
+          <div class="audience-card__header">
+            <div class="audience-card__icon">🧠</div>
+            <div>
+              <p class="audience-card__label">Área do paciente</p>
+              <h2>Para pacientes</h2>
+            </div>
           </div>
-        </a>
 
-        <a class="action-card" href="javascript:void(0)">
-          <div class="action-card__icon">📝</div>
-          <div class="action-card__text">
-            <h2>Atividades</h2>
-            <p>Crie tarefas e exercícios para casa.</p>
-          </div>
-        </a>
+          <p class="audience-card__description">
+            Acesse suas tarefas, acompanhe orientações do profissional e envie
+            suas respostas de forma simples e prática.
+          </p>
 
-        <a class="action-card action-card--disabled" href="javascript:void(0)">
-          <div class="action-card__icon">💬</div>
-          <div class="action-card__text">
-            <h2>Respostas</h2>
-            <p>Em breve: retorno e acompanhamento do paciente.</p>
+          <ul class="audience-list">
+            <li>Realizar tarefas terapêuticas</li>
+            <li>Consultar orientações recebidas</li>
+            <li>Enviar respostas e devolutivas</li>
+          </ul>
+
+          <div class="audience-card__actions">
+            <a class="btn-primary" href="./auth/index.html?perfil=paciente">
+              ENTRAR COMO PACIENTE
+            </a>
+            <a class="btn-secondary" href="./auth/index.html?modo=signup&perfil=paciente">
+              CRIAR CONTA DE PACIENTE
+            </a>
           </div>
-        </a>
+        </article>
+
+        <article class="audience-card audience-card--professional">
+          <div class="audience-card__header">
+            <div class="audience-card__icon">🧑‍💼</div>
+            <div>
+              <p class="audience-card__label">Área do profissional</p>
+              <h2>Para profissional</h2>
+            </div>
+          </div>
+
+          <p class="audience-card__description">
+            Gerencie pacientes, atribua tarefas, acompanhe respostas e organize
+            o processo terapêutico com mais clareza.
+          </p>
+
+          <ul class="audience-list">
+            <li>Cadastrar e acompanhar pacientes</li>
+            <li>Criar e atribuir tarefas terapêuticas</li>
+            <li>Visualizar respostas e evolução</li>
+          </ul>
+
+          <div class="audience-card__actions">
+            <a class="btn-primary" href="./auth/index.html?perfil=profissional">
+              ENTRAR COMO PROFISSIONAL
+            </a>
+            <a class="btn-secondary" href="./auth/index.html?modo=signup&perfil=profissional">
+              CRIAR CONTA DE PROFISSIONAL
+            </a>
+          </div>
+        </article>
       </section>
 
       <section class="highlight">
         <h3>Diferencial do sistema</h3>
         <p>
-          O foco do PsicoTarefas é ajudar a psicóloga a propor atividades terapêuticas
-          para o paciente realizar em casa e acompanhar esse processo de forma organizada.
+          O PsicoTarefas foi pensado para facilitar o uso real no dia a dia:
+          o profissional propõe atividades, o paciente responde com praticidade
+          e ambos acompanham esse processo de forma organizada.
         </p>
       </section>
 
@@ -108,6 +142,4 @@
   <script src="./app.js"></script>
 </body>
 </html>
-
-
 
