@@ -1,3 +1,5 @@
+import supabase from "../shared/supabase.js";
+
 const params = new URLSearchParams(window.location.search);
 
 const modo = params.get("modo") || "login";
@@ -32,11 +34,6 @@ const footerLink = document.getElementById("footerLink");
 
 const toggleButtons = document.querySelectorAll(".toggle-password");
 
-function capitalizar(texto) {
-  if (!texto) return "";
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
-}
-
 function limparErros() {
   erroNome.textContent = "";
   erroEmail.textContent = "";
@@ -65,15 +62,22 @@ function perfilLabel() {
   return perfil === "profissional" ? "Profissional" : "Paciente";
 }
 
-function modoLabel() {
-  return ehModoSignup() ? "Cadastro" : "Login";
-}
-
 function configurarTela() {
-  pillPerfil.textContent = perfilLabel();
-  pillModo.textContent = modoLabel();
+  const signup = ehModoSignup();
 
-  if (ehModoSignup()) {
+  pillPerfil.textContent = perfilLabel();
+  pillModo.textContent = signup ? "Cadastro" : "Login";
+
+  groupNome.hidden = !signup;
+  groupConfirmarSenha.hidden = !signup;
+  formOptions.hidden = signup;
+
+  if (!signup) {
+    nomeInput.value = "";
+    confirmarSenhaInput.value = "";
+  }
+
+  if (signup) {
     authBadge.textContent = `Cadastro de ${perfilLabel().toLowerCase()}`;
     authTitle.textContent =
       perfil === "profissional"
@@ -84,10 +88,6 @@ function configurarTela() {
       perfil === "profissional"
         ? "Crie sua conta para começar a acompanhar pacientes, atribuir tarefas e organizar seu trabalho no PsicoTarefas."
         : "Crie sua conta para acessar a plataforma, acompanhar tarefas e, quando quiser, solicitar vínculo com um profissional.";
-
-    groupNome.hidden = false;
-    groupConfirmarSenha.hidden = false;
-    formOptions.hidden = true;
 
     btnSubmit.textContent =
       perfil === "profissional"
@@ -108,10 +108,6 @@ function configurarTela() {
       perfil === "profissional"
         ? "Acesse sua conta para gerenciar pacientes, tarefas e respostas no PsicoTarefas."
         : "Acesse sua conta para consultar tarefas, responder atividades e acompanhar seu processo no PsicoTarefas.";
-
-    groupNome.hidden = true;
-    groupConfirmarSenha.hidden = true;
-    formOptions.hidden = false;
 
     btnSubmit.textContent = "Entrar";
 
@@ -187,7 +183,7 @@ toggleButtons.forEach((button) => {
   });
 });
 
-authForm.addEventListener("submit", (event) => {
+authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!validarFormulario()) {
@@ -195,16 +191,57 @@ authForm.addEventListener("submit", (event) => {
     return;
   }
 
-  if (ehModoSignup()) {
-    mostrarMensagem(
-      `Cadastro de ${perfilLabel().toLowerCase()} validado com sucesso. No próximo passo vamos ligar esta tela ao Supabase.`,
-      "success"
-    );
-  } else {
-    mostrarMensagem(
-      `Login de ${perfilLabel().toLowerCase()} validado com sucesso. No próximo passo vamos ligar esta tela ao Supabase.`,
-      "success"
-    );
+  const email = emailInput.value.trim();
+  const senha = senhaInput.value;
+  const nome = nomeInput.value.trim();
+
+  btnSubmit.disabled = true;
+  btnSubmit.textContent = ehModoSignup() ? "Criando conta..." : "Entrando...";
+
+  try {
+    if (ehModoSignup()) {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: senha,
+        options: {
+          data: {
+            nome,
+            perfil
+          }
+        }
+      });
+
+      if (error) {
+        mostrarMensagem(error.message, "error");
+        return;
+      }
+
+      mostrarMensagem("Conta criada com sucesso! Agora vamos seguir para os próximos ajustes do sistema.", "success");
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha
+      });
+
+      if (error) {
+        mostrarMensagem("E-mail ou senha inválidos.", "error");
+        return;
+      }
+
+      mostrarMensagem("Login realizado com sucesso!", "success");
+    }
+
+    setTimeout(() => {
+      window.location.href = "../dashboard/index.html";
+    }, 1000);
+  } catch (erro) {
+    mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
+    console.error(erro);
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = ehModoSignup()
+      ? (perfil === "profissional" ? "Criar conta de profissional" : "Criar conta de paciente")
+      : "Entrar";
   }
 });
 
