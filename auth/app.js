@@ -62,6 +62,15 @@ function perfilLabel() {
   return perfil === "profissional" ? "Profissional" : "Paciente";
 }
 
+function textoBotaoPadrao() {
+  if (ehModoSignup()) {
+    return perfil === "profissional"
+      ? "Criar conta de profissional"
+      : "Criar conta de paciente";
+  }
+  return "Entrar";
+}
+
 function configurarTela() {
   const signup = ehModoSignup();
 
@@ -89,10 +98,7 @@ function configurarTela() {
         ? "Crie sua conta para começar a acompanhar pacientes, atribuir tarefas e organizar seu trabalho no PsicoTarefas."
         : "Crie sua conta para acessar a plataforma, acompanhar tarefas e, quando quiser, solicitar vínculo com um profissional.";
 
-    btnSubmit.textContent =
-      perfil === "profissional"
-        ? "Criar conta de profissional"
-        : "Criar conta de paciente";
+    btnSubmit.textContent = textoBotaoPadrao();
 
     footerText.textContent = "Já tem conta?";
     footerLink.textContent = "Entrar";
@@ -109,7 +115,7 @@ function configurarTela() {
         ? "Acesse sua conta para gerenciar pacientes, tarefas e respostas no PsicoTarefas."
         : "Acesse sua conta para consultar tarefas, responder atividades e acompanhar seu processo no PsicoTarefas.";
 
-    btnSubmit.textContent = "Entrar";
+    btnSubmit.textContent = textoBotaoPadrao();
 
     footerText.textContent = "Ainda não tem conta?";
     footerLink.textContent =
@@ -130,11 +136,9 @@ function validarFormulario() {
   const senha = senhaInput.value;
   const confirmarSenha = confirmarSenhaInput.value;
 
-  if (ehModoSignup()) {
-    if (!nome) {
-      erroNome.textContent = "Informe seu nome.";
-      valido = false;
-    }
+  if (ehModoSignup() && !nome) {
+    erroNome.textContent = "Informe seu nome.";
+    valido = false;
   }
 
   if (!email) {
@@ -199,8 +203,14 @@ authForm.addEventListener("submit", async (event) => {
   btnSubmit.textContent = ehModoSignup() ? "Criando conta..." : "Entrando...";
 
   try {
+    console.log("=== AUTH DEBUG START ===");
+    console.log("modo:", modo);
+    console.log("perfil:", perfil);
+    console.log("email:", email);
+    console.log("supabase carregado:", !!supabase);
+
     if (ehModoSignup()) {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password: senha,
         options: {
@@ -211,37 +221,62 @@ authForm.addEventListener("submit", async (event) => {
         }
       });
 
+      console.log("SIGNUP data:", data);
+      console.log("SIGNUP error:", error);
+
       if (error) {
         mostrarMensagem(error.message, "error");
         return;
       }
 
-      mostrarMensagem("Conta criada com sucesso! Agora vamos seguir para os próximos ajustes do sistema.", "success");
+      if (!data || !data.user) {
+        mostrarMensagem(
+          "O Supabase não retornou o usuário criado. Confira a configuração de autenticação por e-mail no projeto.",
+          "error"
+        );
+        return;
+      }
+
+      mostrarMensagem("Conta criada com sucesso!", "success");
+
+      setTimeout(() => {
+        window.location.href = "../dashboard/index.html";
+      }, 1000);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password: senha
       });
+
+      console.log("LOGIN data:", data);
+      console.log("LOGIN error:", error);
 
       if (error) {
         mostrarMensagem("E-mail ou senha inválidos.", "error");
         return;
       }
 
-      mostrarMensagem("Login realizado com sucesso!", "success");
-    }
+      if (!data || !data.user) {
+        mostrarMensagem(
+          "O Supabase não retornou um usuário válido no login.",
+          "error"
+        );
+        return;
+      }
 
-    setTimeout(() => {
-      window.location.href = "../dashboard/index.html";
-    }, 1000);
+      mostrarMensagem("Login realizado com sucesso!", "success");
+
+      setTimeout(() => {
+        window.location.href = "../dashboard/index.html";
+      }, 1000);
+    }
   } catch (erro) {
+    console.error("AUTH catch error:", erro);
     mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
-    console.error(erro);
   } finally {
+    console.log("=== AUTH DEBUG END ===");
     btnSubmit.disabled = false;
-    btnSubmit.textContent = ehModoSignup()
-      ? (perfil === "profissional" ? "Criar conta de profissional" : "Criar conta de paciente")
-      : "Entrar";
+    btnSubmit.textContent = textoBotaoPadrao();
   }
 });
 
