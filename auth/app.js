@@ -281,6 +281,8 @@ authForm.addEventListener("submit", async (event) => {
     setTimeout(() => {
       window.location.href = montarUrlDashboard();
     }, 1200);
+
+    return;
   } catch (erro) {
     console.error("AUTH catch error:", erro);
     mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
