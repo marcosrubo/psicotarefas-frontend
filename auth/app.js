@@ -71,6 +71,14 @@ function textoBotaoPadrao() {
   return "Entrar";
 }
 
+function montarUrlDashboard() {
+  if (perfil === "profissional") {
+    return "../dashboard/index.html?perfil=profissional";
+  }
+
+  return "../dashboard/index.html?perfil=paciente&estado=sem_vinculo";
+}
+
 function configurarTela() {
   const signup = ehModoSignup();
 
@@ -203,12 +211,6 @@ authForm.addEventListener("submit", async (event) => {
   btnSubmit.textContent = ehModoSignup() ? "Criando conta..." : "Entrando...";
 
   try {
-    console.log("=== AUTH DEBUG START ===");
-    console.log("modo:", modo);
-    console.log("perfil:", perfil);
-    console.log("email:", email);
-    console.log("supabase carregado:", !!supabase);
-
     if (ehModoSignup()) {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -244,8 +246,12 @@ authForm.addEventListener("submit", async (event) => {
         return;
       }
 
-      mostrarMensagem(`Conta criada com sucesso! UID: ${data.user.id}`, "success");
-      console.log("Usuário criado com UID:", data.user.id);
+      mostrarMensagem("Conta criada com sucesso! Redirecionando...", "success");
+
+      setTimeout(() => {
+        window.location.href = montarUrlDashboard();
+      }, 1200);
+
       return;
     }
 
@@ -270,13 +276,15 @@ authForm.addEventListener("submit", async (event) => {
       return;
     }
 
-    mostrarMensagem(`Login realizado com sucesso! UID: ${data.user.id}`, "success");
-    console.log("Usuário autenticado com UID:", data.user.id);
+    mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
+
+    setTimeout(() => {
+      window.location.href = montarUrlDashboard();
+    }, 1200);
   } catch (erro) {
     console.error("AUTH catch error:", erro);
     mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
   } finally {
-    console.log("=== AUTH DEBUG END ===");
     btnSubmit.disabled = false;
     btnSubmit.textContent = textoBotaoPadrao();
   }
