@@ -1,7 +1,5 @@
 import supabase from "../shared/supabase.js";
 
-const BACKEND_URL = "https://psicotarefas-backend.onrender.com";
-
 const params = new URLSearchParams(window.location.search);
 
 const modo = params.get("modo") || "login";
@@ -181,29 +179,6 @@ function validarFormulario() {
   return valido;
 }
 
-async function cadastrarViaBackend({ nome, email, senha, perfil }) {
-  const response = await fetch(`${BACKEND_URL}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      nome,
-      email,
-      password: senha,
-      perfil
-    })
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.error || "Erro ao criar conta.");
-  }
-
-  return result;
-}
-
 async function buscarPerfilUsuario(userId) {
   const { data, error } = await supabase
     .from("perfis")
@@ -218,6 +193,28 @@ async function buscarPerfilUsuario(userId) {
   return data;
 }
 
+async function cadastrarUsuario({ nome, email, senha, perfil }) {
+  const redirectUrl = `${window.location.origin}/auth/index.html?perfil=${perfil}`;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: senha,
+    options: {
+      emailRedirectTo: redirectUrl,
+      data: {
+        nome,
+        perfil
+      }
+    }
+  });
+
+  if (error) {
+    throw new Error(error.message || "Erro ao criar conta.");
+  }
+
+  return data;
+}
+
 async function fazerLogin(email, senha) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -225,11 +222,29 @@ async function fazerLogin(email, senha) {
   });
 
   if (error) {
+    const msg = (error.message || "").toLowerCase();
+
+    if (
+      msg.includes("email not confirmed") ||
+      msg.includes("email_not_confirmed")
+    ) {
+      throw new Error(
+        "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada antes de entrar."
+      );
+    }
+
     throw new Error("E-mail ou senha inválidos.");
   }
 
   if (!data || !data.user) {
     throw new Error("O Supabase não retornou um usuário válido no login.");
+  }
+
+  if (!data.user.email_confirmed_at) {
+    await supabase.auth.signOut();
+    throw new Error(
+      "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada antes de entrar."
+    );
   }
 
   return data.user;
@@ -261,7 +276,7 @@ authForm.addEventListener("submit", async (event) => {
   }
 
   const nome = nomeInput.value.trim();
-  const email = emailInput.value.trim();
+  const email = emailInput.value.trim().toLowerCase();
   const senha = senhaInput.value;
 
   btnSubmit.disabled = true;
@@ -269,31 +284,17 @@ authForm.addEventListener("submit", async (event) => {
 
   try {
     if (ehModoSignup()) {
-      await cadastrarViaBackend({
+      await cadastrarUsuario({
         nome,
         email,
         senha,
         perfil
       });
 
-      const user = await fazerLogin(email, senha);
-      const perfilUsuario = await buscarPerfilUsuario(user.id);
-
-      if (perfilUsuario.perfil !== perfil) {
-        await supabase.auth.signOut();
-        mostrarMensagem(
-          "A conta foi criada, mas houve inconsistência no perfil de acesso.",
-          "error"
-        );
-        return;
-      }
-
-      mostrarMensagem("Conta criada com sucesso! Redirecionando...", "success");
-
-      setTimeout(() => {
-        window.location.href = montarUrlDashboard(perfilUsuario.perfil);
-      }, 1200);
-
+      mostrarMensagem(
+        "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema.",
+        "success"
+      );
       return;
     }
 
