@@ -225,7 +225,14 @@ authForm.addEventListener("submit", async (event) => {
       console.log("SIGNUP error:", error);
 
       if (error) {
-        mostrarMensagem(error.message, "error");
+        if (error.message?.toLowerCase().includes("rate limit")) {
+          mostrarMensagem(
+            "Muitas tentativas de cadastro em pouco tempo. Aguarde um pouco e tente novamente.",
+            "error"
+          );
+        } else {
+          mostrarMensagem(error.message, "error");
+        }
         return;
       }
 
@@ -237,39 +244,34 @@ authForm.addEventListener("submit", async (event) => {
         return;
       }
 
-      mostrarMensagem("Conta criada com sucesso!", "success");
-
-      setTimeout(() => {
-        window.location.href = "../dashboard/index.html";
-      }, 1000);
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: senha
-      });
-
-      console.log("LOGIN data:", data);
-      console.log("LOGIN error:", error);
-
-      if (error) {
-        mostrarMensagem("E-mail ou senha inválidos.", "error");
-        return;
-      }
-
-      if (!data || !data.user) {
-        mostrarMensagem(
-          "O Supabase não retornou um usuário válido no login.",
-          "error"
-        );
-        return;
-      }
-
-      mostrarMensagem("Login realizado com sucesso!", "success");
-
-      setTimeout(() => {
-        window.location.href = "../dashboard/index.html";
-      }, 1000);
+      mostrarMensagem(`Conta criada com sucesso! UID: ${data.user.id}`, "success");
+      console.log("Usuário criado com UID:", data.user.id);
+      return;
     }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: senha
+    });
+
+    console.log("LOGIN data:", data);
+    console.log("LOGIN error:", error);
+
+    if (error) {
+      mostrarMensagem("E-mail ou senha inválidos.", "error");
+      return;
+    }
+
+    if (!data || !data.user) {
+      mostrarMensagem(
+        "O Supabase não retornou um usuário válido no login.",
+        "error"
+      );
+      return;
+    }
+
+    mostrarMensagem(`Login realizado com sucesso! UID: ${data.user.id}`, "success");
+    console.log("Usuário autenticado com UID:", data.user.id);
   } catch (erro) {
     console.error("AUTH catch error:", erro);
     mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
