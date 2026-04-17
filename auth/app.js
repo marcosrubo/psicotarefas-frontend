@@ -74,8 +74,8 @@ function textoBotaoPadrao() {
   return "Entrar";
 }
 
-function montarUrlDashboard() {
-  if (perfil === "profissional") {
+function montarUrlDashboard(perfilReal) {
+  if (perfilReal === "profissional") {
     return "../dashboard/index.html?perfil=profissional";
   }
 
@@ -204,6 +204,37 @@ async function cadastrarViaBackend({ nome, email, senha, perfil }) {
   return result;
 }
 
+async function buscarPerfilUsuario(userId) {
+  const { data, error } = await supabase
+    .from("perfis")
+    .select("perfil, nome, email")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    throw new Error("Não foi possível localizar o perfil do usuário.");
+  }
+
+  return data;
+}
+
+async function fazerLogin(email, senha) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password: senha
+  });
+
+  if (error) {
+    throw new Error("E-mail ou senha inválidos.");
+  }
+
+  if (!data || !data.user) {
+    throw new Error("O Supabase não retornou um usuário válido no login.");
+  }
+
+  return data.user;
+}
+
 toggleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const targetId = button.getAttribute("data-target");
@@ -245,37 +276,25 @@ authForm.addEventListener("submit", async (event) => {
         perfil
       });
 
+      const user = await fazerLogin(email, senha);
+      const perfilUsuario = await buscarPerfilUsuario(user.id);
+
       mostrarMensagem("Conta criada com sucesso! Redirecionando...", "success");
 
       setTimeout(() => {
-        window.location.href = montarUrlDashboard();
+        window.location.href = montarUrlDashboard(perfilUsuario.perfil);
       }, 1200);
 
       return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: senha
-    });
-
-    if (error) {
-      mostrarMensagem("E-mail ou senha inválidos.", "error");
-      return;
-    }
-
-    if (!data || !data.user) {
-      mostrarMensagem(
-        "O Supabase não retornou um usuário válido no login.",
-        "error"
-      );
-      return;
-    }
+    const user = await fazerLogin(email, senha);
+    const perfilUsuario = await buscarPerfilUsuario(user.id);
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
 
     setTimeout(() => {
-      window.location.href = montarUrlDashboard();
+      window.location.href = montarUrlDashboard(perfilUsuario.perfil);
     }, 1200);
   } catch (erro) {
     mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
