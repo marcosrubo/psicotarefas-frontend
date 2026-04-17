@@ -1,5 +1,7 @@
 import supabase from "../shared/supabase.js";
 
+const BACKEND_URL = "https://psicotarefas-backend.onrender.com";
+
 const params = new URLSearchParams(window.location.search);
 
 const modo = params.get("modo") || "login";
@@ -11,7 +13,6 @@ const authBadge = document.getElementById("authBadge");
 const pillPerfil = document.getElementById("pillPerfil");
 const pillModo = document.getElementById("pillModo");
 
-const authForm = document.getElementById("authForm");
 const groupNome = document.getElementById("groupNome");
 const groupConfirmarSenha = document.getElementById("groupConfirmarSenha");
 
@@ -33,6 +34,7 @@ const footerText = document.getElementById("footerText");
 const footerLink = document.getElementById("footerLink");
 
 const toggleButtons = document.querySelectorAll(".toggle-password");
+const authForm = document.getElementById("authForm");
 
 function limparErros() {
   erroNome.textContent = "";
@@ -68,6 +70,7 @@ function textoBotaoPadrao() {
       ? "Criar conta de profissional"
       : "Criar conta de paciente";
   }
+
   return "Entrar";
 }
 
@@ -178,6 +181,29 @@ function validarFormulario() {
   return valido;
 }
 
+async function cadastrarViaBackend({ nome, email, senha, perfil }) {
+  const response = await fetch(`${BACKEND_URL}/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nome,
+      email,
+      password: senha,
+      perfil
+    })
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error || "Erro ao criar conta.");
+  }
+
+  return result;
+}
+
 toggleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const targetId = button.getAttribute("data-target");
@@ -203,45 +229,21 @@ authForm.addEventListener("submit", async (event) => {
     return;
   }
 
+  const nome = nomeInput.value.trim();
   const email = emailInput.value.trim();
   const senha = senhaInput.value;
-  const nome = nomeInput.value.trim();
 
   btnSubmit.disabled = true;
   btnSubmit.textContent = ehModoSignup() ? "Criando conta..." : "Entrando...";
 
   try {
     if (ehModoSignup()) {
-      const { data, error } = await supabase.auth.signUp({
+      await cadastrarViaBackend({
+        nome,
         email,
-        password: senha,
-        options: {
-          data: {
-            nome,
-            perfil
-          }
-        }
+        senha,
+        perfil
       });
-
-      if (error) {
-        if (error.message?.toLowerCase().includes("rate limit")) {
-          mostrarMensagem(
-            "Muitas tentativas de cadastro em pouco tempo. Aguarde um pouco e tente novamente.",
-            "error"
-          );
-        } else {
-          mostrarMensagem(error.message, "error");
-        }
-        return;
-      }
-
-      if (!data || !data.user) {
-        mostrarMensagem(
-          "O Supabase não retornou o usuário criado. Confira a configuração de autenticação por e-mail no projeto.",
-          "error"
-        );
-        return;
-      }
 
       mostrarMensagem("Conta criada com sucesso! Redirecionando...", "success");
 
@@ -276,8 +278,7 @@ authForm.addEventListener("submit", async (event) => {
       window.location.href = montarUrlDashboard();
     }, 1200);
   } catch (erro) {
-    console.error("AUTH catch error:", erro);
-    mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
+    mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
   } finally {
     btnSubmit.disabled = false;
     btnSubmit.textContent = textoBotaoPadrao();
