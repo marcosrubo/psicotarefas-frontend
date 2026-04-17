@@ -223,9 +223,6 @@ authForm.addEventListener("submit", async (event) => {
         }
       });
 
-      console.log("SIGNUP data:", data);
-      console.log("SIGNUP error:", error);
-
       if (error) {
         if (error.message?.toLowerCase().includes("rate limit")) {
           mostrarMensagem(
@@ -260,9 +257,6 @@ authForm.addEventListener("submit", async (event) => {
       password: senha
     });
 
-    console.log("LOGIN data:", data);
-    console.log("LOGIN error:", error);
-
     if (error) {
       mostrarMensagem("E-mail ou senha inválidos.", "error");
       return;
@@ -281,8 +275,6 @@ authForm.addEventListener("submit", async (event) => {
     setTimeout(() => {
       window.location.href = montarUrlDashboard();
     }, 1200);
-
-    return;
   } catch (erro) {
     console.error("AUTH catch error:", erro);
     mostrarMensagem("Ocorreu um erro inesperado. Tente novamente.", "error");
