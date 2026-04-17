@@ -1,224 +1,337 @@
-// ================================
-// Detectar perfil pela URL
-// ================================
-const params = new URLSearchParams(window.location.search);
+import supabase from "../shared/supabase.js";
 
-const perfil = params.get("perfil") || "profissional"; 
-const estado = params.get("estado") || "vinculado"; 
-
-// ================================
-// Referências da tela
-// ================================
 const userName = document.getElementById("userName");
 const userRole = document.getElementById("userRole");
 const userAvatar = document.getElementById("userAvatar");
-
-const welcomeCard = document.getElementById("welcomeCard");
-const welcomeLabel = document.getElementById("welcomeLabel");
 const welcomeTitle = document.getElementById("welcomeTitle");
 const welcomeText = document.getElementById("welcomeText");
-const welcomeIcon = document.getElementById("welcomeIcon");
 
-const statsGrid = document.getElementById("statsGrid");
-const quickActions = document.getElementById("quickActions");
-const mainList = document.getElementById("mainList");
-const secondaryList = document.getElementById("secondaryList");
-const highlightBox = document.getElementById("highlightBox");
+const btnLogout = document.getElementById("btnLogout");
+const btnToggleInvite = document.getElementById("btnToggleInvite");
+const invitePanel = document.getElementById("invitePanel");
+const inviteForm = document.getElementById("inviteForm");
+const inviteMessage = document.getElementById("inviteMessage");
 
-const brandBadge = document.getElementById("brandBadge");
+const patientNameInput = document.getElementById("patientName");
+const patientWhatsappInput = document.getElementById("patientWhatsapp");
 
-// ================================
-// Helpers
-// ================================
-function createStat(label, value, hint) {
-  return `
-    <div class="stat-card">
-      <p class="stat-card__label">${label}</p>
-      <p class="stat-card__value">${value}</p>
-      <p class="stat-card__hint">${hint}</p>
-    </div>
-  `;
+const generatedLinkBox = document.getElementById("generatedLinkBox");
+const generatedLinkInput = document.getElementById("generatedLink");
+const btnCopyLink = document.getElementById("btnCopyLink");
+const btnOpenWhatsapp = document.getElementById("btnOpenWhatsapp");
+
+const invitesList = document.getElementById("invitesList");
+const emptyState = document.getElementById("emptyState");
+
+let currentUser = null;
+let currentProfile = null;
+let currentInviteLink = "";
+let currentWhatsappDigits = "";
+
+function mostrarMensagem(texto, tipo = "success") {
+  inviteMessage.hidden = false;
+  inviteMessage.textContent = texto;
+  inviteMessage.className = `form-message form-message--${tipo}`;
 }
 
-function createAction(icon, title, desc, tipo = "") {
-  return `
-    <div class="quick-action ${tipo}">
-      <div class="quick-action__icon">${icon}</div>
-      <div class="quick-action__content">
-        <strong>${title}</strong>
-        <span>${desc}</span>
-      </div>
-    </div>
-  `;
+function esconderMensagem() {
+  inviteMessage.hidden = true;
+  inviteMessage.textContent = "";
+  inviteMessage.className = "form-message";
 }
 
-function createItem(title, badge, desc, badgeClass = "badge-primary") {
-  return `
-    <div class="list-item">
-      <div class="list-item__top">
-        <p class="list-item__title">${title}</p>
-        <span class="list-item__badge ${badgeClass}">${badge}</span>
-      </div>
-      <p class="list-item__description">${desc}</p>
-    </div>
-  `;
+function obterIniciais(nome) {
+  if (!nome) return "PT";
+
+  return nome
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0].toUpperCase())
+    .join("");
 }
 
-function createHighlight(title, desc) {
-  return `
-    <div class="highlight-box__card">
-      <strong>${title}</strong>
-      <p>${desc}</p>
-    </div>
-  `;
+function normalizarWhatsapp(valor) {
+  return (valor || "").replace(/\D/g, "");
 }
 
-// ================================
-// PERFIL PROFISSIONAL
-// ================================
-function renderProfissional() {
-  brandBadge.textContent = "PROFISSIONAL";
+function formatarWhatsapp(valor) {
+  const digits = normalizarWhatsapp(valor).slice(0, 13);
 
-  userName.textContent = "Dr. João";
-  userRole.textContent = "Psicólogo";
-  userAvatar.textContent = "DR";
-
-  welcomeLabel.textContent = "Painel profissional";
-  welcomeTitle.textContent = "Gerencie seus atendimentos";
-  welcomeText.textContent =
-    "Aqui você acompanha pacientes, atividades e sua agenda.";
-  welcomeIcon.textContent = "📊";
-
-  statsGrid.innerHTML = `
-    ${createStat("Pacientes ativos", "24", "Em acompanhamento")}
-    ${createStat("Sessões hoje", "6", "Agenda cheia")}
-    ${createStat("Atividades enviadas", "12", "Este mês")}
-    ${createStat("Pendências", "3", "Revisões necessárias")}
-  `;
-
-  quickActions.innerHTML = `
-    ${createAction("👤", "Novo paciente", "Cadastrar paciente")}
-    ${createAction("🧠", "Nova atividade", "Criar atividade")}
-    ${createAction("📅", "Agenda", "Ver agenda")}
-    ${createAction("📄", "Relatórios", "Acompanhar evolução")}
-  `;
-
-  mainList.innerHTML = `
-    ${createItem("Paciente Maria", "Hoje", "Sessão às 14h")}
-    ${createItem("Paciente João", "Amanhã", "Sessão às 10h")}
-  `;
-
-  secondaryList.innerHTML = `
-    ${createItem("Atividade enviada", "Novo", "Para paciente Ana")}
-    ${createItem("Sessão concluída", "OK", "Paciente Carlos")}
-  `;
-
-  highlightBox.innerHTML = `
-    ${createHighlight("Plano Profissional", "Você está no plano básico")}
-    ${createHighlight("Uso", "24 pacientes cadastrados")}
-  `;
-}
-
-// ================================
-// PACIENTE VINCULADO
-// ================================
-function renderPacienteVinculado() {
-  brandBadge.textContent = "PACIENTE";
-
-  userName.textContent = "Maria";
-  userRole.textContent = "Paciente";
-  userAvatar.textContent = "MA";
-
-  welcomeCard.classList.add("welcome-card--patient");
-
-  welcomeLabel.textContent = "Seu espaço";
-  welcomeTitle.textContent = "Bem-vinda 🌿";
-  welcomeText.textContent =
-    "Aqui você acompanha suas atividades e evolução.";
-  welcomeIcon.textContent = "💚";
-
-  statsGrid.innerHTML = `
-    ${createStat("Atividades", "5", "Para você")}
-    ${createStat("Concluídas", "3", "Bom progresso")}
-    ${createStat("Próxima sessão", "Hoje", "às 15h")}
-    ${createStat("Mensagens", "2", "Não lidas")}
-  `;
-
-  quickActions.innerHTML = `
-    ${createAction("🧠", "Minhas atividades", "Ver tarefas", "quick-action--patient")}
-    ${createAction("💬", "Falar com psicólogo", "Enviar mensagem", "quick-action--patient")}
-    ${createAction("📅", "Agenda", "Ver consultas", "quick-action--patient")}
-  `;
-
-  mainList.innerHTML = `
-    ${createItem("Atividade emocional", "Novo", "Reflexão guiada", "badge-green")}
-    ${createItem("Exercício diário", "Hoje", "Registro emocional", "badge-green")}
-  `;
-
-  secondaryList.innerHTML = `
-    ${createItem("Mensagem recebida", "Novo", "Seu psicólogo respondeu", "badge-green")}
-  `;
-
-  highlightBox.classList.add("highlight-box--patient");
-  highlightBox.innerHTML = `
-    ${createHighlight("Seu acompanhamento", "Você está em progresso contínuo 💚")}
-  `;
-}
-
-// ================================
-// PACIENTE SEM VÍNCULO
-// ================================
-function renderPacienteOrfao() {
-  brandBadge.textContent = "PACIENTE";
-
-  userName.textContent = "Visitante";
-  userRole.textContent = "Sem vínculo";
-  userAvatar.textContent = "PV";
-
-  welcomeCard.classList.add("welcome-card--orphan");
-
-  welcomeLabel.textContent = "Bem-vindo";
-  welcomeTitle.textContent = "Vamos começar?";
-  welcomeText.textContent =
-    "Você ainda não está vinculado a um psicólogo.";
-  welcomeIcon.textContent = "🌱";
-
-  statsGrid.innerHTML = `
-    ${createStat("Perfil", "Criado", "Falta vincular")}
-    ${createStat("Atividades", "0", "Nenhuma ainda")}
-    ${createStat("Sessões", "-", "Sem agenda")}
-    ${createStat("Mensagens", "0", "Sem mensagens")}
-  `;
-
-  quickActions.innerHTML = `
-    ${createAction("🔎", "Buscar psicólogo", "Encontrar profissional", "quick-action--orphan")}
-    ${createAction("📨", "Solicitar vínculo", "Enviar pedido", "quick-action--orphan")}
-  `;
-
-  mainList.innerHTML = `
-    ${createItem("Comece agora", "Dica", "Busque um profissional", "badge-orange")}
-  `;
-
-  secondaryList.innerHTML = `
-    ${createItem("Dica", "Importante", "Vincule-se para usar o sistema", "badge-orange")}
-  `;
-
-  highlightBox.classList.add("highlight-box--orphan");
-  highlightBox.innerHTML = `
-    ${createHighlight("Próximo passo", "Escolher um psicólogo")}
-  `;
-}
-
-// ================================
-// Inicialização
-// ================================
-if (perfil === "profissional") {
-  renderProfissional();
-} else {
-  if (estado === "sem_vinculo") {
-    renderPacienteOrfao();
-  } else {
-    renderPacienteVinculado();
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   }
+
+  return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
 }
+
+function gerarTokenConvite() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  return `conv-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+function montarLinkConvite(token) {
+  return `${window.location.origin}/auth/index.html?modo=signup&perfil=paciente&convite=${encodeURIComponent(token)}`;
+}
+
+function montarMensagemWhatsapp(nomePaciente, link) {
+  return (
+    `Olá, ${nomePaciente}! ` +
+    `Seu psicólogo enviou um convite para acessar o PsicoTarefas.\n\n` +
+    `Use este link para entrar no sistema:\n${link}`
+  );
+}
+
+function renderInviteItem(convite) {
+  const criadoEm = new Date(convite.created_at).toLocaleDateString("pt-BR");
+  const whatsapp = formatarWhatsapp(convite.patient_whatsapp);
+
+  return `
+    <article class="invite-item">
+      <div class="invite-item__top">
+        <div>
+          <strong>${convite.patient_name}</strong>
+          <span>${whatsapp}</span>
+        </div>
+        <span class="invite-badge">${convite.status}</span>
+      </div>
+
+      <div class="invite-item__meta">
+        <span>Enviado em ${criadoEm}</span>
+      </div>
+
+      <div class="invite-item__actions">
+        <button
+          class="mini-btn mini-btn--ghost"
+          data-copy-link="${convite.invite_link}"
+          type="button"
+        >
+          Copiar link
+        </button>
+
+        <button
+          class="mini-btn"
+          data-whatsapp="${convite.patient_whatsapp}"
+          data-patient-name="${convite.patient_name}"
+          data-link="${convite.invite_link}"
+          type="button"
+        >
+          WhatsApp
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+async function carregarUsuario() {
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session?.user) {
+    window.location.href = "../auth/index.html?perfil=profissional";
+    return;
+  }
+
+  currentUser = session.user;
+
+  const { data: perfil, error } = await supabase
+    .from("perfis")
+    .select("nome, email, perfil")
+    .eq("user_id", currentUser.id)
+    .single();
+
+  if (error || !perfil) {
+    await supabase.auth.signOut();
+    window.location.href = "../auth/index.html?perfil=profissional";
+    return;
+  }
+
+  if (perfil.perfil !== "profissional") {
+    await supabase.auth.signOut();
+    window.location.href = "../auth/index.html?perfil=profissional";
+    return;
+  }
+
+  currentProfile = perfil;
+
+  userName.textContent = perfil.nome || "Profissional";
+  userRole.textContent = "Profissional";
+  userAvatar.textContent = obterIniciais(perfil.nome);
+  welcomeTitle.textContent = `Olá, ${perfil.nome?.split(" ")[0] || "Profissional"}`;
+  welcomeText.textContent =
+    "Convide pacientes e acompanhe seus convites de forma simples.";
+}
+
+async function carregarConvites() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabase
+    .from("convites")
+    .select("id, patient_name, patient_whatsapp, invite_link, status, created_at")
+    .eq("professional_user_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    invitesList.innerHTML = "";
+    emptyState.hidden = false;
+    emptyState.textContent = "Não foi possível carregar os convites.";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    invitesList.innerHTML = "";
+    emptyState.hidden = false;
+    emptyState.textContent = "Você ainda não enviou convites.";
+    return;
+  }
+
+  emptyState.hidden = true;
+  invitesList.innerHTML = data.map(renderInviteItem).join("");
+}
+
+async function copiarTexto(texto) {
+  await navigator.clipboard.writeText(texto);
+}
+
+function abrirWhatsapp(numero, nomePaciente, link) {
+  const digits = normalizarWhatsapp(numero);
+
+  if (!digits) {
+    mostrarMensagem("Informe um WhatsApp válido para abrir o envio.", "error");
+    return;
+  }
+
+  const mensagem = encodeURIComponent(montarMensagemWhatsapp(nomePaciente, link));
+  const url = `https://wa.me/${digits}?text=${mensagem}`;
+
+  window.open(url, "_blank");
+}
+
+btnToggleInvite.addEventListener("click", () => {
+  const aberto = !invitePanel.hidden;
+  invitePanel.hidden = aberto;
+
+  if (!aberto) {
+    patientNameInput.focus();
+  }
+});
+
+patientWhatsappInput.addEventListener("input", () => {
+  patientWhatsappInput.value = formatarWhatsapp(patientWhatsappInput.value);
+});
+
+inviteForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  esconderMensagem();
+
+  const patientName = patientNameInput.value.trim();
+  const patientWhatsapp = normalizarWhatsapp(patientWhatsappInput.value);
+
+  if (!patientName) {
+    mostrarMensagem("Informe o nome do paciente.", "error");
+    return;
+  }
+
+  if (patientWhatsapp.length < 10) {
+    mostrarMensagem("Informe um WhatsApp válido com DDD.", "error");
+    return;
+  }
+
+  if (!currentUser) {
+    mostrarMensagem("Sessão inválida. Entre novamente.", "error");
+    return;
+  }
+
+  const token = gerarTokenConvite();
+  const inviteLink = montarLinkConvite(token);
+
+  const { error } = await supabase.from("convites").insert({
+    token,
+    professional_user_id: currentUser.id,
+    patient_name: patientName,
+    patient_whatsapp: patientWhatsapp,
+    invite_link: inviteLink,
+    status: "pendente"
+  });
+
+  if (error) {
+    mostrarMensagem("Não foi possível gerar o convite.", "error");
+    return;
+  }
+
+  currentInviteLink = inviteLink;
+  currentWhatsappDigits = patientWhatsapp;
+
+  generatedLinkInput.value = inviteLink;
+  generatedLinkBox.hidden = false;
+
+  mostrarMensagem("Convite gerado com sucesso! Agora envie pelo WhatsApp.", "success");
+
+  inviteForm.reset();
+  patientWhatsappInput.value = formatarWhatsapp("");
+  await carregarConvites();
+});
+
+btnCopyLink.addEventListener("click", async () => {
+  if (!currentInviteLink) return;
+
+  try {
+    await copiarTexto(currentInviteLink);
+    mostrarMensagem("Link copiado para a área de transferência.", "success");
+  } catch {
+    mostrarMensagem("Não foi possível copiar o link.", "error");
+  }
+});
+
+btnOpenWhatsapp.addEventListener("click", () => {
+  const nomePaciente = patientNameInput.value.trim() || "paciente";
+  const link = generatedLinkInput.value.trim();
+
+  abrirWhatsapp(currentWhatsappDigits, nomePaciente, link);
+});
+
+invitesList.addEventListener("click", async (event) => {
+  const copyButton = event.target.closest("[data-copy-link]");
+  const whatsappButton = event.target.closest("[data-whatsapp]");
+
+  if (copyButton) {
+    const link = copyButton.getAttribute("data-copy-link");
+
+    try {
+      await copiarTexto(link);
+      mostrarMensagem("Link copiado para a área de transferência.", "success");
+    } catch {
+      mostrarMensagem("Não foi possível copiar o link.", "error");
+    }
+
+    return;
+  }
+
+  if (whatsappButton) {
+    const numero = whatsappButton.getAttribute("data-whatsapp");
+    const nomePaciente = whatsappButton.getAttribute("data-patient-name");
+    const link = whatsappButton.getAttribute("data-link");
+
+    abrirWhatsapp(numero, nomePaciente, link);
+  }
+});
+
+btnLogout.addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  window.location.href = "../auth/index.html?perfil=profissional";
+});
+
+async function iniciarDashboard() {
+  await carregarUsuario();
+  await carregarConvites();
+}
+
+iniciarDashboard();
 

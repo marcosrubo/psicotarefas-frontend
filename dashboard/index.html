@@ -6,10 +6,10 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Dashboard - PsicoTarefas</title>
+  <title>Dashboard Profissional - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Dashboard do PsicoTarefas" />
+  <meta name="description" content="Dashboard do profissional no PsicoTarefas" />
 
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
@@ -25,7 +25,7 @@
           class="brand__logo"
         />
         <div class="brand__text">
-          <p class="brand__badge" id="brandBadge">Dashboard</p>
+          <p class="brand__badge">PROFISSIONAL</p>
           <h1>PsicoTarefas</h1>
         </div>
       </div>
@@ -34,68 +34,101 @@
         <div class="user-chip">
           <div class="user-chip__avatar" id="userAvatar">PT</div>
           <div class="user-chip__text">
-            <strong id="userName">Usuário</strong>
-            <span id="userRole">Perfil</span>
+            <strong id="userName">Profissional</strong>
+            <span id="userRole">Psicólogo(a)</span>
           </div>
         </div>
 
-        <a href="../index.html" class="btn-ghost">Sair</a>
+        <button class="btn-ghost" id="btnLogout" type="button">Sair</button>
       </div>
     </header>
 
     <main class="dashboard-main">
-      <section class="welcome-card" id="welcomeCard">
+      <section class="welcome-card">
         <div class="welcome-card__content">
-          <p class="welcome-card__label" id="welcomeLabel">Bem-vindo</p>
-          <h2 id="welcomeTitle">Seu painel está pronto</h2>
+          <p class="welcome-card__label">Painel profissional</p>
+          <h2 id="welcomeTitle">Olá</h2>
           <p id="welcomeText">
-            Aqui você acompanha tudo o que é importante dentro do PsicoTarefas.
+            Convide pacientes e acompanhe seus convites de forma simples.
           </p>
         </div>
-        <div class="welcome-card__icon" id="welcomeIcon">✨</div>
       </section>
 
-      <section class="stats-grid" id="statsGrid"></section>
-
-      <section class="content-grid">
-        <section class="panel panel--actions">
-          <div class="panel__header">
-            <h3>Ações rápidas</h3>
-            <p id="actionsSubtitle">Atalhos úteis para o seu perfil</p>
-          </div>
-          <div class="quick-actions" id="quickActions"></div>
-        </section>
-
-        <section class="panel panel--main">
-          <div class="panel__header">
-            <h3 id="mainPanelTitle">Visão geral</h3>
-            <p id="mainPanelSubtitle">Resumo das informações mais importantes</p>
-          </div>
-          <div class="list-group" id="mainList"></div>
-        </section>
+      <section class="primary-action-card">
+        <div>
+          <h3>Convide um paciente</h3>
+          <p>Gere um link e envie pelo WhatsApp em poucos segundos.</p>
+        </div>
+        <button class="btn-primary" id="btnToggleInvite" type="button">
+          Convidar paciente
+        </button>
       </section>
 
-      <section class="bottom-grid">
-        <section class="panel">
-          <div class="panel__header">
-            <h3 id="secondaryPanelTitle">Atualizações recentes</h3>
-            <p id="secondaryPanelSubtitle">O que merece sua atenção agora</p>
-          </div>
-          <div class="list-group" id="secondaryList"></div>
-        </section>
+      <section class="panel" id="invitePanel" hidden>
+        <div class="panel__header">
+          <h3>Novo convite</h3>
+          <p>Preencha os dados básicos e gere o link do paciente.</p>
+        </div>
 
-        <section class="panel panel--highlight" id="highlightPanel">
-          <div class="panel__header">
-            <h3 id="highlightTitle">Plano atual</h3>
-            <p id="highlightSubtitle">Informações rápidas sobre seu uso</p>
+        <form id="inviteForm" class="invite-form">
+          <div class="form-group">
+            <label for="patientName">Nome do paciente</label>
+            <input
+              type="text"
+              id="patientName"
+              placeholder="Digite o nome do paciente"
+              autocomplete="name"
+            />
           </div>
-          <div class="highlight-box" id="highlightBox"></div>
-        </section>
+
+          <div class="form-group">
+            <label for="patientWhatsapp">WhatsApp</label>
+            <input
+              type="text"
+              id="patientWhatsapp"
+              placeholder="(43) 99999-9999"
+              autocomplete="tel"
+            />
+          </div>
+
+          <div class="form-message" id="inviteMessage" hidden></div>
+
+          <button class="btn-primary" type="submit">
+            Gerar link de convite
+          </button>
+        </form>
+
+        <div class="generated-link-box" id="generatedLinkBox" hidden>
+          <label for="generatedLink">Link gerado</label>
+          <input type="text" id="generatedLink" readonly />
+
+          <div class="generated-link-box__actions">
+            <button class="btn-secondary" id="btnCopyLink" type="button">
+              Copiar link
+            </button>
+            <button class="btn-primary" id="btnOpenWhatsapp" type="button">
+              Abrir WhatsApp
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Convites pendentes</h3>
+          <p>Os convites mais recentes enviados por você.</p>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          Você ainda não enviou convites.
+        </div>
+
+        <div class="invites-list" id="invitesList"></div>
       </section>
     </main>
   </div>
 
-  <script src="./app.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
 
