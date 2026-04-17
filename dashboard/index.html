@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Dashboard - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta name="description" content="Dashboard do PsicoTarefas" />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="dashboard-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img
+          src="../assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="brand__logo"
+        />
+        <div class="brand__text">
+          <p class="brand__badge" id="brandBadge">Dashboard</p>
+          <h1>PsicoTarefas</h1>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <div class="user-chip">
+          <div class="user-chip__avatar" id="userAvatar">PT</div>
+          <div class="user-chip__text">
+            <strong id="userName">Usuário</strong>
+            <span id="userRole">Perfil</span>
+          </div>
+        </div>
+
+        <a href="../index.html" class="btn-ghost">Sair</a>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <section class="welcome-card" id="welcomeCard">
+        <div class="welcome-card__content">
+          <p class="welcome-card__label" id="welcomeLabel">Bem-vindo</p>
+          <h2 id="welcomeTitle">Seu painel está pronto</h2>
+          <p id="welcomeText">
+            Aqui você acompanha tudo o que é importante dentro do PsicoTarefas.
+          </p>
+        </div>
+        <div class="welcome-card__icon" id="welcomeIcon">✨</div>
+      </section>
+
+      <section class="stats-grid" id="statsGrid"></section>
+
+      <section class="content-grid">
+        <section class="panel panel--actions">
+          <div class="panel__header">
+            <h3>Ações rápidas</h3>
+            <p id="actionsSubtitle">Atalhos úteis para o seu perfil</p>
+          </div>
+          <div class="quick-actions" id="quickActions"></div>
+        </section>
+
+        <section class="panel panel--main">
+          <div class="panel__header">
+            <h3 id="mainPanelTitle">Visão geral</h3>
+            <p id="mainPanelSubtitle">Resumo das informações mais importantes</p>
+          </div>
+          <div class="list-group" id="mainList"></div>
+        </section>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel">
+          <div class="panel__header">
+            <h3 id="secondaryPanelTitle">Atualizações recentes</h3>
+            <p id="secondaryPanelSubtitle">O que merece sua atenção agora</p>
+          </div>
+          <div class="list-group" id="secondaryList"></div>
+        </section>
+
+        <section class="panel panel--highlight" id="highlightPanel">
+          <div class="panel__header">
+            <h3 id="highlightTitle">Plano atual</h3>
+            <p id="highlightSubtitle">Informações rápidas sobre seu uso</p>
+          </div>
+          <div class="highlight-box" id="highlightBox"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
+
