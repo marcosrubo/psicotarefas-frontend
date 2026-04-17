@@ -279,6 +279,15 @@ authForm.addEventListener("submit", async (event) => {
       const user = await fazerLogin(email, senha);
       const perfilUsuario = await buscarPerfilUsuario(user.id);
 
+      if (perfilUsuario.perfil !== perfil) {
+        await supabase.auth.signOut();
+        mostrarMensagem(
+          "A conta foi criada, mas houve inconsistência no perfil de acesso.",
+          "error"
+        );
+        return;
+      }
+
       mostrarMensagem("Conta criada com sucesso! Redirecionando...", "success");
 
       setTimeout(() => {
@@ -290,6 +299,18 @@ authForm.addEventListener("submit", async (event) => {
 
     const user = await fazerLogin(email, senha);
     const perfilUsuario = await buscarPerfilUsuario(user.id);
+
+    if (perfilUsuario.perfil !== perfil) {
+      await supabase.auth.signOut();
+
+      const mensagem =
+        perfil === "paciente"
+          ? "Este login pertence a um profissional. Entre pela área do profissional."
+          : "Este login pertence a um paciente. Entre pela área do paciente.";
+
+      mostrarMensagem(mensagem, "error");
+      return;
+    }
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
 
