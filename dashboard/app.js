@@ -162,6 +162,14 @@ document.addEventListener("DOMContentLoaded", () => {
           >
             WhatsApp
           </button>
+
+          <button
+            class="mini-btn mini-btn--danger"
+            data-cancel-id="${convite.id}"
+            type="button"
+          >
+            Cancelar convite
+          </button>
         </div>
       </article>
     `;
@@ -225,6 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .from("convites")
         .select("id, patient_name, patient_whatsapp, invite_link, status, created_at")
         .eq("professional_user_id", currentUser.id)
+        .eq("status", "pendente")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -234,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!data || data.length === 0) {
         invitesList.innerHTML = "";
         emptyState.hidden = false;
-        emptyState.textContent = "Você ainda não enviou convites.";
+        emptyState.textContent = "Você ainda não enviou convites pendentes.";
         return;
       }
 
@@ -250,6 +259,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function copiarTexto(texto) {
     await navigator.clipboard.writeText(texto);
+  }
+
+  async function cancelarConvite(inviteId) {
+    const { error } = await supabase
+      .from("convites")
+      .update({ status: "cancelado" })
+      .eq("id", inviteId)
+      .eq("professional_user_id", currentUser.id);
+
+    if (error) {
+      throw error;
+    }
   }
 
   function abrirWhatsapp(numero, nomePaciente, link) {
@@ -374,6 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
     invitesList.addEventListener("click", async (event) => {
       const copyButton = event.target.closest("[data-copy-link]");
       const whatsappButton = event.target.closest("[data-whatsapp]");
+      const cancelButton = event.target.closest("[data-cancel-id]");
 
       if (copyButton) {
         const link = copyButton.getAttribute("data-copy-link");
@@ -395,6 +417,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const link = whatsappButton.getAttribute("data-link");
 
         abrirWhatsapp(numero, nomePaciente, link);
+        return;
+      }
+
+      if (cancelButton) {
+        const inviteId = cancelButton.getAttribute("data-cancel-id");
+        const confirmar = window.confirm("Deseja cancelar este convite?");
+
+        if (!confirmar) return;
+
+        try {
+          await cancelarConvite(inviteId);
+          mostrarMensagem("Convite cancelado com sucesso.", "success");
+          await carregarConvites();
+        } catch (error) {
+          console.error("Erro ao cancelar convite:", error);
+          mostrarMensagem("Não foi possível cancelar o convite.", "error");
+        }
       }
     });
   }

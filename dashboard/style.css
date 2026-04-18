@@ -407,6 +407,13 @@ input {
   box-shadow: none;
 }
 
+.mini-btn--danger {
+  background: #fee2e2;
+  color: #b42318;
+  border: 1px solid #fecaca;
+  box-shadow: none;
+}
+
 @media (min-width: 768px) {
   .dashboard-shell {
     max-width: 860px;
