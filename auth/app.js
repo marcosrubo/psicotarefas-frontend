@@ -197,7 +197,7 @@ function aplicarContextoConviteNaTela() {
     let texto = "Este convite não pode mais ser utilizado.";
 
     if (conviteInfo.status === "cancelado") {
-      texto = `Este convite foi cancelado por ${profissional}.`;
+      texto = `Este convite foi cancelado por ${profissional}. Cadastre-se, entre no sistema e peça o vínculo ou solicite um novo convite.`;
     } else if (conviteInfo.status === "aceito") {
       texto = "Este convite já foi utilizado.";
     } else if (conviteInfo.status === "expirado") {
