@@ -4,12 +4,17 @@ const params = new URLSearchParams(window.location.search);
 
 const modo = params.get("modo") || "login";
 const perfil = params.get("perfil") || "paciente";
+const conviteToken = (params.get("convite") || "").trim();
 
 const authTitle = document.getElementById("authTitle");
 const authSubtitle = document.getElementById("authSubtitle");
 const authBadge = document.getElementById("authBadge");
 const pillPerfil = document.getElementById("pillPerfil");
 const pillModo = document.getElementById("pillModo");
+
+const inviteNotice = document.getElementById("inviteNotice");
+const inviteNoticeTitle = document.getElementById("inviteNoticeTitle");
+const inviteNoticeText = document.getElementById("inviteNoticeText");
 
 const groupNome = document.getElementById("groupNome");
 const groupConfirmarSenha = document.getElementById("groupConfirmarSenha");
@@ -34,6 +39,9 @@ const footerLink = document.getElementById("footerLink");
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const authForm = document.getElementById("authForm");
 
+let conviteInfo = null;
+let conviteBloqueado = false;
+
 function limparErros() {
   erroNome.textContent = "";
   erroEmail.textContent = "";
@@ -52,6 +60,24 @@ function esconderMensagem() {
   formMessage.hidden = true;
   formMessage.textContent = "";
   formMessage.className = "form-message";
+}
+
+function mostrarAvisoConvite(titulo, texto, tipo = "info") {
+  if (!inviteNotice) return;
+
+  inviteNotice.hidden = false;
+  inviteNotice.className = `invite-notice invite-notice--${tipo}`;
+  inviteNoticeTitle.textContent = titulo;
+  inviteNoticeText.textContent = texto;
+}
+
+function esconderAvisoConvite() {
+  if (!inviteNotice) return;
+
+  inviteNotice.hidden = true;
+  inviteNotice.className = "invite-notice";
+  inviteNoticeTitle.textContent = "";
+  inviteNoticeText.textContent = "";
 }
 
 function ehModoSignup() {
@@ -78,6 +104,44 @@ function montarUrlDashboard(perfilReal) {
   }
 
   return "../dashboard/index.html?perfil=paciente&estado=sem_vinculo";
+}
+
+function montarQueryBase() {
+  const query = new URLSearchParams();
+  query.set("perfil", perfil);
+
+  if (ehModoSignup()) {
+    query.set("modo", "signup");
+  }
+
+  if (conviteToken) {
+    query.set("convite", conviteToken);
+  }
+
+  return query;
+}
+
+function linkLogin() {
+  const query = new URLSearchParams();
+  query.set("perfil", perfil);
+
+  if (conviteToken) {
+    query.set("convite", conviteToken);
+  }
+
+  return `./index.html?${query.toString()}`;
+}
+
+function linkSignup() {
+  const query = new URLSearchParams();
+  query.set("modo", "signup");
+  query.set("perfil", perfil);
+
+  if (conviteToken) {
+    query.set("convite", conviteToken);
+  }
+
+  return `./index.html?${query.toString()}`;
 }
 
 function configurarTela() {
@@ -111,7 +175,7 @@ function configurarTela() {
 
     footerText.textContent = "Já tem conta?";
     footerLink.textContent = "Entrar";
-    footerLink.href = `./index.html?perfil=${perfil}`;
+    footerLink.href = linkLogin();
   } else {
     authBadge.textContent = `Acesso de ${perfilLabel().toLowerCase()}`;
     authTitle.textContent =
@@ -131,8 +195,50 @@ function configurarTela() {
       perfil === "profissional"
         ? "Criar conta de profissional"
         : "Criar conta de paciente";
-    footerLink.href = `./index.html?modo=signup&perfil=${perfil}`;
+    footerLink.href = linkSignup();
   }
+
+  aplicarContextoConviteNaTela();
+}
+
+function aplicarContextoConviteNaTela() {
+  esconderAvisoConvite();
+
+  if (!conviteInfo) return;
+
+  const profissional = conviteInfo.professional_name || "Profissional";
+
+  if (conviteBloqueado) {
+    let texto = "Este convite não pode mais ser utilizado.";
+
+    if (conviteInfo.status === "cancelado") {
+      texto = `Este convite foi cancelado por ${profissional}.`;
+    } else if (conviteInfo.status === "aceito") {
+      texto = "Este convite já foi utilizado.";
+    } else if (conviteInfo.status === "expirado") {
+      texto = "Este convite expirou.";
+    }
+
+    mostrarAvisoConvite("Convite indisponível", texto, "error");
+    btnSubmit.disabled = true;
+    return;
+  }
+
+  const textoConvite = `Você está sendo convidado por ${profissional}.`;
+
+  if (ehModoSignup()) {
+    authBadge.textContent = "Convite de profissional";
+    authTitle.textContent = "Criar conta com convite";
+    authSubtitle.textContent =
+      "Crie sua conta para se vincular ao profissional e acessar suas tarefas no PsicoTarefas.";
+  } else {
+    authBadge.textContent = "Convite de profissional";
+    authTitle.textContent = "Entrar com convite";
+    authSubtitle.textContent =
+      "Entre na sua conta para continuar o vínculo com o profissional e acessar suas tarefas no PsicoTarefas.";
+  }
+
+  mostrarAvisoConvite("Convite identificado", textoConvite, "info");
 }
 
 function validarFormulario() {
@@ -193,18 +299,62 @@ async function buscarPerfilUsuario(userId) {
   return data;
 }
 
+async function buscarConvitePublico(token) {
+  const { data, error } = await supabase.rpc("buscar_convite_publico", {
+    p_token: token
+  });
+
+  if (error) {
+    throw new Error("Não foi possível validar o convite.");
+  }
+
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  return data[0];
+}
+
+async function validarConvite() {
+  if (!conviteToken) {
+    conviteInfo = null;
+    conviteBloqueado = false;
+    return;
+  }
+
+  conviteInfo = await buscarConvitePublico(conviteToken);
+
+  if (!conviteInfo) {
+    conviteBloqueado = true;
+    mostrarAvisoConvite(
+      "Convite inválido",
+      "Este convite não foi encontrado ou não é mais válido.",
+      "error"
+    );
+    return;
+  }
+
+  conviteBloqueado = conviteInfo.status !== "pendente";
+}
+
 async function cadastrarUsuario({ nome, email, senha, perfil }) {
   const redirectUrl = `${window.location.origin}/auth/index.html?perfil=${perfil}`;
+
+  const metadata = {
+    nome,
+    perfil
+  };
+
+  if (conviteToken) {
+    metadata.convite_token = conviteToken;
+  }
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password: senha,
     options: {
       emailRedirectTo: redirectUrl,
-      data: {
-        nome,
-        perfil
-      }
+      data: metadata
     }
   });
 
@@ -270,6 +420,11 @@ toggleButtons.forEach((button) => {
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  if (conviteBloqueado) {
+    mostrarMensagem("Este convite não pode ser utilizado.", "error");
+    return;
+  }
+
   if (!validarFormulario()) {
     mostrarMensagem("Revise os campos destacados e tente novamente.", "error");
     return;
@@ -321,10 +476,15 @@ authForm.addEventListener("submit", async (event) => {
   } catch (erro) {
     mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
   } finally {
-    btnSubmit.disabled = false;
+    btnSubmit.disabled = conviteBloqueado;
     btnSubmit.textContent = textoBotaoPadrao();
   }
 });
 
-configurarTela();
+async function inicializarAuth() {
+  await validarConvite();
+  configurarTela();
+}
+
+inicializarAuth();
 

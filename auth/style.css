@@ -17,6 +17,8 @@
   --success-text: #027a48;
   --error-bg: #fef2f2;
   --error-text: #b42318;
+  --info-bg: #eef4ff;
+  --info-text: #1d4ed8;
 }
 
 * {
@@ -155,6 +157,41 @@ a {
   color: #475467;
 }
 
+.invite-notice {
+  border-radius: 16px;
+  padding: 14px 14px;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+
+.invite-notice[hidden] {
+  display: none !important;
+}
+
+.invite-notice strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.invite-notice p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.invite-notice--info {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border-color: #dbeafe;
+}
+
+.invite-notice--error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-color: #fecaca;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -162,7 +199,6 @@ a {
   margin-bottom: 16px;
 }
 
-/* CORREÇÃO PRINCIPAL */
 .form-group[hidden],
 .form-options[hidden],
 .form-message[hidden] {
