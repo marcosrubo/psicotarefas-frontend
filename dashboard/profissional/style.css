@@ -145,7 +145,7 @@ input {
   cursor: pointer;
   border-radius: 14px;
   font-weight: 700;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .btn-ghost:active,
@@ -274,6 +274,7 @@ input {
   padding: 14px 14px;
   background: #fff;
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-group input:focus,
@@ -412,6 +413,23 @@ input {
   color: #b42318;
   border: 1px solid #fecaca;
   box-shadow: none;
+}
+
+.mini-btn--danger:hover {
+  background: #fecaca;
+}
+
+@media (max-width: 640px) {
+  .invite-item__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .mini-btn,
+  .mini-btn--ghost,
+  .mini-btn--danger {
+    width: 100%;
+  }
 }
 
 @media (min-width: 768px) {

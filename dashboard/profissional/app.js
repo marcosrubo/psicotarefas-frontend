@@ -1,4 +1,4 @@
-import supabase from "../shared/supabase.js";
+import supabase from "../../shared/supabase.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } = await supabase.auth.getSession();
 
       if (!session?.user) {
-        window.location.href = "../auth/index.html?perfil=profissional";
+        window.location.href = "../../auth/index.html?perfil=profissional";
         return;
       }
 
@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (perfil.perfil !== "profissional") {
         await supabase.auth.signOut();
-        window.location.href = "../auth/index.html?perfil=profissional";
+        window.location.href = "../../auth/index.html?perfil=profissional";
         return;
       }
 
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnLogout) {
     btnLogout.addEventListener("click", async () => {
       await supabase.auth.signOut();
-      window.location.href = "../auth/index.html?perfil=profissional";
+      window.location.href = "../../auth/index.html?perfil=profissional";
     });
   }
 
