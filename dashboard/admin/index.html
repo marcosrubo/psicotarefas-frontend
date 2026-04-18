@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Dashboard Admin - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta name="description" content="Painel administrativo do PsicoTarefas" />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="dashboard-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img
+          src="../../assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="brand__logo"
+        />
+        <div class="brand__text">
+          <p class="brand__badge">ADMIN</p>
+          <h1>PsicoTarefas</h1>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <div class="user-chip">
+          <div class="user-chip__avatar" id="userAvatar">AD</div>
+          <div class="user-chip__text">
+            <strong id="userName">Administrador</strong>
+            <span id="userRole">Visão geral do sistema</span>
+          </div>
+        </div>
+
+        <button class="btn-ghost" id="btnLogout" type="button">Sair</button>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <section class="welcome-card">
+        <div class="welcome-card__content">
+          <p class="welcome-card__label">Painel administrativo</p>
+          <h2 id="welcomeTitle">Olá</h2>
+          <p id="welcomeText">
+            Acompanhe profissionais, pacientes, vínculos e convites em uma visão centralizada do sistema.
+          </p>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span class="stat-card__label">Profissionais</span>
+          <strong class="stat-card__value" id="statProfessionals">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Pacientes</span>
+          <strong class="stat-card__value" id="statPatients">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Vínculos ativos</span>
+          <strong class="stat-card__value" id="statActiveLinks">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Sem vínculo</span>
+          <strong class="stat-card__value" id="statWithoutLink">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Convites pendentes</span>
+          <strong class="stat-card__value" id="statPendingInvites">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Solicitações pendentes</span>
+          <strong class="stat-card__value" id="statPendingRequests">0</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Profissionais e seus relacionamentos</h3>
+          <p>Veja cada profissional com pacientes vinculados e convites pendentes.</p>
+        </div>
+
+        <div class="admin-list" id="professionalsAdminList"></div>
+
+        <div class="empty-state" id="professionalsEmpty" hidden>
+          Nenhum profissional encontrado.
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Pacientes sem vínculo ativo</h3>
+          <p>Pacientes cadastrados que ainda não possuem vínculo ativo com nenhum profissional.</p>
+        </div>
+
+        <div class="simple-list" id="patientsWithoutLinkList"></div>
+
+        <div class="empty-state" id="patientsWithoutLinkEmpty" hidden>
+          Nenhum paciente sem vínculo ativo.
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Convites recentes</h3>
+          <p>Últimos convites gerados no sistema.</p>
+        </div>
+
+        <div class="simple-list" id="recentInvitesList"></div>
+
+        <div class="empty-state" id="recentInvitesEmpty" hidden>
+          Nenhum convite encontrado.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

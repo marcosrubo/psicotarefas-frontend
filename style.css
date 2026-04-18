@@ -12,6 +12,10 @@
   --radius-lg: 22px;
   --radius-md: 16px;
   --radius-sm: 12px;
+  --danger: #d92d20;
+  --danger-bg: #fef3f2;
+  --success: #067647;
+  --success-bg: #ecfdf3;
 }
 
 * {
@@ -31,9 +35,18 @@ body {
   min-height: 100vh;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 a {
   text-decoration: none;
   color: inherit;
+}
+
+button,
+input {
+  font: inherit;
 }
 
 ul {
@@ -149,7 +162,7 @@ ul {
 }
 
 .audience-card--professional .audience-card__icon {
-  background: linear-gradient(135deg, rgba(52, 168, 83, 0.10), rgba(52, 168, 83, 0.20));
+  background: linear-gradient(135deg, rgba(52, 168, 83, 0.1), rgba(52, 168, 83, 0.2));
 }
 
 .audience-card__label {
@@ -258,6 +271,12 @@ ul {
   gap: 6px;
 }
 
+.admin-access {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
 .btn-primary,
 .btn-secondary {
   border: none;
@@ -286,7 +305,9 @@ ul {
 }
 
 .btn-primary:active,
-.btn-secondary:active {
+.btn-secondary:active,
+.btn-admin-link:active,
+.modal__close:active {
   transform: scale(0.98);
 }
 
@@ -305,6 +326,24 @@ ul {
   font-family: inherit;
 }
 
+.btn-admin-link {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 999px;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.btn-admin-link:hover {
+  background: rgba(109, 94, 252, 0.08);
+  color: var(--primary-dark);
+}
+
 .footer {
   padding: 14px 18px 24px;
   color: var(--muted);
@@ -312,6 +351,149 @@ ul {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+}
+
+.modal.is-open {
+  display: block;
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 460px);
+  margin: 8vh auto 0;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+  padding: 22px 18px 18px;
+}
+
+.modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475467;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal__header {
+  margin-bottom: 18px;
+  padding-right: 42px;
+}
+
+.modal__eyebrow {
+  margin: 0 0 8px;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.modal__header h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.modal__subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.modal__form {
+  display: grid;
+  gap: 14px;
+}
+
+.form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #344054;
+}
+
+.form-group input {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  background: #ffffff;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.form-group input[readonly] {
+  background: #f8fafc;
+  color: #475467;
+}
+
+.form-message {
+  min-height: 22px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.form-message.error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid #fecdca;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.form-message.success {
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid #abefc6;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal__actions .btn-primary,
+.modal__actions .btn-secondary {
+  min-width: 140px;
 }
 
 @media (max-width: 520px) {
@@ -331,8 +513,19 @@ ul {
 
   .btn-primary,
   .btn-secondary,
-  .btn-primary--button {
+  .btn-primary--button,
+  .modal__actions .btn-primary,
+  .modal__actions .btn-secondary {
     width: 100%;
+  }
+
+  .modal__dialog {
+    margin-top: 4vh;
+    padding: 20px 16px 16px;
+  }
+
+  .modal__actions {
+    flex-direction: column-reverse;
   }
 }
 
@@ -369,3 +562,4 @@ ul {
     padding: 22px 20px;
   }
 }
+

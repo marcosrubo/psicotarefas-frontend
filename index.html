@@ -118,7 +118,7 @@
             <h3>Instalar App (Android)</h3>
             <p>Adicione o PsicoTarefas à tela inicial para usar como aplicativo.</p>
           </div>
-          <button id="btnInstall" class="btn-primary btn-primary--button">
+          <button id="btnInstall" class="btn-primary btn-primary--button" type="button">
             Instalar (Android)
           </button>
         </section>
@@ -131,6 +131,12 @@
           </div>
         </section>
       </section>
+
+      <section class="admin-access">
+        <button id="btnOpenAdminModal" class="btn-admin-link" type="button">
+          ACESSAR COMO ADMIN
+        </button>
+      </section>
     </main>
 
     <footer class="footer">
@@ -139,6 +145,72 @@
     </footer>
   </div>
 
+  <div
+    id="adminModal"
+    class="modal"
+    aria-hidden="true"
+    role="dialog"
+    aria-labelledby="adminModalTitle"
+  >
+    <div class="modal__backdrop" id="adminModalBackdrop"></div>
+
+    <div class="modal__dialog">
+      <button
+        id="btnCloseAdminModal"
+        class="modal__close"
+        type="button"
+        aria-label="Fechar"
+      >
+        ×
+      </button>
+
+      <div class="modal__header">
+        <p class="modal__eyebrow">Acesso restrito</p>
+        <h2 id="adminModalTitle">Entrar como ADMIN</h2>
+        <p class="modal__subtitle">
+          Informe sua senha de administrador para acessar a dashboard.
+        </p>
+      </div>
+
+      <form id="adminLoginForm" class="modal__form">
+        <div class="form-group">
+          <label for="adminEmail">E-mail</label>
+          <input
+            id="adminEmail"
+            name="email"
+            type="email"
+            value="marcos@rubo.com.br"
+            readonly
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="adminPassword">Senha</label>
+          <input
+            id="adminPassword"
+            name="password"
+            type="password"
+            placeholder="Digite sua senha de admin"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <p id="adminLoginMessage" class="form-message" aria-live="polite"></p>
+
+        <div class="modal__actions">
+          <button type="button" id="btnCancelAdminModal" class="btn-secondary">
+            CANCELAR
+          </button>
+          <button type="submit" id="btnSubmitAdminLogin" class="btn-primary">
+            ENTRAR
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./app.js"></script>
 </body>
 </html>
