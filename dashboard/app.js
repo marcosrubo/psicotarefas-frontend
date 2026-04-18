@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const emptyState = document.getElementById("emptyState");
 
   let currentUser = null;
-  let currentProfile = null;
   let currentInviteLink = "";
   let currentInvitePatientName = "";
   let currentWhatsappDigits = "";
@@ -162,10 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      currentProfile = perfil;
-
       userName.textContent = perfil.nome || "Profissional";
-      userRole.textContent = "Profissional";
+      userRole.textContent = "Psicólogo(a)";
       userAvatar.textContent = obterIniciais(perfil.nome);
       welcomeTitle.textContent = `Olá, ${perfil.nome?.split(" ")[0] || "Profissional"}`;
       welcomeText.textContent =
@@ -173,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Erro ao carregar usuário:", error);
       mostrarMensagem(
-        "A dashboard carregou, mas houve erro ao validar a sessão. Verifique o console.",
+        "Erro ao carregar os dados do profissional. Verifique o console.",
         "error"
       );
     }
@@ -230,10 +227,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnToggleInvite && invitePanel) {
     btnToggleInvite.addEventListener("click", () => {
-      const aberto = !invitePanel.hidden;
-      invitePanel.hidden = aberto;
+      invitePanel.hidden = !invitePanel.hidden;
 
-      if (!aberto && patientNameInput) {
+      if (!invitePanel.hidden && patientNameInput) {
         patientNameInput.focus();
       }
     });
@@ -325,7 +321,11 @@ document.addEventListener("DOMContentLoaded", () => {
     btnOpenWhatsapp.addEventListener("click", () => {
       const link = generatedLinkInput.value.trim();
 
-      abrirWhatsapp(currentWhatsappDigits, currentInvitePatientName || "paciente", link);
+      abrirWhatsapp(
+        currentWhatsappDigits,
+        currentInvitePatientName || "paciente",
+        link
+      );
     });
   }
 
