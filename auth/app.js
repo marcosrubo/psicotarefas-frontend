@@ -98,9 +98,30 @@ function textoBotaoPadrao() {
   return "Entrar";
 }
 
-function montarUrlDashboard(perfilReal) {
+async function pacienteTemVinculoAtivo(userId) {
+  const { data, error } = await supabase
+    .from("vinculos")
+    .select("id")
+    .eq("patient_user_id", userId)
+    .eq("status", "ativo")
+    .limit(1);
+
+  if (error) {
+    throw new Error("Não foi possível verificar o vínculo do paciente.");
+  }
+
+  return Array.isArray(data) && data.length > 0;
+}
+
+async function montarUrlDashboard(perfilReal, userId) {
   if (perfilReal === "profissional") {
     return "../dashboard/profissional/index.html";
+  }
+
+  const temVinculo = await pacienteTemVinculoAtivo(userId);
+
+  if (temVinculo) {
+    return "../dashboard/paciente-com-vinculo/index.html";
   }
 
   return "../dashboard/paciente-sem-vinculo/index.html";
@@ -197,7 +218,9 @@ function aplicarContextoConviteNaTela() {
     let texto = "Este convite não pode mais ser utilizado.";
 
     if (conviteInfo.status === "cancelado") {
-      texto = `Este convite foi cancelado por ${profissional}. Cadastre-se, entre no sistema e peça o vínculo. Voce também pode solicitar um novo convite a ${profissional}.`;
+      texto =
+        `Este convite foi cancelado por ${profissional}.\n` +
+        `Cadastre-se, entre no sistema e peça o vínculo. Você também pode solicitar um novo convite a ${profissional}.`;
     } else if (conviteInfo.status === "aceito") {
       texto = "Este convite já foi utilizado.";
     } else if (conviteInfo.status === "expirado") {
@@ -453,10 +476,12 @@ authForm.addEventListener("submit", async (event) => {
       return;
     }
 
+    const destino = await montarUrlDashboard(perfilUsuario.perfil, user.id);
+
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
 
     setTimeout(() => {
-      window.location.href = montarUrlDashboard(perfilUsuario.perfil);
+      window.location.href = destino;
     }, 1200);
   } catch (erro) {
     mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
@@ -472,4 +497,3 @@ async function inicializarAuth() {
 }
 
 inicializarAuth();
-

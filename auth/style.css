@@ -178,6 +178,7 @@ a {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  white-space: pre-line;
 }
 
 .invite-notice--info {
@@ -383,4 +384,3 @@ a {
     padding: 26px 22px;
   }
 }
-
