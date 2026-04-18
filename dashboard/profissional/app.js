@@ -7,6 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const welcomeTitle = document.getElementById("welcomeTitle");
   const welcomeText = document.getElementById("welcomeText");
 
+  const btnEditName = document.getElementById("btnEditName");
+  const editNameBox = document.getElementById("editNameBox");
+  const editNameInput = document.getElementById("editNameInput");
+  const btnCancelName = document.getElementById("btnCancelName");
+  const btnSaveName = document.getElementById("btnSaveName");
+
   const btnLogout = document.getElementById("btnLogout");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
   const invitePanel = document.getElementById("invitePanel");
@@ -25,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const emptyState = document.getElementById("emptyState");
 
   let currentUser = null;
+  let currentProfile = null;
   let currentInviteLink = "";
   let currentInvitePatientName = "";
   let currentWhatsappDigits = "";
@@ -118,6 +125,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function aplicarNomeNaTela(nome, email) {
+    const nomeBase = limparNomeProfissional(nome || email || "");
+    const nomeExibicao = nomeBase || "Profissional";
+    const primeiroNome = obterPrimeiroNome(nome || email || "");
+
+    currentProfessionalName = nomeExibicao;
+
+    userName.textContent = nomeExibicao;
+    userRole.textContent = "Psicólogo(a)";
+    userAvatar.textContent = obterIniciais(nomeExibicao);
+    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
+    welcomeText.textContent =
+      "Convide pacientes, acompanhe seus convites e organize as tarefas entre vocês de forma simples e rápida.";
+
+    editNameInput.value = nomeExibicao;
+  }
+
+  function abrirEdicaoNome() {
+    editNameBox.hidden = false;
+    btnEditName.hidden = true;
+    editNameInput.focus();
+    editNameInput.select();
+  }
+
+  function fecharEdicaoNome() {
+    editNameBox.hidden = true;
+    btnEditName.hidden = false;
+
+    if (currentProfile) {
+      editNameInput.value = limparNomeProfissional(
+        currentProfile.nome || currentProfile.email || ""
+      ) || "Profissional";
+    }
+  }
+
   function montarMensagemWhatsapp(nomePaciente, link) {
     return (
       `Olá, ${nomePaciente}! ` +
@@ -204,24 +246,53 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const nomeBase = limparNomeProfissional(perfil.nome || perfil.email || "");
-      const nomeExibicao = nomeBase || "Profissional";
-      const primeiroNome = obterPrimeiroNome(perfil.nome || perfil.email || "");
-
-      currentProfessionalName = nomeExibicao;
-
-      userName.textContent = nomeExibicao;
-      userRole.textContent = "Psicólogo(a)";
-      userAvatar.textContent = obterIniciais(nomeExibicao);
-      welcomeTitle.textContent = `Olá, ${primeiroNome}`;
-      welcomeText.textContent =
-        "Convide pacientes, acompanhe seus convites e organize as tarefas entre vocês de forma simples e rápida.";
+      currentProfile = perfil;
+      aplicarNomeNaTela(perfil.nome, perfil.email);
     } catch (error) {
       console.error("Erro ao carregar usuário:", error);
       mostrarMensagem(
         "Erro ao carregar os dados do profissional. Verifique o console.",
         "error"
       );
+    }
+  }
+
+  async function atualizarNomeProfissional() {
+    if (!currentUser || !currentProfile) {
+      mostrarMensagem("Sessão inválida. Entre novamente.", "error");
+      return;
+    }
+
+    const novoNome = editNameInput.value.trim();
+
+    if (!novoNome) {
+      mostrarMensagem("Informe um nome válido.", "error");
+      return;
+    }
+
+    btnSaveName.disabled = true;
+    btnSaveName.textContent = "Salvando...";
+
+    try {
+      const { error } = await supabase
+        .from("perfis")
+        .update({ nome: novoNome })
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        throw error;
+      }
+
+      currentProfile.nome = novoNome;
+      aplicarNomeNaTela(currentProfile.nome, currentProfile.email);
+      fecharEdicaoNome();
+      mostrarMensagem("Nome atualizado com sucesso.", "success");
+    } catch (error) {
+      console.error("Erro ao atualizar nome:", error);
+      mostrarMensagem("Não foi possível atualizar o nome.", "error");
+    } finally {
+      btnSaveName.disabled = false;
+      btnSaveName.textContent = "Salvar";
     }
   }
 
@@ -286,6 +357,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.open(url, "_blank");
   }
+
+  btnEditName.addEventListener("click", abrirEdicaoNome);
+  btnCancelName.addEventListener("click", fecharEdicaoNome);
+  btnSaveName.addEventListener("click", atualizarNomeProfissional);
+
+  editNameInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      atualizarNomeProfissional();
+    }
+
+    if (event.key === "Escape") {
+      fecharEdicaoNome();
+    }
+  });
 
   if (btnToggleInvite && invitePanel) {
     btnToggleInvite.addEventListener("click", () => {
@@ -452,4 +538,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   iniciarDashboard();
 });
-

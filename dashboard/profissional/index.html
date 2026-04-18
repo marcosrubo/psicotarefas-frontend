@@ -33,8 +33,33 @@
       <div class="topbar__actions">
         <div class="user-chip">
           <div class="user-chip__avatar" id="userAvatar">PT</div>
-          <div class="user-chip__text">
-            <strong id="userName">Profissional</strong>
+
+          <div class="user-chip__text" id="userTextBox">
+            <div class="user-chip__name-row">
+              <strong id="userName">Profissional</strong>
+              <button class="edit-name-btn" id="btnEditName" type="button">
+                Alterar nome
+              </button>
+            </div>
+
+            <div class="user-chip__edit-box" id="editNameBox" hidden>
+              <input
+                type="text"
+                id="editNameInput"
+                placeholder="Digite seu nome"
+                maxlength="120"
+                autocomplete="name"
+              />
+              <div class="user-chip__edit-actions">
+                <button class="mini-btn mini-btn--ghost" id="btnCancelName" type="button">
+                  Cancelar
+                </button>
+                <button class="mini-btn" id="btnSaveName" type="button">
+                  Salvar
+                </button>
+              </div>
+            </div>
+
             <span id="userRole">Psicólogo(a)</span>
           </div>
         </div>
@@ -132,4 +157,3 @@
   <script type="module" src="./app.js"></script>
 </body>
 </html>
-

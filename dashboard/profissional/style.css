@@ -126,6 +126,14 @@ input {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 180px;
+}
+
+.user-chip__name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .user-chip__text strong {
@@ -135,6 +143,46 @@ input {
 .user-chip__text span {
   color: var(--muted);
   font-size: 13px;
+}
+
+.user-chip__edit-box {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.user-chip__edit-box[hidden] {
+  display: none !important;
+}
+
+.user-chip__edit-box input {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  outline: none;
+}
+
+.user-chip__edit-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.user-chip__edit-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.edit-name-btn {
+  border: none;
+  background: transparent;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
 }
 
 .btn-ghost,
@@ -430,6 +478,15 @@ input {
   .mini-btn--danger {
     width: 100%;
   }
+
+  .user-chip__text {
+    min-width: 0;
+  }
+
+  .user-chip__edit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (min-width: 768px) {
@@ -457,4 +514,3 @@ input {
     grid-template-columns: 1fr 1fr;
   }
 }
-
