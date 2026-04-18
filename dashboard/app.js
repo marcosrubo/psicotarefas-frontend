@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentInviteLink = "";
   let currentInvitePatientName = "";
   let currentWhatsappDigits = "";
+  let currentProfessionalName = "seu psicólogo(a)";
 
   function mostrarMensagem(texto, tipo = "success") {
     if (!inviteMessage) return;
@@ -83,16 +84,50 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${window.location.origin}/auth/index.html?modo=signup&perfil=paciente&convite=${encodeURIComponent(token)}`;
   }
 
+  function limparNomeProfissional(valor) {
+    const texto = (valor || "").trim();
+
+    if (!texto) return "";
+
+    if (texto.includes("@")) {
+      const antesDoArroba = texto.split("@")[0].trim();
+      if (!antesDoArroba) return "";
+      return antesDoArroba;
+    }
+
+    return texto;
+  }
+
+  function obterPrimeiroNome(nomeCompleto) {
+    const nomeLimpo = limparNomeProfissional(nomeCompleto);
+
+    if (!nomeLimpo) return "Profissional";
+
+    return nomeLimpo.split(" ")[0];
+  }
+
+  function formatarDataHora(dataIso) {
+    const data = new Date(dataIso);
+
+    return data.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
   function montarMensagemWhatsapp(nomePaciente, link) {
     return (
       `Olá, ${nomePaciente}! ` +
-      `Seu psicólogo enviou um convite para acessar o PsicoTarefas.\n\n` +
+      `Seu psicólogo(a) ${currentProfessionalName} enviou um convite para acessar o PsicoTarefas.\n\n` +
       `Use este link para entrar no sistema:\n${link}`
     );
   }
 
   function renderInviteItem(convite) {
-    const criadoEm = new Date(convite.created_at).toLocaleDateString("pt-BR");
+    const criadoEm = formatarDataHora(convite.created_at);
     const whatsapp = formatarWhatsapp(convite.patient_whatsapp);
 
     return `
@@ -161,12 +196,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      userName.textContent = perfil.nome || "Profissional";
+      const nomeBase = limparNomeProfissional(perfil.nome || perfil.email || "");
+      const nomeExibicao = nomeBase || "Profissional";
+      const primeiroNome = obterPrimeiroNome(perfil.nome || perfil.email || "");
+
+      currentProfessionalName = nomeExibicao;
+
+      userName.textContent = nomeExibicao;
       userRole.textContent = "Psicólogo(a)";
-      userAvatar.textContent = obterIniciais(perfil.nome);
-      welcomeTitle.textContent = `Olá, ${perfil.nome?.split(" ")[0] || "Profissional"}`;
+      userAvatar.textContent = obterIniciais(nomeExibicao);
+      welcomeTitle.textContent = `Olá, ${primeiroNome}`;
       welcomeText.textContent =
-        "Convide pacientes e acompanhe seus convites de forma simples.";
+        "Convide pacientes, acompanhe seus convites e organize as tarefas entre vocês de forma simples e rápida.";
     } catch (error) {
       console.error("Erro ao carregar usuário:", error);
       mostrarMensagem(
