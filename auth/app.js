@@ -100,25 +100,10 @@ function textoBotaoPadrao() {
 
 function montarUrlDashboard(perfilReal) {
   if (perfilReal === "profissional") {
-    return "../dashboard/index.html?perfil=profissional";
+    return "../dashboard/profissional/index.html";
   }
 
-  return "../dashboard/index.html?perfil=paciente&estado=sem_vinculo";
-}
-
-function montarQueryBase() {
-  const query = new URLSearchParams();
-  query.set("perfil", perfil);
-
-  if (ehModoSignup()) {
-    query.set("modo", "signup");
-  }
-
-  if (conviteToken) {
-    query.set("convite", conviteToken);
-  }
-
-  return query;
+  return "../dashboard/paciente-sem-vinculo/index.html";
 }
 
 function linkLogin() {
