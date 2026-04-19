@@ -536,6 +536,17 @@ authForm.addEventListener("submit", async (event) => {
         "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema.",
         "success"
       );
+
+      window.setTimeout(() => {
+        const confirmou = window.confirm(
+          "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema."
+        );
+
+        if (confirmou) {
+          window.location.href = "/";
+        }
+      }, 50);
+
       return;
     }
 
