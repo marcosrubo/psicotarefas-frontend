@@ -221,8 +221,11 @@ function aplicarContextoConviteNaTela() {
       texto =
         `Este convite foi cancelado por ${profissional}.\n` +
         `Cadastre-se, entre no sistema e peça o vínculo. Você também pode solicitar um novo convite a ${profissional}.`;
+    } else if (conviteInfo.status === "respondido") {
+      texto =
+        "Este convite já recebeu um cadastro. Confirme o e-mail informado e depois entre no sistema.";
     } else if (conviteInfo.status === "aceito") {
-      texto = "Este convite já foi utilizado.";
+      texto = "Este convite já foi concluído. Entre com sua conta para continuar.";
     } else if (conviteInfo.status === "expirado") {
       texto = "Este convite expirou.";
     }
@@ -342,10 +345,73 @@ async function validarConvite() {
     return;
   }
 
-  conviteBloqueado = conviteInfo.status !== "pendente";
+  const status = conviteInfo.status;
+
+  if (status === "cancelado" || status === "expirado") {
+    conviteBloqueado = true;
+    return;
+  }
+
+  if (ehModoSignup() && (status === "respondido" || status === "aceito")) {
+    conviteBloqueado = true;
+    return;
+  }
+
+  conviteBloqueado = false;
 }
 
-async function processarConviteParaPaciente(userId) {
+async function registrarRespostaAoConviteAposCadastro({ token, patientUserId, patientEmail }) {
+  if (!token || perfil !== "paciente") {
+    return;
+  }
+
+  const { data: vinculo, error: erroBuscarVinculo } = await supabase
+    .from("vinculos")
+    .select("id, status")
+    .eq("token_convite", token)
+    .maybeSingle();
+
+  if (erroBuscarVinculo || !vinculo) {
+    throw new Error("Não foi possível localizar o vínculo deste convite.");
+  }
+
+  const payloadAtualizacao = {
+    patient_email: patientEmail,
+    respondeu_convite_at: new Date().toISOString(),
+    status: "aguardando_confirmacao_email"
+  };
+
+  if (patientUserId) {
+    payloadAtualizacao.patient_user_id = patientUserId;
+  }
+
+  const { error: erroAtualizarVinculo } = await supabase
+    .from("vinculos")
+    .update(payloadAtualizacao)
+    .eq("id", vinculo.id);
+
+  if (erroAtualizarVinculo) {
+    throw new Error("Não foi possível registrar a resposta ao convite.");
+  }
+
+  const { error: erroAtualizarConvite } = await supabase
+    .from("convites")
+    .update({ status: "respondido" })
+    .eq("token", token);
+
+  if (erroAtualizarConvite) {
+    throw new Error("Não foi possível marcar o convite como respondido.");
+  }
+
+  if (conviteInfo) {
+    conviteInfo = {
+      ...conviteInfo,
+      status: "respondido"
+    };
+  }
+}
+
+async function processarConviteParaPaciente(userId, patientEmail) {
   if (!conviteToken || perfil !== "paciente") {
     return;
   }
@@ -366,48 +432,41 @@ async function processarConviteParaPaciente(userId) {
 
   const { data: vinculoExistente, error: erroBuscarVinculo } = await supabase
     .from("vinculos")
-    .select("id, status")
-    .eq("professional_user_id", convite.professional_user_id)
-    .eq("patient_user_id", userId)
-    .limit(1)
+    .select("id, status, patient_user_id, patient_email")
+    .eq("token_convite", conviteToken)
     .maybeSingle();
 
-  if (erroBuscarVinculo) {
-    throw new Error("Não foi possível verificar vínculos existentes.");
+  if (erroBuscarVinculo || !vinculoExistente) {
+    throw new Error("Não foi possível localizar o vínculo do convite.");
   }
 
-  if (!vinculoExistente) {
-    const { error: erroCriarVinculo } = await supabase
-      .from("vinculos")
-      .insert({
-        professional_user_id: convite.professional_user_id,
-        patient_user_id: userId,
-        status: "ativo"
-      });
+  const payloadAtualizacao = {
+    patient_user_id: userId,
+    patient_email: patientEmail,
+    confirmed_at: new Date().toISOString(),
+    status: "ativo"
+  };
 
-    if (erroCriarVinculo) {
-      throw new Error("Não foi possível criar o vínculo com o profissional.");
-    }
-  } else if (vinculoExistente.status !== "ativo") {
-    const { error: erroAtualizarVinculo } = await supabase
-      .from("vinculos")
-      .update({ status: "ativo" })
-      .eq("id", vinculoExistente.id);
-
-    if (erroAtualizarVinculo) {
-      throw new Error("Não foi possível ativar o vínculo com o profissional.");
-    }
+  if (!vinculoExistente.respondeu_convite_at) {
+    payloadAtualizacao.respondeu_convite_at = new Date().toISOString();
   }
 
-  if (convite.status !== "aceito") {
-    const { error: erroAtualizarConvite } = await supabase
-      .from("convites")
-      .update({ status: "aceito" })
-      .eq("token", conviteToken);
+  const { error: erroAtualizarVinculo } = await supabase
+    .from("vinculos")
+    .update(payloadAtualizacao)
+    .eq("id", vinculoExistente.id);
 
-    if (erroAtualizarConvite) {
-      throw new Error("Não foi possível marcar o convite como aceito.");
-    }
+  if (erroAtualizarVinculo) {
+    throw new Error("Não foi possível ativar o vínculo com o profissional.");
+  }
+
+  const { error: erroAtualizarConvite } = await supabase
+    .from("convites")
+    .update({ status: "aceito" })
+    .eq("token", conviteToken);
+
+  if (erroAtualizarConvite) {
+    throw new Error("Não foi possível marcar o convite como aceito.");
   }
 
   conviteInfo = {
@@ -525,12 +584,20 @@ authForm.addEventListener("submit", async (event) => {
 
   try {
     if (ehModoSignup()) {
-      await cadastrarUsuario({
+      const resultadoCadastro = await cadastrarUsuario({
         nome,
         email,
         senha,
         perfil
       });
+
+      if (conviteToken && perfil === "paciente") {
+        await registrarRespostaAoConviteAposCadastro({
+          token: conviteToken,
+          patientUserId: resultadoCadastro?.user?.id || null,
+          patientEmail: email
+        });
+      }
 
       mostrarMensagem(
         "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema.",
@@ -566,7 +633,7 @@ authForm.addEventListener("submit", async (event) => {
     }
 
     if (conviteToken && perfilUsuario.perfil === "paciente") {
-      await processarConviteParaPaciente(user.id);
+      await processarConviteParaPaciente(user.id, email);
     }
 
     const destino = await montarUrlDashboard(perfilUsuario.perfil, user.id);
@@ -598,4 +665,3 @@ async function inicializarAuth() {
 }
 
 inicializarAuth();
-

@@ -393,14 +393,78 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function cancelarConvite(inviteId) {
-    const { error } = await supabase
+    const { data: convite, error: erroBuscarConvite } = await supabase
+      .from("convites")
+      .select("id, token")
+      .eq("id", inviteId)
+      .eq("professional_user_id", currentUser.id)
+      .single();
+
+    if (erroBuscarConvite || !convite) {
+      throw new Error("Não foi possível localizar o convite.");
+    }
+
+    const { error: erroCancelarConvite } = await supabase
       .from("convites")
       .update({ status: "cancelado" })
       .eq("id", inviteId)
       .eq("professional_user_id", currentUser.id);
 
-    if (error) {
-      throw error;
+    if (erroCancelarConvite) {
+      throw erroCancelarConvite;
+    }
+
+    const { error: erroEncerrarVinculo } = await supabase
+      .from("vinculos")
+      .update({ status: "encerrado" })
+      .eq("token_convite", convite.token)
+      .eq("professional_user_id", currentUser.id);
+
+    if (erroEncerrarVinculo) {
+      throw erroEncerrarVinculo;
+    }
+  }
+
+  async function criarEstruturaConvite({
+    token,
+    patientName,
+    patientWhatsapp,
+    inviteLink
+  }) {
+    const { error: erroCriarConvite } = await supabase.from("convites").insert({
+      token,
+      professional_user_id: currentUser.id,
+      patient_name: patientName,
+      patient_whatsapp: patientWhatsapp,
+      invite_link: inviteLink,
+      status: "pendente"
+    });
+
+    if (erroCriarConvite) {
+      throw erroCriarConvite;
+    }
+
+    const { error: erroCriarVinculo } = await supabase.from("vinculos").insert({
+      professional_user_id: currentUser.id,
+      patient_user_id: null,
+      token_convite: token,
+      patient_name: patientName,
+      patient_whatsapp: patientWhatsapp,
+      patient_email: null,
+      convite_created_at: new Date().toISOString(),
+      respondeu_convite_at: null,
+      confirmed_at: null,
+      status: "pendente_convite"
+    });
+
+    if (erroCriarVinculo) {
+      await supabase
+        .from("convites")
+        .delete()
+        .eq("token", token)
+        .eq("professional_user_id", currentUser.id);
+
+      throw erroCriarVinculo;
     }
   }
 
@@ -483,18 +547,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const inviteLink = montarLinkConvite(token);
 
       try {
-        const { error } = await supabase.from("convites").insert({
+        await criarEstruturaConvite({
           token,
-          professional_user_id: currentUser.id,
-          patient_name: patientName,
-          patient_whatsapp: patientWhatsapp,
-          invite_link: inviteLink,
-          status: "pendente"
+          patientName,
+          patientWhatsapp,
+          inviteLink
         });
-
-        if (error) {
-          throw error;
-        }
 
         preencherResumoConvite(patientName, patientWhatsapp, inviteLink);
 

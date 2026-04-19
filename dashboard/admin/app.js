@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .trim()
       .split(" ")
       .slice(0, 2)
-      .map(p => p[0].toUpperCase())
+      .map((p) => p[0].toUpperCase())
       .join("");
   }
 
@@ -51,8 +51,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Date(dataIso).toLocaleString("pt-BR");
   }
 
+  function montarTextoConvite(invite) {
+    const partes = [];
+
+    if (invite.status) {
+      partes.push(invite.status);
+    }
+
+    if (invite.created_at) {
+      partes.push(formatarDataHora(invite.created_at));
+    }
+
+    return partes.join(" • ");
+  }
+
   async function validarAdmin() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
 
     if (!session?.user) {
       window.location.href = "/";
@@ -79,16 +95,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function carregarDados() {
     const [
-      { data: totalUsers },
-      { data: perfis },
-      { data: vinculos },
-      { data: convites }
+      { data: totalUsers, error: totalUsersError },
+      { data: perfis, error: perfisError },
+      { data: vinculos, error: vinculosError },
+      { data: convites, error: convitesError }
     ] = await Promise.all([
       supabase.rpc("admin_total_users"),
       supabase.from("perfis").select("*"),
       supabase.from("vinculos").select("*"),
       supabase.from("convites").select("*").order("created_at", { ascending: false })
     ]);
+
+    if (totalUsersError) throw totalUsersError;
+    if (perfisError) throw perfisError;
+    if (vinculosError) throw vinculosError;
+    if (convitesError) throw convitesError;
 
     return {
       totalUsers,
@@ -99,18 +120,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderDashboard({ totalUsers, perfis, vinculos, convites }) {
-    const professionals = perfis.filter(p => p.perfil === "profissional");
-    const patients = perfis.filter(p => p.perfil === "paciente");
+    const professionals = perfis.filter((p) => p.perfil === "profissional");
+    const patients = perfis.filter((p) => p.perfil === "paciente");
 
-    const convitesAceitos = convites.filter(c => c.status === "aceito");
-    const convitesPendentes = convites.filter(c => c.status === "pendente");
-    const convitesCancelados = convites.filter(c => c.status === "cancelado");
+    const convitesAceitos = convites.filter((c) => c.status === "aceito");
+    const convitesPendentes = convites.filter((c) => c.status === "pendente");
+    const convitesCancelados = convites.filter((c) => c.status === "cancelado");
+    const convitesRespondidos = convites.filter((c) => c.status === "respondido");
+
+    const vinculosPendentesConvite = vinculos.filter(
+      (v) => v.status === "pendente_convite"
+    );
+    const vinculosAguardandoConfirmacao = vinculos.filter(
+      (v) => v.status === "aguardando_confirmacao_email"
+    );
+    const vinculosAtivos = vinculos.filter((v) => v.status === "ativo");
 
     statUsers.textContent = totalUsers || 0;
     statPerfis.textContent = perfis.length;
     statVinculos.textContent = vinculos.length;
     statProfessionals.textContent = professionals.length;
     statPatients.textContent = patients.length;
+
+    // Mantive os cards que você já tinha no HTML
     statInvitesCreated.textContent = convites.length;
     statInvitesAccepted.textContent = convitesAceitos.length;
     statInvitesPending.textContent = convitesPendentes.length;
@@ -123,16 +155,35 @@ document.addEventListener("DOMContentLoaded", () => {
       recentInvitesList.innerHTML = "";
     } else {
       recentInvitesEmpty.hidden = true;
-      recentInvitesList.innerHTML = recent.map(invite => `
-        <div class="simple-item">
-          <strong>${invite.patient_name}</strong>
-          <span>${invite.status} • ${formatarDataHora(invite.created_at)}</span>
-        </div>
-      `).join("");
+      recentInvitesList.innerHTML = recent
+        .map(
+          (invite) => `
+            <div class="simple-item">
+              <strong>${invite.patient_name || "Paciente"}</strong>
+              <span>${montarTextoConvite(invite)}</span>
+            </div>
+          `
+        )
+        .join("");
     }
+
+    console.log("Resumo admin:", {
+      totalUsers: totalUsers || 0,
+      totalPerfis: perfis.length,
+      totalVinculos: vinculos.length,
+      professionals: professionals.length,
+      patients: patients.length,
+      convitesCriados: convites.length,
+      convitesPendentes: convitesPendentes.length,
+      convitesRespondidos: convitesRespondidos.length,
+      convitesAceitos: convitesAceitos.length,
+      convitesCancelados: convitesCancelados.length,
+      vinculosPendentesConvite: vinculosPendentesConvite.length,
+      vinculosAguardandoConfirmacao: vinculosAguardandoConfirmacao.length,
+      vinculosAtivos: vinculosAtivos.length
+    });
   }
 
-  // ✅ LOGOUT CORRIGIDO
   if (btnLogout) {
     btnLogout.addEventListener("click", async () => {
       try {
