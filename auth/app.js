@@ -369,42 +369,14 @@ async function registrarRespostaAoConviteAposCadastro({
     return;
   }
 
-  const { data: vinculo, error: erroBuscarVinculo } = await supabase
-    .from("vinculos")
-    .select("id, status")
-    .eq("token_convite", token)
-    .maybeSingle();
+  const { error } = await supabase.rpc("registrar_resposta_convite", {
+    p_token: token,
+    p_patient_email: patientEmail,
+    p_patient_user_id: patientUserId || null
+  });
 
-  if (erroBuscarVinculo || !vinculo) {
-    throw new Error("Não foi possível localizar o vínculo deste convite.");
-  }
-
-  const payloadAtualizacao = {
-    patient_email: patientEmail,
-    respondeu_convite_at: new Date().toISOString(),
-    status: "aguardando_confirmacao_email"
-  };
-
-  if (patientUserId) {
-    payloadAtualizacao.patient_user_id = patientUserId;
-  }
-
-  const { error: erroAtualizarVinculo } = await supabase
-    .from("vinculos")
-    .update(payloadAtualizacao)
-    .eq("id", vinculo.id);
-
-  if (erroAtualizarVinculo) {
+  if (error) {
     throw new Error("Não foi possível registrar a resposta ao convite.");
-  }
-
-  const { error: erroAtualizarConvite } = await supabase
-    .from("convites")
-    .update({ status: "respondido" })
-    .eq("token", token);
-
-  if (erroAtualizarConvite) {
-    throw new Error("Não foi possível marcar o convite como respondido.");
   }
 
   if (conviteInfo) {
