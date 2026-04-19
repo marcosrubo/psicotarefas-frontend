@@ -41,7 +41,6 @@ const authForm = document.getElementById("authForm");
 
 let conviteInfo = null;
 let conviteBloqueado = false;
-let processandoSessaoConfirmada = false;
 
 function limparErros() {
   erroNome.textContent = "";
@@ -487,44 +486,6 @@ async function fazerLogin(email, senha) {
   return data.user;
 }
 
-async function processarSessaoConfirmada() {
-  if (processandoSessaoConfirmada) return;
-
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
-
-  if (!session?.user || !session.user.email_confirmed_at) {
-    return;
-  }
-
-  processandoSessaoConfirmada = true;
-
-  try {
-    const perfilUsuario = await buscarPerfilUsuario(session.user.id);
-
-    if (conviteToken && perfilUsuario.perfil === "paciente") {
-      await processarConviteParaPaciente(session.user.id);
-    }
-
-    const destino = await montarUrlDashboard(perfilUsuario.perfil, session.user.id);
-
-    mostrarMensagem("Conta confirmada com sucesso! Redirecionando...", "success");
-
-    setTimeout(() => {
-      window.location.href = destino;
-    }, 900);
-  } catch (erro) {
-    console.error("Erro ao finalizar confirmação:", erro);
-    mostrarMensagem(
-      erro.message || "Não foi possível concluir o acesso após a confirmação.",
-      "error"
-    );
-  } finally {
-    processandoSessaoConfirmada = false;
-  }
-}
-
 toggleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const targetId = button.getAttribute("data-target");
@@ -613,9 +574,17 @@ authForm.addEventListener("submit", async (event) => {
 });
 
 async function inicializarAuth() {
+  // Sempre que entrar no AUTH, limpa qualquer sessão existente para evitar
+  // login automático e manter o fluxo previsível.
+  try {
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error("Erro ao limpar sessão no auth:", error);
+  }
+
   await validarConvite();
   configurarTela();
-  await processarSessaoConfirmada();
 }
 
 inicializarAuth();
+

@@ -417,7 +417,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.open(url, "_blank");
 
-    // Fecha o quadro de novo convite ao sair para o WhatsApp
     fecharPainelConvite();
   }
 
@@ -589,8 +588,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnLogout) {
     btnLogout.addEventListener("click", async () => {
-      await supabase.auth.signOut();
-      window.location.href = "../../auth/index.html?perfil=profissional";
+      try {
+        await supabase.auth.signOut();
+      } catch (error) {
+        console.error("Erro ao sair:", error);
+      }
+
+      window.location.href = "/";
     });
   }
 

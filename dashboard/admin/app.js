@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
   const welcomeTitle = document.getElementById("welcomeTitle");
-  const welcomeText = document.getElementById("welcomeText");
 
   const statUsers = document.getElementById("statUsers");
   const statPerfis = document.getElementById("statPerfis");
@@ -19,23 +18,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const statInvitesPending = document.getElementById("statInvitesPending");
   const statInvitesCanceled = document.getElementById("statInvitesCanceled");
 
-  const professionalsAdminList = document.getElementById("professionalsAdminList");
-  const professionalsEmpty = document.getElementById("professionalsEmpty");
-
-  const patientsWithoutLinkList = document.getElementById("patientsWithoutLinkList");
-  const patientsWithoutLinkEmpty = document.getElementById("patientsWithoutLinkEmpty");
-
   const recentInvitesList = document.getElementById("recentInvitesList");
   const recentInvitesEmpty = document.getElementById("recentInvitesEmpty");
 
   const btnLogout = document.getElementById("btnLogout");
 
   let currentUser = null;
-  let currentProfile = null;
 
   function obterIniciais(nome) {
     if (!nome) return "AD";
-    return nome.trim().split(" ").slice(0, 2).map(p => p[0].toUpperCase()).join("");
+    return nome
+      .trim()
+      .split(" ")
+      .slice(0, 2)
+      .map(p => p[0].toUpperCase())
+      .join("");
   }
 
   function limparNome(valor) {
@@ -50,25 +47,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return nome ? nome.split(" ")[0] : "Admin";
   }
 
-  function nomeExibicao(perfil) {
-    return limparNome(perfil?.nome || perfil?.email || "") || "Sem nome";
-  }
-
   function formatarDataHora(dataIso) {
     return new Date(dataIso).toLocaleString("pt-BR");
-  }
-
-  function classeBadgeStatus(status) {
-    if (status === "aceito") return "status-badge status-badge--success";
-    if (status === "cancelado") return "status-badge status-badge--danger";
-    return "status-badge status-badge--primary";
   }
 
   async function validarAdmin() {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      window.location.href = "../../auth/index.html?perfil=profissional";
+      window.location.href = "/";
       return false;
     }
 
@@ -76,19 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (session.user.email.toLowerCase() !== ADMIN_EMAIL) {
       await supabase.auth.signOut();
-      window.location.href = "../../auth/index.html?perfil=profissional";
+      window.location.href = "/";
       return false;
     }
 
-    const { data: perfil } = await supabase
-      .from("perfis")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .single();
-
-    currentProfile = perfil;
-
-    const nome = nomeExibicao(perfil);
+    const nome = limparNome(session.user.email);
 
     userName.textContent = nome;
     userRole.textContent = "Administrador";
@@ -153,16 +132,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ✅ BOTÃO SAIR CORRIGIDO
-  btnLogout.addEventListener("click", async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Erro ao sair:", error);
-    }
+  // ✅ LOGOUT CORRIGIDO
+  if (btnLogout) {
+    btnLogout.addEventListener("click", async () => {
+      try {
+        await supabase.auth.signOut();
+      } catch (error) {
+        console.error("Erro ao sair:", error);
+      }
 
-    window.location.href = "/";
-  });
+      window.location.href = "/";
+    });
+  }
 
   async function iniciarDashboard() {
     try {

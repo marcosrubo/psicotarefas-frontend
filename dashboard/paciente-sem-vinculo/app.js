@@ -297,8 +297,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   btnLogout.addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    window.location.href = "../../auth/index.html?perfil=paciente";
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+
+    window.location.href = "/";
   });
 
   async function iniciarDashboard() {

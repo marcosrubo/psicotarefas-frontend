@@ -137,21 +137,17 @@ async function checkExistingAdminSession() {
   supabaseClient = createSupabaseClient();
 
   if (!supabaseClient) {
-    return;
-  }
-
-  const {
-    data: { session },
-    error,
-  } = await supabaseClient.auth.getSession();
-
-  if (error || !session?.user) {
     adminSessionActive = false;
     return;
   }
 
-  const email = session.user.email?.toLowerCase();
-  adminSessionActive = email === ADMIN_EMAIL.toLowerCase();
+  try {
+    await supabaseClient.auth.signOut();
+  } catch (error) {
+    console.error("Erro ao limpar sessão na tela principal:", error);
+  }
+
+  adminSessionActive = false;
 }
 
 async function handleAdminLogin(event) {
