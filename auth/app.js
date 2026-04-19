@@ -376,7 +376,7 @@ async function registrarRespostaAoConviteAposCadastro({
   });
 
   if (error) {
-    throw new Error("Não foi possível registrar a resposta ao convite.");
+    throw new Error(error.message || "Não foi possível registrar a resposta ao convite.");
   }
 
   if (conviteInfo) {

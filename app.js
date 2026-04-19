@@ -21,6 +21,37 @@ const adminPasswordInput = document.getElementById("adminPassword");
 const adminLoginMessage = document.getElementById("adminLoginMessage");
 const btnSubmitAdminLogin = document.getElementById("btnSubmitAdminLogin");
 
+
+// ============================
+// 🔥 NOVA LÓGICA DE CONVITE
+// ============================
+
+function tratarEntradaPorLinkEmail() {
+  const params = new URLSearchParams(window.location.search);
+
+  const token = params.get("token") || params.get("convite");
+
+  if (!token) return;
+
+  const confirmar = confirm(
+    "Você está acessando o sistema através de um link enviado por e-mail.\n\nDeseja continuar para o login?"
+  );
+
+  if (!confirmar) return;
+
+  const destino = `./auth/index.html?modo=signup&perfil=paciente&convite=${token}`;
+
+  window.location.href = destino;
+}
+
+// executa logo ao carregar
+tratarEntradaPorLinkEmail();
+
+
+// ============================
+// RESTANTE DO SEU CÓDIGO (INALTERADO)
+// ============================
+
 function createSupabaseClient() {
   if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return null;
