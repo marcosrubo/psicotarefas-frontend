@@ -41,6 +41,7 @@ const authForm = document.getElementById("authForm");
 
 let conviteInfo = null;
 let conviteBloqueado = false;
+let processandoSessaoConfirmada = false;
 
 function limparErros() {
   erroNome.textContent = "";
@@ -345,8 +346,86 @@ async function validarConvite() {
   conviteBloqueado = conviteInfo.status !== "pendente";
 }
 
+async function processarConviteParaPaciente(userId) {
+  if (!conviteToken || perfil !== "paciente") {
+    return;
+  }
+
+  const convite = conviteInfo || (await buscarConvitePublico(conviteToken));
+
+  if (!convite) {
+    throw new Error("Convite não encontrado.");
+  }
+
+  if (convite.status === "cancelado") {
+    throw new Error("Este convite foi cancelado e não pode mais ser utilizado.");
+  }
+
+  if (convite.status === "expirado") {
+    throw new Error("Este convite expirou.");
+  }
+
+  const { data: vinculoExistente, error: erroBuscarVinculo } = await supabase
+    .from("vinculos")
+    .select("id, status")
+    .eq("professional_user_id", convite.professional_user_id)
+    .eq("patient_user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (erroBuscarVinculo) {
+    throw new Error("Não foi possível verificar vínculos existentes.");
+  }
+
+  if (!vinculoExistente) {
+    const { error: erroCriarVinculo } = await supabase
+      .from("vinculos")
+      .insert({
+        professional_user_id: convite.professional_user_id,
+        patient_user_id: userId,
+        status: "ativo"
+      });
+
+    if (erroCriarVinculo) {
+      throw new Error("Não foi possível criar o vínculo com o profissional.");
+    }
+  } else if (vinculoExistente.status !== "ativo") {
+    const { error: erroAtualizarVinculo } = await supabase
+      .from("vinculos")
+      .update({ status: "ativo" })
+      .eq("id", vinculoExistente.id);
+
+    if (erroAtualizarVinculo) {
+      throw new Error("Não foi possível ativar o vínculo com o profissional.");
+    }
+  }
+
+  if (convite.status !== "aceito") {
+    const { error: erroAtualizarConvite } = await supabase
+      .from("convites")
+      .update({ status: "aceito" })
+      .eq("token", conviteToken);
+
+    if (erroAtualizarConvite) {
+      throw new Error("Não foi possível marcar o convite como aceito.");
+    }
+  }
+
+  conviteInfo = {
+    ...convite,
+    status: "aceito"
+  };
+}
+
 async function cadastrarUsuario({ nome, email, senha, perfil }) {
-  const redirectUrl = `${window.location.origin}/auth/index.html?perfil=${perfil}`;
+  const query = new URLSearchParams();
+  query.set("perfil", perfil);
+
+  if (conviteToken) {
+    query.set("convite", conviteToken);
+  }
+
+  const redirectUrl = `${window.location.origin}/auth/index.html?${query.toString()}`;
 
   const metadata = {
     nome,
@@ -406,6 +485,44 @@ async function fazerLogin(email, senha) {
   }
 
   return data.user;
+}
+
+async function processarSessaoConfirmada() {
+  if (processandoSessaoConfirmada) return;
+
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session?.user || !session.user.email_confirmed_at) {
+    return;
+  }
+
+  processandoSessaoConfirmada = true;
+
+  try {
+    const perfilUsuario = await buscarPerfilUsuario(session.user.id);
+
+    if (conviteToken && perfilUsuario.perfil === "paciente") {
+      await processarConviteParaPaciente(session.user.id);
+    }
+
+    const destino = await montarUrlDashboard(perfilUsuario.perfil, session.user.id);
+
+    mostrarMensagem("Conta confirmada com sucesso! Redirecionando...", "success");
+
+    setTimeout(() => {
+      window.location.href = destino;
+    }, 900);
+  } catch (erro) {
+    console.error("Erro ao finalizar confirmação:", erro);
+    mostrarMensagem(
+      erro.message || "Não foi possível concluir o acesso após a confirmação.",
+      "error"
+    );
+  } finally {
+    processandoSessaoConfirmada = false;
+  }
 }
 
 toggleButtons.forEach((button) => {
@@ -476,6 +593,10 @@ authForm.addEventListener("submit", async (event) => {
       return;
     }
 
+    if (conviteToken && perfilUsuario.perfil === "paciente") {
+      await processarConviteParaPaciente(user.id);
+    }
+
     const destino = await montarUrlDashboard(perfilUsuario.perfil, user.id);
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
@@ -494,6 +615,7 @@ authForm.addEventListener("submit", async (event) => {
 async function inicializarAuth() {
   await validarConvite();
   configurarTela();
+  await processarSessaoConfirmada();
 }
 
 inicializarAuth();
