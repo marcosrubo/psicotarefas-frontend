@@ -234,7 +234,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderInviteItem(convite, opcoes = {}) {
     const {
       mostrarBotaoCancelar = true,
-      classeBadgeExtra = ""
+      classeBadgeExtra = "",
+      mostrarAcoes = true
     } = opcoes;
 
     const criadoEm = formatarDataHora(convite.created_at);
@@ -255,6 +256,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <span>Enviado em ${criadoEm}</span>
         </div>
 
+        ${
+          mostrarAcoes
+            ? `
         <div class="invite-item__actions">
           <button
             class="mini-btn mini-btn--ghost"
@@ -288,6 +292,9 @@ document.addEventListener("DOMContentLoaded", () => {
               : ""
           }
         </div>
+        `
+            : ""
+        }
       </article>
     `;
   }
@@ -397,7 +404,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         emptyState.hidden = true;
         invitesList.innerHTML = convitesPendentes
-          .map((item) => renderInviteItem(item, { mostrarBotaoCancelar: true }))
+          .map((item) =>
+            renderInviteItem(item, {
+              mostrarBotaoCancelar: true,
+              mostrarAcoes: true
+            })
+          )
           .join("");
       }
 
@@ -412,7 +424,8 @@ document.addEventListener("DOMContentLoaded", () => {
             .map((item) =>
               renderInviteItem(item, {
                 mostrarBotaoCancelar: false,
-                classeBadgeExtra: "invite-badge--canceled"
+                classeBadgeExtra: "invite-badge--canceled",
+                mostrarAcoes: false
               })
             )
             .join("");
