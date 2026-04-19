@@ -5,6 +5,7 @@ const ADMIN_DASHBOARD_URL = "./dashboard/admin/index.html";
 
 let deferredPrompt = null;
 let supabaseClient = null;
+let adminSessionActive = false;
 
 const installBox = document.getElementById("installBox");
 const btnInstall = document.getElementById("btnInstall");
@@ -52,6 +53,11 @@ function setAdminLoadingState(isLoading) {
 
 function openAdminModal() {
   if (!adminModal) return;
+
+  if (adminSessionActive) {
+    window.location.href = ADMIN_DASHBOARD_URL;
+    return;
+  }
 
   adminModal.classList.add("is-open");
   adminModal.setAttribute("aria-hidden", "false");
@@ -140,14 +146,12 @@ async function checkExistingAdminSession() {
   } = await supabaseClient.auth.getSession();
 
   if (error || !session?.user) {
+    adminSessionActive = false;
     return;
   }
 
   const email = session.user.email?.toLowerCase();
-
-  if (email === ADMIN_EMAIL.toLowerCase()) {
-    window.location.href = ADMIN_DASHBOARD_URL;
-  }
+  adminSessionActive = email === ADMIN_EMAIL.toLowerCase();
 }
 
 async function handleAdminLogin(event) {
@@ -200,6 +204,7 @@ async function handleAdminLogin(event) {
     return;
   }
 
+  adminSessionActive = true;
   setMessage("Acesso liberado. Redirecionando para a dashboard...", "success");
 
   window.setTimeout(() => {
