@@ -123,7 +123,6 @@
           </button>
         </form>
 
-        <!-- 🔥 NOVO BLOCO: resumo do envio -->
         <div id="inviteSummaryBox" class="generated-link-box" hidden>
           <label>Enviar convite para:</label>
           <div>
@@ -150,7 +149,7 @@
       <section class="panel">
         <div class="panel__header">
           <h3>Convites pendentes</h3>
-          <p>Os convites mais recentes enviados por você.</p>
+          <p>Os convites mais recentes enviados por você e ainda não concluídos.</p>
         </div>
 
         <div class="empty-state" id="emptyState">
@@ -158,6 +157,19 @@
         </div>
 
         <div class="invites-list" id="invitesList"></div>
+      </section>
+
+      <section class="panel panel--secondary">
+        <div class="panel__header">
+          <h3>Convites cancelados</h3>
+          <p>Histórico dos convites cancelados por você.</p>
+        </div>
+
+        <div class="empty-state" id="canceledEmptyState">
+          Você ainda não possui convites cancelados.
+        </div>
+
+        <div class="invites-list" id="canceledInvitesList"></div>
       </section>
     </main>
   </div>

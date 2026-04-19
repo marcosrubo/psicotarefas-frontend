@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const invitesList = document.getElementById("invitesList");
   const emptyState = document.getElementById("emptyState");
 
+  const canceledInvitesList = document.getElementById("canceledInvitesList");
+  const canceledEmptyState = document.getElementById("canceledEmptyState");
+
   let currentUser = null;
   let currentProfile = null;
   let currentInviteLink = "";
@@ -228,9 +231,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function renderInviteItem(convite) {
+  function renderInviteItem(convite, opcoes = {}) {
+    const {
+      mostrarBotaoCancelar = true,
+      classeBadgeExtra = ""
+    } = opcoes;
+
     const criadoEm = formatarDataHora(convite.created_at);
     const whatsapp = formatarWhatsapp(convite.patient_whatsapp);
+    const classeBadge = `invite-badge ${classeBadgeExtra}`.trim();
 
     return `
       <article class="invite-item">
@@ -239,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <strong>${convite.patient_name}</strong>
             <span>${whatsapp}</span>
           </div>
-          <span class="invite-badge">${convite.status}</span>
+          <span class="${classeBadge}">${convite.status}</span>
         </div>
 
         <div class="invite-item__meta">
@@ -265,6 +274,9 @@ document.addEventListener("DOMContentLoaded", () => {
             WhatsApp
           </button>
 
+          ${
+            mostrarBotaoCancelar
+              ? `
           <button
             class="mini-btn mini-btn--danger"
             data-cancel-id="${convite.id}"
@@ -272,6 +284,9 @@ document.addEventListener("DOMContentLoaded", () => {
           >
             Cancelar convite
           </button>
+          `
+              : ""
+          }
         </div>
       </article>
     `;
@@ -364,27 +379,57 @@ document.addEventListener("DOMContentLoaded", () => {
         .from("convites")
         .select("id, patient_name, patient_whatsapp, invite_link, status, created_at")
         .eq("professional_user_id", currentUser.id)
-        .eq("status", "pendente")
+        .in("status", ["pendente", "cancelado"])
         .order("created_at", { ascending: false });
 
       if (error) {
         throw error;
       }
 
-      if (!data || data.length === 0) {
+      const convites = data || [];
+      const convitesPendentes = convites.filter((item) => item.status === "pendente");
+      const convitesCancelados = convites.filter((item) => item.status === "cancelado");
+
+      if (!convitesPendentes.length) {
         invitesList.innerHTML = "";
         emptyState.hidden = false;
         emptyState.textContent = "Você ainda não enviou convites pendentes.";
-        return;
+      } else {
+        emptyState.hidden = true;
+        invitesList.innerHTML = convitesPendentes
+          .map((item) => renderInviteItem(item, { mostrarBotaoCancelar: true }))
+          .join("");
       }
 
-      emptyState.hidden = true;
-      invitesList.innerHTML = data.map(renderInviteItem).join("");
+      if (canceledInvitesList && canceledEmptyState) {
+        if (!convitesCancelados.length) {
+          canceledInvitesList.innerHTML = "";
+          canceledEmptyState.hidden = false;
+          canceledEmptyState.textContent = "Você ainda não possui convites cancelados.";
+        } else {
+          canceledEmptyState.hidden = true;
+          canceledInvitesList.innerHTML = convitesCancelados
+            .map((item) =>
+              renderInviteItem(item, {
+                mostrarBotaoCancelar: false,
+                classeBadgeExtra: "invite-badge--canceled"
+              })
+            )
+            .join("");
+        }
+      }
     } catch (error) {
       console.error("Erro ao carregar convites:", error);
+
       invitesList.innerHTML = "";
       emptyState.hidden = false;
       emptyState.textContent = "Não foi possível carregar os convites.";
+
+      if (canceledInvitesList && canceledEmptyState) {
+        canceledInvitesList.innerHTML = "";
+        canceledEmptyState.hidden = false;
+        canceledEmptyState.textContent = "Não foi possível carregar os convites cancelados.";
+      }
     }
   }
 
@@ -597,8 +642,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (invitesList) {
-    invitesList.addEventListener("click", async (event) => {
+  if (invitesList || canceledInvitesList) {
+    document.addEventListener("click", async (event) => {
       const copyButton = event.target.closest("[data-copy-link]");
       const whatsappButton = event.target.closest("[data-whatsapp]");
       const cancelButton = event.target.closest("[data-cancel-id]");

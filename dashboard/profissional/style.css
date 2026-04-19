@@ -17,6 +17,8 @@
   --success-text: #027a48;
   --error-bg: #fef2f2;
   --error-text: #b42318;
+  --warning-bg: #fff4e5;
+  --warning-text: #b54708;
 }
 
 * {
@@ -295,6 +297,10 @@ input {
   padding: 18px 16px;
 }
 
+.panel--secondary {
+  border-style: dashed;
+}
+
 .panel__header {
   margin-bottom: 14px;
 }
@@ -368,7 +374,6 @@ input {
   font-weight: 700;
 }
 
-/* novo bloco de resumo do convite */
 #inviteSummaryBox {
   background: rgba(109, 94, 252, 0.05);
   border: 1px solid rgba(109, 94, 252, 0.16);
@@ -418,6 +423,11 @@ input {
   background: #fff;
 }
 
+.invite-item--canceled {
+  background: #fffaf5;
+  border-color: #f3d8b6;
+}
+
 .invite-item__top {
   display: flex;
   justify-content: space-between;
@@ -448,6 +458,11 @@ input {
   white-space: nowrap;
   background: var(--primary-soft);
   color: var(--primary-dark);
+}
+
+.invite-badge--canceled {
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .invite-item__meta {
