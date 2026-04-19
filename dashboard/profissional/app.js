@@ -22,6 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientNameInput = document.getElementById("patientName");
   const patientWhatsappInput = document.getElementById("patientWhatsapp");
 
+  const inviteSummaryBox = document.getElementById("inviteSummaryBox");
+  const summaryPatientName = document.getElementById("summaryPatientName");
+  const summaryPatientWhatsapp = document.getElementById("summaryPatientWhatsapp");
+
   const generatedLinkBox = document.getElementById("generatedLinkBox");
   const generatedLinkInput = document.getElementById("generatedLink");
   const btnCopyLink = document.getElementById("btnCopyLink");
@@ -166,6 +170,62 @@ document.addEventListener("DOMContentLoaded", () => {
       `Seu psicólogo(a) ${currentProfessionalName} enviou um convite para acessar o PsicoTarefas.\n\n` +
       `Use este link para entrar no sistema:\n${link}`
     );
+  }
+
+  function limparResumoConvite() {
+    currentInviteLink = "";
+    currentInvitePatientName = "";
+    currentWhatsappDigits = "";
+
+    if (inviteSummaryBox) inviteSummaryBox.hidden = true;
+    if (summaryPatientName) summaryPatientName.textContent = "";
+    if (summaryPatientWhatsapp) summaryPatientWhatsapp.textContent = "";
+
+    if (generatedLinkInput) generatedLinkInput.value = "";
+    if (generatedLinkBox) generatedLinkBox.hidden = true;
+  }
+
+  function preencherResumoConvite(nomePaciente, whatsappDigits, inviteLink) {
+    currentInviteLink = inviteLink;
+    currentInvitePatientName = nomePaciente;
+    currentWhatsappDigits = whatsappDigits;
+
+    if (summaryPatientName) {
+      summaryPatientName.textContent = nomePaciente;
+    }
+
+    if (summaryPatientWhatsapp) {
+      summaryPatientWhatsapp.textContent = formatarWhatsapp(whatsappDigits);
+    }
+
+    if (inviteSummaryBox) {
+      inviteSummaryBox.hidden = false;
+    }
+
+    if (generatedLinkInput) {
+      generatedLinkInput.value = inviteLink;
+    }
+
+    if (generatedLinkBox) {
+      generatedLinkBox.hidden = false;
+    }
+  }
+
+  function fecharPainelConvite() {
+    if (invitePanel) {
+      invitePanel.hidden = true;
+    }
+
+    esconderMensagem();
+    limparResumoConvite();
+
+    if (inviteForm) {
+      inviteForm.reset();
+    }
+
+    if (patientWhatsappInput) {
+      patientWhatsappInput.value = "";
+    }
   }
 
   function renderInviteItem(convite) {
@@ -356,6 +416,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = `https://wa.me/${digits}?text=${mensagem}`;
 
     window.open(url, "_blank");
+
+    // Fecha o quadro de novo convite ao sair para o WhatsApp
+    fecharPainelConvite();
   }
 
   btnEditName.addEventListener("click", abrirEdicaoNome);
@@ -375,10 +438,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnToggleInvite && invitePanel) {
     btnToggleInvite.addEventListener("click", () => {
-      invitePanel.hidden = !invitePanel.hidden;
+      const vaiAbrir = invitePanel.hidden;
 
-      if (!invitePanel.hidden && patientNameInput) {
-        patientNameInput.focus();
+      if (vaiAbrir) {
+        invitePanel.hidden = false;
+        if (patientNameInput) {
+          patientNameInput.focus();
+        }
+      } else {
+        fecharPainelConvite();
       }
     });
   }
@@ -429,12 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
           throw error;
         }
 
-        currentInviteLink = inviteLink;
-        currentInvitePatientName = patientName;
-        currentWhatsappDigits = patientWhatsapp;
-
-        generatedLinkInput.value = inviteLink;
-        generatedLinkBox.hidden = false;
+        preencherResumoConvite(patientName, patientWhatsapp, inviteLink);
 
         mostrarMensagem(
           "Convite gerado com sucesso! Agora envie pelo WhatsApp.",

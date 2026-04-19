@@ -368,6 +368,26 @@ input {
   font-weight: 700;
 }
 
+/* novo bloco de resumo do convite */
+#inviteSummaryBox {
+  background: rgba(109, 94, 252, 0.05);
+  border: 1px solid rgba(109, 94, 252, 0.16);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+#inviteSummaryBox strong {
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+#inviteSummaryBox span {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .generated-link-box__actions {
   display: grid;
   gap: 10px;
