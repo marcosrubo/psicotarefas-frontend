@@ -19,6 +19,8 @@
   --error-text: #b42318;
   --warning-bg: #fff4e5;
   --warning-text: #b54708;
+  --info-bg: #eef4ff;
+  --info-text: #1d4ed8;
 }
 
 * {
@@ -301,6 +303,16 @@ input {
   border-style: dashed;
 }
 
+.panel--info {
+  border-color: rgba(29, 78, 216, 0.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.panel--success {
+  border-color: rgba(2, 122, 72, 0.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f9fefb 100%);
+}
+
 .panel__header {
   margin-bottom: 14px;
 }
@@ -423,6 +435,16 @@ input {
   background: #fff;
 }
 
+.invite-item--awaiting {
+  background: #f8fbff;
+  border-color: #cfe0ff;
+}
+
+.invite-item--accepted {
+  background: #f8fdf9;
+  border-color: #cfead7;
+}
+
 .invite-item--canceled {
   background: #fffaf5;
   border-color: #f3d8b6;
@@ -460,6 +482,16 @@ input {
   color: var(--primary-dark);
 }
 
+.invite-badge--awaiting {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.invite-badge--accepted {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
 .invite-badge--canceled {
   background: var(--warning-bg);
   color: var(--warning-text);
@@ -469,6 +501,8 @@ input {
   margin-bottom: 12px;
   color: var(--muted);
   font-size: 13px;
+  display: grid;
+  gap: 4px;
 }
 
 .invite-item__actions {
@@ -549,3 +583,4 @@ input {
     grid-template-columns: 1fr 1fr;
   }
 }
+

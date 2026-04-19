@@ -149,7 +149,7 @@
       <section class="panel">
         <div class="panel__header">
           <h3>Convites pendentes</h3>
-          <p>Os convites mais recentes enviados por você e ainda não concluídos.</p>
+          <p>Convites enviados por você e que ainda não receberam cadastro.</p>
         </div>
 
         <div class="empty-state" id="emptyState">
@@ -157,6 +157,32 @@
         </div>
 
         <div class="invites-list" id="invitesList"></div>
+      </section>
+
+      <section class="panel panel--info">
+        <div class="panel__header">
+          <h3>Aguardando confirmação</h3>
+          <p>Pacientes que já responderam ao convite, mas ainda não confirmaram o e-mail.</p>
+        </div>
+
+        <div class="empty-state" id="awaitingEmptyState">
+          Nenhum convite aguardando confirmação no momento.
+        </div>
+
+        <div class="invites-list" id="awaitingInvitesList"></div>
+      </section>
+
+      <section class="panel panel--success">
+        <div class="panel__header">
+          <h3>Convites concluídos</h3>
+          <p>Convites aceitos com vínculo já ativo.</p>
+        </div>
+
+        <div class="empty-state" id="acceptedEmptyState">
+          Nenhum convite concluído até agora.
+        </div>
+
+        <div class="invites-list" id="acceptedInvitesList"></div>
       </section>
 
       <section class="panel panel--secondary">

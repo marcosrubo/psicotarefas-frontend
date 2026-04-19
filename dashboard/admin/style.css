@@ -16,6 +16,8 @@
   --danger-text: #b42318;
   --muted-bg: #f2f4f7;
   --muted-text: #475467;
+  --warning-bg: #fff4e5;
+  --warning-text: #b54708;
 }
 
 * {
@@ -397,6 +399,11 @@ input {
   color: var(--muted-text);
 }
 
+.status-badge--warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
 .empty-state,
 .empty-inline {
   padding: 14px;
@@ -440,3 +447,4 @@ input {
     justify-content: flex-end;
   }
 }
+

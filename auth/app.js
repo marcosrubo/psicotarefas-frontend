@@ -360,7 +360,11 @@ async function validarConvite() {
   conviteBloqueado = false;
 }
 
-async function registrarRespostaAoConviteAposCadastro({ token, patientUserId, patientEmail }) {
+async function registrarRespostaAoConviteAposCadastro({
+  token,
+  patientUserId,
+  patientEmail
+}) {
   if (!token || perfil !== "paciente") {
     return;
   }
@@ -432,7 +436,7 @@ async function processarConviteParaPaciente(userId, patientEmail) {
 
   const { data: vinculoExistente, error: erroBuscarVinculo } = await supabase
     .from("vinculos")
-    .select("id, status, patient_user_id, patient_email")
+    .select("id, status, patient_user_id, patient_email, respondeu_convite_at")
     .eq("token_convite", conviteToken)
     .maybeSingle();
 
@@ -652,8 +656,6 @@ authForm.addEventListener("submit", async (event) => {
 });
 
 async function inicializarAuth() {
-  // Sempre que entrar no AUTH, limpa qualquer sessão existente para evitar
-  // login automático e manter o fluxo previsível.
   try {
     await supabase.auth.signOut();
   } catch (error) {
@@ -665,3 +667,4 @@ async function inicializarAuth() {
 }
 
 inicializarAuth();
+
