@@ -9,12 +9,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const welcomeTitle = document.getElementById("welcomeTitle");
   const welcomeText = document.getElementById("welcomeText");
 
+  const statUsers = document.getElementById("statUsers");
+  const statPerfis = document.getElementById("statPerfis");
+  const statVinculos = document.getElementById("statVinculos");
   const statProfessionals = document.getElementById("statProfessionals");
   const statPatients = document.getElementById("statPatients");
-  const statActiveLinks = document.getElementById("statActiveLinks");
-  const statWithoutLink = document.getElementById("statWithoutLink");
-  const statPendingInvites = document.getElementById("statPendingInvites");
-  const statPendingRequests = document.getElementById("statPendingRequests");
+  const statInvitesCreated = document.getElementById("statInvitesCreated");
+  const statInvitesAccepted = document.getElementById("statInvitesAccepted");
+  const statInvitesPending = document.getElementById("statInvitesPending");
+  const statInvitesCanceled = document.getElementById("statInvitesCanceled");
 
   const professionalsAdminList = document.getElementById("professionalsAdminList");
   const professionalsEmpty = document.getElementById("professionalsEmpty");
@@ -75,6 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function classeBadgeStatus(status) {
+    if (status === "aceito") return "status-badge status-badge--success";
+    if (status === "cancelado") return "status-badge status-badge--danger";
+    if (status === "expirado") return "status-badge status-badge--muted";
+    return "status-badge status-badge--primary";
+  }
+
   function renderPatientTag(patient, extraText = "") {
     const nome = nomeExibicao(patient);
     const email = patient?.email || "";
@@ -95,14 +105,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return `
       <div class="item-tag">
-        <strong>${patientName}</strong>
+        <div class="item-tag__top">
+          <strong>${patientName}</strong>
+          <span class="${classeBadgeStatus(invite.status)}">${invite.status || "pendente"}</span>
+        </div>
         <span>${patientWhatsapp}</span>
-        <small>${invite.status || "pendente"} • ${data}</small>
+        <small>${data}</small>
       </div>
     `;
   }
 
-  function renderProfessionalCard(professional, activeLinks, pendingInvites, patientMap) {
+  function renderProfessionalCard(professional, activeLinks, allInvites, patientMap) {
     const nome = nomeExibicao(professional);
     const email = professional.email || "";
 
@@ -122,9 +135,9 @@ document.addEventListener("DOMContentLoaded", () => {
         : `<div class="empty-inline">Nenhum paciente vinculado.</div>`;
 
     const invitesHtml =
-      pendingInvites.length > 0
-        ? pendingInvites.map((invite) => renderInviteTag(invite)).join("")
-        : `<div class="empty-inline">Nenhum convite pendente.</div>`;
+      allInvites.length > 0
+        ? allInvites.map((invite) => renderInviteTag(invite)).join("")
+        : `<div class="empty-inline">Nenhum convite enviado.</div>`;
 
     return `
       <article class="admin-card">
@@ -137,8 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
 
           <div class="admin-card__stats">
-            <span>${activeLinks.length} vínculo(s)</span>
-            <span>${pendingInvites.length} convite(s)</span>
+            <span>${activeLinks.length} vínculo(s) ativo(s)</span>
+            <span>${allInvites.length} convite(s) enviado(s)</span>
           </div>
         </div>
 
@@ -150,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div class="admin-card__block">
-          <h4>Pacientes convidados</h4>
+          <h4>Convites enviados</h4>
           <div class="items-stack">
             ${invitesHtml}
           </div>
@@ -231,17 +244,19 @@ document.addEventListener("DOMContentLoaded", () => {
     userAvatar.textContent = obterIniciais(nome);
     welcomeTitle.textContent = `Olá, ${primeiroNome}`;
     welcomeText.textContent =
-      "Acompanhe profissionais, pacientes, vínculos e convites em uma visão centralizada do sistema.";
+      "Acompanhe os registros técnicos do sistema, os relacionamentos entre profissionais e pacientes e o histórico dos convites.";
 
     return true;
   }
 
   async function carregarDados() {
     const [
+      { data: totalUsers, error: totalUsersError },
       { data: perfis, error: perfisError },
       { data: vinculos, error: vinculosError },
       { data: convites, error: convitesError }
     ] = await Promise.all([
+      supabase.rpc("admin_total_users"),
       supabase
         .from("perfis")
         .select("user_id, nome, email, perfil")
@@ -256,11 +271,13 @@ document.addEventListener("DOMContentLoaded", () => {
         .order("created_at", { ascending: false })
     ]);
 
+    if (totalUsersError) throw totalUsersError;
     if (perfisError) throw perfisError;
     if (vinculosError) throw vinculosError;
     if (convitesError) throw convitesError;
 
     return {
+      totalUsers: totalUsers || 0,
       perfis: perfis || [],
       vinculos: vinculos || [],
       convites: convites || []
@@ -268,28 +285,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function preencherEstatisticas({
+    totalUsers,
+    perfis,
+    vinculos,
     professionals,
     patients,
-    activeLinks,
-    patientsWithoutActiveLink,
-    pendingInvites,
-    pendingRequests
+    convites,
+    convitesAceitos,
+    convitesPendentes,
+    convitesCancelados
   }) {
+    statUsers.textContent = String(totalUsers);
+    statPerfis.textContent = String(perfis.length);
+    statVinculos.textContent = String(vinculos.length);
     statProfessionals.textContent = String(professionals.length);
     statPatients.textContent = String(patients.length);
-    statActiveLinks.textContent = String(activeLinks.length);
-    statWithoutLink.textContent = String(patientsWithoutActiveLink.length);
-    statPendingInvites.textContent = String(pendingInvites.length);
-    statPendingRequests.textContent = String(pendingRequests.length);
+    statInvitesCreated.textContent = String(convites.length);
+    statInvitesAccepted.textContent = String(convitesAceitos.length);
+    statInvitesPending.textContent = String(convitesPendentes.length);
+    statInvitesCanceled.textContent = String(convitesCancelados.length);
   }
 
-  function renderDashboard({ perfis, vinculos, convites }) {
+  function renderDashboard({ totalUsers, perfis, vinculos, convites }) {
     const professionals = perfis.filter((item) => item.perfil === "profissional");
     const patients = perfis.filter((item) => item.perfil === "paciente");
 
     const activeLinks = vinculos.filter((item) => item.status === "ativo");
     const pendingRequests = vinculos.filter((item) => item.status === "pendente");
-    const pendingInvites = convites.filter((item) => item.status === "pendente");
+
+    const convitesAceitos = convites.filter((item) => item.status === "aceito");
+    const convitesPendentes = convites.filter((item) => item.status === "pendente");
+    const convitesCancelados = convites.filter((item) => item.status === "cancelado");
 
     const perfilMap = new Map(perfis.map((item) => [item.user_id, item]));
     const professionalMap = new Map(professionals.map((item) => [item.user_id, item]));
@@ -302,12 +328,15 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     preencherEstatisticas({
+      totalUsers,
+      perfis,
+      vinculos,
       professionals,
       patients,
-      activeLinks,
-      patientsWithoutActiveLink,
-      pendingInvites,
-      pendingRequests
+      convites,
+      convitesAceitos,
+      convitesPendentes,
+      convitesCancelados
     });
 
     if (professionals.length === 0) {
@@ -322,14 +351,14 @@ document.addEventListener("DOMContentLoaded", () => {
             (link) => link.professional_user_id === professional.user_id
           );
 
-          const professionalPendingInvites = pendingInvites.filter(
+          const professionalAllInvites = convites.filter(
             (invite) => invite.professional_user_id === professional.user_id
           );
 
           return renderProfessionalCard(
             professional,
             professionalActiveLinks,
-            professionalPendingInvites,
+            professionalAllInvites,
             patientMap
           );
         })
@@ -338,7 +367,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (patientsWithoutActiveLink.length === 0) {
       patientsWithoutLinkList.innerHTML = "";
-      patientsWithoutLinkEmpty.hidden = true;
       patientsWithoutLinkEmpty.hidden = false;
     } else {
       patientsWithoutLinkEmpty.hidden = true;

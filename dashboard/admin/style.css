@@ -10,6 +10,12 @@
   --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
   --radius-xl: 28px;
   --radius-lg: 22px;
+  --success-bg: #ecfdf3;
+  --success-text: #027a48;
+  --danger-bg: #fef2f2;
+  --danger-text: #b42318;
+  --muted-bg: #f2f4f7;
+  --muted-text: #475467;
 }
 
 * {
@@ -190,7 +196,7 @@ input {
 .stats-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 .stat-card {
@@ -323,6 +329,14 @@ input {
   gap: 4px;
 }
 
+.item-tag__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .item-tag strong,
 .simple-item strong {
   font-size: 14px;
@@ -354,6 +368,35 @@ input {
   font-weight: 700;
 }
 
+.status-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-badge--primary {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.status-badge--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.status-badge--danger {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.status-badge--muted {
+  background: var(--muted-bg);
+  color: var(--muted-text);
+}
+
 .empty-state,
 .empty-inline {
   padding: 14px;
@@ -370,7 +413,7 @@ input {
 
 @media (min-width: 768px) {
   .dashboard-shell {
-    max-width: 1080px;
+    max-width: 1180px;
     margin: 0 auto;
   }
 

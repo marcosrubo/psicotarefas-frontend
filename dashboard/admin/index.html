@@ -35,7 +35,7 @@
           <div class="user-chip__avatar" id="userAvatar">AD</div>
           <div class="user-chip__text">
             <strong id="userName">Administrador</strong>
-            <span id="userRole">Visão geral do sistema</span>
+            <span id="userRole">Visualização técnica do sistema</span>
           </div>
         </div>
 
@@ -49,47 +49,62 @@
           <p class="welcome-card__label">Painel administrativo</p>
           <h2 id="welcomeTitle">Olá</h2>
           <p id="welcomeText">
-            Acompanhe profissionais, pacientes, vínculos e convites em uma visão centralizada do sistema.
+            Acompanhe os registros técnicos do sistema, os relacionamentos entre profissionais e pacientes e o histórico dos convites.
           </p>
         </div>
       </section>
 
       <section class="stats-grid">
         <article class="stat-card">
-          <span class="stat-card__label">Profissionais</span>
+          <span class="stat-card__label">Total de registros no USERS</span>
+          <strong class="stat-card__value" id="statUsers">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Total de registros no PERFIS</span>
+          <strong class="stat-card__value" id="statPerfis">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Total de registros no VÍNCULOS</span>
+          <strong class="stat-card__value" id="statVinculos">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-card__label">Total de PROFISSIONAIS</span>
           <strong class="stat-card__value" id="statProfessionals">0</strong>
         </article>
 
         <article class="stat-card">
-          <span class="stat-card__label">Pacientes</span>
+          <span class="stat-card__label">Total de PACIENTES</span>
           <strong class="stat-card__value" id="statPatients">0</strong>
         </article>
 
         <article class="stat-card">
-          <span class="stat-card__label">Vínculos ativos</span>
-          <strong class="stat-card__value" id="statActiveLinks">0</strong>
+          <span class="stat-card__label">Total de CONVITES criados</span>
+          <strong class="stat-card__value" id="statInvitesCreated">0</strong>
         </article>
 
         <article class="stat-card">
-          <span class="stat-card__label">Sem vínculo</span>
-          <strong class="stat-card__value" id="statWithoutLink">0</strong>
+          <span class="stat-card__label">Total de CONVITES aceitos</span>
+          <strong class="stat-card__value" id="statInvitesAccepted">0</strong>
         </article>
 
         <article class="stat-card">
-          <span class="stat-card__label">Convites pendentes</span>
-          <strong class="stat-card__value" id="statPendingInvites">0</strong>
+          <span class="stat-card__label">Total de CONVITES pendentes</span>
+          <strong class="stat-card__value" id="statInvitesPending">0</strong>
         </article>
 
         <article class="stat-card">
-          <span class="stat-card__label">Solicitações pendentes</span>
-          <strong class="stat-card__value" id="statPendingRequests">0</strong>
+          <span class="stat-card__label">Total de CONVITES cancelados</span>
+          <strong class="stat-card__value" id="statInvitesCanceled">0</strong>
         </article>
       </section>
 
       <section class="panel">
         <div class="panel__header">
           <h3>Profissionais e seus relacionamentos</h3>
-          <p>Veja cada profissional com pacientes vinculados e convites pendentes.</p>
+          <p>Para cada profissional, veja pacientes vinculados e todos os convites enviados.</p>
         </div>
 
         <div class="admin-list" id="professionalsAdminList"></div>
@@ -115,7 +130,7 @@
       <section class="panel">
         <div class="panel__header">
           <h3>Convites recentes</h3>
-          <p>Últimos convites gerados no sistema.</p>
+          <p>Convites com todos os status: aceitos, pendentes, cancelados ou expirados.</p>
         </div>
 
         <div class="simple-list" id="recentInvitesList"></div>
