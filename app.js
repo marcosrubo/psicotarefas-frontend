@@ -37,7 +37,7 @@ function tratarEntradaPorLinkEmail() {
 
   if (!confirmar) return true;
 
-  const destino = `./auth/paciente-cadastro/index.html?convite=${token}`;
+  const destino = `./auth/paciente-cadastro/index.html?convite=${encodeURIComponent(token)}`;
   window.location.href = destino;
   return true;
 }
@@ -46,10 +46,30 @@ function tratarEntradaPorLinkEmail() {
 // CONFIRMAÇÃO DE E-MAIL
 // ============================
 
-async function tratarConfirmacaoDeEmail() {
+function obterHashParams() {
   const hash = window.location.hash || "";
-  const hashParams = new URLSearchParams(hash.replace(/^#/, ""));
-  const tipo = hashParams.get("type");
+  return new URLSearchParams(hash.replace(/^#/, ""));
+}
+
+function obterSearchParams() {
+  return new URLSearchParams(window.location.search || "");
+}
+
+async function tratarConfirmacaoDeEmail() {
+  const hashParams = obterHashParams();
+  const searchParams = obterSearchParams();
+
+  const tipoHash = hashParams.get("type");
+  const tipoSearch = searchParams.get("type");
+  const tipo = tipoHash || tipoSearch;
+
+  const errorCode = hashParams.get("error_code") || searchParams.get("error_code") || "";
+  const errorDescription =
+    hashParams.get("error_description") ||
+    searchParams.get("error_description") ||
+    "";
+
+  const tokenHash = searchParams.get("token_hash") || searchParams.get("token") || "";
 
   supabaseClient = supabaseClient || createSupabaseClient();
 
@@ -58,23 +78,45 @@ async function tratarConfirmacaoDeEmail() {
   }
 
   try {
+    // CASO 1: confirmação normal, com sessão disponível após redirect
     const {
       data: { user }
     } = await supabaseClient.auth.getUser();
 
-    if (!user) {
-      return false;
-    }
+    if (user) {
+      const perfil = user.user_metadata?.perfil;
 
-    const perfil = user.user_metadata?.perfil;
+      // Supabase usa type=email no link de confirmação de cadastro
+      if (tipo === "email" || tipo === "signup") {
+        if (perfil === "profissional") {
+          const confirmou = window.confirm(
+            "Você se cadastrou no sistema como PROFISSIONAL e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+          );
 
-    // ============================
-    // CASO 1: PRIMEIRA CONFIRMAÇÃO
-    // ============================
-    if (tipo === "signup") {
-      if (perfil === "profissional") {
+          if (confirmou) {
+            window.location.href = "./auth/profissional-login/index.html";
+          }
+
+          return true;
+        }
+
+        if (perfil === "paciente") {
+          const confirmou = window.confirm(
+            "Você se cadastrou no sistema como PACIENTE e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+          );
+
+          if (confirmou) {
+            window.location.href = "./auth/paciente-login/index.html";
+          }
+
+          return true;
+        }
+      }
+
+      // CASO 2: clicou de novo num link antigo e o usuário já está confirmado
+      if (user.email_confirmed_at && tokenHash) {
         const confirmou = window.confirm(
-          "Você se cadastrou no sistema como PROFISSIONAL e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
         );
 
         if (confirmou) {
@@ -83,24 +125,31 @@ async function tratarConfirmacaoDeEmail() {
 
         return true;
       }
+    }
 
-      if (perfil === "paciente") {
+    // CASO 3: redirect com erro no hash/query
+    if (errorCode || errorDescription) {
+      const textoErro = `${errorCode} ${errorDescription}`.toLowerCase();
+
+      if (
+        textoErro.includes("otp_expired") ||
+        textoErro.includes("expired") ||
+        textoErro.includes("invalid")
+      ) {
         const confirmou = window.confirm(
-          "Você se cadastrou no sistema como PACIENTE e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
         );
 
         if (confirmou) {
-          window.location.href = "./auth/paciente-login/index.html";
+          window.location.href = "./auth/profissional-login/index.html";
         }
 
         return true;
       }
     }
 
-    // ============================
-    // CASO 2: EMAIL JÁ CONFIRMADO
-    // ============================
-    if (user.email_confirmed_at) {
+    // CASO 4: fallback para links com type=email/token_hash, mesmo sem sessão
+    if ((tipo === "email" || tipo === "signup") && tokenHash) {
       const confirmou = window.confirm(
         "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
       );
@@ -115,6 +164,20 @@ async function tratarConfirmacaoDeEmail() {
     return false;
   } catch (erro) {
     console.error("Erro ao tratar confirmação de e-mail:", erro);
+
+    // fallback final: se veio com cara de link de confirmação, mostra a mensagem mesmo assim
+    if ((tipo === "email" || tipo === "signup") && tokenHash) {
+      const confirmou = window.confirm(
+        "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
+      );
+
+      if (confirmou) {
+        window.location.href = "./auth/profissional-login/index.html";
+      }
+
+      return true;
+    }
+
     return false;
   }
 }
