@@ -67,6 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (status === "aguardando_confirmacao_email") {
       return `<span class="status-badge status-badge--warning">Aguardando confirmação</span>`;
     }
+    if (status === "pendente_convite") {
+      return `<span class="status-badge status-badge--primary">Pendente convite</span>`;
+    }
+    if (status === "encerrado") {
+      return `<span class="status-badge status-badge--muted">Encerrado</span>`;
+    }
     return `<span class="status-badge status-badge--muted">${escapeHtml(status)}</span>`;
   }
 
@@ -87,6 +93,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return `<span class="status-badge status-badge--muted">E-mail: não informado</span>`;
+  }
+
+  function obterDescricaoPacienteSemVinculo(paciente, vinculos, perfis) {
+    const vinculosDoPaciente = vinculos.filter((v) => v.patient_user_id === paciente.user_id);
+
+    const vinculoEmAberto = vinculosDoPaciente.find((v) =>
+      ["pendente_convite", "aguardando_confirmacao_email"].includes(v.status)
+    );
+
+    if (vinculoEmAberto) {
+      const profissional = perfis.find(
+        (p) => p.user_id === vinculoEmAberto.professional_user_id && p.perfil === "profissional"
+      );
+
+      const nomeProfissional = profissional?.nome || profissional?.email || "Profissional";
+      return `CONVIDADO por ${nomeProfissional}`;
+    }
+
+    return "sem CONVITE";
   }
 
   async function validarAdmin() {
@@ -249,14 +274,19 @@ document.addEventListener("DOMContentLoaded", () => {
       patientsWithoutLinkEmpty.hidden = true;
 
       patientsWithoutLinkList.innerHTML = pacientesSemVinculo
-        .map(
-          (p) => `
-        <div class="simple-item">
-          <strong>${escapeHtml(p.nome || p.email)}</strong>
-          <span>${escapeHtml(p.email || "")}</span>
-        </div>
-      `
-        )
+        .map((p) => {
+          const descricao = obterDescricaoPacienteSemVinculo(p, vinculos, perfis);
+
+          return `
+            <div class="simple-item">
+              <div>
+                <strong>${escapeHtml(p.nome || p.email)}</strong>
+                <small>${escapeHtml(descricao)}</small>
+              </div>
+              <span>${escapeHtml(p.email || "")}</span>
+            </div>
+          `;
+        })
         .join("");
     }
 
