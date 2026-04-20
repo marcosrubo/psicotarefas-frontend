@@ -21,35 +21,91 @@ const adminPasswordInput = document.getElementById("adminPassword");
 const adminLoginMessage = document.getElementById("adminLoginMessage");
 const btnSubmitAdminLogin = document.getElementById("btnSubmitAdminLogin");
 
-
 // ============================
-// 🔥 NOVA LÓGICA DE CONVITE
+// CONVITE POR LINK
 // ============================
 
 function tratarEntradaPorLinkEmail() {
   const params = new URLSearchParams(window.location.search);
-
   const token = params.get("token") || params.get("convite");
 
-  if (!token) return;
+  if (!token) return false;
 
-  const confirmar = confirm(
-    "Você está acessando o sistema através de um link enviado por e-mail.\n\nDeseja continuar para o login?"
+  const confirmar = window.confirm(
+    "Você foi convidado por um profissional para acessar o PsicoTarefas.\n\nClique em OK para continuar."
   );
 
-  if (!confirmar) return;
+  if (!confirmar) return true;
 
-  const destino = `./auth/index.html?modo=signup&perfil=paciente&convite=${token}`;
-
+  const destino = `./auth/paciente-cadastro/index.html?convite=${token}`;
   window.location.href = destino;
+  return true;
 }
 
-// executa logo ao carregar
-tratarEntradaPorLinkEmail();
+// ============================
+// CONFIRMAÇÃO DE E-MAIL
+// ============================
 
+async function tratarConfirmacaoDeEmail() {
+  const hash = window.location.hash || "";
+  const hashParams = new URLSearchParams(hash.replace(/^#/, ""));
+  const tipo = hashParams.get("type");
+
+  if (tipo !== "signup") {
+    return false;
+  }
+
+  supabaseClient = supabaseClient || createSupabaseClient();
+
+  if (!supabaseClient) {
+    return false;
+  }
+
+  try {
+    const {
+      data: { user },
+      error
+    } = await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+      return false;
+    }
+
+    const perfil = user.user_metadata?.perfil;
+
+    if (perfil === "profissional") {
+      const confirmou = window.confirm(
+        "Você se cadastrou no sistema como PROFISSIONAL e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+      );
+
+      if (confirmou) {
+        window.location.href = "./auth/profissional-login/index.html";
+      }
+
+      return true;
+    }
+
+    if (perfil === "paciente") {
+      const confirmou = window.confirm(
+        "Você se cadastrou no sistema como PACIENTE e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+      );
+
+      if (confirmou) {
+        window.location.href = "./auth/paciente-login/index.html";
+      }
+
+      return true;
+    }
+
+    return false;
+  } catch (erro) {
+    console.error("Erro ao tratar confirmação de e-mail:", erro);
+    return false;
+  }
+}
 
 // ============================
-// RESTANTE DO SEU CÓDIGO (INALTERADO)
+// RESTANTE
 // ============================
 
 function createSupabaseClient() {
@@ -243,4 +299,14 @@ if (adminLoginForm) {
   adminLoginForm.addEventListener("submit", handleAdminLogin);
 }
 
-checkExistingAdminSession();
+async function inicializarTelaPrincipal() {
+  const tratouConfirmacao = await tratarConfirmacaoDeEmail();
+  if (tratouConfirmacao) return;
+
+  const tratouConvite = tratarEntradaPorLinkEmail();
+  if (tratouConvite) return;
+
+  await checkExistingAdminSession();
+}
+
+inicializarTelaPrincipal();
