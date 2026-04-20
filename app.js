@@ -22,168 +22,7 @@ const adminLoginMessage = document.getElementById("adminLoginMessage");
 const btnSubmitAdminLogin = document.getElementById("btnSubmitAdminLogin");
 
 // ============================
-// CONVITE POR LINK
-// ============================
-
-function tratarEntradaPorLinkEmail() {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token") || params.get("convite");
-
-  if (!token) return false;
-
-  const confirmar = window.confirm(
-    "Você foi convidado por um profissional para acessar o PsicoTarefas.\n\nClique em OK para continuar."
-  );
-
-  if (!confirmar) return true;
-
-  const destino = `./auth/paciente-cadastro/index.html?convite=${encodeURIComponent(token)}`;
-  window.location.href = destino;
-  return true;
-}
-
-// ============================
-// CONFIRMAÇÃO DE E-MAIL
-// ============================
-
-function obterHashParams() {
-  const hash = window.location.hash || "";
-  return new URLSearchParams(hash.replace(/^#/, ""));
-}
-
-function obterSearchParams() {
-  return new URLSearchParams(window.location.search || "");
-}
-
-async function tratarConfirmacaoDeEmail() {
-  const hashParams = obterHashParams();
-  const searchParams = obterSearchParams();
-
-  const tipoHash = hashParams.get("type");
-  const tipoSearch = searchParams.get("type");
-  const tipo = tipoHash || tipoSearch;
-
-  const errorCode = hashParams.get("error_code") || searchParams.get("error_code") || "";
-  const errorDescription =
-    hashParams.get("error_description") ||
-    searchParams.get("error_description") ||
-    "";
-
-  const tokenHash = searchParams.get("token_hash") || searchParams.get("token") || "";
-
-  supabaseClient = supabaseClient || createSupabaseClient();
-
-  if (!supabaseClient) {
-    return false;
-  }
-
-  try {
-    // CASO 1: confirmação normal, com sessão disponível após redirect
-    const {
-      data: { user }
-    } = await supabaseClient.auth.getUser();
-
-    if (user) {
-      const perfil = user.user_metadata?.perfil;
-
-      // Supabase usa type=email no link de confirmação de cadastro
-      if (tipo === "email" || tipo === "signup") {
-        if (perfil === "profissional") {
-          const confirmou = window.confirm(
-            "Você se cadastrou no sistema como PROFISSIONAL e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
-          );
-
-          if (confirmou) {
-            window.location.href = "./auth/profissional-login/index.html";
-          }
-
-          return true;
-        }
-
-        if (perfil === "paciente") {
-          const confirmou = window.confirm(
-            "Você se cadastrou no sistema como PACIENTE e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
-          );
-
-          if (confirmou) {
-            window.location.href = "./auth/paciente-login/index.html";
-          }
-
-          return true;
-        }
-      }
-
-      // CASO 2: clicou de novo num link antigo e o usuário já está confirmado
-      if (user.email_confirmed_at && tokenHash) {
-        const confirmou = window.confirm(
-          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
-        );
-
-        if (confirmou) {
-          window.location.href = "./auth/profissional-login/index.html";
-        }
-
-        return true;
-      }
-    }
-
-    // CASO 3: redirect com erro no hash/query
-    if (errorCode || errorDescription) {
-      const textoErro = `${errorCode} ${errorDescription}`.toLowerCase();
-
-      if (
-        textoErro.includes("otp_expired") ||
-        textoErro.includes("expired") ||
-        textoErro.includes("invalid")
-      ) {
-        const confirmou = window.confirm(
-          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
-        );
-
-        if (confirmou) {
-          window.location.href = "./auth/profissional-login/index.html";
-        }
-
-        return true;
-      }
-    }
-
-    // CASO 4: fallback para links com type=email/token_hash, mesmo sem sessão
-    if ((tipo === "email" || tipo === "signup") && tokenHash) {
-      const confirmou = window.confirm(
-        "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
-      );
-
-      if (confirmou) {
-        window.location.href = "./auth/profissional-login/index.html";
-      }
-
-      return true;
-    }
-
-    return false;
-  } catch (erro) {
-    console.error("Erro ao tratar confirmação de e-mail:", erro);
-
-    // fallback final: se veio com cara de link de confirmação, mostra a mensagem mesmo assim
-    if ((tipo === "email" || tipo === "signup") && tokenHash) {
-      const confirmou = window.confirm(
-        "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
-      );
-
-      if (confirmou) {
-        window.location.href = "./auth/profissional-login/index.html";
-      }
-
-      return true;
-    }
-
-    return false;
-  }
-}
-
-// ============================
-// RESTANTE
+// HELPERS
 // ============================
 
 function createSupabaseClient() {
@@ -200,6 +39,252 @@ function createSupabaseClient() {
 
   return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
+
+function obterHashParams() {
+  const hash = window.location.hash || "";
+  return new URLSearchParams(hash.replace(/^#/, ""));
+}
+
+function obterSearchParams() {
+  return new URLSearchParams(window.location.search || "");
+}
+
+function obterLoginUrlPorPerfil(perfil) {
+  if (perfil === "profissional") {
+    return "./auth/profissional-login/index.html";
+  }
+
+  return "./auth/paciente-login/index.html";
+}
+
+async function buscarConvitePublico(token) {
+  supabaseClient = supabaseClient || createSupabaseClient();
+
+  if (!supabaseClient) {
+    return null;
+  }
+
+  const { data, error } = await supabaseClient.rpc("buscar_convite_publico", {
+    p_token: token
+  });
+
+  if (error) {
+    throw new Error("Não foi possível validar o convite.");
+  }
+
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  return data[0];
+}
+
+// ============================
+// CONVITE POR LINK
+// ============================
+
+async function tratarEntradaPorLinkEmail() {
+  const params = obterSearchParams();
+  const token = (params.get("token") || params.get("convite") || "").trim();
+
+  if (!token) return false;
+
+  try {
+    const convite = await buscarConvitePublico(token);
+
+    if (!convite) {
+      window.confirm(
+        "Este convite não foi encontrado ou não é mais válido."
+      );
+      return true;
+    }
+
+    const profissional = convite.professional_name || "Profissional";
+    const status = convite.status || "";
+
+    if (status === "pendente") {
+      const confirmar = window.confirm(
+        `Você foi convidado pelo profissional ${profissional}.\n\nClique em OK para continuar.`
+      );
+
+      if (confirmar) {
+        const destino = `./auth/paciente-cadastro/index.html?convite=${encodeURIComponent(token)}`;
+        window.location.href = destino;
+      }
+
+      return true;
+    }
+
+    if (status === "respondido") {
+      window.confirm(
+        `Você foi convidado pelo profissional ${profissional}.\n\nSeu cadastro já foi iniciado, mas ainda é necessário confirmar o e-mail informado.`
+      );
+      return true;
+    }
+
+    if (status === "aceito") {
+      const confirmar = window.confirm(
+        `Você já concluiu o vínculo com o profissional ${profissional}.\n\nClique em OK para acessar a próxima tela.`
+      );
+
+      if (confirmar) {
+        window.location.href = "./auth/paciente-login/index.html";
+      }
+
+      return true;
+    }
+
+    if (status === "cancelado") {
+      window.confirm(
+        `Este convite foi cancelado por ${profissional}.`
+      );
+      return true;
+    }
+
+    if (status === "expirado") {
+      window.confirm(
+        `Este convite do profissional ${profissional} expirou.`
+      );
+      return true;
+    }
+
+    const confirmar = window.confirm(
+      `Você foi convidado pelo profissional ${profissional}.\n\nClique em OK para continuar.`
+    );
+
+    if (confirmar) {
+      const destino = `./auth/paciente-cadastro/index.html?convite=${encodeURIComponent(token)}`;
+      window.location.href = destino;
+    }
+
+    return true;
+  } catch (erro) {
+    console.error("Erro ao tratar link de convite:", erro);
+    window.confirm(
+      "Não foi possível validar este convite agora."
+    );
+    return true;
+  }
+}
+
+// ============================
+// CONFIRMAÇÃO DE E-MAIL
+// ============================
+
+async function tratarConfirmacaoDeEmail() {
+  const hashParams = obterHashParams();
+  const searchParams = obterSearchParams();
+
+  const tipoHash = hashParams.get("type");
+  const tipoSearch = searchParams.get("type");
+  const tipo = tipoHash || tipoSearch;
+
+  const errorCode = hashParams.get("error_code") || searchParams.get("error_code") || "";
+  const errorDescription =
+    hashParams.get("error_description") ||
+    searchParams.get("error_description") ||
+    "";
+
+  const tokenHash = searchParams.get("token_hash") || searchParams.get("token") || "";
+  const hasAccessToken = Boolean(hashParams.get("access_token"));
+
+  supabaseClient = supabaseClient || createSupabaseClient();
+
+  if (!supabaseClient) {
+    return false;
+  }
+
+  try {
+    const {
+      data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (user) {
+      const perfil = user.user_metadata?.perfil || "paciente";
+      const loginUrl = obterLoginUrlPorPerfil(perfil);
+
+      if (tipo === "email" || tipo === "signup" || hasAccessToken) {
+        const confirmou = window.confirm(
+          "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
+        );
+
+        if (confirmou) {
+          window.location.href = loginUrl;
+        }
+
+        return true;
+      }
+
+      if (user.email_confirmed_at && tokenHash) {
+        const confirmou = window.confirm(
+          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
+        );
+
+        if (confirmou) {
+          window.location.href = loginUrl;
+        }
+
+        return true;
+      }
+    }
+
+    if (errorCode || errorDescription) {
+      const textoErro = `${errorCode} ${errorDescription}`.toLowerCase();
+
+      if (
+        textoErro.includes("otp_expired") ||
+        textoErro.includes("expired") ||
+        textoErro.includes("invalid") ||
+        textoErro.includes("already") ||
+        textoErro.includes("used")
+      ) {
+        const confirmou = window.confirm(
+          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
+        );
+
+        if (confirmou) {
+          window.location.href = "./auth/paciente-login/index.html";
+        }
+
+        return true;
+      }
+    }
+
+    if ((tipo === "email" || tipo === "signup") && tokenHash) {
+      const confirmou = window.confirm(
+        "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
+      );
+
+      if (confirmou) {
+        window.location.href = "./auth/paciente-login/index.html";
+      }
+
+      return true;
+    }
+
+    return false;
+  } catch (erro) {
+    console.error("Erro ao tratar confirmação de e-mail:", erro);
+
+    if ((tipo === "email" || tipo === "signup") && tokenHash) {
+      const confirmou = window.confirm(
+        "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
+      );
+
+      if (confirmou) {
+        window.location.href = "./auth/paciente-login/index.html";
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+}
+
+// ============================
+// RESTANTE
+// ============================
 
 function setMessage(text = "", type = "") {
   adminLoginMessage.textContent = text;
@@ -381,7 +466,7 @@ async function inicializarTelaPrincipal() {
   const tratouConfirmacao = await tratarConfirmacaoDeEmail();
   if (tratouConfirmacao) return;
 
-  const tratouConvite = tratarEntradaPorLinkEmail();
+  const tratouConvite = await tratarEntradaPorLinkEmail();
   if (tratouConvite) return;
 
   await checkExistingAdminSession();
