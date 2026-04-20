@@ -1,4 +1,4 @@
-import supabase from "../shared/supabase.js";
+import supabase from "../../shared/supabase.js";
 
 const authForm = document.getElementById("authForm");
 const nomeInput = document.getElementById("nome");
@@ -79,7 +79,7 @@ function validarFormulario() {
 }
 
 async function cadastrarProfissional({ nome, email, senha }) {
-  const redirectUrl = `${window.location.origin}/profissional-login/index.html`;
+  const redirectUrl = `${window.location.origin}/auth/profissional-login/index.html`;
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -150,7 +150,7 @@ authForm.addEventListener("submit", async (event) => {
       );
 
       if (confirmou) {
-        window.location.href = "../index.html";
+        window.location.href = "../../index.html";
       }
     }, 50);
   } catch (erro) {
