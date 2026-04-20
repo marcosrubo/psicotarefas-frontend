@@ -51,10 +51,6 @@ async function tratarConfirmacaoDeEmail() {
   const hashParams = new URLSearchParams(hash.replace(/^#/, ""));
   const tipo = hashParams.get("type");
 
-  if (tipo !== "signup") {
-    return false;
-  }
-
   supabaseClient = supabaseClient || createSupabaseClient();
 
   if (!supabaseClient) {
@@ -63,35 +59,54 @@ async function tratarConfirmacaoDeEmail() {
 
   try {
     const {
-      data: { user },
-      error
+      data: { user }
     } = await supabaseClient.auth.getUser();
 
-    if (error || !user) {
+    if (!user) {
       return false;
     }
 
     const perfil = user.user_metadata?.perfil;
 
-    if (perfil === "profissional") {
+    // ============================
+    // CASO 1: PRIMEIRA CONFIRMAÇÃO
+    // ============================
+    if (tipo === "signup") {
+      if (perfil === "profissional") {
+        const confirmou = window.confirm(
+          "Você se cadastrou no sistema como PROFISSIONAL e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+        );
+
+        if (confirmou) {
+          window.location.href = "./auth/profissional-login/index.html";
+        }
+
+        return true;
+      }
+
+      if (perfil === "paciente") {
+        const confirmou = window.confirm(
+          "Você se cadastrou no sistema como PACIENTE e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+        );
+
+        if (confirmou) {
+          window.location.href = "./auth/paciente-login/index.html";
+        }
+
+        return true;
+      }
+    }
+
+    // ============================
+    // CASO 2: EMAIL JÁ CONFIRMADO
+    // ============================
+    if (user.email_confirmed_at) {
       const confirmou = window.confirm(
-        "Você se cadastrou no sistema como PROFISSIONAL e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
+        "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
       );
 
       if (confirmou) {
         window.location.href = "./auth/profissional-login/index.html";
-      }
-
-      return true;
-    }
-
-    if (perfil === "paciente") {
-      const confirmou = window.confirm(
-        "Você se cadastrou no sistema como PACIENTE e confirmou seu email.\nAgora faça o acesso com seu email e senha na próxima tela"
-      );
-
-      if (confirmou) {
-        window.location.href = "./auth/paciente-login/index.html";
       }
 
       return true;
@@ -310,3 +325,4 @@ async function inicializarTelaPrincipal() {
 }
 
 inicializarTelaPrincipal();
+
