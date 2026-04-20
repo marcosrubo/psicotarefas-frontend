@@ -76,7 +76,7 @@ function configurarTelaBase() {
   authBadge.textContent = "Cadastro de paciente";
   authTitle.textContent = "Criar conta de paciente";
   authSubtitle.textContent =
-    "Crie sua conta para acessar a plataforma, acompanhar tarefas e se relacionar com seu profissional no PsicoTarefas.";
+    "Crie sua conta para acessar a plataforma, acompanhar tarefas e, quando quiser, se vincular a um profissional no PsicoTarefas.";
 
   aplicarContextoConviteNaTela();
 }
@@ -84,7 +84,13 @@ function configurarTelaBase() {
 function aplicarContextoConviteNaTela() {
   esconderAvisoConvite();
 
-  if (!conviteInfo) return;
+  if (!conviteInfo) {
+    authBadge.textContent = "Cadastro de paciente";
+    authTitle.textContent = "Criar conta de paciente";
+    authSubtitle.textContent =
+      "Crie sua conta para acessar a plataforma, acompanhar tarefas e, quando quiser, se vincular a um profissional no PsicoTarefas.";
+    return;
+  }
 
   const profissional = conviteInfo.professional_name || "Profissional";
 
@@ -94,7 +100,7 @@ function aplicarContextoConviteNaTela() {
     if (conviteInfo.status === "cancelado") {
       texto =
         `Este convite foi cancelado por ${profissional}.\n` +
-        `Peça um novo convite para continuar o vínculo.`;
+        `Você ainda pode criar sua conta normalmente e depois escolher um profissional.`;
     } else if (conviteInfo.status === "respondido") {
       texto =
         "Este convite já recebeu um cadastro. Confirme o e-mail informado e depois entre no sistema.";
@@ -102,7 +108,9 @@ function aplicarContextoConviteNaTela() {
       texto =
         "Este convite já foi concluído. Entre com sua conta para continuar.";
     } else if (conviteInfo.status === "expirado") {
-      texto = "Este convite expirou.";
+      texto =
+        `Este convite de ${profissional} expirou.\n` +
+        `Você ainda pode criar sua conta normalmente e depois escolher um profissional.`;
     }
 
     authBadge.textContent = "Convite indisponível";
@@ -186,17 +194,8 @@ async function buscarConvitePublico(token) {
 
 async function validarConvite() {
   if (!conviteToken) {
-    conviteBloqueado = true;
-    mostrarAvisoConvite(
-      "Convite inválido",
-      "Este cadastro de paciente deve ser iniciado por um convite válido.",
-      "error"
-    );
-    authBadge.textContent = "Cadastro com convite";
-    authTitle.textContent = "Convite obrigatório";
-    authSubtitle.textContent =
-      "Para criar sua conta de paciente neste fluxo, utilize o link de convite enviado pelo profissional.";
-    btnSubmit.disabled = true;
+    conviteInfo = null;
+    conviteBloqueado = false;
     return;
   }
 
@@ -235,6 +234,10 @@ async function registrarRespostaAoConviteAposCadastro({
   patientUserId,
   patientEmail
 }) {
+  if (!token) {
+    return;
+  }
+
   const { error } = await supabase.rpc("registrar_resposta_convite", {
     p_token: token,
     p_patient_email: patientEmail,
@@ -334,11 +337,13 @@ authForm.addEventListener("submit", async (event) => {
       senha
     });
 
-    await registrarRespostaAoConviteAposCadastro({
-      token: conviteToken,
-      patientUserId: resultadoCadastro?.user?.id || null,
-      patientEmail: email
-    });
+    if (conviteToken) {
+      await registrarRespostaAoConviteAposCadastro({
+        token: conviteToken,
+        patientUserId: resultadoCadastro?.user?.id || null,
+        patientEmail: email
+      });
+    }
 
     mostrarMensagem(
       "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema.",
@@ -375,3 +380,4 @@ async function inicializarCadastro() {
 }
 
 inicializarCadastro();
+
