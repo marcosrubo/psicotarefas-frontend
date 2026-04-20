@@ -49,8 +49,50 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Date(data).toLocaleString("pt-BR");
   }
 
+  function escapeHtml(valor) {
+    return String(valor ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function montarStatusBadge(status) {
+    if (status === "ativo") return `<span class="status-badge status-badge--success">Ativo</span>`;
+    if (status === "cancelado") return `<span class="status-badge status-badge--danger">Cancelado</span>`;
+    if (status === "pendente") return `<span class="status-badge status-badge--primary">Pendente</span>`;
+    if (status === "respondido") return `<span class="status-badge status-badge--primary">Respondido</span>`;
+    if (status === "aceito") return `<span class="status-badge status-badge--success">Aceito</span>`;
+    if (status === "aguardando_confirmacao_email") {
+      return `<span class="status-badge status-badge--warning">Aguardando confirmação</span>`;
+    }
+    return `<span class="status-badge status-badge--muted">${escapeHtml(status)}</span>`;
+  }
+
+  function montarBadgeConfirmacaoEmail(prof) {
+    const temCampoBooleano = Object.prototype.hasOwnProperty.call(prof, "email_confirmed");
+    const temCampoData = Object.prototype.hasOwnProperty.call(prof, "email_confirmed_at");
+
+    if (temCampoBooleano) {
+      return prof.email_confirmed
+        ? `<span class="status-badge status-badge--success">E-mail confirmado</span>`
+        : `<span class="status-badge status-badge--danger">E-mail não confirmado</span>`;
+    }
+
+    if (temCampoData) {
+      return prof.email_confirmed_at
+        ? `<span class="status-badge status-badge--success">E-mail confirmado</span>`
+        : `<span class="status-badge status-badge--danger">E-mail não confirmado</span>`;
+    }
+
+    return `<span class="status-badge status-badge--muted">E-mail: não informado</span>`;
+  }
+
   async function validarAdmin() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
 
     if (!session?.user) {
       window.location.href = "/";
@@ -96,22 +138,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function montarStatusBadge(status) {
-    if (status === "ativo") return `<span class="status-badge status-badge--success">Ativo</span>`;
-    if (status === "cancelado") return `<span class="status-badge status-badge--danger">Cancelado</span>`;
-    if (status === "pendente") return `<span class="status-badge status-badge--primary">Pendente</span>`;
-    if (status === "respondido") return `<span class="status-badge status-badge--primary">Respondido</span>`;
-    return `<span class="status-badge status-badge--muted">${status}</span>`;
-  }
-
   function renderDashboard({ totalUsers, perfis, vinculos, convites }) {
-    const professionals = perfis.filter(p => p.perfil === "profissional");
-    const patients = perfis.filter(p => p.perfil === "paciente");
+    const professionals = perfis.filter((p) => p.perfil === "profissional");
+    const patients = perfis.filter((p) => p.perfil === "paciente");
 
-    const convitesPendentes = convites.filter(c => c.status === "pendente");
-    const convitesRespondidos = convites.filter(c => c.status === "respondido");
-    const convitesAceitos = convites.filter(c => c.status === "aceito");
-    const convitesCancelados = convites.filter(c => c.status === "cancelado");
+    const convitesPendentes = convites.filter((c) => c.status === "pendente");
+    const convitesAceitos = convites.filter((c) => c.status === "aceito");
+    const convitesCancelados = convites.filter((c) => c.status === "cancelado");
 
     statUsers.textContent = totalUsers;
     statPerfis.textContent = perfis.length;
@@ -124,23 +157,35 @@ document.addEventListener("DOMContentLoaded", () => {
     statInvitesPending.textContent = convitesPendentes.length;
     statInvitesCanceled.textContent = convitesCancelados.length;
 
-    // 🔥 PROFISSIONAIS
     if (!professionals.length) {
       professionalsEmpty.hidden = false;
     } else {
       professionalsEmpty.hidden = true;
 
-      professionalsAdminList.innerHTML = professionals.map(prof => {
-        const vinculosDoProf = vinculos.filter(v => v.professional_user_id === prof.user_id);
-        const convitesDoProf = convites.filter(c => c.professional_user_id === prof.user_id);
+      professionalsAdminList.innerHTML = professionals
+        .map((prof) => {
+          const vinculosDoProf = vinculos.filter((v) => v.professional_user_id === prof.user_id);
+          const convitesDoProf = convites.filter((c) => c.professional_user_id === prof.user_id);
 
-        return `
+          return `
           <div class="admin-card">
             <div class="admin-card__header">
-              <div class="admin-card__avatar">${obterIniciais(prof.nome || prof.email)}</div>
+              <div class="admin-card__avatar">${escapeHtml(obterIniciais(prof.nome || prof.email))}</div>
               <div class="admin-card__title">
-                <strong>${prof.nome || prof.email}</strong>
-                <span>${prof.email}</span>
+                <strong>${escapeHtml(prof.nome || prof.email)}</strong>
+                <span>${escapeHtml(prof.email || "")}</span>
+              </div>
+            </div>
+
+            <div class="admin-card__block">
+              <h4>Status do profissional</h4>
+              <div class="items-stack">
+                <div class="item-tag">
+                  <div class="item-tag__top">
+                    <strong>Status do e-mail</strong>
+                    ${montarBadgeConfirmacaoEmail(prof)}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -149,14 +194,18 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="items-stack">
                 ${
                   vinculosDoProf.length
-                    ? vinculosDoProf.map(v => `
+                    ? vinculosDoProf
+                        .map(
+                          (v) => `
                         <div class="item-tag">
                           <div class="item-tag__top">
-                            <strong>${v.patient_name || "Paciente"}</strong>
+                            <strong>${escapeHtml(v.patient_name || "Paciente")}</strong>
                             ${montarStatusBadge(v.status)}
                           </div>
                         </div>
-                      `).join("")
+                      `
+                        )
+                        .join("")
                     : `<div class="empty-inline">Nenhum vínculo</div>`
                 }
               </div>
@@ -167,27 +216,31 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="items-stack">
                 ${
                   convitesDoProf.length
-                    ? convitesDoProf.map(c => `
+                    ? convitesDoProf
+                        .map(
+                          (c) => `
                         <div class="item-tag">
                           <div class="item-tag__top">
-                            <strong>${c.patient_name}</strong>
+                            <strong>${escapeHtml(c.patient_name || "Paciente")}</strong>
                             ${montarStatusBadge(c.status)}
                           </div>
-                          <span>${formatarData(c.created_at)}</span>
+                          <span>${escapeHtml(formatarData(c.created_at))}</span>
                         </div>
-                      `).join("")
+                      `
+                        )
+                        .join("")
                     : `<div class="empty-inline">Nenhum convite</div>`
                 }
               </div>
             </div>
           </div>
         `;
-      }).join("");
+        })
+        .join("");
     }
 
-    // 🔥 PACIENTES SEM VÍNCULO
-    const pacientesSemVinculo = patients.filter(p => {
-      return !vinculos.some(v => v.patient_user_id === p.user_id && v.status === "ativo");
+    const pacientesSemVinculo = patients.filter((p) => {
+      return !vinculos.some((v) => v.patient_user_id === p.user_id && v.status === "ativo");
     });
 
     if (!pacientesSemVinculo.length) {
@@ -195,15 +248,18 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       patientsWithoutLinkEmpty.hidden = true;
 
-      patientsWithoutLinkList.innerHTML = pacientesSemVinculo.map(p => `
+      patientsWithoutLinkList.innerHTML = pacientesSemVinculo
+        .map(
+          (p) => `
         <div class="simple-item">
-          <strong>${p.nome || p.email}</strong>
-          <span>${p.email}</span>
+          <strong>${escapeHtml(p.nome || p.email)}</strong>
+          <span>${escapeHtml(p.email || "")}</span>
         </div>
-      `).join("");
+      `
+        )
+        .join("");
     }
 
-    // 🔥 CONVITES RECENTES
     const recentes = convites.slice(0, 10);
 
     if (!recentes.length) {
@@ -211,12 +267,16 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       recentInvitesEmpty.hidden = true;
 
-      recentInvitesList.innerHTML = recentes.map(c => `
+      recentInvitesList.innerHTML = recentes
+        .map(
+          (c) => `
         <div class="simple-item">
-          <strong>${c.patient_name}</strong>
-          <span>${c.status} • ${formatarData(c.created_at)}</span>
+          <strong>${escapeHtml(c.patient_name || "Paciente")}</strong>
+          <span>${escapeHtml(c.status || "")} • ${escapeHtml(formatarData(c.created_at))}</span>
         </div>
-      `).join("");
+      `
+        )
+        .join("");
     }
   }
 
@@ -235,3 +295,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   iniciar();
 });
+
