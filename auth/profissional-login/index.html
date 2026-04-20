@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Login de Profissional - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta
+    name="description"
+    content="Login de profissional no PsicoTarefas"
+  />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="auth-shell">
+    <header class="auth-hero">
+      <a class="back-link" href="../../index.html">← Voltar</a>
+
+      <div class="auth-brand">
+        <img
+          src="../../assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="auth-brand__logo"
+        />
+
+        <div class="auth-brand__text">
+          <p class="auth-badge">Acesso de profissional</p>
+          <h1>Entrar como profissional</h1>
+          <p>
+            Acesse sua conta para gerenciar pacientes, tarefas e respostas no PsicoTarefas.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <section class="auth-card">
+        <div class="auth-mode">
+          <span class="auth-mode__pill">Profissional</span>
+          <span class="auth-mode__pill auth-mode__pill--secondary">Login</span>
+        </div>
+
+        <form id="authForm" novalidate>
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Digite seu e-mail"
+              autocomplete="email"
+            />
+            <small class="field-error" id="erroEmail"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="senha">Senha</label>
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="senha"
+                name="senha"
+                placeholder="Digite sua senha"
+                autocomplete="current-password"
+              />
+              <button type="button" class="toggle-password" data-target="senha">
+                Mostrar
+              </button>
+            </div>
+            <small class="field-error" id="erroSenha"></small>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="lembrar" />
+              <span>Lembrar meu acesso neste dispositivo</span>
+            </label>
+
+            <a href="javascript:void(0)" class="text-link" id="linkEsqueciSenha">
+              Esqueci minha senha
+            </a>
+          </div>
+
+          <div class="form-message" id="formMessage" hidden></div>
+
+          <button type="submit" class="btn-primary" id="btnSubmit">
+            Entrar como profissional
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Ainda não tem conta?</p>
+          <a href="../profissional-cadastro/index.html" class="text-link text-link--strong">
+            Criar conta de profissional
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
