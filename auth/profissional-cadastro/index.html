@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Cadastro de Profissional - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta
+    name="description"
+    content="Cadastro de profissional no PsicoTarefas"
+  />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="auth-shell">
+    <header class="auth-hero">
+      <a class="back-link" href="../index.html">← Voltar</a>
+
+      <div class="auth-brand">
+        <img
+          src="../assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="auth-brand__logo"
+        />
+
+        <div class="auth-brand__text">
+          <p class="auth-badge" id="authBadge">Cadastro de profissional</p>
+          <h1 id="authTitle">Criar conta de profissional</h1>
+          <p id="authSubtitle">
+            Crie sua conta para acompanhar pacientes, atribuir tarefas e organizar seu trabalho no PsicoTarefas.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <section class="auth-card">
+        <div class="auth-mode">
+          <span class="auth-mode__pill" id="pillPerfil">Profissional</span>
+          <span class="auth-mode__pill auth-mode__pill--secondary" id="pillModo">Cadastro</span>
+        </div>
+
+        <form id="authForm" novalidate>
+          <div class="form-group" id="groupNome">
+            <label for="nome">Nome</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              placeholder="Digite seu nome"
+              autocomplete="name"
+            />
+            <small class="field-error" id="erroNome"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Digite seu e-mail"
+              autocomplete="email"
+            />
+            <small class="field-error" id="erroEmail"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="senha">Senha</label>
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="senha"
+                name="senha"
+                placeholder="Digite sua senha"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-password" data-target="senha">
+                Mostrar
+              </button>
+            </div>
+            <small class="field-error" id="erroSenha"></small>
+          </div>
+
+          <div class="form-group" id="groupConfirmarSenha">
+            <label for="confirmarSenha">Confirmar senha</label>
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="confirmarSenha"
+                name="confirmarSenha"
+                placeholder="Confirme sua senha"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-password" data-target="confirmarSenha">
+                Mostrar
+              </button>
+            </div>
+            <small class="field-error" id="erroConfirmarSenha"></small>
+          </div>
+
+          <div class="form-message" id="formMessage" hidden></div>
+
+          <button type="submit" class="btn-primary" id="btnSubmit">
+            Criar conta de profissional
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p id="footerText">Já tem conta?</p>
+          <a href="../profissional-login/index.html" class="text-link text-link--strong" id="footerLink">
+            Entrar como profissional
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
