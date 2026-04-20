@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function montarLinkConvite(token) {
-    return `${window.location.origin}/auth/index.html?modo=signup&perfil=paciente&convite=${encodeURIComponent(token)}`;
+    return `${window.location.origin}/?convite=${encodeURIComponent(token)}`;
   }
 
   function limparNomeProfissional(valor) {
@@ -336,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } = await supabase.auth.getSession();
 
       if (!session?.user) {
-        window.location.href = "../../auth/index.html?perfil=profissional";
+        window.location.href = "../../auth/profissional-login/index.html";
         return;
       }
 
@@ -354,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (perfil.perfil !== "profissional") {
         await supabase.auth.signOut();
-        window.location.href = "../../auth/index.html?perfil=profissional";
+        window.location.href = "../../auth/profissional-login/index.html";
         return;
       }
 
