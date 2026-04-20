@@ -49,12 +49,24 @@ function obterSearchParams() {
   return new URLSearchParams(window.location.search || "");
 }
 
-function obterLoginUrlPorPerfil(perfil) {
+function obterTokenConviteAtual() {
+  const params = obterSearchParams();
+  return (params.get("token") || params.get("convite") || "").trim();
+}
+
+function montarUrlComConvite(baseUrl, token) {
+  if (!token) return baseUrl;
+
+  const separador = baseUrl.includes("?") ? "&" : "?";
+  return `${baseUrl}${separador}convite=${encodeURIComponent(token)}`;
+}
+
+function obterLoginUrlPorPerfil(perfil, token = "") {
   if (perfil === "profissional") {
     return "./auth/profissional-login/index.html";
   }
 
-  return "./auth/paciente-login/index.html";
+  return montarUrlComConvite("./auth/paciente-login/index.html", token);
 }
 
 async function buscarConvitePublico(token) {
@@ -84,8 +96,7 @@ async function buscarConvitePublico(token) {
 // ============================
 
 async function tratarEntradaPorLinkEmail() {
-  const params = obterSearchParams();
-  const token = (params.get("token") || params.get("convite") || "").trim();
+  const token = obterTokenConviteAtual();
 
   if (!token) return false;
 
@@ -128,7 +139,10 @@ async function tratarEntradaPorLinkEmail() {
       );
 
       if (confirmar) {
-        window.location.href = "./auth/paciente-login/index.html";
+        window.location.href = montarUrlComConvite(
+          "./auth/paciente-login/index.html",
+          token
+        );
       }
 
       return true;
@@ -186,6 +200,7 @@ async function tratarConfirmacaoDeEmail() {
     "";
 
   const tokenHash = searchParams.get("token_hash") || searchParams.get("token") || "";
+  const tokenConvite = (searchParams.get("convite") || "").trim();
   const hasAccessToken = Boolean(hashParams.get("access_token"));
 
   supabaseClient = supabaseClient || createSupabaseClient();
@@ -201,7 +216,12 @@ async function tratarConfirmacaoDeEmail() {
 
     if (user) {
       const perfil = user.user_metadata?.perfil || "paciente";
-      const loginUrl = obterLoginUrlPorPerfil(perfil);
+      const conviteToken =
+        tokenConvite ||
+        user.user_metadata?.convite_token ||
+        "";
+
+      const loginUrl = obterLoginUrlPorPerfil(perfil, conviteToken);
 
       if (tipo === "email" || tipo === "signup" || hasAccessToken) {
         const confirmou = window.confirm(
@@ -243,7 +263,10 @@ async function tratarConfirmacaoDeEmail() {
         );
 
         if (confirmou) {
-          window.location.href = "./auth/paciente-login/index.html";
+          window.location.href = montarUrlComConvite(
+            "./auth/paciente-login/index.html",
+            tokenConvite
+          );
         }
 
         return true;
@@ -256,7 +279,10 @@ async function tratarConfirmacaoDeEmail() {
       );
 
       if (confirmou) {
-        window.location.href = "./auth/paciente-login/index.html";
+        window.location.href = montarUrlComConvite(
+          "./auth/paciente-login/index.html",
+          tokenConvite
+        );
       }
 
       return true;
@@ -272,7 +298,10 @@ async function tratarConfirmacaoDeEmail() {
       );
 
       if (confirmou) {
-        window.location.href = "./auth/paciente-login/index.html";
+        window.location.href = montarUrlComConvite(
+          "./auth/paciente-login/index.html",
+          tokenConvite
+        );
       }
 
       return true;
