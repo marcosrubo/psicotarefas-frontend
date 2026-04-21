@@ -116,6 +116,30 @@
 
             <div class="interactions-list" id="interactionsList"></div>
 
+            <section class="interaction-form-card" id="interactionEditCard" hidden>
+              <h4>Alterar sua interação</h4>
+
+              <div class="form-group">
+                <label for="interactionEditInput">Mensagem</label>
+                <textarea
+                  id="interactionEditInput"
+                  rows="5"
+                  placeholder="Atualize aqui o conteúdo da sua interação..."
+                ></textarea>
+              </div>
+
+              <div class="form-message" id="interactionEditMessage" hidden></div>
+
+              <div class="interaction-form-card__actions">
+                <button class="btn-secondary" id="btnCancelEditInteraction" type="button">
+                  Cancelar
+                </button>
+                <button class="btn-primary" id="btnSaveEditInteraction" type="button">
+                  Salvar alteração
+                </button>
+              </div>
+            </section>
+
             <section class="interaction-form-card" id="interactionFormCard" hidden>
               <h4>Registrar sua interação</h4>
 

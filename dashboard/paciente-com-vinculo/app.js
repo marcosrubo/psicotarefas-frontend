@@ -24,6 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskCreatedAt = document.getElementById("taskCreatedAt");
   const taskProfessionalName = document.getElementById("taskProfessionalName");
   const interactionsList = document.getElementById("interactionsList");
+  const interactionEditCard = document.getElementById("interactionEditCard");
+  const interactionEditInput = document.getElementById("interactionEditInput");
+  const interactionEditMessage = document.getElementById("interactionEditMessage");
+  const btnCancelEditInteraction = document.getElementById("btnCancelEditInteraction");
+  const btnSaveEditInteraction = document.getElementById("btnSaveEditInteraction");
   const interactionFormCard = document.getElementById("interactionFormCard");
   const interactionTextInput = document.getElementById("interactionTextInput");
   const interactionFormMessage = document.getElementById("interactionFormMessage");
@@ -39,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let tasks = [];
   let interactionsByTask = new Map();
   let selectedTaskId = null;
+  let editingInteractionId = null;
 
   function obterIniciais(nome) {
     if (!nome) return "PT";
@@ -112,12 +118,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function setInteractionEditMessage(text = "", type = "") {
+    if (!interactionEditMessage) return;
+
+    interactionEditMessage.textContent = text;
+    interactionEditMessage.className = "form-message";
+
+    if (type) {
+      interactionEditMessage.classList.add(`form-message--${type}`);
+      interactionEditMessage.hidden = false;
+    } else {
+      interactionEditMessage.hidden = true;
+    }
+  }
+
   function getSelectedTask() {
     return tasks.find((task) => task.id === selectedTaskId) || null;
   }
 
   function getTaskInteractions(taskId) {
     return interactionsByTask.get(taskId) || [];
+  }
+
+  function getEditingInteraction() {
+    if (!editingInteractionId) return null;
+
+    for (const list of interactionsByTask.values()) {
+      const interaction = list.find((item) => item.id === editingInteractionId);
+      if (interaction) return interaction;
+    }
+
+    return null;
   }
 
   function getTaskStatus(task) {
@@ -149,6 +180,46 @@ document.addEventListener("DOMContentLoaded", () => {
       label: "Aguardando profissional",
       className: "task-status-chip task-status-chip--waiting-professional"
     };
+  }
+
+  function closeInteractionEditCard() {
+    editingInteractionId = null;
+
+    if (interactionEditCard) {
+      interactionEditCard.hidden = true;
+    }
+
+    if (interactionEditInput) {
+      interactionEditInput.value = "";
+    }
+
+    setInteractionEditMessage();
+  }
+
+  function openInteractionEditCard(interactionId) {
+    const interaction = getTaskInteractions(selectedTaskId).find((item) => item.id === interactionId);
+
+    if (
+      !interaction ||
+      interaction.autor_tipo !== "paciente" ||
+      interaction.autor_user_id !== currentUser?.id
+    ) {
+      return;
+    }
+
+    editingInteractionId = interactionId;
+
+    if (interactionEditInput) {
+      interactionEditInput.value = interaction.mensagem || "";
+      interactionEditInput.focus();
+      interactionEditInput.select();
+    }
+
+    if (interactionEditCard) {
+      interactionEditCard.hidden = false;
+    }
+
+    setInteractionEditMessage();
   }
 
   async function carregarPaciente() {
@@ -328,6 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (taskDetailCard) taskDetailCard.hidden = true;
       if (taskDetailEmptyState) taskDetailEmptyState.hidden = false;
       if (interactionsList) interactionsList.innerHTML = "";
+      closeInteractionEditCard();
       if (interactionFormCard) interactionFormCard.hidden = true;
       setInteractionFormMessage();
       return;
@@ -365,6 +437,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="interaction-item__time">${escapeHtml(formatarDataHora(interaction.created_at))}</span>
               </div>
               <p class="interaction-item__text">${escapeHtml(interaction.mensagem || "")}</p>
+              ${
+                !isProfissional && interaction.autor_user_id === currentUser?.id
+                  ? `
+                    <div class="interaction-item__actions">
+                      <button
+                        class="btn-secondary btn-secondary--small"
+                        type="button"
+                        data-edit-interaction-id="${interaction.id}"
+                      >
+                        Alterar interação
+                      </button>
+                    </div>
+                  `
+                  : ""
+              }
             </article>
           `;
         })
@@ -415,12 +502,50 @@ document.addEventListener("DOMContentLoaded", () => {
       if (interactionTextInput) interactionTextInput.value = "";
 
       await carregarTarefas();
+      closeInteractionEditCard();
       renderAll();
       setInteractionFormMessage("Interação enviada com sucesso.", "success");
     } catch (error) {
       setInteractionFormMessage(error.message || "Erro ao enviar interação.", "error");
     } finally {
       if (btnCreateInteraction) btnCreateInteraction.disabled = false;
+    }
+  }
+
+  async function salvarInteracaoEditada() {
+    const interaction = getEditingInteraction();
+    const mensagem = interactionEditInput?.value ?? "";
+
+    if (!interaction) {
+      setInteractionEditMessage("Selecione uma interação válida para alterar.", "error");
+      return;
+    }
+
+    if (btnSaveEditInteraction) btnSaveEditInteraction.disabled = true;
+    setInteractionEditMessage();
+
+    try {
+      const { error } = await supabase
+        .from("tarefa_interacoes")
+        .update({
+          mensagem
+        })
+        .eq("id", interaction.id)
+        .eq("autor_tipo", "paciente")
+        .eq("autor_user_id", currentUser.id);
+
+      if (error) {
+        throw new Error(`Não foi possível alterar sua interação: ${error.message}`);
+      }
+
+      await carregarTarefas();
+      closeInteractionEditCard();
+      renderAll();
+      setInteractionFormMessage("Interação alterada com sucesso.", "success");
+    } catch (error) {
+      setInteractionEditMessage(error.message || "Erro ao alterar interação.", "error");
+    } finally {
+      if (btnSaveEditInteraction) btnSaveEditInteraction.disabled = false;
     }
   }
 
@@ -440,6 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!card) return;
 
       selectedTaskId = Number(card.getAttribute("data-task-id"));
+      closeInteractionEditCard();
       setInteractionFormMessage();
       renderAll();
     });
@@ -454,6 +580,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCreateInteraction) {
     btnCreateInteraction.addEventListener("click", criarInteracao);
+  }
+
+  if (interactionsList) {
+    interactionsList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-edit-interaction-id]");
+      if (!button) return;
+
+      openInteractionEditCard(Number(button.getAttribute("data-edit-interaction-id")));
+    });
+  }
+
+  if (btnCancelEditInteraction) {
+    btnCancelEditInteraction.addEventListener("click", closeInteractionEditCard);
+  }
+
+  if (btnSaveEditInteraction) {
+    btnSaveEditInteraction.addEventListener("click", salvarInteracaoEditada);
   }
 
   async function iniciarDashboard() {
