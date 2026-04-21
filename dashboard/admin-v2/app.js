@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const statProfessionals = document.getElementById("statProfessionals");
   const statPatientsWithoutActiveLink = document.getElementById("statPatientsWithoutActiveLink");
   const statInteractions = document.getElementById("statInteractions");
+  const screenMessage = document.getElementById("screenMessage");
   const searchTerm = document.getElementById("searchTerm");
   const patientsWithoutLinkList = document.getElementById("patientsWithoutLinkList");
   const patientsWithoutLinkEmpty = document.getElementById("patientsWithoutLinkEmpty");
@@ -19,6 +20,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
   let adminData = null;
+
+  function mostrarErroTela(texto) {
+    if (!screenMessage) return;
+    screenMessage.hidden = false;
+    screenMessage.textContent = texto;
+  }
+
+  function esconderErroTela() {
+    if (!screenMessage) return;
+    screenMessage.hidden = true;
+    screenMessage.textContent = "";
+  }
 
   function limparNome(valor) {
     if (!valor) return "";
@@ -122,11 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function carregarDados() {
     const [
-      { data: perfis },
-      { data: vinculos },
-      { data: convites },
-      { data: tarefas },
-      { data: interacoes }
+      perfisResult,
+      vinculosResult,
+      convitesResult,
+      tarefasResult,
+      interacoesResult
     ] = await Promise.all([
       supabase.from("perfis").select("*"),
       supabase.from("vinculos").select("*"),
@@ -135,12 +148,28 @@ document.addEventListener("DOMContentLoaded", () => {
       supabase.from("tarefa_interacoes").select("*").order("created_at", { ascending: true })
     ]);
 
+    const falhas = [
+      ["perfis", perfisResult.error],
+      ["vinculos", vinculosResult.error],
+      ["convites", convitesResult.error],
+      ["tarefas", tarefasResult.error],
+      ["tarefa_interacoes", interacoesResult.error]
+    ].filter(([, error]) => error);
+
+    if (falhas.length) {
+      const descricao = falhas
+        .map(([nome, error]) => `${nome}: ${error.message}`)
+        .join(" | ");
+
+      throw new Error(`Falha ao carregar dados do admin-v2. ${descricao}`);
+    }
+
     return {
-      perfis: perfis || [],
-      vinculos: vinculos || [],
-      convites: convites || [],
-      tarefas: tarefas || [],
-      interacoes: interacoes || []
+      perfis: perfisResult.data || [],
+      vinculos: vinculosResult.data || [],
+      convites: convitesResult.data || [],
+      tarefas: tarefasResult.data || [],
+      interacoes: interacoesResult.data || []
     };
   }
 
@@ -487,11 +516,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function iniciar() {
-    const ok = await validarAdmin();
-    if (!ok) return;
+    try {
+      esconderErroTela();
 
-    adminData = await carregarDados();
-    renderAll();
+      const ok = await validarAdmin();
+      if (!ok) return;
+
+      adminData = await carregarDados();
+      renderAll();
+    } catch (error) {
+      console.error("Erro ao iniciar admin-v2:", error);
+      mostrarErroTela(error.message || "Não foi possível carregar o painel admin-v2.");
+      statInteractions.textContent = "!";
+    }
   }
 
   iniciar();
