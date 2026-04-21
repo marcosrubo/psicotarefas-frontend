@@ -177,18 +177,45 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error(`Falha ao carregar vínculos ativos: ${error.message}`);
     }
 
+    const patientUserIds = [...new Set((vinculos || []).map((v) => v.patient_user_id).filter(Boolean))];
+
+    let perfisPacientes = [];
+    if (patientUserIds.length) {
+      const { data: perfis, error: perfisError } = await supabase
+        .from("perfis")
+        .select("user_id, nome, email")
+        .in("user_id", patientUserIds);
+
+      if (perfisError) {
+        throw new Error(`Falha ao carregar nomes completos dos pacientes: ${perfisError.message}`);
+      }
+
+      perfisPacientes = perfis || [];
+    }
+
     patients = (vinculos || []).map((vinculo) => {
-      const nomeReal =
+      const perfilPaciente = perfisPacientes.find(
+        (perfil) => perfil.user_id === vinculo.patient_user_id
+      );
+
+      const nomeCompleto =
+        perfilPaciente?.nome?.trim() ||
         vinculo.patient_name ||
+        perfilPaciente?.email ||
         vinculo.patient_email ||
         "Paciente";
+
+      const email =
+        perfilPaciente?.email ||
+        vinculo.patient_email ||
+        "";
 
       return {
         vinculo_id: vinculo.id,
         patient_user_id: vinculo.patient_user_id,
-        alias: vinculo.patient_alias || nomeReal,
-        nome_real: nomeReal,
-        email: vinculo.patient_email || "",
+        alias: vinculo.patient_alias || nomeCompleto,
+        nome_real: nomeCompleto,
+        email,
         created_at: vinculo.created_at
       };
     });
