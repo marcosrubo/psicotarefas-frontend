@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const aliasBox = document.getElementById("aliasBox");
   const patientAliasInput = document.getElementById("patientAliasInput");
+  const btnCancelAlias = document.getElementById("btnCancelAlias");
   const btnSaveAlias = document.getElementById("btnSaveAlias");
 
   const taskFormCard = document.getElementById("taskFormCard");
@@ -996,6 +997,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnSaveAlias) {
     btnSaveAlias.addEventListener("click", salvarApelidoPaciente);
+  }
+
+  if (btnCancelAlias) {
+    btnCancelAlias.addEventListener("click", () => {
+      const patient = getSelectedPatient();
+      if (patientAliasInput && patient) {
+        patientAliasInput.value = patient.alias;
+      }
+      closeAliasBox();
+    });
   }
 
   if (btnClearInteraction) {
