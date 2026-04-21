@@ -35,6 +35,11 @@ const toggleButtons = document.querySelectorAll(".toggle-password");
 const authForm = document.getElementById("authForm");
 const consentCard = document.getElementById("consentCard");
 const consentList = document.getElementById("consentList");
+const legalModal = document.getElementById("legalModal");
+const legalModalTitle = document.getElementById("legalModalTitle");
+const legalModalVersion = document.getElementById("legalModalVersion");
+const legalModalContent = document.getElementById("legalModalContent");
+const btnCloseLegalModal = document.getElementById("btnCloseLegalModal");
 
 let conviteInfo = null;
 let conviteBloqueado = false;
@@ -233,10 +238,36 @@ function renderizarConsentimentos(documentos) {
             </div>
           </div>
           <p class="consent-item__summary">${escapeHtml(item.conteudo?.trim() || item.resumo)}</p>
+          <div class="consent-item__actions">
+            <button
+              class="consent-link"
+              type="button"
+              data-open-documento="${item.documento}"
+            >
+              Ler documento completo
+            </button>
+          </div>
         </label>
       `
     )
     .join("");
+}
+
+function abrirModalDocumento(documentoId) {
+  const documento = consentimentosDisponiveis.find((item) => item.documento === documentoId);
+  if (!documento || !legalModal || !legalModalTitle || !legalModalVersion || !legalModalContent) {
+    return;
+  }
+
+  legalModalTitle.textContent = documento.titulo;
+  legalModalVersion.textContent = `Versão ${documento.versao}`;
+  legalModalContent.textContent = documento.conteudo || documento.resumo || "";
+  legalModal.hidden = false;
+}
+
+function fecharModalDocumento() {
+  if (!legalModal) return;
+  legalModal.hidden = true;
 }
 
 async function buscarConvitePublico(token) {
@@ -377,6 +408,27 @@ toggleButtons.forEach((button) => {
     }
   });
 });
+
+if (consentList) {
+  consentList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-documento]");
+    if (!button) return;
+
+    abrirModalDocumento(button.getAttribute("data-open-documento"));
+  });
+}
+
+if (btnCloseLegalModal) {
+  btnCloseLegalModal.addEventListener("click", fecharModalDocumento);
+}
+
+if (legalModal) {
+  legalModal.addEventListener("click", (event) => {
+    if (event.target.matches("[data-close-legal-modal]")) {
+      fecharModalDocumento();
+    }
+  });
+}
 
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();

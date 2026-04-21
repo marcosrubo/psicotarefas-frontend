@@ -2,22 +2,44 @@ const DOCUMENTOS_FIXOS = {
   termos_de_uso: {
     titulo: "Termos de Uso do PsicoTarefas",
     resumo:
-      "Define as regras gerais de utilização da plataforma, seus limites, responsabilidades e condições de acesso."
+      "Define as regras gerais de utilização da plataforma, seus limites, responsabilidades e condições de acesso.",
+    conteudo:
+      "Termos de Uso do PsicoTarefas\n\n" +
+      "O PsicoTarefas é uma plataforma destinada à organização de vínculos entre profissionais e pacientes, ao acompanhamento de tarefas e ao registro de interações relacionadas ao processo terapêutico.\n\n" +
+      "Ao utilizar a plataforma, o usuário declara que fornecerá informações verdadeiras, manterá suas credenciais em sigilo e utilizará o sistema apenas para fins lícitos e compatíveis com sua finalidade.\n\n" +
+      "A plataforma não substitui atendimento de urgência ou emergência, nem assume a responsabilidade por decisões clínicas tomadas pelos usuários. Em situações emergenciais, o atendimento adequado deve ser buscado imediatamente fora do sistema.\n\n" +
+      "O uso da plataforma também está sujeito à Política de Privacidade e aos termos específicos de profissional ou paciente, conforme o perfil do usuário."
   },
   politica_de_privacidade: {
     titulo: "Política de Privacidade do PsicoTarefas",
     resumo:
-      "Explica como dados pessoais e dados sensíveis são tratados no contexto da plataforma."
+      "Explica como dados pessoais e dados sensíveis são tratados no contexto da plataforma.",
+    conteudo:
+      "Política de Privacidade do PsicoTarefas\n\n" +
+      "O PsicoTarefas pode tratar dados cadastrais, dados de contato, informações de vínculo, tarefas e interações registradas pelos usuários. Parte dessas informações pode conter dados pessoais sensíveis, inclusive dados relativos à saúde.\n\n" +
+      "Os dados são utilizados para viabilizar o funcionamento da plataforma, autenticação, criação de vínculos, organização de tarefas, registro de interações, segurança da informação e atendimento de obrigações legais.\n\n" +
+      "O responsável pela plataforma é RUBO CONSULTORIA EMPRESARIAL LTDA, CNPJ 37.411.375/0001-54, com endereço na Rua José Manoel de Souza, 75, Londrina-PR. O contato principal é marcos@rubo.com.br e o canal complementar é WhatsApp (43) 9.9952-5060.\n\n" +
+      "Os titulares podem exercer direitos previstos na LGPD pelos canais informados. O tratamento dos dados deve observar a legislação aplicável e as medidas de segurança razoáveis adotadas pela plataforma."
   },
   termo_do_profissional: {
     titulo: "Termo do Profissional do PsicoTarefas",
     resumo:
-      "Estabelece responsabilidades específicas do profissional quanto ao uso da plataforma e ao conteúdo inserido."
+      "Estabelece responsabilidades específicas do profissional quanto ao uso da plataforma e ao conteúdo inserido.",
+    conteudo:
+      "Termo do Profissional do PsicoTarefas\n\n" +
+      "O profissional declara que utilizará o PsicoTarefas dentro dos limites de sua habilitação e observando normas éticas, legais e regulatórias aplicáveis à sua atuação.\n\n" +
+      "O profissional é responsável pelo conteúdo que inserir na plataforma, incluindo cadastro de pacientes, criação de tarefas, descrições, orientações e interações. Também deve adotar cautela no tratamento de dados pessoais e dados sensíveis.\n\n" +
+      "A plataforma é ferramenta de apoio organizacional e não substitui o julgamento técnico do profissional. O uso indevido da conta, o compartilhamento de credenciais ou a inserção de conteúdo ilícito são proibidos."
   },
   termo_do_paciente: {
     titulo: "Termo do Paciente do PsicoTarefas",
     resumo:
-      "Apresenta as condições específicas de uso da plataforma pelo paciente, inclusive quanto a dados sensíveis."
+      "Apresenta as condições específicas de uso da plataforma pelo paciente, inclusive quanto a dados sensíveis.",
+    conteudo:
+      "Termo do Paciente do PsicoTarefas\n\n" +
+      "O paciente declara que utilizará a plataforma de forma pessoal e intransferível, mantendo o sigilo de suas credenciais e fornecendo informações verdadeiras e atualizadas.\n\n" +
+      "O paciente reconhece que o sistema pode conter dados sensíveis relacionados à sua saúde e que as informações registradas em tarefas e interações poderão ser visualizadas no contexto do vínculo com o profissional.\n\n" +
+      "O PsicoTarefas não substitui atendimento clínico, psicológico, médico ou emergencial. Situações urgentes devem ser tratadas fora da plataforma."
   }
 };
 
@@ -95,7 +117,7 @@ export async function carregarDocumentosPublicados(supabase, perfil) {
       documento,
       titulo: publicado.titulo || fallback.titulo || documento,
       versao: publicado.versao || "0.1.0",
-      conteudo: publicado.conteudo || "",
+      conteudo: publicado.conteudo || fallback.conteudo || "",
       resumo: fallback.resumo || "",
       obrigatorio: publicado.obrigatorio !== false
     };

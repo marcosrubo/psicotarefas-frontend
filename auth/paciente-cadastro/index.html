@@ -140,6 +140,24 @@
     </main>
   </div>
 
+  <div class="legal-modal" id="legalModal" hidden>
+    <div class="legal-modal__backdrop" data-close-legal-modal></div>
+    <div class="legal-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+      <div class="legal-modal__header">
+        <div>
+          <h3 id="legalModalTitle">Documento</h3>
+          <p id="legalModalVersion"></p>
+        </div>
+        <button class="legal-modal__close" id="btnCloseLegalModal" type="button" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+      <div class="legal-modal__body">
+        <pre id="legalModalContent"></pre>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./app.js"></script>
 </body>
