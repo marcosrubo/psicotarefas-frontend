@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tasksPanel = document.getElementById("tasksPanel");
 
   const btnNewTask = document.getElementById("btnNewTask");
-  const btnBackToPatients = document.getElementById("btnBackToPatients");
 
   const aliasBox = document.getElementById("aliasBox");
   const patientAliasInput = document.getElementById("patientAliasInput");
@@ -39,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedTaskPatient = document.getElementById("selectedTaskPatient");
   const btnEditTask = document.getElementById("btnEditTask");
   const interactionPanel = document.getElementById("interactionPanel");
-  const btnBackToTasks = document.getElementById("btnBackToTasks");
 
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
   const interactionsList = document.getElementById("interactionsList");
@@ -155,6 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
     mobileStepPatients.classList.toggle("mobile-flow-step--active", mobileView === "patients");
     mobileStepTasks.classList.toggle("mobile-flow-step--active", mobileView === "tasks");
     mobileStepInteractions.classList.toggle("mobile-flow-step--active", mobileView === "interactions");
+
+    mobileStepTasks.disabled = !selectedPatientId;
+    mobileStepInteractions.disabled = !selectedTaskId;
   }
 
   function setMobileView(nextView) {
@@ -963,23 +964,37 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCreateInteraction.addEventListener("click", criarInteracao);
   }
 
-  if (btnBackToPatients) {
-    btnBackToPatients.addEventListener("click", () => {
+  if (mobileStepPatients) {
+    mobileStepPatients.addEventListener("click", () => {
+      if (!isMobileLayout()) return;
+
       selectedTaskId = null;
       closeTaskForm();
       closeInteractionEditCard();
+      setInteractionFormMessage();
+      renderTasksArea();
+      renderInteractionArea();
       setMobileView("patients");
     });
   }
 
-  if (btnBackToTasks) {
-    btnBackToTasks.addEventListener("click", () => {
+  if (mobileStepTasks) {
+    mobileStepTasks.addEventListener("click", () => {
+      if (!isMobileLayout() || !selectedPatientId) return;
+
       selectedTaskId = null;
       closeInteractionEditCard();
       setInteractionFormMessage();
       renderTasksArea();
       renderInteractionArea();
       setMobileView("tasks");
+    });
+  }
+
+  if (mobileStepInteractions) {
+    mobileStepInteractions.addEventListener("click", () => {
+      if (!isMobileLayout() || !selectedTaskId) return;
+      setMobileView("interactions");
     });
   }
 

@@ -52,9 +52,9 @@
       </section>
 
       <section class="mobile-flow-indicator" id="mobileFlowIndicator" aria-label="Etapa atual">
-        <span class="mobile-flow-step mobile-flow-step--active" id="mobileStepPatients">1. Pacientes</span>
-        <span class="mobile-flow-step" id="mobileStepTasks">2. Tarefas</span>
-        <span class="mobile-flow-step" id="mobileStepInteractions">3. Interações</span>
+        <button class="mobile-flow-step mobile-flow-step--active" id="mobileStepPatients" type="button">1. Pacientes</button>
+        <button class="mobile-flow-step" id="mobileStepTasks" type="button">2. Tarefas</button>
+        <button class="mobile-flow-step" id="mobileStepInteractions" type="button">3. Interações</button>
       </section>
 
       <section class="workspace">
@@ -76,9 +76,6 @@
         <section class="tasks-panel" id="tasksPanel">
           <div class="section-header">
             <div>
-              <button class="btn-ghost btn-ghost--small mobile-back-btn" id="btnBackToPatients" type="button">
-                ← Pacientes
-              </button>
               <h3 id="tasksTitle">Tarefas do paciente</h3>
               <p id="tasksSubtitle">Selecione um paciente para começar.</p>
             </div>
@@ -143,89 +140,86 @@
 
           <div class="tasks-list" id="tasksList"></div>
         </section>
-      </section>
 
-      <section class="interaction-panel" id="interactionPanel">
-        <div class="section-header">
-          <div>
-            <button class="btn-ghost btn-ghost--small mobile-back-btn" id="btnBackToTasks" type="button">
-              ← Tarefas
-            </button>
-            <h3 id="interactionTitle">Interações da tarefa</h3>
-            <p id="interactionSubtitle">Selecione uma tarefa para visualizar o histórico.</p>
+        <section class="interaction-panel" id="interactionPanel">
+          <div class="section-header">
+            <div>
+              <h3 id="interactionTitle">Interações da tarefa</h3>
+              <p id="interactionSubtitle">Selecione uma tarefa para visualizar o histórico.</p>
+            </div>
+
+            <span class="task-status-chip task-status-chip--muted" id="selectedTaskStatus">
+              Sem tarefa
+            </span>
           </div>
 
-          <span class="task-status-chip task-status-chip--muted" id="selectedTaskStatus">
-            Sem tarefa
-          </span>
-        </div>
+          <section class="selected-task-box" id="selectedTaskBox" hidden>
+            <div class="selected-task-box__top">
+              <h4 id="selectedTaskName">Título da tarefa</h4>
+              <button class="btn-secondary btn-secondary--small" id="btnEditTask" type="button">
+                Alterar tarefa
+              </button>
+            </div>
+            <p id="selectedTaskDescription">Descrição da tarefa</p>
+            <div class="selected-task-meta">
+              <span id="selectedTaskCreatedAt">Criada em</span>
+              <span id="selectedTaskPatient">Paciente</span>
+            </div>
+          </section>
 
-        <section class="selected-task-box" id="selectedTaskBox" hidden>
-          <div class="selected-task-box__top">
-            <h4 id="selectedTaskName">Título da tarefa</h4>
-            <button class="btn-secondary btn-secondary--small" id="btnEditTask" type="button">
-              Alterar tarefa
-            </button>
-          </div>
-          <p id="selectedTaskDescription">Descrição da tarefa</p>
-          <div class="selected-task-meta">
-            <span id="selectedTaskCreatedAt">Criada em</span>
-            <span id="selectedTaskPatient">Paciente</span>
-          </div>
-        </section>
-
-        <div class="empty-state" id="interactionsEmptyState">
-          Selecione uma tarefa para visualizar as interações.
-        </div>
-
-        <div class="interactions-list" id="interactionsList"></div>
-
-        <section class="interaction-form-card" id="interactionEditCard" hidden>
-          <h4>Alterar interação do profissional</h4>
-
-          <div class="form-group">
-            <label for="interactionEditInput">Mensagem</label>
-            <textarea
-              id="interactionEditInput"
-              rows="5"
-              placeholder="Atualize aqui o conteúdo da interação..."
-            ></textarea>
+          <div class="empty-state" id="interactionsEmptyState">
+            Selecione uma tarefa para visualizar as interações.
           </div>
 
-          <div class="form-message" id="interactionEditMessage" hidden></div>
+          <div class="interactions-list" id="interactionsList"></div>
 
-          <div class="interaction-form-card__actions">
-            <button class="btn-secondary" id="btnCancelEditInteraction" type="button">
-              Cancelar
-            </button>
-            <button class="btn-primary" id="btnSaveEditInteraction" type="button">
-              Salvar alteração
-            </button>
-          </div>
-        </section>
+          <section class="interaction-form-card" id="interactionEditCard" hidden>
+            <h4>Alterar interação do profissional</h4>
 
-        <section class="interaction-form-card" id="interactionFormCard" hidden>
-          <h4>Nova interação do profissional</h4>
+            <div class="form-group">
+              <label for="interactionEditInput">Mensagem</label>
+              <textarea
+                id="interactionEditInput"
+                rows="5"
+                placeholder="Atualize aqui o conteúdo da interação..."
+              ></textarea>
+            </div>
 
-          <div class="form-group">
-            <label for="interactionTextInput">Mensagem</label>
-            <textarea
-              id="interactionTextInput"
-              rows="5"
-              placeholder="Digite aqui a orientação, réplica ou devolutiva para o paciente..."
-            ></textarea>
-          </div>
+            <div class="form-message" id="interactionEditMessage" hidden></div>
 
-          <div class="form-message" id="interactionFormMessage" hidden></div>
+            <div class="interaction-form-card__actions">
+              <button class="btn-secondary" id="btnCancelEditInteraction" type="button">
+                Cancelar
+              </button>
+              <button class="btn-primary" id="btnSaveEditInteraction" type="button">
+                Salvar alteração
+              </button>
+            </div>
+          </section>
 
-          <div class="interaction-form-card__actions">
-            <button class="btn-secondary" id="btnClearInteraction" type="button">
-              Limpar
-            </button>
-            <button class="btn-primary" id="btnCreateInteraction" type="button">
-              Registrar interação
-            </button>
-          </div>
+          <section class="interaction-form-card" id="interactionFormCard" hidden>
+            <h4>Nova interação do profissional</h4>
+
+            <div class="form-group">
+              <label for="interactionTextInput">Mensagem</label>
+              <textarea
+                id="interactionTextInput"
+                rows="5"
+                placeholder="Digite aqui a orientação, réplica ou devolutiva para o paciente..."
+              ></textarea>
+            </div>
+
+            <div class="form-message" id="interactionFormMessage" hidden></div>
+
+            <div class="interaction-form-card__actions">
+              <button class="btn-secondary" id="btnClearInteraction" type="button">
+                Limpar
+              </button>
+              <button class="btn-primary" id="btnCreateInteraction" type="button">
+                Registrar interação
+              </button>
+            </div>
+          </section>
         </section>
       </section>
     </main>
