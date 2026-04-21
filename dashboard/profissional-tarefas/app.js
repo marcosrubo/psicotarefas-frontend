@@ -572,7 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!task) {
-      interactionTitle.textContent = "Interações da tarefa";
+      interactionTitle.textContent = "Interações da TAREFA:";
       interactionSubtitle.textContent = "Selecione uma tarefa para visualizar o histórico.";
       selectedTaskStatus.className = "task-status-chip task-status-chip--muted";
       selectedTaskStatus.textContent = "Sem tarefa";
@@ -589,13 +589,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const status = getTaskStatus(task);
     const interactions = getTaskInteractions(task.id);
 
-    interactionTitle.textContent = `Interações: ${task.titulo}`;
+    interactionTitle.textContent = "Interações da TAREFA:";
     interactionSubtitle.textContent = patient ? patient.nome_real : "Paciente";
     selectedTaskStatus.className = status.className;
     selectedTaskStatus.textContent = status.label;
 
     selectedTaskBox.hidden = false;
-    if (selectedTaskName) selectedTaskName.textContent = `Interações da tarefa: ${task.titulo}`;
+    if (selectedTaskName) selectedTaskName.textContent = task.titulo;
     if (selectedTaskDescription) selectedTaskDescription.textContent = task.descricao;
     if (selectedTaskCreatedAt) selectedTaskCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;

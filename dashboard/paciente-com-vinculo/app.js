@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskDetailCard) taskDetailCard.hidden = false;
     if (taskDetailEmptyState) taskDetailEmptyState.hidden = true;
     if (interactionsDivider) interactionsDivider.hidden = false;
-    if (taskDetailTitle) taskDetailTitle.textContent = `Interações da tarefa: ${task.titulo}`;
+    if (taskDetailTitle) taskDetailTitle.textContent = `Interações da TAREFA: ${task.titulo}`;
     if (taskDetailDescription) taskDetailDescription.textContent = task.descricao;
     if (taskStatusChip) {
       taskStatusChip.className = status.className;
