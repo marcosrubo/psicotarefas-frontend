@@ -28,9 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCreateTask = document.getElementById("btnCreateTask");
   const taskFormMessage = document.getElementById("taskFormMessage");
 
-  const interactionTitle = document.getElementById("interactionTitle");
-  const interactionSubtitle = document.getElementById("interactionSubtitle");
-  const selectedTaskStatus = document.getElementById("selectedTaskStatus");
   const selectedTaskBox = document.getElementById("selectedTaskBox");
   const selectedTaskName = document.getElementById("selectedTaskName");
   const selectedTaskDescription = document.getElementById("selectedTaskDescription");
@@ -560,9 +557,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const patient = getSelectedPatient();
 
     if (
-      !interactionTitle ||
-      !interactionSubtitle ||
-      !selectedTaskStatus ||
       !selectedTaskBox ||
       !interactionsEmptyState ||
       !interactionsList ||
@@ -572,11 +566,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!task) {
-      interactionTitle.textContent = "Interações da tarefa";
-      interactionSubtitle.textContent = "";
-      selectedTaskStatus.hidden = true;
-      selectedTaskStatus.className = "task-status-chip task-status-chip--muted";
-      selectedTaskStatus.textContent = "Sem tarefa";
       selectedTaskBox.hidden = true;
       if (interactionsDivider) interactionsDivider.hidden = true;
       interactionsList.innerHTML = "";
@@ -589,12 +578,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const status = getTaskStatus(task);
     const interactions = getTaskInteractions(task.id);
-
-    interactionTitle.textContent = "Interações da TAREFA:";
-    interactionSubtitle.textContent = patient ? patient.nome_real : "Paciente";
-    selectedTaskStatus.hidden = false;
-    selectedTaskStatus.className = status.className;
-    selectedTaskStatus.textContent = status.label;
 
     selectedTaskBox.hidden = false;
     if (selectedTaskName) selectedTaskName.textContent = task.titulo;
