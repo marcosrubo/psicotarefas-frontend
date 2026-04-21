@@ -330,18 +330,54 @@ document.addEventListener("DOMContentLoaded", () => {
     listaEl.innerHTML = itens.map(renderFn).join("");
   }
 
-  async function carregarUsuario() {
-    try {
+  function esperar(ms) {
+    return new Promise((resolve) => {
+      window.setTimeout(resolve, ms);
+    });
+  }
+
+  async function obterUsuarioAutenticado() {
+    for (let tentativa = 0; tentativa < 2; tentativa += 1) {
       const {
-        data: { session }
+        data: { session },
+        error: sessionError
       } = await supabase.auth.getSession();
 
-      if (!session?.user) {
+      if (sessionError) {
+        throw new Error(`Falha ao obter sessão autenticada: ${sessionError.message}`);
+      }
+
+      if (session?.user) {
+        return session.user;
+      }
+
+      if (tentativa === 0) {
+        await esperar(180);
+      }
+    }
+
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      throw new Error(`Falha ao obter usuário autenticado: ${userError.message}`);
+    }
+
+    return user || null;
+  }
+
+  async function carregarUsuario() {
+    try {
+      const user = await obterUsuarioAutenticado();
+
+      if (!user) {
         window.location.href = "../../auth/profissional-login/index.html";
         return;
       }
 
-      currentUser = session.user;
+      currentUser = user;
 
       const { data: perfil, error } = await supabase
         .from("perfis")
@@ -860,4 +896,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   iniciarDashboard();
 });
-
