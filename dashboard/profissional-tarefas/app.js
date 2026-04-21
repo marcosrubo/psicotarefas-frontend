@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedTaskCreatedAt = document.getElementById("selectedTaskCreatedAt");
   const selectedTaskPatient = document.getElementById("selectedTaskPatient");
   const btnEditTask = document.getElementById("btnEditTask");
+  const interactionsDivider = document.getElementById("interactionsDivider");
   const interactionPanel = document.getElementById("interactionPanel");
 
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
@@ -576,6 +577,7 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedTaskStatus.className = "task-status-chip task-status-chip--muted";
       selectedTaskStatus.textContent = "Sem tarefa";
       selectedTaskBox.hidden = true;
+      if (interactionsDivider) interactionsDivider.hidden = true;
       interactionsList.innerHTML = "";
       interactionsEmptyState.hidden = false;
       interactionsEmptyState.textContent = "Selecione uma tarefa para visualizar as interações.";
@@ -593,11 +595,12 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedTaskStatus.textContent = status.label;
 
     selectedTaskBox.hidden = false;
-    if (selectedTaskName) selectedTaskName.textContent = task.titulo;
+    if (selectedTaskName) selectedTaskName.textContent = `Interações da tarefa: ${task.titulo}`;
     if (selectedTaskDescription) selectedTaskDescription.textContent = task.descricao;
     if (selectedTaskCreatedAt) selectedTaskCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;
     if (btnEditTask) btnEditTask.hidden = false;
+    if (interactionsDivider) interactionsDivider.hidden = false;
 
     if (!interactions.length) {
       interactionsList.innerHTML = "";
