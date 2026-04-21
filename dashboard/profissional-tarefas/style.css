@@ -13,8 +13,16 @@
   --radius-lg: 22px;
   --radius-md: 16px;
   --radius-sm: 12px;
+  --success-bg: #ecfdf3;
+  --success-text: #027a48;
+  --warning-bg: #fff4e5;
+  --warning-text: #b54708;
+  --info-bg: #eef4ff;
+  --info-text: #1d4ed8;
   --error-bg: #fef2f2;
   --error-text: #b42318;
+  --muted-bg: #f2f4f7;
+  --muted-text: #475467;
 }
 
 * {
@@ -106,6 +114,55 @@ a {
   color: var(--text);
 }
 
+.btn-ghost,
+.btn-primary,
+.btn-secondary {
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-ghost:active,
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.btn-ghost {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--primary-dark);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-soft);
+  width: fit-content;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
+  padding: 13px 18px;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--primary-dark);
+  padding: 13px 18px;
+  box-shadow: var(--shadow-soft);
+}
+
 .screen-message {
   border-radius: 14px;
   padding: 12px 14px;
@@ -124,20 +181,6 @@ a {
   border: 1px solid #fecaca;
 }
 
-.btn-ghost {
-  border: 1px solid var(--border);
-  background: #fff;
-  color: var(--primary-dark);
-  padding: 12px 16px;
-  box-shadow: var(--shadow-soft);
-  border-radius: 14px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-}
-
 .tasks-main {
   padding: 18px 16px 28px;
   display: grid;
@@ -145,7 +188,8 @@ a {
 }
 
 .hero-card,
-.patients-panel {
+.patients-panel,
+.tasks-panel {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -179,7 +223,13 @@ a {
   line-height: 1.6;
 }
 
-.patients-panel {
+.workspace {
+  display: grid;
+  gap: 18px;
+}
+
+.patients-panel,
+.tasks-panel {
   padding: 18px 16px;
 }
 
@@ -204,7 +254,8 @@ a {
   line-height: 1.5;
 }
 
-.patients-grid {
+.patients-grid,
+.tasks-list {
   display: grid;
   gap: 12px;
 }
@@ -214,6 +265,7 @@ a {
   border-radius: 18px;
   padding: 14px;
   background: #fff;
+  cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -221,6 +273,11 @@ a {
   transform: translateY(-1px);
   box-shadow: var(--shadow-soft);
   border-color: rgba(109, 94, 252, 0.35);
+}
+
+.patient-card.is-active {
+  border-color: rgba(109, 94, 252, 0.45);
+  background: linear-gradient(180deg, rgba(109, 94, 252, 0.06), #fff);
 }
 
 .patient-card__alias {
@@ -248,15 +305,158 @@ a {
   flex-wrap: wrap;
 }
 
-.patient-meta-chip {
+.patient-meta-chip,
+.task-status-chip {
   display: inline-flex;
   width: fit-content;
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+}
+
+.patient-meta-chip {
   background: var(--primary-soft);
   color: var(--primary-dark);
+}
+
+.task-status-chip--waiting-patient {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.task-status-chip--waiting-professional {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.task-status-chip--closed {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.task-status-chip--muted {
+  background: var(--muted-bg);
+  color: var(--muted-text);
+}
+
+.alias-box,
+.task-form-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+  margin-bottom: 14px;
+}
+
+.alias-box[hidden],
+.task-form-card[hidden] {
+  display: none !important;
+}
+
+.alias-box label,
+.task-form-card h4 {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.alias-box__row,
+.task-form-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.alias-box input,
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  outline: none;
+  resize: vertical;
+}
+
+.alias-box input:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.form-group {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-message {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.form-message[hidden] {
+  display: none !important;
+}
+
+.form-message--error {
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+
+.form-message--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.task-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+}
+
+.task-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.task-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.task-card__description {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.task-card__meta {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .empty-state {
@@ -270,6 +470,20 @@ a {
 
 .empty-state[hidden] {
   display: none !important;
+}
+
+@media (max-width: 640px) {
+  .alias-box__row,
+  .task-form-card__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    width: 100%;
+  }
 }
 
 @media (min-width: 768px) {
@@ -288,8 +502,13 @@ a {
     padding: 24px 24px 34px;
   }
 
+  .workspace {
+    grid-template-columns: 0.95fr 1.35fr;
+    align-items: start;
+  }
+
   .patients-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

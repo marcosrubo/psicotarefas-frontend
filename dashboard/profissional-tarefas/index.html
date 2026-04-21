@@ -15,7 +15,6 @@
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
   <link rel="stylesheet" href="./style.css" />
 </head>
-
 <body>
   <div class="tasks-shell">
     <header class="topbar">
@@ -45,34 +44,101 @@
     <main class="tasks-main">
       <section class="hero-card">
         <p class="hero-card__label">Acompanhamento terapêutico</p>
-        <h2>Pacientes vinculados ao profissional</h2>
+        <h2>Organize tarefas por paciente</h2>
         <p>
-          Nesta primeira etapa, a tela exibirá somente a relação dos pacientes que
-          estão vinculados ao profissional logado.
+          Selecione um paciente vinculado, personalize o apelido para facilitar sua organização
+          e cadastre tarefas com título e descrição.
         </p>
       </section>
 
-      <section class="patients-panel">
-        <div class="section-header">
-          <div>
-            <h3>Pacientes vinculados</h3>
-            <p>Escolha visualmente seus pacientes já vinculados.</p>
+      <section class="workspace">
+        <section class="patients-panel">
+          <div class="section-header">
+            <div>
+              <h3>Pacientes vinculados</h3>
+              <p>Selecione um paciente para visualizar e cadastrar tarefas.</p>
+            </div>
           </div>
-        </div>
 
-        <div class="empty-state" id="patientsEmptyState" hidden>
-          Nenhum paciente com vínculo ativo encontrado.
-        </div>
+          <div class="empty-state" id="patientsEmptyState" hidden>
+            Nenhum paciente com vínculo ativo encontrado.
+          </div>
 
-        <div class="patients-grid" id="patientsGrid"></div>
+          <div class="patients-grid" id="patientsGrid"></div>
+        </section>
+
+        <section class="tasks-panel">
+          <div class="section-header">
+            <div>
+              <h3 id="tasksTitle">Tarefas do paciente</h3>
+              <p id="tasksSubtitle">Selecione um paciente para começar.</p>
+            </div>
+
+            <button class="btn-primary" id="btnNewTask" type="button" disabled>
+              + Nova tarefa
+            </button>
+          </div>
+
+          <section class="alias-box" id="aliasBox" hidden>
+            <label for="patientAliasInput">Apelido do paciente</label>
+            <div class="alias-box__row">
+              <input
+                type="text"
+                id="patientAliasInput"
+                placeholder="Ex.: João vestibular"
+                maxlength="120"
+              />
+              <button class="btn-secondary" id="btnSaveAlias" type="button">
+                Salvar apelido
+              </button>
+            </div>
+          </section>
+
+          <section class="task-form-card" id="taskFormCard" hidden>
+            <h4>Nova tarefa</h4>
+
+            <div class="form-group">
+              <label for="taskTitleInput">Título</label>
+              <input
+                type="text"
+                id="taskTitleInput"
+                placeholder="Ex.: Registro de pensamentos automáticos"
+                maxlength="160"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="taskDescriptionInput">Descrição</label>
+              <textarea
+                id="taskDescriptionInput"
+                rows="5"
+                placeholder="Descreva a proposta da tarefa para o paciente..."
+              ></textarea>
+            </div>
+
+            <div class="form-message" id="taskFormMessage" hidden></div>
+
+            <div class="task-form-card__actions">
+              <button class="btn-secondary" id="btnCancelTask" type="button">
+                Cancelar
+              </button>
+              <button class="btn-primary" id="btnCreateTask" type="button">
+                Criar tarefa
+              </button>
+            </div>
+          </section>
+
+          <div class="empty-state" id="tasksEmptyState">
+            Selecione um paciente para visualizar as tarefas.
+          </div>
+
+          <div class="tasks-list" id="tasksList"></div>
+        </section>
       </section>
     </main>
   </div>
 
-  <!-- ✅ IMPORTANTE: carregar o Supabase antes do app.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Seu script -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>
