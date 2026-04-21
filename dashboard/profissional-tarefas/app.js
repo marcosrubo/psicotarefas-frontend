@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tasksPanel = document.getElementById("tasksPanel");
 
   const btnNewTask = document.getElementById("btnNewTask");
+  const btnEditAlias = document.getElementById("btnEditAlias");
 
   const aliasBox = document.getElementById("aliasBox");
   const patientAliasInput = document.getElementById("patientAliasInput");
@@ -65,6 +66,32 @@ document.addEventListener("DOMContentLoaded", () => {
   let taskFormMode = "create";
   let editingInteractionId = null;
   let mobileView = "patients";
+
+  function syncAliasButton() {
+    if (!btnEditAlias) return;
+    btnEditAlias.textContent = aliasBox?.hidden === false ? "Ocultar apelido" : "Alterar apelido";
+  }
+
+  function closeAliasBox() {
+    if (aliasBox) {
+      aliasBox.hidden = true;
+    }
+    syncAliasButton();
+  }
+
+  function openAliasBox() {
+    const patient = getSelectedPatient();
+    if (!patient || !aliasBox) return;
+
+    aliasBox.hidden = false;
+    syncAliasButton();
+
+    if (patientAliasInput) {
+      patientAliasInput.value = patient.alias;
+      patientAliasInput.focus();
+      patientAliasInput.select();
+    }
+  }
 
   function showScreenError(text) {
     if (!screenMessage) return;
@@ -538,7 +565,8 @@ document.addEventListener("DOMContentLoaded", () => {
       tasksEmptyState.hidden = false;
       tasksEmptyState.textContent = "Selecione um paciente para visualizar as tarefas.";
       btnNewTask.disabled = true;
-      aliasBox.hidden = true;
+      if (btnEditAlias) btnEditAlias.disabled = true;
+      closeAliasBox();
       closeTaskForm();
       return;
     }
@@ -546,11 +574,8 @@ document.addEventListener("DOMContentLoaded", () => {
     tasksTitle.textContent = `Tarefas de ${patient.alias}`;
     tasksSubtitle.textContent = patient.nome_real;
     btnNewTask.disabled = false;
-    aliasBox.hidden = false;
-
-    if (patientAliasInput) {
-      patientAliasInput.value = patient.alias;
-    }
+    if (btnEditAlias) btnEditAlias.disabled = false;
+    syncAliasButton();
 
     if (!patientTasks.length) {
       tasksList.innerHTML = "";
@@ -687,6 +712,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       patient.alias = alias || patient.nome_real;
+      closeAliasBox();
       renderPatients();
       renderTasksArea();
       renderInteractionArea();
@@ -899,6 +925,7 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedPatientId = card.getAttribute("data-patient-id");
       selectedTaskId = null;
 
+      closeAliasBox();
       closeTaskForm();
       closeInteractionEditCard();
       setTaskFormMessage();
@@ -930,6 +957,18 @@ document.addEventListener("DOMContentLoaded", () => {
         openTaskFormForCreate();
       } else {
         closeTaskForm();
+      }
+    });
+  }
+
+  if (btnEditAlias) {
+    btnEditAlias.addEventListener("click", () => {
+      if (!selectedPatientId || !aliasBox) return;
+
+      if (aliasBox.hidden) {
+        openAliasBox();
+      } else {
+        closeAliasBox();
       }
     });
   }

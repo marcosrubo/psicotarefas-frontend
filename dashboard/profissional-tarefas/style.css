@@ -279,6 +279,12 @@ a {
   line-height: 1.5;
 }
 
+.tasks-panel__actions {
+  display: grid;
+  gap: 10px;
+  justify-items: stretch;
+}
+
 .patients-grid,
 .tasks-list,
 .interactions-list {
@@ -607,6 +613,7 @@ a {
 }
 
 @media (max-width: 640px) {
+  .tasks-panel__actions,
   .alias-box__row,
   .task-form-card__actions,
   .interaction-form-card__actions {
@@ -712,5 +719,9 @@ a {
 
   .patients-grid {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .tasks-panel__actions {
+    justify-items: end;
   }
 }
