@@ -18,6 +18,8 @@
   --muted-text: #475467;
   --warning-bg: #fff4e5;
   --warning-text: #b54708;
+  --info-bg: #eef4ff;
+  --info-text: #1d4ed8;
 }
 
 * {
@@ -164,23 +166,28 @@ input {
   gap: 18px;
 }
 
-.welcome-card,
+.hero-panel,
 .panel,
-.stat-card,
-.admin-card {
+.professional-card,
+.patient-browser-card,
+.task-browser-card,
+.interaction-item,
+.simple-item,
+.hero-chip {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
 }
 
-.welcome-card {
+.hero-panel {
   padding: 20px 16px;
   background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(109, 94, 252, 0.04));
-  border: 1px solid rgba(109, 94, 252, 0.15);
+  display: grid;
+  gap: 16px;
 }
 
-.welcome-card__label {
+.hero-panel__label {
   margin: 0 0 8px;
   color: var(--primary-dark);
   font-size: 12px;
@@ -189,43 +196,68 @@ input {
   letter-spacing: 0.05em;
 }
 
-.welcome-card__content h2 {
+.hero-panel h2 {
   margin: 0 0 10px;
   font-size: 28px;
   line-height: 1.1;
 }
 
-.welcome-card__content p:last-child {
+.hero-panel p:last-child {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
 }
 
-.stats-grid {
+.hero-panel__meta {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
-.stat-card {
-  padding: 16px;
+.hero-chip {
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.stat-card__label {
-  color: var(--muted);
+.hero-chip__label {
   font-size: 13px;
+  color: var(--muted);
 }
 
-.stat-card__value {
+.hero-chip strong {
   font-size: 28px;
   line-height: 1;
 }
 
+.browse-toolbar,
 .panel {
   padding: 18px 16px;
+}
+
+.search-box {
+  display: grid;
+  gap: 8px;
+}
+
+.search-box label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.search-box input {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
 }
 
 .panel__header {
@@ -244,119 +276,17 @@ input {
   line-height: 1.5;
 }
 
-.admin-list,
-.simple-list {
+.simple-list,
+.professionals-list,
+.patient-browser-list,
+.tasks-browser-list,
+.interactions-list {
   display: grid;
   gap: 12px;
 }
 
-.admin-card {
-  padding: 16px;
-}
-
-.admin-card__header {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-.admin-card__avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  box-shadow: 0 10px 22px rgba(109, 94, 252, 0.24);
-}
-
-.admin-card__title {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.admin-card__title strong {
-  font-size: 18px;
-}
-
-.admin-card__title span {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.admin-card__stats {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.admin-card__stats span,
-.item-tag small {
-  display: inline-flex;
-  width: fit-content;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: var(--primary-soft);
-  color: var(--primary-dark);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.admin-card__block {
-  margin-top: 16px;
-}
-
-.admin-card__block h4 {
-  margin: 0 0 10px;
-  font-size: 15px;
-}
-
-.items-stack {
-  display: grid;
-  gap: 8px;
-}
-
-.item-tag,
 .simple-item {
-  border: 1px solid var(--border);
-  border-radius: 14px;
   padding: 12px;
-  background: #fff;
-}
-
-.item-tag {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.item-tag__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.item-tag strong,
-.simple-item strong {
-  font-size: 14px;
-}
-
-.item-tag span,
-.simple-item span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.simple-item {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -370,10 +300,95 @@ input {
   gap: 4px;
 }
 
+.simple-item strong {
+  font-size: 14px;
+}
+
+.simple-item span,
 .simple-item small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
+}
+
+.simple-item small {
   font-weight: 700;
+}
+
+.professionals-list {
+  gap: 18px;
+}
+
+.professional-card {
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.professional-card__header {
+  display: grid;
+  gap: 12px;
+}
+
+.professional-card__identity {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.professional-card__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 10px 22px rgba(109, 94, 252, 0.24);
+}
+
+.professional-card__title {
+  display: grid;
+  gap: 4px;
+}
+
+.professional-card__title strong {
+  font-size: 20px;
+}
+
+.professional-card__title span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.professional-card__stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.professional-card__body {
+  display: grid;
+  gap: 16px;
+}
+
+.professional-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-block {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+}
+
+.admin-block h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
 }
 
 .status-badge {
@@ -410,6 +425,132 @@ input {
   color: var(--warning-text);
 }
 
+.status-badge--info {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.invite-group {
+  display: grid;
+  gap: 8px;
+}
+
+.invite-item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+  display: grid;
+  gap: 6px;
+}
+
+.invite-item__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.invite-item strong {
+  font-size: 14px;
+}
+
+.invite-item span,
+.invite-item small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.patient-browser-card {
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.patient-browser-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.patient-browser-card__top strong {
+  font-size: 16px;
+}
+
+.patient-browser-card__top span,
+.patient-browser-card__meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.task-browser-card {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.task-browser-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.task-browser-card__top strong {
+  font-size: 15px;
+}
+
+.task-browser-card__description,
+.interaction-item__text {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.task-browser-card__meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.interaction-item {
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.interaction-item--profissional {
+  border-left: 5px solid var(--primary);
+}
+
+.interaction-item--paciente {
+  border-left: 5px solid #0f9d58;
+}
+
+.interaction-item__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.interaction-item__author {
+  font-size: 13px;
+}
+
+.interaction-item__time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .empty-state,
 .empty-inline {
   padding: 14px;
@@ -426,7 +567,7 @@ input {
 
 @media (min-width: 768px) {
   .dashboard-shell {
-    max-width: 1180px;
+    max-width: 1320px;
     margin: 0 auto;
   }
 
@@ -440,17 +581,16 @@ input {
     padding: 24px 24px 34px;
   }
 
-  .stats-grid {
+  .hero-panel {
+    grid-template-columns: 1.5fr 1fr;
+    align-items: start;
+  }
+
+  .hero-panel__meta {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .admin-card__header {
-    grid-template-columns: auto 1fr auto;
-  }
-
-  .admin-card__stats {
-    grid-column: auto;
-    justify-content: flex-end;
+  .professional-grid {
+    grid-template-columns: 0.95fr 1.05fr;
   }
 }
-
