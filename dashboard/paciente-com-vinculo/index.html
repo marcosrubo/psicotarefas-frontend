@@ -34,8 +34,31 @@
         <div class="user-chip">
           <div class="user-chip__avatar" id="userAvatar">PT</div>
           <div class="user-chip__text">
-            <strong id="userName">Paciente</strong>
+            <div class="user-chip__name-row">
+              <strong id="userName">Paciente</strong>
+              <button class="edit-name-btn" id="btnEditName" type="button">
+                Alterar nome
+              </button>
+            </div>
             <span id="userRole">Paciente vinculado</span>
+
+            <div class="user-chip__edit-box" id="editNameBox" hidden>
+              <input
+                type="text"
+                id="editNameInput"
+                placeholder="Digite seu nome"
+                maxlength="120"
+                autocomplete="name"
+              />
+              <div class="user-chip__edit-actions">
+                <button class="mini-btn mini-btn--ghost" id="btnCancelName" type="button">
+                  Cancelar
+                </button>
+                <button class="mini-btn" id="btnSaveName" type="button">
+                  Salvar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

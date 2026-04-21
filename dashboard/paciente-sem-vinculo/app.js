@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
+  const btnEditName = document.getElementById("btnEditName");
+  const editNameBox = document.getElementById("editNameBox");
+  const editNameInput = document.getElementById("editNameInput");
+  const btnCancelName = document.getElementById("btnCancelName");
+  const btnSaveName = document.getElementById("btnSaveName");
   const welcomeTitle = document.getElementById("welcomeTitle");
   const welcomeText = document.getElementById("welcomeText");
 
@@ -19,6 +24,20 @@ document.addEventListener("DOMContentLoaded", () => {
   let professionals = [];
   let vinculosMap = new Map();
 
+  function aplicarNomePacienteNaTela(nome, email) {
+    const nomeBase = limparNome(nome || email || "");
+    const nomeExibicao = nomeBase || "Paciente";
+    const primeiroNome = obterPrimeiroNome(nome || email || "");
+
+    userName.textContent = nomeExibicao;
+    userRole.textContent = "Sem vínculo ativo";
+    userAvatar.textContent = obterIniciais(nomeExibicao);
+
+    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
+    welcomeText.textContent =
+      "Você ainda não possui vínculo ativo. Escolha um profissional abaixo para pedir vínculo.";
+  }
+
   function mostrarMensagem(texto, tipo = "success") {
     if (!requestMessage) return;
     requestMessage.hidden = false;
@@ -31,6 +50,22 @@ document.addEventListener("DOMContentLoaded", () => {
     requestMessage.hidden = true;
     requestMessage.textContent = "";
     requestMessage.className = "form-message";
+  }
+
+  function abrirEdicaoNome() {
+    if (!editNameBox || !editNameInput || !currentPatientProfile) return;
+
+    editNameInput.value = currentPatientProfile.nome || "";
+    editNameBox.hidden = false;
+    editNameInput.focus();
+    editNameInput.select();
+  }
+
+  function fecharEdicaoNome() {
+    if (!editNameBox || !editNameInput) return;
+
+    editNameBox.hidden = true;
+    editNameInput.value = "";
   }
 
   function obterIniciais(nome) {
@@ -166,20 +201,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentPatientProfile = perfil;
-
-    const nomeBase = limparNome(perfil.nome || perfil.email || "");
-    const nomeExibicao = nomeBase || "Paciente";
-    const primeiroNome = obterPrimeiroNome(perfil.nome || perfil.email || "");
-
-    userName.textContent = nomeExibicao;
-    userRole.textContent = "Sem vínculo ativo";
-    userAvatar.textContent = obterIniciais(nomeExibicao);
-
-    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
-    welcomeText.textContent =
-      "Você ainda não possui vínculo ativo. Escolha um profissional abaixo para pedir vínculo.";
+    aplicarNomePacienteNaTela(perfil.nome, perfil.email);
 
     return true;
+  }
+
+  async function atualizarNomePaciente() {
+    if (!currentUser || !currentPatientProfile) {
+      mostrarMensagem("Sessão inválida. Entre novamente.", "error");
+      return;
+    }
+
+    const novoNome = editNameInput?.value.trim() || "";
+
+    if (!novoNome) {
+      mostrarMensagem("Informe um nome válido.", "error");
+      return;
+    }
+
+    if (btnSaveName) {
+      btnSaveName.disabled = true;
+      btnSaveName.textContent = "Salvando...";
+    }
+
+    try {
+      const { error } = await supabase
+        .from("perfis")
+        .update({ nome: novoNome })
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        throw new Error("Não foi possível atualizar seu nome.");
+      }
+
+      currentPatientProfile = {
+        ...currentPatientProfile,
+        nome: novoNome
+      };
+
+      aplicarNomePacienteNaTela(novoNome, currentPatientProfile.email);
+      fecharEdicaoNome();
+      mostrarMensagem("Nome atualizado com sucesso.", "success");
+    } catch (error) {
+      mostrarMensagem(error.message || "Erro ao atualizar nome.", "error");
+    } finally {
+      if (btnSaveName) {
+        btnSaveName.disabled = false;
+        btnSaveName.textContent = "Salvar";
+      }
+    }
   }
 
   async function verificarSeJaTemVinculoAtivo() {
@@ -295,6 +365,31 @@ document.addEventListener("DOMContentLoaded", () => {
       mostrarMensagem("Não foi possível enviar a solicitação de vínculo.", "error");
     }
   });
+
+  if (btnEditName) {
+    btnEditName.addEventListener("click", abrirEdicaoNome);
+  }
+
+  if (btnCancelName) {
+    btnCancelName.addEventListener("click", fecharEdicaoNome);
+  }
+
+  if (btnSaveName) {
+    btnSaveName.addEventListener("click", atualizarNomePaciente);
+  }
+
+  if (editNameInput) {
+    editNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        atualizarNomePaciente();
+      }
+
+      if (event.key === "Escape") {
+        fecharEdicaoNome();
+      }
+    });
+  }
 
   btnLogout.addEventListener("click", async () => {
     try {

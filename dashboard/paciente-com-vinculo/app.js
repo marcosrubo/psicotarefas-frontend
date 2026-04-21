@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
+  const btnEditName = document.getElementById("btnEditName");
+  const editNameBox = document.getElementById("editNameBox");
+  const editNameInput = document.getElementById("editNameInput");
+  const btnCancelName = document.getElementById("btnCancelName");
+  const btnSaveName = document.getElementById("btnSaveName");
   const welcomeTitle = document.getElementById("welcomeTitle");
   const welcomeText = document.getElementById("welcomeText");
 
@@ -45,6 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
   let interactionsByTask = new Map();
   let selectedTaskId = null;
   let editingInteractionId = null;
+
+  function aplicarNomePacienteNaTela(nome, email) {
+    const nomeBase = limparNome(nome || email || "");
+    const nomeExibicao = nomeBase || "Paciente";
+    const primeiroNome = obterPrimeiroNome(nome || email || "");
+
+    userName.textContent = nomeExibicao;
+    userRole.textContent = "Paciente vinculado";
+    userAvatar.textContent = obterIniciais(nomeExibicao);
+
+    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
+    welcomeText.textContent =
+      "Aqui você acompanha seu profissional e pode visualizar/realizar suas tarefas de forma simples e objetiva.";
+  }
 
   function obterIniciais(nome) {
     if (!nome) return "PT";
@@ -130,6 +149,22 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       interactionEditMessage.hidden = true;
     }
+  }
+
+  function abrirEdicaoNome() {
+    if (!editNameBox || !editNameInput || !currentPatientProfile) return;
+
+    editNameInput.value = currentPatientProfile.nome || "";
+    editNameBox.hidden = false;
+    editNameInput.focus();
+    editNameInput.select();
+  }
+
+  function fecharEdicaoNome() {
+    if (!editNameBox || !editNameInput) return;
+
+    editNameBox.hidden = true;
+    editNameInput.value = "";
   }
 
   function getSelectedTask() {
@@ -252,20 +287,56 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
-    const nomeBase = limparNome(perfil.nome || perfil.email || "");
-    const nomeExibicao = nomeBase || "Paciente";
-    const primeiroNome = obterPrimeiroNome(perfil.nome || perfil.email || "");
     currentPatientProfile = perfil;
-
-    userName.textContent = nomeExibicao;
-    userRole.textContent = "Paciente vinculado";
-    userAvatar.textContent = obterIniciais(nomeExibicao);
-
-    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
-    welcomeText.textContent =
-      "Aqui você acompanha seu profissional e pode visualizar/realizar suas tarefas de forma simples e objetiva.";
+    aplicarNomePacienteNaTela(perfil.nome, perfil.email);
 
     return true;
+  }
+
+  async function atualizarNomePaciente() {
+    if (!currentUser || !currentPatientProfile) {
+      setInteractionFormMessage("Sessão inválida. Entre novamente.", "error");
+      return;
+    }
+
+    const novoNome = editNameInput?.value.trim() || "";
+
+    if (!novoNome) {
+      setInteractionFormMessage("Informe um nome válido.", "error");
+      return;
+    }
+
+    if (btnSaveName) {
+      btnSaveName.disabled = true;
+      btnSaveName.textContent = "Salvando...";
+    }
+
+    try {
+      const { error } = await supabase
+        .from("perfis")
+        .update({ nome: novoNome })
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        throw new Error("Não foi possível atualizar seu nome.");
+      }
+
+      currentPatientProfile = {
+        ...currentPatientProfile,
+        nome: novoNome
+      };
+
+      aplicarNomePacienteNaTela(novoNome, currentPatientProfile.email);
+      fecharEdicaoNome();
+      setInteractionFormMessage("Nome atualizado com sucesso.", "success");
+    } catch (error) {
+      setInteractionFormMessage(error.message || "Erro ao atualizar nome.", "error");
+    } finally {
+      if (btnSaveName) {
+        btnSaveName.disabled = false;
+        btnSaveName.textContent = "Salvar";
+      }
+    }
   }
 
   async function carregarProfissionalVinculado() {
@@ -591,6 +662,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnSaveEditInteraction) {
     btnSaveEditInteraction.addEventListener("click", salvarInteracaoEditada);
+  }
+
+  if (btnEditName) {
+    btnEditName.addEventListener("click", abrirEdicaoNome);
+  }
+
+  if (btnCancelName) {
+    btnCancelName.addEventListener("click", fecharEdicaoNome);
+  }
+
+  if (btnSaveName) {
+    btnSaveName.addEventListener("click", atualizarNomePaciente);
+  }
+
+  if (editNameInput) {
+    editNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        atualizarNomePaciente();
+      }
+
+      if (event.key === "Escape") {
+        fecharEdicaoNome();
+      }
+    });
   }
 
   async function iniciarDashboard() {
