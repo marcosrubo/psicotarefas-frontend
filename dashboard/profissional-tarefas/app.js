@@ -53,6 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedTaskId = null;
 
   function setTaskFormMessage(text = "", type = "") {
+    if (!taskFormMessage) return;
+
     taskFormMessage.textContent = text;
     taskFormMessage.className = "form-message";
 
@@ -65,6 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setReplyMessage(text = "", type = "") {
+    if (!replyMessage) return;
+
     replyMessage.textContent = text;
     replyMessage.className = "form-message";
 
@@ -188,41 +192,28 @@ document.addEventListener("DOMContentLoaded", () => {
   async function carregarPacientes() {
     const { data: vinculos, error } = await supabase
       .from("vinculos")
-      .select("id, patient_user_id, patient_name, patient_alias, created_at")
+      .select("id, patient_user_id, patient_name, patient_alias, patient_email, created_at")
       .eq("professional_user_id", currentUser.id)
       .eq("status", "ativo")
       .not("patient_user_id", "is", null)
       .order("created_at", { ascending: true });
 
     if (error) {
-      throw new Error("Não foi possível carregar os pacientes vinculados.");
-    }
-
-    const patientIds = [...new Set((vinculos || []).map((v) => v.patient_user_id).filter(Boolean))];
-
-    let perfisPacientes = [];
-    if (patientIds.length) {
-      const { data: perfis, error: perfisError } = await supabase
-        .from("perfis")
-        .select("user_id, nome, email")
-        .in("user_id", patientIds);
-
-      if (perfisError) {
-        throw new Error("Não foi possível carregar os perfis dos pacientes.");
-      }
-
-      perfisPacientes = perfis || [];
+      throw new Error(`Não foi possível carregar os pacientes vinculados. ${error.message || ""}`.trim());
     }
 
     patients = (vinculos || []).map((vinculo) => {
-      const perfil = perfisPacientes.find((p) => p.user_id === vinculo.patient_user_id);
+      const nomeReal =
+        vinculo.patient_name ||
+        vinculo.patient_email ||
+        "Paciente";
 
       return {
         vinculo_id: vinculo.id,
         patient_user_id: vinculo.patient_user_id,
-        alias: vinculo.patient_alias || vinculo.patient_name || perfil?.nome || perfil?.email || "Paciente",
-        nome_real: perfil?.nome || vinculo.patient_name || perfil?.email || "Paciente",
-        email: perfil?.email || ""
+        alias: vinculo.patient_alias || nomeReal,
+        nome_real: nomeReal,
+        email: vinculo.patient_email || ""
       };
     });
   }
@@ -235,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      throw new Error("Não foi possível carregar as tarefas.");
+      throw new Error(`Não foi possível carregar as tarefas. ${error.message || ""}`.trim());
     }
 
     tasks = tarefasData || [];
@@ -254,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .order("created_at", { ascending: true });
 
     if (interactionsError) {
-      throw new Error("Não foi possível carregar as interações das tarefas.");
+      throw new Error(`Não foi possível carregar as interações das tarefas. ${interactionsError.message || ""}`.trim());
     }
 
     (interactions || []).forEach((interaction) => {
@@ -265,6 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderPatients() {
+    if (!patientsGrid || !patientsEmptyState) return;
+
     if (!patients.length) {
       patientsGrid.innerHTML = "";
       patientsEmptyState.hidden = false;
@@ -302,6 +295,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const patient = getSelectedPatient();
     const patientTasks = getTasksOfSelectedPatient();
 
+    if (!tasksColumnTitle || !tasksColumnSubtitle || !tasksList || !tasksEmptyState || !btnNewTask || !aliasCard || !taskCreateCard) {
+      return;
+    }
+
     if (!patient) {
       tasksColumnTitle.textContent = "Tarefas do paciente";
       tasksColumnSubtitle.textContent = "Selecione um paciente para começar.";
@@ -318,7 +315,10 @@ document.addEventListener("DOMContentLoaded", () => {
     tasksColumnSubtitle.textContent = patient.nome_real;
     btnNewTask.disabled = false;
     aliasCard.hidden = false;
-    patientAliasInput.value = patient.alias;
+
+    if (patientAliasInput) {
+      patientAliasInput.value = patient.alias;
+    }
 
     if (!patientTasks.length) {
       tasksList.innerHTML = "";
@@ -354,6 +354,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderConversation() {
     const task = getSelectedTask();
 
+    if (
+      !conversationTitle ||
+      !conversationSubtitle ||
+      !taskStatusChip ||
+      !taskSummaryCard ||
+      !conversationList ||
+      !conversationEmptyState ||
+      !replyBox ||
+      !btnCloseTask ||
+      !btnReopenTask
+    ) {
+      return;
+    }
+
     if (!task) {
       conversationTitle.textContent = "Detalhes da tarefa";
       conversationSubtitle.textContent = "Nenhuma tarefa selecionada.";
@@ -378,10 +392,11 @@ document.addEventListener("DOMContentLoaded", () => {
     taskStatusChip.textContent = derived.label;
 
     taskSummaryCard.hidden = false;
-    taskSummaryTitle.textContent = task.titulo;
-    taskSummaryDescription.textContent = task.descricao;
-    taskSummaryCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
-    taskSummaryOwner.textContent = `Criada por ${currentProfile?.nome || currentProfile?.email || "Profissional"}`;
+
+    if (taskSummaryTitle) taskSummaryTitle.textContent = task.titulo;
+    if (taskSummaryDescription) taskSummaryDescription.textContent = task.descricao;
+    if (taskSummaryCreatedAt) taskSummaryCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
+    if (taskSummaryOwner) taskSummaryOwner.textContent = `Criada por ${currentProfile?.nome || currentProfile?.email || "Profissional"}`;
 
     if (task.status === "encerrada") {
       btnCloseTask.hidden = true;
@@ -434,8 +449,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function criarTarefa() {
     const patient = getSelectedPatient();
-    const titulo = taskTitleInput.value.trim();
-    const descricao = taskDescriptionInput.value.trim();
+    const titulo = taskTitleInput?.value.trim() || "";
+    const descricao = taskDescriptionInput?.value.trim() || "";
 
     if (!patient) {
       setTaskFormMessage("Selecione um paciente antes de criar a tarefa.", "error");
@@ -452,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    btnCreateTask.disabled = true;
+    if (btnCreateTask) btnCreateTask.disabled = true;
     setTaskFormMessage();
 
     try {
@@ -486,9 +501,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("A tarefa foi criada, mas não foi possível registrar a interação inicial.");
       }
 
-      taskTitleInput.value = "";
-      taskDescriptionInput.value = "";
-      taskCreateCard.hidden = true;
+      if (taskTitleInput) taskTitleInput.value = "";
+      if (taskDescriptionInput) taskDescriptionInput.value = "";
+      if (taskCreateCard) taskCreateCard.hidden = true;
       setTaskFormMessage();
 
       await carregarTarefas();
@@ -497,15 +512,16 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       setTaskFormMessage(error.message || "Erro ao criar tarefa.", "error");
     } finally {
-      btnCreateTask.disabled = false;
+      if (btnCreateTask) btnCreateTask.disabled = false;
     }
   }
 
   async function salvarApelidoPaciente() {
     const patient = getSelectedPatient();
-    const alias = patientAliasInput.value.trim();
+    const alias = patientAliasInput?.value.trim() || "";
 
     if (!patient) return;
+    if (!btnSaveAlias) return;
 
     btnSaveAlias.disabled = true;
 
@@ -534,7 +550,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function registrarInteracao() {
     const task = getSelectedTask();
-    const mensagem = replyText.value.trim();
+    const mensagem = replyText?.value.trim() || "";
 
     if (!task) {
       setReplyMessage("Selecione uma tarefa antes de registrar a interação.", "error");
@@ -547,8 +563,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     setReplyMessage();
-    const submitButton = replyBox.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
+
+    const submitButton = replyBox?.querySelector('button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
 
     try {
       const { error } = await supabase
@@ -564,13 +581,13 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Não foi possível registrar a interação.");
       }
 
-      replyText.value = "";
+      if (replyText) replyText.value = "";
       await carregarTarefas();
       rerenderAll();
     } catch (error) {
       setReplyMessage(error.message || "Erro ao registrar a interação.", "error");
     } finally {
-      submitButton.disabled = false;
+      if (submitButton) submitButton.disabled = false;
     }
   }
 
@@ -581,7 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmar = window.confirm("Deseja encerrar esta tarefa?");
     if (!confirmar) return;
 
-    btnCloseTask.disabled = true;
+    if (btnCloseTask) btnCloseTask.disabled = true;
 
     try {
       const { error } = await supabase
@@ -602,7 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       window.alert(error.message || "Erro ao encerrar a tarefa.");
     } finally {
-      btnCloseTask.disabled = false;
+      if (btnCloseTask) btnCloseTask.disabled = false;
     }
   }
 
@@ -613,7 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmar = window.confirm("Deseja reabrir esta tarefa?");
     if (!confirmar) return;
 
-    btnReopenTask.disabled = true;
+    if (btnReopenTask) btnReopenTask.disabled = true;
 
     try {
       const { error } = await supabase
@@ -634,64 +651,89 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       window.alert(error.message || "Erro ao reabrir a tarefa.");
     } finally {
-      btnReopenTask.disabled = false;
+      if (btnReopenTask) btnReopenTask.disabled = false;
     }
   }
 
-  patientsGrid.addEventListener("click", (event) => {
-    const card = event.target.closest("[data-patient-id]");
-    if (!card) return;
+  if (patientsGrid) {
+    patientsGrid.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-patient-id]");
+      if (!card) return;
 
-    selectedPatientId = card.getAttribute("data-patient-id");
-    selectedTaskId = null;
-    taskCreateCard.hidden = true;
-    setTaskFormMessage();
-    rerenderAll();
-  });
+      selectedPatientId = card.getAttribute("data-patient-id");
+      selectedTaskId = null;
 
-  tasksList.addEventListener("click", (event) => {
-    const card = event.target.closest("[data-task-id]");
-    if (!card) return;
+      if (taskCreateCard) taskCreateCard.hidden = true;
+      setTaskFormMessage();
+      rerenderAll();
+    });
+  }
 
-    selectedTaskId = Number(card.getAttribute("data-task-id"));
-    renderTasks();
-    renderConversation();
-  });
+  if (tasksList) {
+    tasksList.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-task-id]");
+      if (!card) return;
 
-  btnNewTask.addEventListener("click", () => {
-    if (!selectedPatientId) return;
+      selectedTaskId = Number(card.getAttribute("data-task-id"));
+      renderTasks();
+      renderConversation();
+    });
+  }
 
-    taskCreateCard.hidden = !taskCreateCard.hidden;
-    setTaskFormMessage();
+  if (btnNewTask) {
+    btnNewTask.addEventListener("click", () => {
+      if (!selectedPatientId || !taskCreateCard) return;
 
-    if (!taskCreateCard.hidden) {
-      taskTitleInput.focus();
-    }
-  });
+      taskCreateCard.hidden = !taskCreateCard.hidden;
+      setTaskFormMessage();
 
-  btnCancelTask.addEventListener("click", () => {
-    taskCreateCard.hidden = true;
-    taskTitleInput.value = "";
-    taskDescriptionInput.value = "";
-    setTaskFormMessage();
-  });
+      if (!taskCreateCard.hidden && taskTitleInput) {
+        taskTitleInput.focus();
+      }
+    });
+  }
 
-  btnCreateTask.addEventListener("click", criarTarefa);
-  btnSaveAlias.addEventListener("click", salvarApelidoPaciente);
+  if (btnCancelTask) {
+    btnCancelTask.addEventListener("click", () => {
+      if (taskCreateCard) taskCreateCard.hidden = true;
+      if (taskTitleInput) taskTitleInput.value = "";
+      if (taskDescriptionInput) taskDescriptionInput.value = "";
+      setTaskFormMessage();
+    });
+  }
 
-  replyBox.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    await registrarInteracao();
-  });
+  if (btnCreateTask) {
+    btnCreateTask.addEventListener("click", criarTarefa);
+  }
 
-  btnClearReply.addEventListener("click", () => {
-    replyText.value = "";
-    replyText.focus();
-    setReplyMessage();
-  });
+  if (btnSaveAlias) {
+    btnSaveAlias.addEventListener("click", salvarApelidoPaciente);
+  }
 
-  btnCloseTask.addEventListener("click", encerrarTarefa);
-  btnReopenTask.addEventListener("click", reabrirTarefa);
+  if (replyBox) {
+    replyBox.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await registrarInteracao();
+    });
+  }
+
+  if (btnClearReply) {
+    btnClearReply.addEventListener("click", () => {
+      if (replyText) {
+        replyText.value = "";
+        replyText.focus();
+      }
+      setReplyMessage();
+    });
+  }
+
+  if (btnCloseTask) {
+    btnCloseTask.addEventListener("click", encerrarTarefa);
+  }
+
+  if (btnReopenTask) {
+    btnReopenTask.addEventListener("click", reabrirTarefa);
+  }
 
   async function iniciar() {
     const ok = await validarProfissional();
@@ -707,4 +749,3 @@ document.addEventListener("DOMContentLoaded", () => {
     window.alert(error.message || "Erro ao carregar a gestão de tarefas.");
   });
 });
-
