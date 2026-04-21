@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnSaveAlias = document.getElementById("btnSaveAlias");
 
   const taskFormCard = document.getElementById("taskFormCard");
+  const taskFormTitle = document.getElementById("taskFormTitle");
   const taskTitleInput = document.getElementById("taskTitleInput");
   const taskDescriptionInput = document.getElementById("taskDescriptionInput");
   const btnCancelTask = document.getElementById("btnCancelTask");
@@ -33,9 +34,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedTaskDescription = document.getElementById("selectedTaskDescription");
   const selectedTaskCreatedAt = document.getElementById("selectedTaskCreatedAt");
   const selectedTaskPatient = document.getElementById("selectedTaskPatient");
+  const btnEditTask = document.getElementById("btnEditTask");
 
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
   const interactionsList = document.getElementById("interactionsList");
+
+  const interactionEditCard = document.getElementById("interactionEditCard");
+  const interactionEditInput = document.getElementById("interactionEditInput");
+  const interactionEditMessage = document.getElementById("interactionEditMessage");
+  const btnCancelEditInteraction = document.getElementById("btnCancelEditInteraction");
+  const btnSaveEditInteraction = document.getElementById("btnSaveEditInteraction");
 
   const interactionFormCard = document.getElementById("interactionFormCard");
   const interactionTextInput = document.getElementById("interactionTextInput");
@@ -50,6 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let interactionsByTask = new Map();
   let selectedPatientId = null;
   let selectedTaskId = null;
+  let taskFormMode = "create";
+  let editingInteractionId = null;
 
   function showScreenError(text) {
     if (!screenMessage) return;
@@ -91,6 +101,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function setInteractionEditMessage(text = "", type = "") {
+    if (!interactionEditMessage) return;
+
+    interactionEditMessage.textContent = text;
+    interactionEditMessage.className = "form-message";
+
+    if (type) {
+      interactionEditMessage.classList.add(`form-message--${type}`);
+      interactionEditMessage.hidden = false;
+    } else {
+      interactionEditMessage.hidden = true;
+    }
+  }
+
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -127,6 +151,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getTaskInteractions(taskId) {
     return interactionsByTask.get(taskId) || [];
+  }
+
+  function getEditingInteraction() {
+    if (!editingInteractionId) return null;
+
+    for (const list of interactionsByTask.values()) {
+      const interaction = list.find((item) => item.id === editingInteractionId);
+      if (interaction) return interaction;
+    }
+
+    return null;
   }
 
   function getTaskStatus(task) {
@@ -206,6 +241,105 @@ document.addEventListener("DOMContentLoaded", () => {
       "Profissional";
 
     professionalLine.textContent = `PROFISSIONAL: ${nome}`;
+  }
+
+  function resetTaskForm() {
+    taskFormMode = "create";
+
+    if (taskFormTitle) {
+      taskFormTitle.textContent = "Nova tarefa";
+    }
+
+    if (btnCreateTask) {
+      btnCreateTask.textContent = "Criar tarefa";
+    }
+
+    if (taskTitleInput) taskTitleInput.value = "";
+    if (taskDescriptionInput) taskDescriptionInput.value = "";
+    setTaskFormMessage();
+  }
+
+  function openTaskFormForCreate() {
+    if (!taskFormCard) return;
+
+    resetTaskForm();
+    taskFormCard.hidden = false;
+
+    if (taskTitleInput) {
+      taskTitleInput.focus();
+    }
+  }
+
+  function openTaskFormForEdit() {
+    const task = getSelectedTask();
+    if (!task || !taskFormCard) return;
+
+    taskFormMode = "edit";
+
+    if (taskFormTitle) {
+      taskFormTitle.textContent = "Alterar tarefa";
+    }
+
+    if (btnCreateTask) {
+      btnCreateTask.textContent = "Salvar alteração";
+    }
+
+    if (taskTitleInput) taskTitleInput.value = task.titulo || "";
+    if (taskDescriptionInput) taskDescriptionInput.value = task.descricao || "";
+    setTaskFormMessage();
+    taskFormCard.hidden = false;
+
+    if (taskTitleInput) {
+      taskTitleInput.focus();
+      taskTitleInput.select();
+    }
+  }
+
+  function closeTaskForm() {
+    if (taskFormCard) {
+      taskFormCard.hidden = true;
+    }
+
+    resetTaskForm();
+  }
+
+  function closeInteractionEditCard() {
+    editingInteractionId = null;
+
+    if (interactionEditCard) {
+      interactionEditCard.hidden = true;
+    }
+
+    if (interactionEditInput) {
+      interactionEditInput.value = "";
+    }
+
+    setInteractionEditMessage();
+  }
+
+  function openInteractionEditCard(interactionId) {
+    const interaction = getTaskInteractions(selectedTaskId).find((item) => item.id === interactionId);
+    if (
+      !interaction ||
+      interaction.autor_tipo !== "profissional" ||
+      interaction.autor_user_id !== currentUser?.id
+    ) {
+      return;
+    }
+
+    editingInteractionId = interactionId;
+
+    if (interactionEditInput) {
+      interactionEditInput.value = interaction.mensagem || "";
+      interactionEditInput.focus();
+      interactionEditInput.select();
+    }
+
+    if (interactionEditCard) {
+      interactionEditCard.hidden = false;
+    }
+
+    setInteractionEditMessage();
   }
 
   async function carregarPacientes() {
@@ -322,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tasksEmptyState.textContent = "Selecione um paciente para visualizar as tarefas.";
       btnNewTask.disabled = true;
       aliasBox.hidden = true;
-      taskFormCard.hidden = true;
+      closeTaskForm();
       return;
     }
 
@@ -409,6 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedTaskDescription) selectedTaskDescription.textContent = task.descricao;
     if (selectedTaskCreatedAt) selectedTaskCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;
+    if (btnEditTask) btnEditTask.hidden = false;
 
     if (!interactions.length) {
       interactionsList.innerHTML = "";
@@ -427,10 +562,27 @@ document.addEventListener("DOMContentLoaded", () => {
           return `
             <article class="${cssClass}">
               <div class="interaction-item__top">
-                <strong class="interaction-item__author">${isProfissional ? "Profissional" : "Paciente"}</strong>
+                <div class="interaction-item__header">
+                  <strong class="interaction-item__author">${isProfissional ? "Profissional" : "Paciente"}</strong>
+                </div>
                 <span class="interaction-item__time">${formatDateTime(interaction.created_at)}</span>
               </div>
               <p class="interaction-item__text">${escapeHtml(interaction.mensagem)}</p>
+              ${
+                isProfissional && interaction.autor_user_id === currentUser?.id
+                  ? `
+                    <div class="interaction-item__actions">
+                      <button
+                        class="btn-secondary btn-secondary--small"
+                        type="button"
+                        data-edit-interaction-id="${interaction.id}"
+                      >
+                        Alterar interação
+                      </button>
+                    </div>
+                  `
+                  : ""
+              }
             </article>
           `;
         })
@@ -541,6 +693,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function salvarTarefaEditada() {
+    const task = getSelectedTask();
+    const titulo = taskTitleInput?.value.trim() || "";
+    const descricao = taskDescriptionInput?.value.trim() || "";
+
+    if (!task) {
+      setTaskFormMessage("Selecione uma tarefa antes de alterar.", "error");
+      return;
+    }
+
+    if (!titulo) {
+      setTaskFormMessage("Informe o título da tarefa.", "error");
+      return;
+    }
+
+    if (!descricao) {
+      setTaskFormMessage("Informe a descrição da tarefa.", "error");
+      return;
+    }
+
+    if (btnCreateTask) btnCreateTask.disabled = true;
+    setTaskFormMessage();
+
+    try {
+      const { error } = await supabase
+        .from("tarefas")
+        .update({
+          titulo,
+          descricao
+        })
+        .eq("id", task.id)
+        .eq("professional_user_id", currentUser.id);
+
+      if (error) {
+        throw new Error(`Não foi possível alterar a tarefa: ${error.message}`);
+      }
+
+      await carregarTarefas();
+      renderAll();
+      closeTaskForm();
+      setTaskFormMessage("Tarefa alterada com sucesso.", "success");
+    } catch (error) {
+      setTaskFormMessage(error.message || "Erro ao alterar tarefa.", "error");
+    } finally {
+      if (btnCreateTask) btnCreateTask.disabled = false;
+    }
+  }
+
   async function criarInteracao() {
     const task = getSelectedTask();
     const mensagem = interactionTextInput?.value.trim() || "";
@@ -585,6 +785,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function salvarInteracaoEditada() {
+    const interaction = getEditingInteraction();
+    const mensagem = interactionEditInput?.value ?? "";
+
+    if (!interaction) {
+      setInteractionEditMessage("Selecione uma interação válida para alterar.", "error");
+      return;
+    }
+
+    if (btnSaveEditInteraction) btnSaveEditInteraction.disabled = true;
+    setInteractionEditMessage();
+
+    try {
+      const { error } = await supabase
+        .from("tarefa_interacoes")
+        .update({
+          mensagem
+        })
+        .eq("id", interaction.id)
+        .eq("autor_tipo", "profissional")
+        .eq("autor_user_id", currentUser.id);
+
+      if (error) {
+        throw new Error(`Não foi possível alterar a interação: ${error.message}`);
+      }
+
+      await carregarTarefas();
+      renderTasksArea();
+      renderInteractionArea();
+      closeInteractionEditCard();
+      setInteractionFormMessage("Interação alterada com sucesso.", "success");
+    } catch (error) {
+      setInteractionEditMessage(error.message || "Erro ao alterar interação.", "error");
+    } finally {
+      if (btnSaveEditInteraction) btnSaveEditInteraction.disabled = false;
+    }
+  }
+
   function renderAll() {
     renderProfessionalName();
     renderPatients();
@@ -600,7 +838,8 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedPatientId = card.getAttribute("data-patient-id");
       selectedTaskId = null;
 
-      if (taskFormCard) taskFormCard.hidden = true;
+      closeTaskForm();
+      closeInteractionEditCard();
       setTaskFormMessage();
       setInteractionFormMessage();
       renderAll();
@@ -613,6 +852,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!card) return;
 
       selectedTaskId = Number(card.getAttribute("data-task-id"));
+      closeTaskForm();
+      closeInteractionEditCard();
       setInteractionFormMessage();
       renderTasksArea();
       renderInteractionArea();
@@ -623,26 +864,33 @@ document.addEventListener("DOMContentLoaded", () => {
     btnNewTask.addEventListener("click", () => {
       if (!selectedPatientId || !taskFormCard) return;
 
-      taskFormCard.hidden = !taskFormCard.hidden;
-      setTaskFormMessage();
-
-      if (!taskFormCard.hidden && taskTitleInput) {
-        taskTitleInput.focus();
+      if (taskFormCard.hidden || taskFormMode !== "create") {
+        openTaskFormForCreate();
+      } else {
+        closeTaskForm();
       }
     });
   }
 
   if (btnCancelTask) {
     btnCancelTask.addEventListener("click", () => {
-      if (taskFormCard) taskFormCard.hidden = true;
-      if (taskTitleInput) taskTitleInput.value = "";
-      if (taskDescriptionInput) taskDescriptionInput.value = "";
-      setTaskFormMessage();
+      closeTaskForm();
     });
   }
 
   if (btnCreateTask) {
-    btnCreateTask.addEventListener("click", criarTarefa);
+    btnCreateTask.addEventListener("click", async () => {
+      if (taskFormMode === "edit") {
+        await salvarTarefaEditada();
+        return;
+      }
+
+      await criarTarefa();
+    });
+  }
+
+  if (btnEditTask) {
+    btnEditTask.addEventListener("click", openTaskFormForEdit);
   }
 
   if (btnSaveAlias) {
@@ -658,6 +906,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCreateInteraction) {
     btnCreateInteraction.addEventListener("click", criarInteracao);
+  }
+
+  if (interactionsList) {
+    interactionsList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-edit-interaction-id]");
+      if (!button) return;
+
+      openInteractionEditCard(Number(button.getAttribute("data-edit-interaction-id")));
+    });
+  }
+
+  if (btnCancelEditInteraction) {
+    btnCancelEditInteraction.addEventListener("click", closeInteractionEditCard);
+  }
+
+  if (btnSaveEditInteraction) {
+    btnSaveEditInteraction.addEventListener("click", salvarInteracaoEditada);
   }
 
   async function iniciar() {

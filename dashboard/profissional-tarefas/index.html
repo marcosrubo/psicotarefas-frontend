@@ -95,7 +95,7 @@
           </section>
 
           <section class="task-form-card" id="taskFormCard" hidden>
-            <h4>Nova tarefa</h4>
+            <h4 id="taskFormTitle">Nova tarefa</h4>
 
             <div class="form-group">
               <label for="taskTitleInput">Título</label>
@@ -149,7 +149,12 @@
         </div>
 
         <section class="selected-task-box" id="selectedTaskBox" hidden>
-          <h4 id="selectedTaskName">Título da tarefa</h4>
+          <div class="selected-task-box__top">
+            <h4 id="selectedTaskName">Título da tarefa</h4>
+            <button class="btn-secondary btn-secondary--small" id="btnEditTask" type="button">
+              Alterar tarefa
+            </button>
+          </div>
           <p id="selectedTaskDescription">Descrição da tarefa</p>
           <div class="selected-task-meta">
             <span id="selectedTaskCreatedAt">Criada em</span>
@@ -162,6 +167,30 @@
         </div>
 
         <div class="interactions-list" id="interactionsList"></div>
+
+        <section class="interaction-form-card" id="interactionEditCard" hidden>
+          <h4>Alterar interação do profissional</h4>
+
+          <div class="form-group">
+            <label for="interactionEditInput">Mensagem</label>
+            <textarea
+              id="interactionEditInput"
+              rows="5"
+              placeholder="Atualize aqui o conteúdo da interação..."
+            ></textarea>
+          </div>
+
+          <div class="form-message" id="interactionEditMessage" hidden></div>
+
+          <div class="interaction-form-card__actions">
+            <button class="btn-secondary" id="btnCancelEditInteraction" type="button">
+              Cancelar
+            </button>
+            <button class="btn-primary" id="btnSaveEditInteraction" type="button">
+              Salvar alteração
+            </button>
+          </div>
+        </section>
 
         <section class="interaction-form-card" id="interactionFormCard" hidden>
           <h4>Nova interação do profissional</h4>
@@ -194,4 +223,3 @@
   <script type="module" src="./app.js"></script>
 </body>
 </html>
-
