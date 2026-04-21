@@ -15,6 +15,7 @@
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
   <link rel="stylesheet" href="./style.css" />
 </head>
+
 <body>
   <div class="tasks-shell">
     <header class="topbar">
@@ -68,6 +69,10 @@
     </main>
   </div>
 
+  <!-- ✅ IMPORTANTE: carregar o Supabase antes do app.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Seu script -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>
