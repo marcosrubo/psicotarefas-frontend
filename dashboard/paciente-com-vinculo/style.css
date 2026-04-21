@@ -323,6 +323,25 @@ textarea {
   gap: 16px;
 }
 
+.interactions-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 14px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(109, 94, 252, 0.04));
+  border: 1px solid rgba(109, 94, 252, 0.16);
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.interactions-divider[hidden] {
+  display: none !important;
+}
+
 .tasks-list,
 .interactions-list {
   display: grid;
@@ -577,5 +596,9 @@ textarea {
   .tasks-layout {
     grid-template-columns: 0.95fr 1.35fr;
     align-items: start;
+  }
+
+  .interactions-divider {
+    margin-top: 0;
   }
 }

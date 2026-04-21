@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskStatusChip = document.getElementById("taskStatusChip");
   const taskCreatedAt = document.getElementById("taskCreatedAt");
   const taskProfessionalName = document.getElementById("taskProfessionalName");
+  const interactionsDivider = document.getElementById("interactionsDivider");
   const interactionsList = document.getElementById("interactionsList");
   const interactionEditCard = document.getElementById("interactionEditCard");
   const interactionEditInput = document.getElementById("interactionEditInput");
@@ -398,6 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!task) {
       if (taskDetailCard) taskDetailCard.hidden = true;
       if (taskDetailEmptyState) taskDetailEmptyState.hidden = false;
+      if (interactionsDivider) interactionsDivider.hidden = true;
       if (interactionsList) interactionsList.innerHTML = "";
       closeInteractionEditCard();
       if (interactionFormCard) interactionFormCard.hidden = true;
@@ -410,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskDetailCard) taskDetailCard.hidden = false;
     if (taskDetailEmptyState) taskDetailEmptyState.hidden = true;
+    if (interactionsDivider) interactionsDivider.hidden = false;
     if (taskDetailTitle) taskDetailTitle.textContent = task.titulo;
     if (taskDetailDescription) taskDetailDescription.textContent = task.descricao;
     if (taskStatusChip) {
