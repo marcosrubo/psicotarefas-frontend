@@ -33,15 +33,19 @@
       <div class="topbar__actions">
         <a class="btn-ghost" href="../profissional/index.html">← Voltar ao painel</a>
       </div>
+
+      <p class="professional-line" id="professionalLine">
+        PROFISSIONAL: Carregando...
+      </p>
     </header>
 
     <main class="tasks-main">
       <section class="hero-card">
         <p class="hero-card__label">Acompanhamento terapêutico</p>
-        <h2>Organize tarefas por paciente</h2>
+        <h2>Pacientes vinculados ao profissional</h2>
         <p>
-          Selecione um paciente vinculado, crie tarefas, acompanhe as interações
-          e encerre o assunto quando considerar concluído.
+          Nesta primeira etapa, a tela exibirá somente a relação dos pacientes que
+          estão vinculados ao profissional logado.
         </p>
       </section>
 
@@ -49,7 +53,7 @@
         <div class="section-header">
           <div>
             <h3>Pacientes vinculados</h3>
-            <p>Escolha um paciente para visualizar ou criar tarefas.</p>
+            <p>Escolha visualmente seus pacientes já vinculados.</p>
           </div>
         </div>
 
@@ -58,132 +62,6 @@
         </div>
 
         <div class="patients-grid" id="patientsGrid"></div>
-      </section>
-
-      <section class="workspace">
-        <section class="tasks-column">
-          <div class="section-header">
-            <div>
-              <h3 id="tasksColumnTitle">Tarefas do paciente</h3>
-              <p id="tasksColumnSubtitle">Selecione um paciente para começar.</p>
-            </div>
-
-            <button class="btn-primary" id="btnNewTask" type="button" disabled>
-              + Nova tarefa
-            </button>
-          </div>
-
-          <section class="alias-card" id="aliasCard" hidden>
-            <label for="patientAliasInput">Apelido do paciente</label>
-            <div class="alias-card__row">
-              <input
-                type="text"
-                id="patientAliasInput"
-                placeholder="Ex.: João vestibular"
-                maxlength="120"
-              />
-              <button class="btn-secondary" id="btnSaveAlias" type="button">
-                Salvar apelido
-              </button>
-            </div>
-          </section>
-
-          <section class="task-create-card" id="taskCreateCard" hidden>
-            <h4>Nova tarefa</h4>
-
-            <div class="form-group">
-              <label for="taskTitleInput">Título</label>
-              <input
-                type="text"
-                id="taskTitleInput"
-                placeholder="Ex.: Registro de pensamentos automáticos"
-                maxlength="160"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="taskDescriptionInput">Descrição</label>
-              <textarea
-                id="taskDescriptionInput"
-                rows="4"
-                placeholder="Descreva a orientação inicial da tarefa..."
-              ></textarea>
-            </div>
-
-            <div class="form-message" id="taskFormMessage" hidden></div>
-
-            <div class="task-create-card__actions">
-              <button class="btn-secondary" id="btnCancelTask" type="button">
-                Cancelar
-              </button>
-              <button class="btn-primary" id="btnCreateTask" type="button">
-                Criar tarefa
-              </button>
-            </div>
-          </section>
-
-          <div class="empty-state" id="tasksEmptyState">
-            Selecione um paciente para visualizar as tarefas.
-          </div>
-
-          <div class="tasks-list" id="tasksList"></div>
-        </section>
-
-        <section class="conversation-column">
-          <div class="section-header">
-            <div>
-              <h3 id="conversationTitle">Detalhes da tarefa</h3>
-              <p id="conversationSubtitle">Nenhuma tarefa selecionada.</p>
-            </div>
-
-            <span class="status-chip status-chip--muted" id="taskStatusChip">Sem tarefa</span>
-          </div>
-
-          <div class="task-summary-card" id="taskSummaryCard" hidden>
-            <div class="task-summary-card__top">
-              <div>
-                <h4 id="taskSummaryTitle">Título da tarefa</h4>
-                <p id="taskSummaryDescription">Descrição da tarefa</p>
-              </div>
-
-              <div class="task-summary-actions">
-                <button class="btn-secondary" id="btnReopenTask" type="button" hidden>
-                  Reabrir tarefa
-                </button>
-                <button class="btn-primary" id="btnCloseTask" type="button">
-                  Encerrar tarefa
-                </button>
-              </div>
-            </div>
-
-            <div class="task-summary-meta">
-              <span id="taskSummaryCreatedAt">Criada em</span>
-              <span id="taskSummaryOwner">Criada por</span>
-            </div>
-          </div>
-
-          <div class="empty-state" id="conversationEmptyState">
-            Selecione uma tarefa para visualizar as interações.
-          </div>
-
-          <div class="conversation-list" id="conversationList"></div>
-
-          <form class="reply-box" id="replyBox" hidden>
-            <label for="replyText">Nova interação</label>
-            <textarea
-              id="replyText"
-              rows="4"
-              placeholder="Digite aqui uma nova orientação, réplica ou resposta..."
-            ></textarea>
-
-            <div class="form-message" id="replyMessage" hidden></div>
-
-            <div class="reply-box__actions">
-              <button class="btn-secondary" id="btnClearReply" type="button">Limpar</button>
-              <button class="btn-primary" type="submit">Registrar interação</button>
-            </div>
-          </form>
-        </section>
       </section>
     </main>
   </div>
