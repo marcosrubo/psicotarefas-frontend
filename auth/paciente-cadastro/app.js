@@ -237,7 +237,7 @@ function renderizarConsentimentos(documentos) {
               <span class="consent-item__meta">Versão ${escapeHtml(item.versao)}</span>
             </div>
           </div>
-          <p class="consent-item__summary">${escapeHtml(item.conteudo?.trim() || item.resumo)}</p>
+          <p class="consent-item__summary">${escapeHtml(item.resumo || "")}</p>
           <div class="consent-item__actions">
             <button
               class="consent-link"
