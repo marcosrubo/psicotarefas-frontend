@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const interactions = getTaskInteractions(task.id);
 
     selectedTaskBox.hidden = false;
-    if (selectedTaskName) selectedTaskName.textContent = task.titulo;
+    if (selectedTaskName) selectedTaskName.textContent = `TAREFA: ${task.titulo}`;
     if (selectedTaskDescription) selectedTaskDescription.textContent = task.descricao;
     if (selectedTaskCreatedAt) selectedTaskCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;
