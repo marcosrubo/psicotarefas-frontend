@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Gestão de Tarefas - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta name="description" content="Gestão de tarefas do profissional no PsicoTarefas" />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="tasks-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img
+          src="../../assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="brand__logo"
+        />
+        <div class="brand__text">
+          <p class="brand__badge">Painel do PROFISSIONAL</p>
+          <h1>Gestão de TAREFAS</h1>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <a class="btn-ghost" href="../profissional/index.html">← Voltar ao painel</a>
+      </div>
+    </header>
+
+    <main class="tasks-main">
+      <section class="hero-card">
+        <p class="hero-card__label">Acompanhamento terapêutico</p>
+        <h2>Organize tarefas por paciente</h2>
+        <p>
+          Selecione um paciente, acompanhe as tarefas em andamento e visualize as
+          interações entre profissional e paciente dentro de cada tarefa.
+        </p>
+      </section>
+
+      <section class="patients-panel">
+        <div class="section-header">
+          <div>
+            <h3>Pacientes vinculados</h3>
+            <p>Escolha um paciente para visualizar ou criar tarefas.</p>
+          </div>
+        </div>
+
+        <div class="patients-grid" id="patientsGrid"></div>
+      </section>
+
+      <section class="workspace">
+        <section class="tasks-column">
+          <div class="section-header">
+            <div>
+              <h3 id="tasksColumnTitle">Tarefas do paciente</h3>
+              <p id="tasksColumnSubtitle">Selecione um paciente para começar.</p>
+            </div>
+
+            <button class="btn-primary" id="btnNewTask" type="button" disabled>
+              + Nova tarefa
+            </button>
+          </div>
+
+          <div class="empty-state" id="tasksEmptyState">
+            Selecione um paciente para visualizar as tarefas.
+          </div>
+
+          <div class="tasks-list" id="tasksList"></div>
+        </section>
+
+        <section class="conversation-column">
+          <div class="section-header">
+            <div>
+              <h3 id="conversationTitle">Detalhes da tarefa</h3>
+              <p id="conversationSubtitle">Nenhuma tarefa selecionada.</p>
+            </div>
+
+            <span class="status-chip status-chip--muted" id="taskStatusChip">Sem tarefa</span>
+          </div>
+
+          <div class="task-summary-card" id="taskSummaryCard" hidden>
+            <h4 id="taskSummaryTitle">Título da tarefa</h4>
+            <p id="taskSummaryDescription">Descrição da tarefa</p>
+            <div class="task-summary-meta">
+              <span id="taskSummaryCreatedAt">Criada em</span>
+              <span id="taskSummaryOwner">Criada por</span>
+            </div>
+          </div>
+
+          <div class="empty-state" id="conversationEmptyState">
+            Selecione uma tarefa para visualizar as interações.
+          </div>
+
+          <div class="conversation-list" id="conversationList"></div>
+
+          <form class="reply-box" id="replyBox" hidden>
+            <label for="replyText">Nova interação</label>
+            <textarea
+              id="replyText"
+              rows="4"
+              placeholder="Digite aqui uma nova orientação, réplica ou resposta..."
+            ></textarea>
+
+            <div class="reply-box__actions">
+              <button class="btn-secondary" id="btnClearReply" type="button">Limpar</button>
+              <button class="btn-primary" type="submit">Registrar interação</button>
+            </div>
+          </form>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
+
