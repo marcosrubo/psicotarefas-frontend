@@ -2,12 +2,25 @@ import supabase from "../../shared/supabase.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const professionalLine = document.getElementById("professionalLine");
+  const screenMessage = document.getElementById("screenMessage");
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
 
   let currentUser = null;
   let currentProfile = null;
   let patients = [];
+
+  function showScreenError(text) {
+    if (!screenMessage) return;
+    screenMessage.hidden = false;
+    screenMessage.textContent = text;
+  }
+
+  function hideScreenError() {
+    if (!screenMessage) return;
+    screenMessage.hidden = true;
+    screenMessage.textContent = "";
+  }
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -32,15 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function validarProfissional() {
     const {
-      data: { session }
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (userError) {
+      throw new Error(`Falha ao obter usuário autenticado: ${userError.message}`);
+    }
+
+    if (!user) {
       window.location.href = "../../auth/profissional-login/index.html";
       return false;
     }
 
-    currentUser = session.user;
+    currentUser = user;
 
     const { data: perfil, error } = await supabase
       .from("perfis")
@@ -48,7 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
       .eq("user_id", currentUser.id)
       .single();
 
-    if (error || !perfil || perfil.perfil !== "profissional") {
+    if (error) {
+      throw new Error(`Falha ao carregar perfil do profissional: ${error.message}`);
+    }
+
+    if (!perfil || perfil.perfil !== "profissional") {
       await supabase.auth.signOut();
       window.location.href = "../../auth/profissional-login/index.html";
       return false;
@@ -82,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (error) {
       throw new Error(
-        `Não foi possível carregar os pacientes vinculados. ${error.message || ""}`.trim()
+        `Falha ao carregar vínculos ativos: ${error.message}`
       );
     }
 
@@ -132,6 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function iniciar() {
+    hideScreenError();
+
     const ok = await validarProfissional();
     if (!ok) return;
 
@@ -141,8 +165,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   iniciar().catch((error) => {
-    console.error(error);
-    window.alert(error.message || "Erro ao carregar a gestão de tarefas.");
+    console.error("Erro na tela profissional-tarefas:", error);
+
+    if (professionalLine) {
+      professionalLine.textContent = "PROFISSIONAL: erro ao carregar";
+    }
+
+    showScreenError(error.message || "Erro ao carregar a gestão de tarefas.");
   });
 });
 

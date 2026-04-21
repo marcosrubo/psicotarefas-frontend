@@ -13,6 +13,8 @@
   --radius-lg: 22px;
   --radius-md: 16px;
   --radius-sm: 12px;
+  --error-bg: #fef2f2;
+  --error-text: #b42318;
 }
 
 * {
@@ -102,6 +104,24 @@ a {
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
+}
+
+.screen-message {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.screen-message[hidden] {
+  display: none !important;
+}
+
+.screen-message--error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid #fecaca;
 }
 
 .btn-ghost {
