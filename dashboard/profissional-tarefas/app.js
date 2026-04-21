@@ -572,8 +572,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!task) {
-      interactionTitle.textContent = "Interações da TAREFA:";
-      interactionSubtitle.textContent = "Selecione uma tarefa para visualizar o histórico.";
+      interactionTitle.textContent = "Interações da tarefa";
+      interactionSubtitle.textContent = "";
+      selectedTaskStatus.hidden = true;
       selectedTaskStatus.className = "task-status-chip task-status-chip--muted";
       selectedTaskStatus.textContent = "Sem tarefa";
       selectedTaskBox.hidden = true;
@@ -591,6 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     interactionTitle.textContent = "Interações da TAREFA:";
     interactionSubtitle.textContent = patient ? patient.nome_real : "Paciente";
+    selectedTaskStatus.hidden = false;
     selectedTaskStatus.className = status.className;
     selectedTaskStatus.textContent = status.label;
 
