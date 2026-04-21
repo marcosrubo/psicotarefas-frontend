@@ -37,7 +37,8 @@ a {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -276,9 +277,230 @@ input {
   display: none !important;
 }
 
+.tasks-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.tasks-list,
+.interactions-list {
+  display: grid;
+  gap: 12px;
+}
+
+.task-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+  border-color: rgba(109, 94, 252, 0.35);
+}
+
+.task-card.is-active {
+  border-color: rgba(109, 94, 252, 0.45);
+  background: linear-gradient(180deg, rgba(109, 94, 252, 0.06), #fff);
+}
+
+.task-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.task-card__title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.task-card__description {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.task-card__meta,
+.task-detail-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-detail-card,
+.interaction-form-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: #fff;
+  margin-bottom: 14px;
+}
+
+.task-detail-card[hidden],
+.interaction-form-card[hidden] {
+  display: none !important;
+}
+
+.task-detail-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.task-detail-card h4 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.task-detail-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.task-status-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-status-chip--waiting-patient {
+  background: #fff4e5;
+  color: #b54708;
+}
+
+.task-status-chip--waiting-professional {
+  background: #eef4ff;
+  color: #1d4ed8;
+}
+
+.task-status-chip--closed {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.task-status-chip--muted {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.interaction-item {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+}
+
+.interaction-item--profissional {
+  border-left: 4px solid var(--primary);
+}
+
+.interaction-item--paciente {
+  border-left: 4px solid #2f855a;
+}
+
+.interaction-item__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.interaction-item__author {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.interaction-item__time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.interaction-item__text {
+  margin: 0;
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.form-group {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  outline: none;
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.form-message {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.form-message[hidden] {
+  display: none !important;
+}
+
+.form-message--error {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.form-message--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.interaction-form-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 @media (min-width: 768px) {
   .dashboard-shell {
-    max-width: 860px;
+    max-width: 1180px;
     margin: 0 auto;
   }
 
@@ -290,5 +512,10 @@ input {
 
   .dashboard-main {
     padding: 24px 24px 34px;
+  }
+
+  .tasks-layout {
+    grid-template-columns: 0.95fr 1.35fr;
+    align-items: start;
   }
 }

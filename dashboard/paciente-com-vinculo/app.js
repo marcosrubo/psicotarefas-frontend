@@ -14,10 +14,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalRole = document.getElementById("professionalRole");
   const professionalEmail = document.getElementById("professionalEmail");
   const vinculoInfo = document.getElementById("vinculoInfo");
+  const tasksList = document.getElementById("tasksList");
+  const tasksEmptyState = document.getElementById("tasksEmptyState");
+  const taskDetailCard = document.getElementById("taskDetailCard");
+  const taskDetailEmptyState = document.getElementById("taskDetailEmptyState");
+  const taskDetailTitle = document.getElementById("taskDetailTitle");
+  const taskDetailDescription = document.getElementById("taskDetailDescription");
+  const taskStatusChip = document.getElementById("taskStatusChip");
+  const taskCreatedAt = document.getElementById("taskCreatedAt");
+  const taskProfessionalName = document.getElementById("taskProfessionalName");
+  const interactionsList = document.getElementById("interactionsList");
+  const interactionFormCard = document.getElementById("interactionFormCard");
+  const interactionTextInput = document.getElementById("interactionTextInput");
+  const interactionFormMessage = document.getElementById("interactionFormMessage");
+  const btnClearInteraction = document.getElementById("btnClearInteraction");
+  const btnCreateInteraction = document.getElementById("btnCreateInteraction");
 
   const btnLogout = document.getElementById("btnLogout");
 
   let currentUser = null;
+  let currentPatientProfile = null;
+  let currentProfessional = null;
+  let currentVinculo = null;
+  let tasks = [];
+  let interactionsByTask = new Map();
+  let selectedTaskId = null;
 
   function obterIniciais(nome) {
     if (!nome) return "PT";
@@ -58,6 +79,78 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function formatarDataHora(dataIso) {
+    return new Date(dataIso).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function setInteractionFormMessage(text = "", type = "") {
+    if (!interactionFormMessage) return;
+
+    interactionFormMessage.textContent = text;
+    interactionFormMessage.className = "form-message";
+
+    if (type) {
+      interactionFormMessage.classList.add(`form-message--${type}`);
+      interactionFormMessage.hidden = false;
+    } else {
+      interactionFormMessage.hidden = true;
+    }
+  }
+
+  function getSelectedTask() {
+    return tasks.find((task) => task.id === selectedTaskId) || null;
+  }
+
+  function getTaskInteractions(taskId) {
+    return interactionsByTask.get(taskId) || [];
+  }
+
+  function getTaskStatus(task) {
+    if (!task) {
+      return {
+        label: "Sem tarefa",
+        className: "task-status-chip task-status-chip--muted"
+      };
+    }
+
+    if (task.status === "encerrada") {
+      return {
+        label: "Encerrada",
+        className: "task-status-chip task-status-chip--closed"
+      };
+    }
+
+    const interactions = getTaskInteractions(task.id);
+    const lastInteraction = interactions[interactions.length - 1];
+
+    if (!lastInteraction || lastInteraction.autor_tipo === "profissional") {
+      return {
+        label: "Aguardando paciente",
+        className: "task-status-chip task-status-chip--waiting-patient"
+      };
+    }
+
+    return {
+      label: "Aguardando profissional",
+      className: "task-status-chip task-status-chip--waiting-professional"
+    };
+  }
+
   async function carregarPaciente() {
     const {
       data: { session }
@@ -91,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nomeBase = limparNome(perfil.nome || perfil.email || "");
     const nomeExibicao = nomeBase || "Paciente";
     const primeiroNome = obterPrimeiroNome(perfil.nome || perfil.email || "");
+    currentPatientProfile = perfil;
 
     userName.textContent = nomeExibicao;
     userRole.textContent = "Paciente vinculado";
@@ -135,6 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nomeBase = limparNome(profissional.nome || profissional.email || "");
     const nomeExibicao = nomeBase || "Profissional";
+    currentProfessional = profissional;
+    currentVinculo = vinculo;
 
     professionalAvatar.textContent = obterIniciais(nomeExibicao);
     professionalName.textContent = nomeExibicao;
@@ -144,6 +240,188 @@ document.addEventListener("DOMContentLoaded", () => {
 
     professionalEmpty.hidden = true;
     professionalCard.hidden = false;
+  }
+
+  async function carregarTarefas() {
+    if (!currentUser) return;
+
+    const { data: tarefasData, error } = await supabase
+      .from("tarefas")
+      .select("*")
+      .eq("patient_user_id", currentUser.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(`Falha ao carregar tarefas: ${error.message}`);
+    }
+
+    tasks = tarefasData || [];
+    interactionsByTask = new Map();
+
+    if (selectedTaskId && !tasks.some((task) => task.id === selectedTaskId)) {
+      selectedTaskId = null;
+    }
+
+    if (!selectedTaskId && tasks.length > 0) {
+      selectedTaskId = tasks[0].id;
+    }
+
+    const taskIds = tasks.map((task) => task.id);
+    if (!taskIds.length) {
+      return;
+    }
+
+    const { data: interactions, error: interactionsError } = await supabase
+      .from("tarefa_interacoes")
+      .select("*")
+      .in("tarefa_id", taskIds)
+      .order("created_at", { ascending: true });
+
+    if (interactionsError) {
+      throw new Error(`Falha ao carregar interações: ${interactionsError.message}`);
+    }
+
+    (interactions || []).forEach((interaction) => {
+      const current = interactionsByTask.get(interaction.tarefa_id) || [];
+      current.push(interaction);
+      interactionsByTask.set(interaction.tarefa_id, current);
+    });
+  }
+
+  function renderTasks() {
+    if (!tasksList || !tasksEmptyState) return;
+
+    if (!tasks.length) {
+      tasksList.innerHTML = "";
+      tasksEmptyState.hidden = false;
+      return;
+    }
+
+    tasksEmptyState.hidden = true;
+
+    tasksList.innerHTML = tasks
+      .map((task) => {
+        const status = getTaskStatus(task);
+        const isActive = task.id === selectedTaskId ? "is-active" : "";
+
+        return `
+          <article class="task-card ${isActive}" data-task-id="${task.id}">
+            <div class="task-card__top">
+              <h4 class="task-card__title">${escapeHtml(task.titulo)}</h4>
+              <span class="${status.className}">${status.label}</span>
+            </div>
+            <p class="task-card__description">${escapeHtml(task.descricao)}</p>
+            <div class="task-card__meta">
+              <span>Criada em ${escapeHtml(formatarDataHora(task.created_at))}</span>
+              <span>${getTaskInteractions(task.id).length} interação(ões)</span>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function renderTaskDetail() {
+    const task = getSelectedTask();
+
+    if (!task) {
+      if (taskDetailCard) taskDetailCard.hidden = true;
+      if (taskDetailEmptyState) taskDetailEmptyState.hidden = false;
+      if (interactionsList) interactionsList.innerHTML = "";
+      if (interactionFormCard) interactionFormCard.hidden = true;
+      setInteractionFormMessage();
+      return;
+    }
+
+    const status = getTaskStatus(task);
+    const interactions = getTaskInteractions(task.id);
+
+    if (taskDetailCard) taskDetailCard.hidden = false;
+    if (taskDetailEmptyState) taskDetailEmptyState.hidden = true;
+    if (taskDetailTitle) taskDetailTitle.textContent = task.titulo;
+    if (taskDetailDescription) taskDetailDescription.textContent = task.descricao;
+    if (taskStatusChip) {
+      taskStatusChip.className = status.className;
+      taskStatusChip.textContent = status.label;
+    }
+    if (taskCreatedAt) taskCreatedAt.textContent = `Criada em ${formatarDataHora(task.created_at)}`;
+    if (taskProfessionalName) {
+      const professionalName = limparNome(currentProfessional?.nome || currentProfessional?.email || "") || "Profissional";
+      taskProfessionalName.textContent = `Profissional: ${professionalName}`;
+    }
+
+    if (interactionsList) {
+      interactionsList.innerHTML = interactions
+        .map((interaction) => {
+          const isProfissional = interaction.autor_tipo === "profissional";
+          const cssClass = isProfissional
+            ? "interaction-item interaction-item--profissional"
+            : "interaction-item interaction-item--paciente";
+
+          return `
+            <article class="${cssClass}">
+              <div class="interaction-item__top">
+                <strong class="interaction-item__author">${isProfissional ? "Profissional" : "Você"}</strong>
+                <span class="interaction-item__time">${escapeHtml(formatarDataHora(interaction.created_at))}</span>
+              </div>
+              <p class="interaction-item__text">${escapeHtml(interaction.mensagem || "")}</p>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    if (interactionFormCard) {
+      interactionFormCard.hidden = task.status === "encerrada";
+    }
+  }
+
+  function renderAll() {
+    renderTasks();
+    renderTaskDetail();
+  }
+
+  async function criarInteracao() {
+    const task = getSelectedTask();
+    const mensagem = interactionTextInput?.value.trim() || "";
+
+    if (!task) {
+      setInteractionFormMessage("Selecione uma tarefa antes de enviar sua interação.", "error");
+      return;
+    }
+
+    if (!mensagem) {
+      setInteractionFormMessage("Digite sua mensagem antes de enviar.", "error");
+      return;
+    }
+
+    if (btnCreateInteraction) btnCreateInteraction.disabled = true;
+    setInteractionFormMessage();
+
+    try {
+      const { error } = await supabase
+        .from("tarefa_interacoes")
+        .insert({
+          tarefa_id: task.id,
+          autor_tipo: "paciente",
+          autor_user_id: currentUser.id,
+          mensagem
+        });
+
+      if (error) {
+        throw new Error(`Não foi possível enviar sua interação: ${error.message}`);
+      }
+
+      if (interactionTextInput) interactionTextInput.value = "";
+
+      await carregarTarefas();
+      renderAll();
+      setInteractionFormMessage("Interação enviada com sucesso.", "success");
+    } catch (error) {
+      setInteractionFormMessage(error.message || "Erro ao enviar interação.", "error");
+    } finally {
+      if (btnCreateInteraction) btnCreateInteraction.disabled = false;
+    }
   }
 
   btnLogout.addEventListener("click", async () => {
@@ -156,11 +434,35 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/";
   });
 
+  if (tasksList) {
+    tasksList.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-task-id]");
+      if (!card) return;
+
+      selectedTaskId = Number(card.getAttribute("data-task-id"));
+      setInteractionFormMessage();
+      renderAll();
+    });
+  }
+
+  if (btnClearInteraction) {
+    btnClearInteraction.addEventListener("click", () => {
+      if (interactionTextInput) interactionTextInput.value = "";
+      setInteractionFormMessage();
+    });
+  }
+
+  if (btnCreateInteraction) {
+    btnCreateInteraction.addEventListener("click", criarInteracao);
+  }
+
   async function iniciarDashboard() {
     const ok = await carregarPaciente();
     if (!ok) return;
 
     await carregarProfissionalVinculado();
+    await carregarTarefas();
+    renderAll();
   }
 
   iniciarDashboard();

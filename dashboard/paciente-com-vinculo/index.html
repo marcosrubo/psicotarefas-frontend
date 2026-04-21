@@ -78,12 +78,68 @@
 
       <section class="panel">
         <div class="panel__header">
-          <h3>Próximas tarefas</h3>
-          <p>Esta área ficará pronta para exibir as atividades encaminhadas pelo seu profissional.</p>
+          <h3>Suas tarefas</h3>
+          <p>Visualize as tarefas ativas e registre suas respostas diretamente por aqui.</p>
         </div>
 
-        <div class="empty-state">
-          Nenhuma tarefa disponível no momento.
+        <div class="tasks-layout">
+          <section class="tasks-column">
+            <div class="tasks-list" id="tasksList"></div>
+
+            <div class="empty-state" id="tasksEmptyState">
+              Nenhuma tarefa disponível no momento.
+            </div>
+          </section>
+
+          <section class="task-detail-column">
+            <div class="task-detail-card" id="taskDetailCard" hidden>
+              <div class="task-detail-card__top">
+                <div>
+                  <h4 id="taskDetailTitle">Título da tarefa</h4>
+                  <p id="taskDetailDescription">Descrição da tarefa</p>
+                </div>
+
+                <span class="task-status-chip task-status-chip--muted" id="taskStatusChip">
+                  Sem tarefa
+                </span>
+              </div>
+
+              <div class="task-detail-meta">
+                <span id="taskCreatedAt">Criada em</span>
+                <span id="taskProfessionalName">Profissional</span>
+              </div>
+            </div>
+
+            <div class="empty-state" id="taskDetailEmptyState">
+              Selecione uma tarefa para visualizar o histórico e responder.
+            </div>
+
+            <div class="interactions-list" id="interactionsList"></div>
+
+            <section class="interaction-form-card" id="interactionFormCard" hidden>
+              <h4>Registrar sua interação</h4>
+
+              <div class="form-group">
+                <label for="interactionTextInput">Mensagem</label>
+                <textarea
+                  id="interactionTextInput"
+                  rows="5"
+                  placeholder="Escreva aqui sua resposta ou atualização para o profissional..."
+                ></textarea>
+              </div>
+
+              <div class="form-message" id="interactionFormMessage" hidden></div>
+
+              <div class="interaction-form-card__actions">
+                <button class="btn-secondary" id="btnClearInteraction" type="button">
+                  Limpar
+                </button>
+                <button class="btn-primary" id="btnCreateInteraction" type="button">
+                  Enviar interação
+                </button>
+              </div>
+            </section>
+          </section>
         </div>
       </section>
     </main>
@@ -93,4 +149,3 @@
   <script type="module" src="./app.js"></script>
 </body>
 </html>
-
