@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { processarAceitesPendentesNoLogin } from "../../shared/legal-documents.js";
 
 const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();
@@ -383,6 +384,11 @@ authForm.addEventListener("submit", async (event) => {
 
     const confirmedAtIso = user.email_confirmed_at || new Date().toISOString();
     await atualizarConfirmacaoEmailNoPerfil(user.id, confirmedAtIso);
+    await processarAceitesPendentesNoLogin(supabase, {
+      perfil: "paciente",
+      email,
+      userId: user.id
+    });
 
     if (conviteToken) {
       await processarConviteParaPaciente(user.id, email);

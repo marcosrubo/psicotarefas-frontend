@@ -1,4 +1,9 @@
 import supabase from "../../shared/supabase.js";
+import {
+  carregarDocumentosPublicados,
+  guardarAceitesPendentes,
+  registrarAceitesDocumentos
+} from "../../shared/legal-documents.js";
 
 const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();
@@ -22,20 +27,26 @@ const erroNome = document.getElementById("erroNome");
 const erroEmail = document.getElementById("erroEmail");
 const erroSenha = document.getElementById("erroSenha");
 const erroConfirmarSenha = document.getElementById("erroConfirmarSenha");
+const erroAceites = document.getElementById("erroAceites");
 
 const formMessage = document.getElementById("formMessage");
 const btnSubmit = document.getElementById("btnSubmit");
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const authForm = document.getElementById("authForm");
+const consentCard = document.getElementById("consentCard");
+const consentList = document.getElementById("consentList");
 
 let conviteInfo = null;
 let conviteBloqueado = false;
+let consentimentosDisponiveis = [];
+let consentimentosCarregados = false;
 
 function limparErros() {
   erroNome.textContent = "";
   erroEmail.textContent = "";
   erroSenha.textContent = "";
   erroConfirmarSenha.textContent = "";
+  erroAceites.textContent = "";
   esconderMensagem();
 }
 
@@ -49,6 +60,15 @@ function esconderMensagem() {
   formMessage.hidden = true;
   formMessage.textContent = "";
   formMessage.className = "form-message";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function mostrarAvisoConvite(titulo, texto, tipo = "info") {
@@ -173,7 +193,50 @@ function validarFormulario() {
     valido = false;
   }
 
+  if (!consentimentosCarregados || !consentimentosDisponiveis.length) {
+    erroAceites.textContent = "Não foi possível validar os documentos obrigatórios.";
+    valido = false;
+  } else {
+    const faltantes = consentimentosDisponiveis.filter((item) => {
+      const checkbox = document.querySelector(`[data-consent-documento="${item.documento}"]`);
+      return item.obrigatorio && !checkbox?.checked;
+    });
+
+    if (faltantes.length) {
+      erroAceites.textContent = "Você precisa aceitar os documentos obrigatórios para continuar.";
+      valido = false;
+    }
+  }
+
   return valido;
+}
+
+function renderizarConsentimentos(documentos) {
+  consentimentosDisponiveis = documentos;
+  consentimentosCarregados = true;
+
+  if (!consentCard || !consentList) return;
+
+  consentCard.hidden = false;
+  consentList.innerHTML = documentos
+    .map(
+      (item) => `
+        <label class="consent-item">
+          <div class="consent-item__row">
+            <input
+              type="checkbox"
+              data-consent-documento="${item.documento}"
+            />
+            <div class="consent-item__label">
+              <strong>Li e aceito ${escapeHtml(item.titulo)}</strong>
+              <span class="consent-item__meta">Versão ${escapeHtml(item.versao)}</span>
+            </div>
+          </div>
+          <p class="consent-item__summary">${escapeHtml(item.conteudo?.trim() || item.resumo)}</p>
+        </label>
+      `
+    )
+    .join("");
 }
 
 async function buscarConvitePublico(token) {
@@ -293,6 +356,11 @@ async function cadastrarPaciente({ nome, email, senha }) {
   return data;
 }
 
+async function carregarConsentimentos() {
+  const documentos = await carregarDocumentosPublicados(supabase, "paciente");
+  renderizarConsentimentos(documentos);
+}
+
 toggleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const targetId = button.getAttribute("data-target");
@@ -337,6 +405,28 @@ authForm.addEventListener("submit", async (event) => {
       senha
     });
 
+    guardarAceitesPendentes({
+      perfil: "paciente",
+      email,
+      documentos: consentimentosDisponiveis.map(({ documento, versao }) => ({
+        documento,
+        versao
+      }))
+    });
+
+    const sessionResult = await supabase.auth.getSession();
+    const sessionUserId = sessionResult?.data?.session?.user?.id || resultadoCadastro?.user?.id || null;
+
+    if (sessionResult?.data?.session?.user?.id) {
+      await registrarAceitesDocumentos(supabase, {
+        userId: sessionUserId,
+        documentos: consentimentosDisponiveis.map(({ documento, versao }) => ({
+          documento,
+          versao
+        }))
+      });
+    }
+
     if (conviteToken) {
       await registrarRespostaAoConviteAposCadastro({
         token: conviteToken,
@@ -375,9 +465,18 @@ async function inicializarCadastro() {
   }
 
   configurarTelaBase();
+  try {
+    await carregarConsentimentos();
+  } catch (error) {
+    console.error("Erro ao carregar documentos do cadastro de paciente:", error);
+    mostrarMensagem(
+      error.message || "Não foi possível carregar os documentos obrigatórios.",
+      "error"
+    );
+    btnSubmit.disabled = true;
+  }
   await validarConvite();
   aplicarContextoConviteNaTela();
 }
 
 inicializarCadastro();
-

@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { processarAceitesPendentesNoLogin } from "../../shared/legal-documents.js";
 
 const authForm = document.getElementById("authForm");
 const emailInput = document.getElementById("email");
@@ -168,6 +169,11 @@ authForm.addEventListener("submit", async (event) => {
 
     const confirmedAtIso = user.email_confirmed_at || new Date().toISOString();
     await atualizarConfirmacaoEmailNoPerfil(user.id, confirmedAtIso);
+    await processarAceitesPendentesNoLogin(supabase, {
+      perfil: "profissional",
+      email,
+      userId: user.id
+    });
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
 
