@@ -40,8 +40,8 @@
         <p class="hero-card__label">Acompanhamento terapêutico</p>
         <h2>Organize tarefas por paciente</h2>
         <p>
-          Selecione um paciente, acompanhe as tarefas em andamento e visualize as
-          interações entre profissional e paciente dentro de cada tarefa.
+          Selecione um paciente vinculado, crie tarefas, acompanhe as interações
+          e encerre o assunto quando considerar concluído.
         </p>
       </section>
 
@@ -51,6 +51,10 @@
             <h3>Pacientes vinculados</h3>
             <p>Escolha um paciente para visualizar ou criar tarefas.</p>
           </div>
+        </div>
+
+        <div class="empty-state" id="patientsEmptyState" hidden>
+          Nenhum paciente com vínculo ativo encontrado.
         </div>
 
         <div class="patients-grid" id="patientsGrid"></div>
@@ -68,6 +72,55 @@
               + Nova tarefa
             </button>
           </div>
+
+          <section class="alias-card" id="aliasCard" hidden>
+            <label for="patientAliasInput">Apelido do paciente</label>
+            <div class="alias-card__row">
+              <input
+                type="text"
+                id="patientAliasInput"
+                placeholder="Ex.: João vestibular"
+                maxlength="120"
+              />
+              <button class="btn-secondary" id="btnSaveAlias" type="button">
+                Salvar apelido
+              </button>
+            </div>
+          </section>
+
+          <section class="task-create-card" id="taskCreateCard" hidden>
+            <h4>Nova tarefa</h4>
+
+            <div class="form-group">
+              <label for="taskTitleInput">Título</label>
+              <input
+                type="text"
+                id="taskTitleInput"
+                placeholder="Ex.: Registro de pensamentos automáticos"
+                maxlength="160"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="taskDescriptionInput">Descrição</label>
+              <textarea
+                id="taskDescriptionInput"
+                rows="4"
+                placeholder="Descreva a orientação inicial da tarefa..."
+              ></textarea>
+            </div>
+
+            <div class="form-message" id="taskFormMessage" hidden></div>
+
+            <div class="task-create-card__actions">
+              <button class="btn-secondary" id="btnCancelTask" type="button">
+                Cancelar
+              </button>
+              <button class="btn-primary" id="btnCreateTask" type="button">
+                Criar tarefa
+              </button>
+            </div>
+          </section>
 
           <div class="empty-state" id="tasksEmptyState">
             Selecione um paciente para visualizar as tarefas.
@@ -87,8 +140,22 @@
           </div>
 
           <div class="task-summary-card" id="taskSummaryCard" hidden>
-            <h4 id="taskSummaryTitle">Título da tarefa</h4>
-            <p id="taskSummaryDescription">Descrição da tarefa</p>
+            <div class="task-summary-card__top">
+              <div>
+                <h4 id="taskSummaryTitle">Título da tarefa</h4>
+                <p id="taskSummaryDescription">Descrição da tarefa</p>
+              </div>
+
+              <div class="task-summary-actions">
+                <button class="btn-secondary" id="btnReopenTask" type="button" hidden>
+                  Reabrir tarefa
+                </button>
+                <button class="btn-primary" id="btnCloseTask" type="button">
+                  Encerrar tarefa
+                </button>
+              </div>
+            </div>
+
             <div class="task-summary-meta">
               <span id="taskSummaryCreatedAt">Criada em</span>
               <span id="taskSummaryOwner">Criada por</span>
@@ -109,6 +176,8 @@
               placeholder="Digite aqui uma nova orientação, réplica ou resposta..."
             ></textarea>
 
+            <div class="form-message" id="replyMessage" hidden></div>
+
             <div class="reply-box__actions">
               <button class="btn-secondary" id="btnClearReply" type="button">Limpar</button>
               <button class="btn-primary" type="submit">Registrar interação</button>
@@ -118,6 +187,7 @@
       </section>
     </main>
   </div>
+
   <script type="module" src="./app.js"></script>
 </body>
 </html>
