@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskDetailCard) taskDetailCard.hidden = false;
     if (taskDetailEmptyState) taskDetailEmptyState.hidden = true;
     if (interactionsDivider) interactionsDivider.hidden = false;
-    if (taskDetailTitle) taskDetailTitle.textContent = `Interações da TAREFA: ${task.titulo}`;
+    if (taskDetailTitle) taskDetailTitle.textContent = `TAREFA: ${task.titulo}`;
     if (taskDetailDescription) taskDetailDescription.textContent = task.descricao;
     if (taskCreatedAt) taskCreatedAt.textContent = `Criada em ${formatarDataHora(task.created_at)}`;
     if (taskProfessionalName) {
