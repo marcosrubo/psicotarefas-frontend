@@ -334,10 +334,6 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedTaskId = null;
     }
 
-    if (!selectedTaskId && tasks.length > 0) {
-      selectedTaskId = tasks[0].id;
-    }
-
     const taskIds = tasks.map((task) => task.id);
     if (!taskIds.length) {
       return;
