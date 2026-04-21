@@ -189,7 +189,8 @@ a {
 
 .hero-card,
 .patients-panel,
-.tasks-panel {
+.tasks-panel,
+.interaction-panel {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -229,7 +230,8 @@ a {
 }
 
 .patients-panel,
-.tasks-panel {
+.tasks-panel,
+.interaction-panel {
   padding: 18px 16px;
 }
 
@@ -255,7 +257,8 @@ a {
 }
 
 .patients-grid,
-.tasks-list {
+.tasks-list,
+.interactions-list {
   display: grid;
   gap: 12px;
 }
@@ -341,7 +344,9 @@ a {
 }
 
 .alias-box,
-.task-form-card {
+.task-form-card,
+.selected-task-box,
+.interaction-form-card {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 14px;
@@ -350,12 +355,15 @@ a {
 }
 
 .alias-box[hidden],
-.task-form-card[hidden] {
+.task-form-card[hidden],
+.selected-task-box[hidden],
+.interaction-form-card[hidden] {
   display: none !important;
 }
 
 .alias-box label,
-.task-form-card h4 {
+.task-form-card h4,
+.interaction-form-card h4 {
   display: block;
   margin: 0 0 10px;
   font-size: 14px;
@@ -363,7 +371,8 @@ a {
 }
 
 .alias-box__row,
-.task-form-card__actions {
+.task-form-card__actions,
+.interaction-form-card__actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -427,6 +436,19 @@ a {
   border-radius: 16px;
   padding: 14px;
   background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+  border-color: rgba(109, 94, 252, 0.35);
+}
+
+.task-card.is-active {
+  border-color: rgba(109, 94, 252, 0.45);
+  background: linear-gradient(180deg, rgba(109, 94, 252, 0.06), #fff);
 }
 
 .task-card__top {
@@ -434,8 +456,8 @@ a {
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
-  margin-bottom: 10px;
   flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
 .task-card__title {
@@ -459,6 +481,67 @@ a {
   font-size: 12px;
 }
 
+.selected-task-box h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.selected-task-box p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.selected-task-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.interaction-item {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+}
+
+.interaction-item--profissional {
+  border-left: 4px solid var(--primary);
+}
+
+.interaction-item--paciente {
+  border-left: 4px solid #2f855a;
+}
+
+.interaction-item__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.interaction-item__author {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.interaction-item__time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.interaction-item__text {
+  margin: 0;
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
 .empty-state {
   padding: 16px;
   border: 1px dashed var(--border);
@@ -474,7 +557,8 @@ a {
 
 @media (max-width: 640px) {
   .alias-box__row,
-  .task-form-card__actions {
+  .task-form-card__actions,
+  .interaction-form-card__actions {
     display: grid;
     grid-template-columns: 1fr;
   }

@@ -46,8 +46,8 @@
         <p class="hero-card__label">Acompanhamento terapêutico</p>
         <h2>Organize tarefas por paciente</h2>
         <p>
-          Selecione um paciente vinculado, personalize o apelido para facilitar sua organização
-          e cadastre tarefas com título e descrição.
+          Selecione um paciente vinculado, personalize o apelido, cadastre tarefas
+          e registre interações dentro de cada tarefa.
         </p>
       </section>
 
@@ -133,6 +133,58 @@
           </div>
 
           <div class="tasks-list" id="tasksList"></div>
+        </section>
+      </section>
+
+      <section class="interaction-panel">
+        <div class="section-header">
+          <div>
+            <h3 id="interactionTitle">Interações da tarefa</h3>
+            <p id="interactionSubtitle">Selecione uma tarefa para visualizar o histórico.</p>
+          </div>
+
+          <span class="task-status-chip task-status-chip--muted" id="selectedTaskStatus">
+            Sem tarefa
+          </span>
+        </div>
+
+        <section class="selected-task-box" id="selectedTaskBox" hidden>
+          <h4 id="selectedTaskName">Título da tarefa</h4>
+          <p id="selectedTaskDescription">Descrição da tarefa</p>
+          <div class="selected-task-meta">
+            <span id="selectedTaskCreatedAt">Criada em</span>
+            <span id="selectedTaskPatient">Paciente</span>
+          </div>
+        </section>
+
+        <div class="empty-state" id="interactionsEmptyState">
+          Selecione uma tarefa para visualizar as interações.
+        </div>
+
+        <div class="interactions-list" id="interactionsList"></div>
+
+        <section class="interaction-form-card" id="interactionFormCard" hidden>
+          <h4>Nova interação do profissional</h4>
+
+          <div class="form-group">
+            <label for="interactionTextInput">Mensagem</label>
+            <textarea
+              id="interactionTextInput"
+              rows="5"
+              placeholder="Digite aqui a orientação, réplica ou devolutiva para o paciente..."
+            ></textarea>
+          </div>
+
+          <div class="form-message" id="interactionFormMessage" hidden></div>
+
+          <div class="interaction-form-card__actions">
+            <button class="btn-secondary" id="btnClearInteraction" type="button">
+              Limpar
+            </button>
+            <button class="btn-primary" id="btnCreateInteraction" type="button">
+              Registrar interação
+            </button>
+          </div>
         </section>
       </section>
     </main>
