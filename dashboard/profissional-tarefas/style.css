@@ -107,6 +107,11 @@ a {
   justify-content: flex-start;
 }
 
+.mobile-flow-indicator,
+.mobile-back-btn {
+  display: none;
+}
+
 .professional-line {
   margin: 0;
   font-size: 15px;
@@ -140,6 +145,12 @@ a {
   padding: 12px 16px;
   box-shadow: var(--shadow-soft);
   width: fit-content;
+}
+
+.btn-ghost--small {
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
 }
 
 .btn-primary {
@@ -603,6 +614,55 @@ a {
 
   .interaction-item__actions {
     justify-content: stretch;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-card {
+    padding: 18px 14px;
+  }
+
+  .hero-card h2 {
+    font-size: 24px;
+  }
+
+  .mobile-flow-indicator {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .mobile-flow-step {
+    display: inline-flex;
+    white-space: nowrap;
+    padding: 9px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .mobile-flow-step--active {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    border-color: rgba(109, 94, 252, 0.2);
+  }
+
+  .mobile-back-btn {
+    display: inline-flex;
+  }
+
+  body[data-mobile-view="patients"] .tasks-panel,
+  body[data-mobile-view="patients"] .interaction-panel,
+  body[data-mobile-view="tasks"] .patients-panel,
+  body[data-mobile-view="tasks"] .interaction-panel,
+  body[data-mobile-view="interactions"] .patients-panel,
+  body[data-mobile-view="interactions"] .tasks-panel {
+    display: none;
   }
 }
 

@@ -51,8 +51,14 @@
         </p>
       </section>
 
+      <section class="mobile-flow-indicator" id="mobileFlowIndicator" aria-label="Etapa atual">
+        <span class="mobile-flow-step mobile-flow-step--active" id="mobileStepPatients">1. Pacientes</span>
+        <span class="mobile-flow-step" id="mobileStepTasks">2. Tarefas</span>
+        <span class="mobile-flow-step" id="mobileStepInteractions">3. Interações</span>
+      </section>
+
       <section class="workspace">
-        <section class="patients-panel">
+        <section class="patients-panel" id="patientsPanel">
           <div class="section-header">
             <div>
               <h3>Pacientes vinculados</h3>
@@ -67,9 +73,12 @@
           <div class="patients-grid" id="patientsGrid"></div>
         </section>
 
-        <section class="tasks-panel">
+        <section class="tasks-panel" id="tasksPanel">
           <div class="section-header">
             <div>
+              <button class="btn-ghost btn-ghost--small mobile-back-btn" id="btnBackToPatients" type="button">
+                ← Pacientes
+              </button>
               <h3 id="tasksTitle">Tarefas do paciente</h3>
               <p id="tasksSubtitle">Selecione um paciente para começar.</p>
             </div>
@@ -136,9 +145,12 @@
         </section>
       </section>
 
-      <section class="interaction-panel">
+      <section class="interaction-panel" id="interactionPanel">
         <div class="section-header">
           <div>
+            <button class="btn-ghost btn-ghost--small mobile-back-btn" id="btnBackToTasks" type="button">
+              ← Tarefas
+            </button>
             <h3 id="interactionTitle">Interações da tarefa</h3>
             <p id="interactionSubtitle">Selecione uma tarefa para visualizar o histórico.</p>
           </div>

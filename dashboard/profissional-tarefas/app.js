@@ -6,13 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
+  const patientsPanel = document.getElementById("patientsPanel");
 
   const tasksTitle = document.getElementById("tasksTitle");
   const tasksSubtitle = document.getElementById("tasksSubtitle");
   const tasksList = document.getElementById("tasksList");
   const tasksEmptyState = document.getElementById("tasksEmptyState");
+  const tasksPanel = document.getElementById("tasksPanel");
 
   const btnNewTask = document.getElementById("btnNewTask");
+  const btnBackToPatients = document.getElementById("btnBackToPatients");
 
   const aliasBox = document.getElementById("aliasBox");
   const patientAliasInput = document.getElementById("patientAliasInput");
@@ -35,9 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedTaskCreatedAt = document.getElementById("selectedTaskCreatedAt");
   const selectedTaskPatient = document.getElementById("selectedTaskPatient");
   const btnEditTask = document.getElementById("btnEditTask");
+  const interactionPanel = document.getElementById("interactionPanel");
+  const btnBackToTasks = document.getElementById("btnBackToTasks");
 
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
   const interactionsList = document.getElementById("interactionsList");
+  const mobileStepPatients = document.getElementById("mobileStepPatients");
+  const mobileStepTasks = document.getElementById("mobileStepTasks");
+  const mobileStepInteractions = document.getElementById("mobileStepInteractions");
 
   const interactionEditCard = document.getElementById("interactionEditCard");
   const interactionEditInput = document.getElementById("interactionEditInput");
@@ -60,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedTaskId = null;
   let taskFormMode = "create";
   let editingInteractionId = null;
+  let mobileView = "patients";
 
   function showScreenError(text) {
     if (!screenMessage) return;
@@ -134,6 +143,50 @@ document.addEventListener("DOMContentLoaded", () => {
       hour: "2-digit",
       minute: "2-digit"
     });
+  }
+
+  function isMobileLayout() {
+    return window.innerWidth < 768;
+  }
+
+  function renderMobileFlowIndicator() {
+    if (!mobileStepPatients || !mobileStepTasks || !mobileStepInteractions) return;
+
+    mobileStepPatients.classList.toggle("mobile-flow-step--active", mobileView === "patients");
+    mobileStepTasks.classList.toggle("mobile-flow-step--active", mobileView === "tasks");
+    mobileStepInteractions.classList.toggle("mobile-flow-step--active", mobileView === "interactions");
+  }
+
+  function setMobileView(nextView) {
+    mobileView = nextView;
+
+    if (isMobileLayout()) {
+      document.body.setAttribute("data-mobile-view", nextView);
+    } else {
+      document.body.removeAttribute("data-mobile-view");
+    }
+
+    renderMobileFlowIndicator();
+  }
+
+  function syncMobileViewWithSelection() {
+    if (!isMobileLayout()) {
+      document.body.removeAttribute("data-mobile-view");
+      renderMobileFlowIndicator();
+      return;
+    }
+
+    if (selectedTaskId) {
+      setMobileView("interactions");
+      return;
+    }
+
+    if (selectedPatientId) {
+      setMobileView("tasks");
+      return;
+    }
+
+    setMobileView("patients");
   }
 
   function getSelectedPatient() {
@@ -828,6 +881,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPatients();
     renderTasksArea();
     renderInteractionArea();
+    syncMobileViewWithSelection();
   }
 
   if (patientsGrid) {
@@ -857,6 +911,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setInteractionFormMessage();
       renderTasksArea();
       renderInteractionArea();
+      syncMobileViewWithSelection();
     });
   }
 
@@ -908,6 +963,26 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCreateInteraction.addEventListener("click", criarInteracao);
   }
 
+  if (btnBackToPatients) {
+    btnBackToPatients.addEventListener("click", () => {
+      selectedTaskId = null;
+      closeTaskForm();
+      closeInteractionEditCard();
+      setMobileView("patients");
+    });
+  }
+
+  if (btnBackToTasks) {
+    btnBackToTasks.addEventListener("click", () => {
+      selectedTaskId = null;
+      closeInteractionEditCard();
+      setInteractionFormMessage();
+      renderTasksArea();
+      renderInteractionArea();
+      setMobileView("tasks");
+    });
+  }
+
   if (interactionsList) {
     interactionsList.addEventListener("click", (event) => {
       const button = event.target.closest("[data-edit-interaction-id]");
@@ -927,6 +1002,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function iniciar() {
     hideScreenError();
+    syncMobileViewWithSelection();
 
     const ok = await validarProfissional();
     if (!ok) return;
@@ -935,6 +1011,10 @@ document.addEventListener("DOMContentLoaded", () => {
     await carregarTarefas();
     renderAll();
   }
+
+  window.addEventListener("resize", () => {
+    syncMobileViewWithSelection();
+  });
 
   iniciar().catch((error) => {
     console.error("Erro na tela profissional-tarefas:", error);
