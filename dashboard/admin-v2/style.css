@@ -610,5 +610,6 @@ input {
 
   .professional-grid {
     grid-template-columns: 0.95fr 1.05fr;
+    align-items: start;
   }
 }
