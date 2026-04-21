@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     welcomeTitle.textContent = `Olá, ${primeiroNome}`;
     welcomeText.textContent =
-      "Aqui você acompanha seu profissional e, em breve, poderá visualizar suas tarefas de forma simples.";
+      "Aqui você acompanha seu profissional e pode visualizar/realizar suas tarefas de forma simples e objetiva.";
 
     return true;
   }

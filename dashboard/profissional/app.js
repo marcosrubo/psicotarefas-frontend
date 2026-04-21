@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnSaveName = document.getElementById("btnSaveName");
 
   const btnLogout = document.getElementById("btnLogout");
+  const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
   const invitePanel = document.getElementById("invitePanel");
   const inviteForm = document.getElementById("inviteForm");
@@ -152,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     userAvatar.textContent = obterIniciais(nomeExibicao);
     welcomeTitle.textContent = `Olá, ${primeiroNome}`;
     welcomeText.textContent =
-      "Convide pacientes, acompanhe os status dos convites e organize as tarefas entre vocês de forma simples e rápida.";
+      "Convide pacientes, acompanhe os status dos convites e organize as tarefas entre vocês de forma simples e objetiva.";
 
     editNameInput.value = nomeExibicao;
   }
@@ -690,6 +691,12 @@ document.addEventListener("DOMContentLoaded", () => {
       fecharEdicaoNome();
     }
   });
+
+  if (btnTasks) {
+    btnTasks.addEventListener("click", () => {
+      window.location.href = "../profissional-tarefas/index.html";
+    });
+  }
 
   if (btnToggleInvite && invitePanel) {
     btnToggleInvite.addEventListener("click", () => {
