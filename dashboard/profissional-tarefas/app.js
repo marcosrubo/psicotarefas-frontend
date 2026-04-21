@@ -738,19 +738,6 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Não foi possível criar a tarefa.");
       }
 
-      const { error: interactionError } = await supabase
-        .from("tarefa_interacoes")
-        .insert({
-          tarefa_id: novaTarefa.id,
-          autor_tipo: "profissional",
-          autor_user_id: currentUser.id,
-          mensagem: descricao
-        });
-
-      if (interactionError) {
-        throw new Error("A tarefa foi criada, mas não foi possível registrar a interação inicial.");
-      }
-
       if (taskTitleInput) taskTitleInput.value = "";
       if (taskDescriptionInput) taskDescriptionInput.value = "";
       if (taskFormCard) taskFormCard.hidden = true;
