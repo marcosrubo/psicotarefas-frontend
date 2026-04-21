@@ -165,58 +165,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarPacientes() {
-    const { data: vinculos, error } = await supabase
-      .from("vinculos")
-      .select("id, patient_user_id, patient_name, patient_alias, patient_email, created_at")
-      .eq("professional_user_id", currentUser.id)
-      .eq("status", "ativo")
-      .not("patient_user_id", "is", null)
-      .order("created_at", { ascending: true });
+    const { data, error } = await supabase.rpc("listar_pacientes_vinculados_profissional");
 
     if (error) {
-      throw new Error(`Falha ao carregar vínculos ativos: ${error.message}`);
+      throw new Error(`Falha ao carregar pacientes vinculados: ${error.message}`);
     }
 
-    const patientUserIds = [...new Set((vinculos || []).map((v) => v.patient_user_id).filter(Boolean))];
-
-    let perfisPacientes = [];
-    if (patientUserIds.length) {
-      const { data: perfis, error: perfisError } = await supabase
-        .from("perfis")
-        .select("user_id, nome, email")
-        .in("user_id", patientUserIds);
-
-      if (perfisError) {
-        throw new Error(`Falha ao carregar nomes completos dos pacientes: ${perfisError.message}`);
-      }
-
-      perfisPacientes = perfis || [];
-    }
-
-    patients = (vinculos || []).map((vinculo) => {
-      const perfilPaciente = perfisPacientes.find(
-        (perfil) => perfil.user_id === vinculo.patient_user_id
-      );
-
+    patients = (data || []).map((item) => {
       const nomeCompleto =
-        perfilPaciente?.nome?.trim() ||
-        vinculo.patient_name ||
-        perfilPaciente?.email ||
-        vinculo.patient_email ||
+        item.patient_name?.trim() ||
+        item.patient_email?.trim() ||
         "Paciente";
 
-      const email =
-        perfilPaciente?.email ||
-        vinculo.patient_email ||
-        "";
-
       return {
-        vinculo_id: vinculo.id,
-        patient_user_id: vinculo.patient_user_id,
-        alias: vinculo.patient_alias || nomeCompleto,
+        vinculo_id: item.vinculo_id,
+        patient_user_id: item.patient_user_id,
+        alias: item.patient_alias || nomeCompleto,
         nome_real: nomeCompleto,
-        email,
-        created_at: vinculo.created_at
+        email: item.patient_email || "",
+        created_at: item.created_at
       };
     });
   }
