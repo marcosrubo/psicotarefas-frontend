@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskDetailEmptyState = document.getElementById("taskDetailEmptyState");
   const taskDetailTitle = document.getElementById("taskDetailTitle");
   const taskDetailDescription = document.getElementById("taskDetailDescription");
-  const taskStatusChip = document.getElementById("taskStatusChip");
   const taskCreatedAt = document.getElementById("taskCreatedAt");
   const taskProfessionalName = document.getElementById("taskProfessionalName");
   const interactionsDivider = document.getElementById("interactionsDivider");
@@ -411,10 +410,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (interactionsDivider) interactionsDivider.hidden = false;
     if (taskDetailTitle) taskDetailTitle.textContent = `Interações da TAREFA: ${task.titulo}`;
     if (taskDetailDescription) taskDetailDescription.textContent = task.descricao;
-    if (taskStatusChip) {
-      taskStatusChip.className = status.className;
-      taskStatusChip.textContent = status.label;
-    }
     if (taskCreatedAt) taskCreatedAt.textContent = `Criada em ${formatarDataHora(task.created_at)}`;
     if (taskProfessionalName) {
       const professionalName = limparNome(currentProfessional?.nome || currentProfessional?.email || "") || "Profissional";
