@@ -481,9 +481,20 @@ input {
 }
 
 .patient-browser-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.patient-browser-card__summary {
+  list-style: none;
+  cursor: pointer;
   padding: 14px;
   display: grid;
   gap: 12px;
+}
+
+.patient-browser-card__summary::-webkit-details-marker {
+  display: none;
 }
 
 .patient-browser-card__top {
@@ -491,6 +502,13 @@ input {
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.patient-browser-card__summary-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -502,6 +520,35 @@ input {
 .patient-browser-card__meta {
   color: var(--muted);
   font-size: 13px;
+}
+
+.patient-browser-card__meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.patient-browser-card__toggle {
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
+.patient-browser-card__toggle::after {
+  content: " detalhes";
+}
+
+.patient-browser-card[open] .patient-browser-card__toggle::after {
+  content: " menos";
+}
+
+.patient-browser-card[open] .patient-browser-card__summary {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+}
+
+.patient-browser-card__details {
+  padding: 14px;
 }
 
 .task-browser-card {

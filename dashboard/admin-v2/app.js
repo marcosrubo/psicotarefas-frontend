@@ -274,70 +274,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderPatientBrowser(patient, tarefas, interacoes) {
     return `
-      <article class="patient-browser-card">
-        <div class="patient-browser-card__top">
-          <div>
-            <strong>${escapeHtml(patient.nome || patient.email || "Paciente")}</strong>
-            <span>${escapeHtml(patient.email || "")}</span>
+      <details class="patient-browser-card">
+        <summary class="patient-browser-card__summary">
+          <div class="patient-browser-card__top">
+            <div>
+              <strong>${escapeHtml(patient.nome || patient.email || "Paciente")}</strong>
+              <span>${escapeHtml(patient.email || "")}</span>
+            </div>
+            <div class="patient-browser-card__summary-side">
+              ${montarStatusBadge("ativo")}
+              <span class="patient-browser-card__toggle">Ver</span>
+            </div>
           </div>
-          ${montarStatusBadge("ativo")}
-        </div>
-        <div class="patient-browser-card__meta">
-          ${tarefas.length} tarefa(s) • ${interacoes.length} interação(ões)
-        </div>
-        <div class="tasks-browser-list">
-          ${
-            tarefas.length
-              ? tarefas
-                  .map((tarefa) => {
-                    const interacoesDaTarefa = interacoes.filter((item) => item.tarefa_id === tarefa.id);
+          <div class="patient-browser-card__meta">
+            <span>${tarefas.length} tarefa(s)</span>
+            <span>${interacoes.length} interação(ões)</span>
+          </div>
+        </summary>
+        <div class="patient-browser-card__details">
+          <div class="tasks-browser-list">
+            ${
+              tarefas.length
+                ? tarefas
+                    .map((tarefa) => {
+                      const interacoesDaTarefa = interacoes.filter((item) => item.tarefa_id === tarefa.id);
 
-                    return `
-                      <article class="task-browser-card">
-                        <div class="task-browser-card__top">
-                          <strong>${escapeHtml(tarefa.titulo || "Tarefa sem título")}</strong>
-                          ${montarStatusBadge(tarefa.status || "aberta")}
-                        </div>
-                        <p class="task-browser-card__description">${escapeHtml(tarefa.descricao || "")}</p>
-                        <div class="task-browser-card__meta">
-                          <span>Criada em ${escapeHtml(formatarData(tarefa.created_at))}</span>
-                          <span>${interacoesDaTarefa.length} interação(ões)</span>
-                        </div>
-                        <div class="interactions-list">
-                          ${
-                            interacoesDaTarefa.length
-                              ? interacoesDaTarefa
-                                  .map((interacao) => `
-                                    <article class="interaction-item interaction-item--${
-                                      interacao.autor_tipo === "profissional" ? "profissional" : "paciente"
-                                    }">
-                                      <div class="interaction-item__top">
-                                        <strong class="interaction-item__author">${
-                                          interacao.autor_tipo === "profissional"
-                                            ? "Profissional"
-                                            : "Paciente"
-                                        }</strong>
-                                        <span class="interaction-item__time">${escapeHtml(
-                                          formatarData(interacao.created_at)
-                                        )}</span>
-                                      </div>
-                                      <p class="interaction-item__text">${escapeHtml(
-                                        interacao.mensagem || ""
-                                      )}</p>
-                                    </article>
-                                  `)
-                                  .join("")
-                              : `<div class="empty-inline">Nenhuma interação nesta tarefa.</div>`
-                          }
-                        </div>
-                      </article>
-                    `;
-                  })
-                  .join("")
-              : `<div class="empty-inline">Nenhuma tarefa encontrada para este paciente.</div>`
-          }
+                      return `
+                        <article class="task-browser-card">
+                          <div class="task-browser-card__top">
+                            <strong>${escapeHtml(tarefa.titulo || "Tarefa sem título")}</strong>
+                            ${montarStatusBadge(tarefa.status || "aberta")}
+                          </div>
+                          <p class="task-browser-card__description">${escapeHtml(tarefa.descricao || "")}</p>
+                          <div class="task-browser-card__meta">
+                            <span>Criada em ${escapeHtml(formatarData(tarefa.created_at))}</span>
+                            <span>${interacoesDaTarefa.length} interação(ões)</span>
+                          </div>
+                          <div class="interactions-list">
+                            ${
+                              interacoesDaTarefa.length
+                                ? interacoesDaTarefa
+                                    .map((interacao) => `
+                                      <article class="interaction-item interaction-item--${
+                                        interacao.autor_tipo === "profissional" ? "profissional" : "paciente"
+                                      }">
+                                        <div class="interaction-item__top">
+                                          <strong class="interaction-item__author">${
+                                            interacao.autor_tipo === "profissional"
+                                              ? "Profissional"
+                                              : "Paciente"
+                                          }</strong>
+                                          <span class="interaction-item__time">${escapeHtml(
+                                            formatarData(interacao.created_at)
+                                          )}</span>
+                                        </div>
+                                        <p class="interaction-item__text">${escapeHtml(
+                                          interacao.mensagem || ""
+                                        )}</p>
+                                      </article>
+                                    `)
+                                    .join("")
+                                : `<div class="empty-inline">Nenhuma interação nesta tarefa.</div>`
+                            }
+                          </div>
+                        </article>
+                      `;
+                    })
+                    .join("")
+                : `<div class="empty-inline">Nenhuma tarefa encontrada para este paciente.</div>`
+            }
+          </div>
         </div>
-      </article>
+      </details>
     `;
   }
 
