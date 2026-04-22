@@ -166,26 +166,7 @@ ul {
   color: var(--primary-dark);
   box-shadow: var(--shadow-soft);
   flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.audience-card__badge-icon::after {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  border-radius: 15px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.32));
-  pointer-events: none;
-}
-
-.audience-card__badge-icon svg {
-  width: 24px;
-  height: 24px;
-  display: block;
-  fill: currentColor;
-  position: relative;
-  z-index: 1;
+  font-size: 24px;
 }
 
 .audience-card--professional .audience-card__badge-icon {
@@ -283,10 +264,6 @@ ul {
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.story-block--hero-soft .story-block__media img {
-  object-position: center 24%;
 }
 
 .story-block__copy {
