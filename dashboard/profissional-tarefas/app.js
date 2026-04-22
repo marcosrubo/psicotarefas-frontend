@@ -80,6 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let taskFormMode = "create";
   let editingInteractionId = null;
   let mobileView = "patients";
+  let autoRefreshTimer = null;
+  let isRefreshingData = false;
 
   function normalizarTipoInteracao(valor) {
     if (valor === "limitado" || valor === "ilimitado") return valor;
@@ -144,9 +146,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function obterResumoInteracaoPaciente(task) {
     const { tipo, limite } = obterConfiguracaoInteracaoDaTarefa(task);
 
-    if (tipo === "ilimitado") return "Paciente: ilimitadas";
-    if (tipo === "limitado") return `Paciente: até ${limite} interação(ões)`;
-    return "Paciente: sem interações";
+    if (tipo === "ilimitado") return "Interações: Ilimitadas";
+    if (tipo === "limitado") return `Interações: Permitir até ${limite}`;
+    return "Interações: Não permitir";
   }
 
   function obterResumoPadraoInteracao(tipo, limite) {
@@ -809,7 +811,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     selectedTaskBox.hidden = false;
     if (selectedTaskName) selectedTaskName.textContent = `TAREFA: ${task.titulo}`;
-    if (selectedTaskDescription) selectedTaskDescription.textContent = task.descricao;
+    if (selectedTaskDescription) {
+      selectedTaskDescription.textContent = `${task.descricao}\n\n${obterResumoInteracaoPaciente(task)}`;
+    }
     if (selectedTaskCreatedAt) selectedTaskCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;
     if (btnEditTask) btnEditTask.hidden = false;
@@ -1153,6 +1157,33 @@ document.addEventListener("DOMContentLoaded", () => {
     syncMobileViewWithSelection();
   }
 
+  async function atualizarDadosSilenciosamente() {
+    if (!currentUser || isRefreshingData) return;
+
+    isRefreshingData = true;
+
+    try {
+      await carregarPacientes();
+      await carregarTarefas();
+      renderAll();
+    } catch (error) {
+      console.error("Erro ao atualizar dados automaticamente:", error);
+    } finally {
+      isRefreshingData = false;
+    }
+  }
+
+  function iniciarAutoRefresh() {
+    if (autoRefreshTimer) {
+      window.clearInterval(autoRefreshTimer);
+    }
+
+    autoRefreshTimer = window.setInterval(() => {
+      if (document.hidden) return;
+      atualizarDadosSilenciosamente();
+    }, 4000);
+  }
+
   if (patientsGrid) {
     patientsGrid.addEventListener("click", (event) => {
       const card = event.target.closest("[data-patient-id]");
@@ -1357,13 +1388,23 @@ document.addEventListener("DOMContentLoaded", () => {
     syncMobileViewWithSelection();
   });
 
-  iniciar().catch((error) => {
-    console.error("Erro na tela profissional-tarefas:", error);
-
-    if (professionalLine) {
-      professionalLine.textContent = "PROFISSIONAL: erro ao carregar";
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      atualizarDadosSilenciosamente();
     }
-
-    showScreenError(error.message || "Erro ao carregar a gestão de tarefas.");
   });
+
+  iniciar()
+    .then(() => {
+      iniciarAutoRefresh();
+    })
+    .catch((error) => {
+      console.error("Erro na tela profissional-tarefas:", error);
+
+      if (professionalLine) {
+        professionalLine.textContent = "PROFISSIONAL: erro ao carregar";
+      }
+
+      showScreenError(error.message || "Erro ao carregar a gestão de tarefas.");
+    });
 });

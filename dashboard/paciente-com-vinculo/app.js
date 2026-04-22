@@ -231,6 +231,14 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function obterResumoInteracaoTarefa(task) {
+    const { tipo, limite } = obterConfiguracaoInteracaoPaciente(task);
+
+    if (tipo === "ilimitado") return "Interações: Ilimitadas";
+    if (tipo === "limitado") return `Interações: Permitir até ${limite}`;
+    return "Interações: Não permitir";
+  }
+
   function getEditingInteraction() {
     if (!editingInteractionId) return null;
 
@@ -514,6 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <p class="task-card__description">${escapeHtml(task.descricao)}</p>
             <div class="task-card__meta">
               <span>Criada em ${escapeHtml(formatarDataHora(task.created_at))}</span>
+              <span>${escapeHtml(obterResumoInteracaoTarefa(task))}</span>
               <span>${getTaskInteractions(task.id).length} interação(ões)</span>
             </div>
           </article>
@@ -545,7 +554,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskDetailEmptyState) taskDetailEmptyState.hidden = true;
     if (interactionsDivider) interactionsDivider.hidden = false;
     if (taskDetailTitle) taskDetailTitle.textContent = `TAREFA: ${task.titulo}`;
-    if (taskDetailDescription) taskDetailDescription.textContent = task.descricao;
+    if (taskDetailDescription) {
+      taskDetailDescription.textContent = `${task.descricao}\n\n${obterResumoInteracaoTarefa(task)}`;
+    }
     if (taskCreatedAt) taskCreatedAt.textContent = `Criada em ${formatarDataHora(task.created_at)}`;
     if (taskProfessionalName) {
       const professionalName = limparNome(currentProfessional?.nome || currentProfessional?.email || "") || "Profissional";
