@@ -51,6 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let interactionsByTask = new Map();
   let selectedTaskId = null;
   let editingInteractionId = null;
+  let autoRefreshTimer = null;
+  let isRefreshingData = false;
 
   function aplicarNomePacienteNaTela(nome, email) {
     const nomeBase = limparNome(nome || email || "");
@@ -609,6 +611,33 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTaskDetail();
   }
 
+  async function atualizarDadosSilenciosamente() {
+    if (!currentUser || isRefreshingData) return;
+
+    isRefreshingData = true;
+
+    try {
+      await carregarProfissionalVinculado();
+      await carregarTarefas();
+      renderAll();
+    } catch (error) {
+      console.error("Erro ao atualizar dados do paciente automaticamente:", error);
+    } finally {
+      isRefreshingData = false;
+    }
+  }
+
+  function iniciarAutoRefresh() {
+    if (autoRefreshTimer) {
+      window.clearInterval(autoRefreshTimer);
+    }
+
+    autoRefreshTimer = window.setInterval(() => {
+      if (document.hidden) return;
+      atualizarDadosSilenciosamente();
+    }, 4000);
+  }
+
   async function criarInteracao() {
     const task = getSelectedTask();
     const mensagem = interactionTextInput?.value.trim() || "";
@@ -783,5 +812,17 @@ document.addEventListener("DOMContentLoaded", () => {
     renderAll();
   }
 
-  iniciarDashboard();
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      atualizarDadosSilenciosamente();
+    }
+  });
+
+  iniciarDashboard()
+    .then(() => {
+      iniciarAutoRefresh();
+    })
+    .catch((error) => {
+      console.error("Erro na tela paciente-com-vinculo:", error);
+    });
 });
