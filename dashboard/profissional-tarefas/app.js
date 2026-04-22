@@ -347,6 +347,200 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
+  function normalizarAiMaterial(material) {
+    if (!material) return null;
+
+    const guidedQuestions = material.guided_questions || {};
+    const selfEvaluation = material.self_evaluation || {};
+    const illustration = material.illustration || {};
+
+    return {
+      title: material.title || "Prévia da tarefa com IA",
+      summary:
+        material.summary ||
+        "Material inicial gerado a partir do título, descrição e instruções complementares.",
+      objective: material.objective || "",
+      closing_message: material.closing_message || "",
+      raw_text: material.raw_text || "",
+      illustration: {
+        scene_title: illustration.scene_title || material.title || "Cena da tarefa",
+        subject: illustration.subject || "Paciente em reflexão",
+        support_label: illustration.support_label || "Registro guiado",
+        accent_color: illustration.accent_color || "#7C6CFF"
+      },
+      guided_questions: {
+        observation:
+          guidedQuestions.observation ||
+          material.reflection_questions?.[0] ||
+          "O que você percebeu com mais clareza nesta situação?",
+        action_reflection:
+          guidedQuestions.action_reflection ||
+          material.reflection_questions?.[1] ||
+          "O que você fez ou poderia experimentar da próxima vez?",
+        self_evaluation:
+          guidedQuestions.self_evaluation ||
+          material.reflection_questions?.[2] ||
+          "Como você se avalia emocionalmente neste momento?"
+      },
+      self_evaluation: {
+        type: ["emotion_faces", "emotion_scale", "emotion_bar"].includes(selfEvaluation.type)
+          ? selfEvaluation.type
+          : "emotion_faces",
+        title: selfEvaluation.title || "Autoavaliação emocional",
+        prompt:
+          selfEvaluation.prompt ||
+          guidedQuestions.self_evaluation ||
+          "Marque como você se sentiu ao realizar a tarefa.",
+        anchors:
+          Array.isArray(selfEvaluation.anchors) && selfEvaluation.anchors.length
+            ? selfEvaluation.anchors.slice(0, 5)
+            : ["Muito baixo", "Baixo", "Médio", "Alto", "Muito alto"]
+      }
+    };
+  }
+
+  function renderAiIllustration(material) {
+    const accent = escapeHtml(material.illustration.accent_color || "#7C6CFF");
+    const sceneTitle = escapeHtml(material.illustration.scene_title);
+    const subject = escapeHtml(material.illustration.subject);
+    const supportLabel = escapeHtml(material.illustration.support_label);
+
+    return `
+      <section class="ia-task-preview__illustration">
+        <div class="ia-task-preview__illustration-copy">
+          <span class="ia-task-preview__illustration-tag">Ilustração temática</span>
+          <h6>${sceneTitle}</h6>
+          <p>${subject}</p>
+          <strong>${supportLabel}</strong>
+        </div>
+        <div class="ia-task-preview__illustration-art" style="--ai-accent:${accent}">
+          <svg viewBox="0 0 260 180" aria-hidden="true" role="img">
+            <defs>
+              <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="${accent}" stop-opacity="0.95"></stop>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0.92"></stop>
+              </linearGradient>
+            </defs>
+            <rect x="16" y="18" width="228" height="144" rx="34" fill="url(#aiGradient)"></rect>
+            <circle cx="78" cy="78" r="28" fill="#ffffff" fill-opacity="0.98"></circle>
+            <rect x="58" y="108" width="40" height="24" rx="12" fill="#ffffff" fill-opacity="0.98"></rect>
+            <rect x="112" y="48" width="88" height="56" rx="18" fill="#ffffff" fill-opacity="0.92"></rect>
+            <rect x="126" y="124" width="72" height="18" rx="9" fill="#ffffff" fill-opacity="0.82"></rect>
+            <circle cx="70" cy="74" r="4" fill="${accent}"></circle>
+            <circle cx="86" cy="74" r="4" fill="${accent}"></circle>
+            <path d="M68 88c5 6 15 6 20 0" stroke="${accent}" stroke-width="4" stroke-linecap="round" fill="none"></path>
+            <path d="M124 64h64" stroke="${accent}" stroke-width="7" stroke-linecap="round" opacity="0.9"></path>
+            <path d="M124 82h52" stroke="${accent}" stroke-width="7" stroke-linecap="round" opacity="0.55"></path>
+            <path d="M136 132h24" stroke="${accent}" stroke-width="6" stroke-linecap="round" opacity="0.9"></path>
+            <path d="M168 132h18" stroke="${accent}" stroke-width="6" stroke-linecap="round" opacity="0.45"></path>
+          </svg>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderAiQuestions(material) {
+    const questions = [
+      ["Observação", material.guided_questions.observation],
+      ["Ação / reflexão", material.guided_questions.action_reflection],
+      ["Autoavaliação", material.guided_questions.self_evaluation]
+    ];
+
+    return renderAiPreviewSection(
+      "Perguntas guiadas",
+      `
+        <ol class="ia-task-preview__questions">
+          ${questions
+            .map(
+              ([label, value]) => `
+                <li>
+                  <strong>${escapeHtml(label)}</strong>
+                  <span>${escapeHtml(value)}</span>
+                </li>
+              `
+            )
+            .join("")}
+        </ol>
+      `
+    );
+  }
+
+  function renderAiSelfEvaluation(material) {
+    const selfEvaluation = material.self_evaluation;
+    const anchors = selfEvaluation.anchors || [];
+    const prompt = escapeHtml(selfEvaluation.prompt || "");
+
+    if (selfEvaluation.type === "emotion_scale") {
+      return renderAiPreviewSection(
+        selfEvaluation.title || "Autoavaliação emocional",
+        `
+          <div class="ia-task-preview__self-eval">
+            <p>${prompt}</p>
+            <div class="ia-task-preview__scale">
+              ${anchors
+                .map(
+                  (anchor, index) => `
+                    <div class="ia-task-preview__scale-step">
+                      <span class="ia-task-preview__scale-number">${index + 1}</span>
+                      <small>${escapeHtml(anchor)}</small>
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+          </div>
+        `
+      );
+    }
+
+    if (selfEvaluation.type === "emotion_bar") {
+      return renderAiPreviewSection(
+        selfEvaluation.title || "Autoavaliação emocional",
+        `
+          <div class="ia-task-preview__self-eval">
+            <p>${prompt}</p>
+            <div class="ia-task-preview__bars">
+              ${anchors
+                .map(
+                  (anchor, index) => `
+                    <div class="ia-task-preview__bar-row">
+                      <strong>${escapeHtml(anchor)}</strong>
+                      <div class="ia-task-preview__bar-track">
+                        <span style="width:${Math.max(18, (index + 1) * 18)}%"></span>
+                      </div>
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+          </div>
+        `
+      );
+    }
+
+    const emojis = ["😟", "🙁", "😐", "🙂", "😄"];
+    return renderAiPreviewSection(
+      selfEvaluation.title || "Autoavaliação emocional",
+      `
+        <div class="ia-task-preview__self-eval">
+          <p>${prompt}</p>
+          <div class="ia-task-preview__faces">
+            ${anchors
+              .map(
+                (anchor, index) => `
+                  <div class="ia-task-preview__face">
+                    <span>${emojis[index] || "🙂"}</span>
+                    <small>${escapeHtml(anchor)}</small>
+                  </div>
+                `
+              )
+              .join("")}
+          </div>
+        </div>
+      `
+    );
+  }
+
   function renderAiPreview(material) {
     if (!taskAiPreview || !taskAiPreviewContent || !taskAiPreviewTitle || !taskAiPreviewSummary) {
       return;
@@ -361,43 +555,38 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const normalizedMaterial = normalizarAiMaterial(material);
     const sections = [];
 
-    if (material.objective) {
-      sections.push(renderAiPreviewSection("Objetivo", `<p>${escapeHtml(material.objective)}</p>`));
+    sections.push(renderAiIllustration(normalizedMaterial));
+
+    if (normalizedMaterial.objective) {
+      sections.push(
+        renderAiPreviewSection("Objetivo", `<p>${escapeHtml(normalizedMaterial.objective)}</p>`)
+      );
     }
 
-    if (Array.isArray(material.instructions) && material.instructions.length) {
+    sections.push(renderAiQuestions(normalizedMaterial));
+    sections.push(renderAiSelfEvaluation(normalizedMaterial));
+
+    if (normalizedMaterial.closing_message) {
       sections.push(
         renderAiPreviewSection(
-          "Como aplicar",
-          `<ul>${material.instructions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          "Fechamento",
+          `<p>${escapeHtml(normalizedMaterial.closing_message)}</p>`
         )
       );
     }
 
-    if (Array.isArray(material.reflection_questions) && material.reflection_questions.length) {
+    if (!sections.length && normalizedMaterial.raw_text) {
       sections.push(
-        renderAiPreviewSection(
-          "Perguntas guiadas",
-          `<ul>${material.reflection_questions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
-        )
+        renderAiPreviewSection("Conteúdo gerado", `<p>${escapeHtml(normalizedMaterial.raw_text)}</p>`)
       );
     }
 
-    if (material.closing_message) {
-      sections.push(
-        renderAiPreviewSection("Fechamento", `<p>${escapeHtml(material.closing_message)}</p>`)
-      );
-    }
-
-    if (!sections.length && material.raw_text) {
-      sections.push(renderAiPreviewSection("Conteúdo gerado", `<p>${escapeHtml(material.raw_text)}</p>`));
-    }
-
-    taskAiPreviewTitle.textContent = material.title || "Prévia da tarefa com IA";
+    taskAiPreviewTitle.textContent = normalizedMaterial.title || "Prévia da tarefa com IA";
     taskAiPreviewSummary.textContent =
-      material.summary ||
+      normalizedMaterial.summary ||
       "Material inicial gerado a partir do título, descrição e instruções complementares.";
     taskAiPreviewContent.innerHTML = sections.join("");
     taskAiPreview.hidden = false;
