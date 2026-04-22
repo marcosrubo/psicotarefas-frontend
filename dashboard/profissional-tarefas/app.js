@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
   const interactionsList = document.getElementById("interactionsList");
+  const interactionPolicyState = document.getElementById("interactionPolicyState");
   const mobileStepPatients = document.getElementById("mobileStepPatients");
   const mobileStepTasks = document.getElementById("mobileStepTasks");
   const mobileStepInteractions = document.getElementById("mobileStepInteractions");
@@ -104,6 +105,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const limite = normalizarLimiteInteracao(tipo, task?.interacao_paciente_limite);
 
     return { tipo, limite };
+  }
+
+  function contarInteracoesDaTarefa(taskId) {
+    return getTaskInteractions(taskId).length;
+  }
+
+  function obterPermissaoInteracaoDaTarefa(task) {
+    const { tipo, limite } = obterConfiguracaoInteracaoDaTarefa(task);
+    const usadas = task ? contarInteracoesDaTarefa(task.id) : 0;
+
+    if (tipo === "ilimitado") {
+      return { tipo, limite, usadas, permitido: true, mensagem: "" };
+    }
+
+    if (tipo === "limitado") {
+      const permitido = usadas < limite;
+      return {
+        tipo,
+        limite,
+        usadas,
+        permitido,
+        mensagem: permitido
+          ? ""
+          : `Esta tarefa já atingiu o limite de ${limite} interação(ões).`
+      };
+    }
+
+    return {
+      tipo,
+      limite,
+      usadas,
+      permitido: false,
+      mensagem: "Esta tarefa está configurada para não permitir interações."
+    };
   }
 
   function obterResumoInteracaoPaciente(task) {
@@ -762,6 +797,7 @@ document.addEventListener("DOMContentLoaded", () => {
       interactionsList.innerHTML = "";
       interactionsEmptyState.hidden = false;
       interactionsEmptyState.textContent = "Selecione uma tarefa para visualizar as interações.";
+      if (interactionPolicyState) interactionPolicyState.hidden = true;
       interactionFormCard.hidden = true;
       setInteractionFormMessage();
       return;
@@ -769,6 +805,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const status = getTaskStatus(task);
     const interactions = getTaskInteractions(task.id);
+    const permissaoInteracao = obterPermissaoInteracaoDaTarefa(task);
 
     selectedTaskBox.hidden = false;
     if (selectedTaskName) selectedTaskName.textContent = `TAREFA: ${task.titulo}`;
@@ -822,7 +859,17 @@ document.addEventListener("DOMContentLoaded", () => {
         .join("");
     }
 
-    interactionFormCard.hidden = false;
+    if (interactionPolicyState) {
+      if (!permissaoInteracao.permitido) {
+        interactionPolicyState.hidden = false;
+        interactionPolicyState.textContent = permissaoInteracao.mensagem;
+      } else {
+        interactionPolicyState.hidden = true;
+        interactionPolicyState.textContent = "";
+      }
+    }
+
+    interactionFormCard.hidden = !permissaoInteracao.permitido;
   }
 
   async function salvarApelidoPaciente() {
@@ -1010,9 +1057,18 @@ document.addEventListener("DOMContentLoaded", () => {
   async function criarInteracao() {
     const task = getSelectedTask();
     const mensagem = interactionTextInput?.value.trim() || "";
+    const permissaoInteracao = obterPermissaoInteracaoDaTarefa(task);
 
     if (!task) {
       setInteractionFormMessage("Selecione uma tarefa antes de registrar a interação.", "error");
+      return;
+    }
+
+    if (!permissaoInteracao.permitido) {
+      setInteractionFormMessage(
+        permissaoInteracao.mensagem || "Esta tarefa não permite novas interações.",
+        "error"
+      );
       return;
     }
 

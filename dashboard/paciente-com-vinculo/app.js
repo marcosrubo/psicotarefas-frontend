@@ -188,14 +188,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return Number.isFinite(numero) && numero > 0 ? numero : 1;
   }
 
-  function contarInteracoesDoPaciente(taskId) {
-    return getTaskInteractions(taskId).filter((item) => item.autor_tipo === "paciente").length;
+  function contarInteracoesDaTarefa(taskId) {
+    return getTaskInteractions(taskId).length;
   }
 
   function obterConfiguracaoInteracaoPaciente(task) {
     const tipo = normalizarTipoInteracao(task?.interacao_paciente_tipo);
     const limite = normalizarLimiteInteracao(tipo, task?.interacao_paciente_limite);
-    const usadas = task ? contarInteracoesDoPaciente(task.id) : 0;
+    const usadas = task ? contarInteracoesDaTarefa(task.id) : 0;
 
     if (tipo === "ilimitado") {
       return {
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
         permitido,
         mensagem: permitido
           ? ""
-          : `Esta tarefa já atingiu o limite de ${limite} interação(ões) do paciente.`
+          : `Esta tarefa já atingiu o limite de ${limite} interação(ões).`
       };
     }
 
