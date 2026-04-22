@@ -3,10 +3,14 @@ import supabase from "../../shared/supabase.js";
 document.addEventListener("DOMContentLoaded", () => {
   const professionalLine = document.getElementById("professionalLine");
   const screenMessage = document.getElementById("screenMessage");
+  const btnToggleDefaultPolicy = document.getElementById("btnToggleDefaultPolicy");
+  const defaultPolicySummaryValue = document.getElementById("defaultPolicySummaryValue");
+  const defaultPolicyEditor = document.getElementById("defaultPolicyEditor");
   const defaultInteractionType = document.getElementById("defaultInteractionType");
   const defaultInteractionLimitGroup = document.getElementById("defaultInteractionLimitGroup");
   const defaultInteractionLimit = document.getElementById("defaultInteractionLimit");
   const defaultPolicyMessage = document.getElementById("defaultPolicyMessage");
+  const btnCancelDefaultPolicy = document.getElementById("btnCancelDefaultPolicy");
   const btnSaveDefaultPolicy = document.getElementById("btnSaveDefaultPolicy");
 
   const patientsGrid = document.getElementById("patientsGrid");
@@ -110,6 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return "Paciente: sem interações";
   }
 
+  function obterResumoPadraoInteracao(tipo, limite) {
+    if (tipo === "ilimitado") return "Ilimitadas";
+    if (tipo === "limitado") return `Permitir até [N]: ${limite}`;
+    return "Não permitir";
+  }
+
   function syncDefaultPolicyVisibility() {
     if (!defaultInteractionLimitGroup || !defaultInteractionType) return;
     defaultInteractionLimitGroup.hidden = defaultInteractionType.value !== "limitado";
@@ -131,7 +141,27 @@ document.addEventListener("DOMContentLoaded", () => {
       defaultInteractionLimit.value = String(limite || 1);
     }
 
+    if (defaultPolicySummaryValue) {
+      defaultPolicySummaryValue.textContent = obterResumoPadraoInteracao(tipo, limite || 1);
+    }
+
     syncDefaultPolicyVisibility();
+  }
+
+  function closeDefaultPolicyEditor() {
+    if (defaultPolicyEditor) {
+      defaultPolicyEditor.hidden = true;
+    }
+    setDefaultPolicyMessage();
+    aplicarPadraoProfissionalNaTela();
+  }
+
+  function openDefaultPolicyEditor() {
+    if (defaultPolicyEditor) {
+      defaultPolicyEditor.hidden = false;
+    }
+    aplicarPadraoProfissionalNaTela();
+    setDefaultPolicyMessage();
   }
 
   function syncAliasButton() {
@@ -857,7 +887,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       aplicarPadraoProfissionalNaTela();
-      setDefaultPolicyMessage("Padrão salvo com sucesso.", "success");
+      closeDefaultPolicyEditor();
     } catch (error) {
       setDefaultPolicyMessage(error.message || "Erro ao salvar padrão.", "error");
     } finally {
@@ -1135,6 +1165,22 @@ document.addEventListener("DOMContentLoaded", () => {
       syncTaskPolicyVisibility();
       setTaskFormMessage();
     });
+  }
+
+  if (btnToggleDefaultPolicy) {
+    btnToggleDefaultPolicy.addEventListener("click", () => {
+      if (!defaultPolicyEditor) return;
+
+      if (defaultPolicyEditor.hidden) {
+        openDefaultPolicyEditor();
+      } else {
+        closeDefaultPolicyEditor();
+      }
+    });
+  }
+
+  if (btnCancelDefaultPolicy) {
+    btnCancelDefaultPolicy.addEventListener("click", closeDefaultPolicyEditor);
   }
 
   if (btnSaveDefaultPolicy) {

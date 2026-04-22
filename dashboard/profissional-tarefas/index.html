@@ -38,43 +38,48 @@
         PROFISSIONAL: Carregando...
       </p>
 
-      <section class="default-policy-card" id="defaultPolicyCard">
-        <div class="default-policy-card__header">
-          <div>
-            <strong>Padrão de interações para novas tarefas</strong>
-            <p>O padrão inicial do sistema começa em <strong>Não permitir</strong>.</p>
+      <section class="default-policy-card">
+        <button class="default-policy-summary" id="btnToggleDefaultPolicy" type="button">
+          <span class="default-policy-summary__label">Interações</span>
+          <strong class="default-policy-summary__value" id="defaultPolicySummaryValue">
+            Não permitir
+          </strong>
+        </button>
+
+        <div class="default-policy-card__editor" id="defaultPolicyEditor" hidden>
+          <div class="default-policy-card__grid">
+            <div class="form-group">
+              <label for="defaultInteractionType">Interações do paciente</label>
+              <select id="defaultInteractionType">
+                <option value="nao_permitir">Não permitir</option>
+                <option value="limitado">Permitir até [N]</option>
+                <option value="ilimitado">Ilimitadas</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="defaultInteractionLimitGroup" hidden>
+              <label for="defaultInteractionLimit">Quantidade máxima</label>
+              <input
+                type="number"
+                id="defaultInteractionLimit"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                value="1"
+              />
+            </div>
           </div>
-        </div>
 
-        <div class="default-policy-card__grid">
-          <div class="form-group">
-            <label for="defaultInteractionType">Interações do paciente</label>
-            <select id="defaultInteractionType">
-              <option value="nao_permitir">Não permitir</option>
-              <option value="limitado">Permitir até [N]</option>
-              <option value="ilimitado">Ilimitadas</option>
-            </select>
+          <div class="form-message" id="defaultPolicyMessage" hidden></div>
+
+          <div class="default-policy-card__actions">
+            <button class="btn-secondary" id="btnCancelDefaultPolicy" type="button">
+              Cancelar
+            </button>
+            <button class="btn-secondary" id="btnSaveDefaultPolicy" type="button">
+              Salvar padrão
+            </button>
           </div>
-
-          <div class="form-group" id="defaultInteractionLimitGroup" hidden>
-            <label for="defaultInteractionLimit">Quantidade máxima</label>
-            <input
-              type="number"
-              id="defaultInteractionLimit"
-              min="1"
-              step="1"
-              inputmode="numeric"
-              value="1"
-            />
-          </div>
-        </div>
-
-        <div class="form-message" id="defaultPolicyMessage" hidden></div>
-
-        <div class="default-policy-card__actions">
-          <button class="btn-secondary" id="btnSaveDefaultPolicy" type="button">
-            Salvar padrão
-          </button>
         </div>
       </section>
 
