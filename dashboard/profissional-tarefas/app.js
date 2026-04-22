@@ -537,6 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetTaskForm();
     taskFormCard.hidden = false;
+    selectedTaskId = null;
+    renderInteractionArea();
 
     if (taskTitleInput) {
       taskTitleInput.focus();
@@ -582,6 +584,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     resetTaskForm();
+    renderInteractionArea();
   }
 
   function closeInteractionEditCard() {
