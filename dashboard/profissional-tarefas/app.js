@@ -383,9 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Como você se avalia emocionalmente neste momento?"
       },
       self_evaluation: {
-        type: ["emotion_faces", "emotion_scale", "emotion_bar"].includes(selfEvaluation.type)
-          ? selfEvaluation.type
-          : "emotion_faces",
+        type: "emotion_faces",
         title: selfEvaluation.title || "Autoavaliação emocional",
         prompt:
           selfEvaluation.prompt ||
@@ -394,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
         anchors:
           Array.isArray(selfEvaluation.anchors) && selfEvaluation.anchors.length
             ? selfEvaluation.anchors.slice(0, 5)
-            : ["Muito baixo", "Baixo", "Médio", "Alto", "Muito alto"],
+            : ["Muito difícil", "Difícil", "Mais ou menos", "Consegui bem", "Consegui muito bem"],
         notes_prompt:
           selfEvaluation.notes_prompt ||
           "Anote aqui impressões, dúvidas ou algo que você queira comentar com a psicóloga."
@@ -425,17 +423,18 @@ document.addEventListener("DOMContentLoaded", () => {
               </linearGradient>
             </defs>
             <rect x="16" y="18" width="228" height="144" rx="34" fill="url(#aiGradient)"></rect>
-            <circle cx="78" cy="78" r="28" fill="#ffffff" fill-opacity="0.98"></circle>
-            <rect x="58" y="108" width="40" height="24" rx="12" fill="#ffffff" fill-opacity="0.98"></rect>
-            <rect x="112" y="48" width="88" height="56" rx="18" fill="#ffffff" fill-opacity="0.92"></rect>
-            <rect x="126" y="124" width="72" height="18" rx="9" fill="#ffffff" fill-opacity="0.82"></rect>
-            <circle cx="70" cy="74" r="4" fill="${accent}"></circle>
-            <circle cx="86" cy="74" r="4" fill="${accent}"></circle>
-            <path d="M68 88c5 6 15 6 20 0" stroke="${accent}" stroke-width="4" stroke-linecap="round" fill="none"></path>
-            <path d="M124 64h64" stroke="${accent}" stroke-width="7" stroke-linecap="round" opacity="0.9"></path>
-            <path d="M124 82h52" stroke="${accent}" stroke-width="7" stroke-linecap="round" opacity="0.55"></path>
-            <path d="M136 132h24" stroke="${accent}" stroke-width="6" stroke-linecap="round" opacity="0.9"></path>
-            <path d="M168 132h18" stroke="${accent}" stroke-width="6" stroke-linecap="round" opacity="0.45"></path>
+            <ellipse cx="80" cy="84" rx="34" ry="38" fill="#ffffff" fill-opacity="0.98"></ellipse>
+            <rect x="56" y="118" width="50" height="28" rx="14" fill="#ffffff" fill-opacity="0.98"></rect>
+            <path d="M58 52c10-18 38-18 48 0" stroke="#ffffff" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.95"></path>
+            <circle cx="68" cy="82" r="5" fill="${accent}"></circle>
+            <circle cx="92" cy="82" r="5" fill="${accent}"></circle>
+            <path d="M66 98c7 8 21 8 28 0" stroke="${accent}" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
+            <rect x="118" y="48" width="96" height="64" rx="20" fill="#ffffff" fill-opacity="0.92"></rect>
+            <rect x="134" y="62" width="62" height="12" rx="6" fill="${accent}" fill-opacity="0.88"></rect>
+            <rect x="134" y="83" width="48" height="10" rx="5" fill="${accent}" fill-opacity="0.45"></rect>
+            <rect x="126" y="122" width="84" height="20" rx="10" fill="#ffffff" fill-opacity="0.84"></rect>
+            <circle cx="214" cy="58" r="12" fill="#ffffff" fill-opacity="0.75"></circle>
+            <path d="M214 50v16M206 58h16" stroke="${accent}" stroke-width="3.5" stroke-linecap="round"></path>
           </svg>
         </div>
       </section>
@@ -482,56 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="ia-task-preview__notes-box"></div>
         </div>
       `;
-    }
-
-    if (selfEvaluation.type === "emotion_scale") {
-      return renderAiPreviewSection(
-        selfEvaluation.title || "Autoavaliação emocional",
-        `
-          <div class="ia-task-preview__self-eval">
-            <p>${prompt}</p>
-            <div class="ia-task-preview__scale">
-              ${anchors
-                .map(
-                  (anchor, index) => `
-                    <div class="ia-task-preview__scale-step">
-                      <span class="ia-task-preview__scale-number">${index + 1}</span>
-                      <small>${escapeHtml(anchor)}</small>
-                    </div>
-                  `
-                )
-                .join("")}
-            </div>
-            ${renderNotesArea()}
-          </div>
-        `
-      );
-    }
-
-    if (selfEvaluation.type === "emotion_bar") {
-      return renderAiPreviewSection(
-        selfEvaluation.title || "Autoavaliação emocional",
-        `
-          <div class="ia-task-preview__self-eval">
-            <p>${prompt}</p>
-            <div class="ia-task-preview__bars">
-              ${anchors
-                .map(
-                  (anchor, index) => `
-                    <div class="ia-task-preview__bar-row">
-                      <strong>${escapeHtml(anchor)}</strong>
-                      <div class="ia-task-preview__bar-track">
-                        <span style="width:${Math.max(18, (index + 1) * 18)}%"></span>
-                      </div>
-                    </div>
-                  `
-                )
-                .join("")}
-            </div>
-            ${renderNotesArea()}
-          </div>
-        `
-      );
     }
 
     const emojis = ["😟", "🙁", "😐", "🙂", "😄"];
