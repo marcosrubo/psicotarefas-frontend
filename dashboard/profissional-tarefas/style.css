@@ -218,6 +218,65 @@ a {
   justify-content: flex-start;
 }
 
+.ia-task-preview {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(109, 94, 252, 0.14);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.ia-task-preview[hidden] {
+  display: none !important;
+}
+
+.ia-task-preview__header h5 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.ia-task-preview__header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ia-task-preview__content {
+  display: grid;
+  gap: 12px;
+}
+
+.ia-task-preview__section {
+  display: grid;
+  gap: 8px;
+}
+
+.ia-task-preview__section h6 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ia-task-preview__section p,
+.ia-task-preview__section li {
+  margin: 0;
+  color: #344054;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ia-task-preview__section ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
 .btn-ghost,
 .btn-primary,
 .btn-secondary {

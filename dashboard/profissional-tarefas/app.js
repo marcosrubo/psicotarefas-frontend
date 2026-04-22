@@ -38,6 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskInteractionTypeSelect = document.getElementById("taskInteractionTypeSelect");
   const taskInteractionLimitGroup = document.getElementById("taskInteractionLimitGroup");
   const taskInteractionLimitInput = document.getElementById("taskInteractionLimitInput");
+  const taskAiPromptInput = document.getElementById("taskAiPromptInput");
+  const btnGenerateTaskWithAi = document.getElementById("btnGenerateTaskWithAi");
+  const taskAiMessage = document.getElementById("taskAiMessage");
+  const taskAiPreview = document.getElementById("taskAiPreview");
+  const taskAiPreviewTitle = document.getElementById("taskAiPreviewTitle");
+  const taskAiPreviewSummary = document.getElementById("taskAiPreviewSummary");
+  const taskAiPreviewContent = document.getElementById("taskAiPreviewContent");
   const btnCancelTask = document.getElementById("btnCancelTask");
   const btnCreateTask = document.getElementById("btnCreateTask");
   const taskFormMessage = document.getElementById("taskFormMessage");
@@ -82,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let mobileView = "patients";
   let autoRefreshTimer = null;
   let isRefreshingData = false;
+  let lastGeneratedAiMaterial = null;
 
   function normalizarTipoInteracao(valor) {
     if (valor === "limitado" || valor === "ilimitado") return valor;
@@ -253,6 +261,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function setTaskAiMessage(text = "", type = "") {
+    if (!taskAiMessage) return;
+
+    taskAiMessage.textContent = text;
+    taskAiMessage.className = "form-message";
+
+    if (type) {
+      taskAiMessage.classList.add(`form-message--${type}`);
+      taskAiMessage.hidden = false;
+    } else {
+      taskAiMessage.hidden = true;
+    }
+  }
+
   function setDefaultPolicyMessage(text = "", type = "") {
     if (!defaultPolicyMessage) return;
 
@@ -302,6 +324,137 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  function getAiEndpoint() {
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isLocal) {
+      return "http://localhost:3000/api/ai/task-material-preview";
+    }
+
+    return `${window.location.origin}/api/ai/task-material-preview`;
+  }
+
+  function renderAiPreviewSection(title, bodyHtml) {
+    return `
+      <section class="ia-task-preview__section">
+        <h6>${escapeHtml(title)}</h6>
+        ${bodyHtml}
+      </section>
+    `;
+  }
+
+  function renderAiPreview(material) {
+    if (!taskAiPreview || !taskAiPreviewContent || !taskAiPreviewTitle || !taskAiPreviewSummary) {
+      return;
+    }
+
+    if (!material) {
+      taskAiPreview.hidden = true;
+      taskAiPreviewContent.innerHTML = "";
+      taskAiPreviewTitle.textContent = "Prévia da tarefa com IA";
+      taskAiPreviewSummary.textContent =
+        "Material inicial gerado a partir do título, descrição e instruções complementares.";
+      return;
+    }
+
+    const sections = [];
+
+    if (material.objective) {
+      sections.push(renderAiPreviewSection("Objetivo", `<p>${escapeHtml(material.objective)}</p>`));
+    }
+
+    if (Array.isArray(material.instructions) && material.instructions.length) {
+      sections.push(
+        renderAiPreviewSection(
+          "Como aplicar",
+          `<ul>${material.instructions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        )
+      );
+    }
+
+    if (Array.isArray(material.reflection_questions) && material.reflection_questions.length) {
+      sections.push(
+        renderAiPreviewSection(
+          "Perguntas guiadas",
+          `<ul>${material.reflection_questions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        )
+      );
+    }
+
+    if (material.closing_message) {
+      sections.push(
+        renderAiPreviewSection("Fechamento", `<p>${escapeHtml(material.closing_message)}</p>`)
+      );
+    }
+
+    if (!sections.length && material.raw_text) {
+      sections.push(renderAiPreviewSection("Conteúdo gerado", `<p>${escapeHtml(material.raw_text)}</p>`));
+    }
+
+    taskAiPreviewTitle.textContent = material.title || "Prévia da tarefa com IA";
+    taskAiPreviewSummary.textContent =
+      material.summary ||
+      "Material inicial gerado a partir do título, descrição e instruções complementares.";
+    taskAiPreviewContent.innerHTML = sections.join("");
+    taskAiPreview.hidden = false;
+  }
+
+  async function gerarMaterialComIa() {
+    const titulo = taskTitleInput?.value.trim() || "";
+    const descricao = taskDescriptionInput?.value.trim() || "";
+    const promptComplementar = taskAiPromptInput?.value.trim() || "";
+
+    if (!titulo) {
+      setTaskAiMessage("Informe o título antes de gerar com IA.", "error");
+      return;
+    }
+
+    if (!descricao) {
+      setTaskAiMessage("Informe a descrição antes de gerar com IA.", "error");
+      return;
+    }
+
+    if (!btnGenerateTaskWithAi) return;
+
+    btnGenerateTaskWithAi.disabled = true;
+    btnGenerateTaskWithAi.textContent = "Gerando...";
+    setTaskAiMessage();
+
+    try {
+      const response = await fetch(getAiEndpoint(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: titulo,
+          description: descricao,
+          promptComplement: promptComplementar
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error || "Não foi possível gerar o material com IA neste momento."
+        );
+      }
+
+      lastGeneratedAiMaterial = data?.material || null;
+      renderAiPreview(lastGeneratedAiMaterial);
+      setTaskAiMessage("Prévia gerada com sucesso.", "success");
+    } catch (error) {
+      renderAiPreview(null);
+      setTaskAiMessage(error.message || "Erro ao gerar material com IA.", "error");
+    } finally {
+      btnGenerateTaskWithAi.disabled = false;
+      btnGenerateTaskWithAi.textContent = "Gerar com IA";
+    }
   }
 
   function formatDateTime(value) {
@@ -521,6 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskTitleInput) taskTitleInput.value = "";
     if (taskDescriptionInput) taskDescriptionInput.value = "";
+    if (taskAiPromptInput) taskAiPromptInput.value = "";
     const padrao = obterPadraoInteracaoDoProfissional();
     if (taskInteractionTypeSelect) {
       taskInteractionTypeSelect.value = padrao.tipo;
@@ -530,6 +684,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     syncTaskPolicyVisibility();
     setTaskFormMessage();
+    setTaskAiMessage();
+    lastGeneratedAiMaterial = null;
+    renderAiPreview(null);
   }
 
   function openTaskFormForCreate() {
@@ -561,6 +718,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskTitleInput) taskTitleInput.value = task.titulo || "";
     if (taskDescriptionInput) taskDescriptionInput.value = task.descricao || "";
+    if (taskAiPromptInput) taskAiPromptInput.value = "";
     const configuracao = obterConfiguracaoInteracaoDaTarefa(task);
     if (taskInteractionTypeSelect) {
       taskInteractionTypeSelect.value = configuracao.tipo;
@@ -570,6 +728,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     syncTaskPolicyVisibility();
     setTaskFormMessage();
+    setTaskAiMessage();
+    lastGeneratedAiMaterial = null;
+    renderAiPreview(null);
     taskFormCard.hidden = false;
 
     if (taskTitleInput) {
@@ -1292,6 +1453,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await criarTarefa();
     });
+  }
+
+  if (btnGenerateTaskWithAi) {
+    btnGenerateTaskWithAi.addEventListener("click", gerarMaterialComIa);
   }
 
   if (btnEditTask) {
