@@ -180,6 +180,9 @@ ul {
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.72);
   box-shadow: 0 18px 30px rgba(77, 86, 122, 0.1);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
 }
 
 .audience-card__art-panel--main {
@@ -196,6 +199,105 @@ ul {
   border-radius: 18px;
   left: 152px;
   bottom: 50px;
+}
+
+.audience-card__art-panel--bubble,
+.audience-card__art-panel--stats {
+  padding: 12px;
+  align-content: center;
+}
+
+.audience-card__mock-title,
+.audience-card__mock-line,
+.audience-card__mock-chip,
+.audience-card__mock-bubble,
+.audience-card__mock-check,
+.audience-card__mock-stat {
+  display: block;
+  background: rgba(109, 94, 252, 0.18);
+  border-radius: 999px;
+}
+
+.audience-card--professional .audience-card__mock-title,
+.audience-card--professional .audience-card__mock-line,
+.audience-card--professional .audience-card__mock-chip,
+.audience-card--professional .audience-card__mock-bubble,
+.audience-card--professional .audience-card__mock-check,
+.audience-card--professional .audience-card__mock-stat {
+  background: rgba(52, 168, 83, 0.18);
+}
+
+.audience-card__mock-title {
+  width: 62%;
+  height: 12px;
+}
+
+.audience-card__mock-line {
+  height: 10px;
+}
+
+.audience-card__mock-line--long {
+  width: 92%;
+}
+
+.audience-card__mock-line--medium {
+  width: 74%;
+}
+
+.audience-card__mock-chip-row {
+  display: flex;
+  gap: 8px;
+}
+
+.audience-card__mock-chip {
+  width: 44px;
+  height: 18px;
+}
+
+.audience-card__mock-bubble {
+  width: 100%;
+  height: 12px;
+}
+
+.audience-card__mock-bubble--alt {
+  width: 72%;
+  justify-self: end;
+}
+
+.audience-card__mock-checklist {
+  display: grid;
+  gap: 8px;
+}
+
+.audience-card__mock-check {
+  width: 100%;
+  height: 10px;
+  position: relative;
+}
+
+.audience-card__mock-check::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  color: rgba(109, 94, 252, 0.42);
+}
+
+.audience-card--professional .audience-card__mock-check::before {
+  color: rgba(52, 168, 83, 0.44);
+}
+
+.audience-card__mock-stat {
+  width: 100%;
+  height: 14px;
+}
+
+.audience-card__mock-stat--short {
+  width: 60%;
 }
 
 .audience-card__art-symbol {
