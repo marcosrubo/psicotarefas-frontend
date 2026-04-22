@@ -335,7 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return "http://localhost:3000/api/ai/task-material-preview";
     }
 
-    return `${window.location.origin}/api/ai/task-material-preview`;
+    return "https://psicotarefas-backend.onrender.com/api/ai/task-material-preview";
   }
 
   function renderAiPreviewSection(title, bodyHtml) {
