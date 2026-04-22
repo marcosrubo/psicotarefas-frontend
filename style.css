@@ -156,27 +156,40 @@ ul {
 }
 
 .audience-card__badge-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(109, 94, 252, 0.12);
+  background: linear-gradient(180deg, rgba(109, 94, 252, 0.18), rgba(109, 94, 252, 0.08));
   color: var(--primary-dark);
   box-shadow: var(--shadow-soft);
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.audience-card__badge-icon::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.32));
+  pointer-events: none;
 }
 
 .audience-card__badge-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   display: block;
   fill: currentColor;
+  position: relative;
+  z-index: 1;
 }
 
 .audience-card--professional .audience-card__badge-icon {
-  background: rgba(52, 168, 83, 0.12);
+  background: linear-gradient(180deg, rgba(52, 168, 83, 0.18), rgba(52, 168, 83, 0.08));
   color: #2f855a;
 }
 
@@ -270,6 +283,10 @@ ul {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.story-block--hero-soft .story-block__media img {
+  object-position: center 24%;
 }
 
 .story-block__copy {
@@ -650,6 +667,10 @@ ul {
     display: grid;
     grid-template-columns: 1.05fr 0.95fr;
     align-items: stretch;
+  }
+
+  .story-block--hero-soft {
+    grid-template-columns: 0.9fr 1.1fr;
   }
 
   .story-block--image-right {
