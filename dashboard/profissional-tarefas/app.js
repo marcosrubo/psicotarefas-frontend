@@ -394,7 +394,10 @@ document.addEventListener("DOMContentLoaded", () => {
         anchors:
           Array.isArray(selfEvaluation.anchors) && selfEvaluation.anchors.length
             ? selfEvaluation.anchors.slice(0, 5)
-            : ["Muito baixo", "Baixo", "Médio", "Alto", "Muito alto"]
+            : ["Muito baixo", "Baixo", "Médio", "Alto", "Muito alto"],
+        notes_prompt:
+          selfEvaluation.notes_prompt ||
+          "Anote aqui impressões, dúvidas ou algo que você queira comentar com a psicóloga."
       }
     };
   }
@@ -469,6 +472,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const selfEvaluation = material.self_evaluation;
     const anchors = selfEvaluation.anchors || [];
     const prompt = escapeHtml(selfEvaluation.prompt || "");
+    const notesPrompt = escapeHtml(selfEvaluation.notes_prompt || "");
+
+    function renderNotesArea() {
+      return `
+        <div class="ia-task-preview__notes">
+          <strong>Espaço livre</strong>
+          <p>${notesPrompt}</p>
+          <div class="ia-task-preview__notes-box"></div>
+        </div>
+      `;
+    }
 
     if (selfEvaluation.type === "emotion_scale") {
       return renderAiPreviewSection(
@@ -488,6 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 )
                 .join("")}
             </div>
+            ${renderNotesArea()}
           </div>
         `
       );
@@ -513,6 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 )
                 .join("")}
             </div>
+            ${renderNotesArea()}
           </div>
         `
       );
@@ -536,6 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
               )
               .join("")}
           </div>
+          ${renderNotesArea()}
         </div>
       `
     );
