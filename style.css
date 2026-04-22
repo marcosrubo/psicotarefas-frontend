@@ -351,23 +351,20 @@ ul {
   gap: 10px;
 }
 
-.install-box,
-.ios-box {
+.install-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px 16px;
+  padding: 10px;
   box-shadow: var(--shadow-soft);
 }
 
-.install-box h3,
-.ios-box h3 {
+.install-pane h3 {
   margin: 0 0 8px;
   font-size: 17px;
 }
 
-.install-box p,
-.ios-box p {
+.install-pane p {
   margin: 0;
   color: var(--muted);
   font-size: 14px;
@@ -375,23 +372,35 @@ ul {
 }
 
 .install-section {
-  display: grid;
-  gap: 14px;
+  display: block;
   margin-bottom: 22px;
 }
 
-.install-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+.install-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.install-box__content {
-  flex: 1;
+.install-pane {
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 14px 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
-.ios-box__content {
+.install-pane--android {
+  background: linear-gradient(180deg, rgba(109, 94, 252, 0.05), #ffffff 70%);
+}
+
+.install-pane--ios {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), #ffffff 70%);
+}
+
+.install-pane__content {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -721,11 +730,6 @@ ul {
     height: 54px;
   }
 
-  .install-box {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .btn-primary,
   .btn-secondary,
   .btn-primary--button,
@@ -741,6 +745,30 @@ ul {
 
   .modal__actions {
     flex-direction: column-reverse;
+  }
+
+  .install-card {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .install-pane {
+    padding: 12px 10px;
+  }
+
+  .install-pane h3 {
+    font-size: 16px;
+  }
+
+  .install-pane p {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .install-pane .btn-primary {
+    min-width: 0;
+    padding: 11px 12px;
+    font-size: 13px;
   }
 }
 
@@ -775,11 +803,6 @@ ul {
 
   .audience-card {
     padding: 22px 20px;
-  }
-
-  .install-section {
-    grid-template-columns: 1fr 1fr;
-    align-items: stretch;
   }
 
   .story-block {
