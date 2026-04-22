@@ -175,6 +175,34 @@
               ></textarea>
             </div>
 
+            <section class="ia-task-box" aria-label="Material da tarefa com IA">
+              <div class="ia-task-box__header">
+                <div>
+                  <h5>Material da tarefa com IA</h5>
+                  <p>
+                    Acrescente instruções livres para a IA usar junto com o título e a
+                    descrição da tarefa.
+                  </p>
+                </div>
+                <span class="ia-task-box__badge">Em breve</span>
+              </div>
+
+              <div class="form-group">
+                <label for="taskAiPromptInput">Complementos para a IA</label>
+                <textarea
+                  id="taskAiPromptInput"
+                  rows="4"
+                  placeholder="Ex.: transformar em exercício prático, linguagem acolhedora, gerar em formato de ficha semanal..."
+                ></textarea>
+              </div>
+
+              <div class="ia-task-box__actions">
+                <button class="btn-secondary" id="btnGenerateTaskWithAi" type="button">
+                  Gerar com IA
+                </button>
+              </div>
+            </section>
+
             <div class="form-group">
               <label for="taskInteractionTypeSelect">Interações do paciente</label>
               <select id="taskInteractionTypeSelect">
