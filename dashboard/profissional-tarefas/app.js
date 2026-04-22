@@ -3,6 +3,11 @@ import supabase from "../../shared/supabase.js";
 document.addEventListener("DOMContentLoaded", () => {
   const professionalLine = document.getElementById("professionalLine");
   const screenMessage = document.getElementById("screenMessage");
+  const defaultInteractionType = document.getElementById("defaultInteractionType");
+  const defaultInteractionLimitGroup = document.getElementById("defaultInteractionLimitGroup");
+  const defaultInteractionLimit = document.getElementById("defaultInteractionLimit");
+  const defaultPolicyMessage = document.getElementById("defaultPolicyMessage");
+  const btnSaveDefaultPolicy = document.getElementById("btnSaveDefaultPolicy");
 
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
@@ -26,6 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskFormTitle = document.getElementById("taskFormTitle");
   const taskTitleInput = document.getElementById("taskTitleInput");
   const taskDescriptionInput = document.getElementById("taskDescriptionInput");
+  const taskInteractionTypeSelect = document.getElementById("taskInteractionTypeSelect");
+  const taskInteractionLimitGroup = document.getElementById("taskInteractionLimitGroup");
+  const taskInteractionLimitInput = document.getElementById("taskInteractionLimitInput");
   const btnCancelTask = document.getElementById("btnCancelTask");
   const btnCreateTask = document.getElementById("btnCreateTask");
   const taskFormMessage = document.getElementById("taskFormMessage");
@@ -67,6 +75,64 @@ document.addEventListener("DOMContentLoaded", () => {
   let taskFormMode = "create";
   let editingInteractionId = null;
   let mobileView = "patients";
+
+  function normalizarTipoInteracao(valor) {
+    if (valor === "limitado" || valor === "ilimitado") return valor;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, valor) {
+    if (tipo !== "limitado") return null;
+
+    const numero = Number.parseInt(String(valor || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function obterPadraoInteracaoDoProfissional() {
+    const tipo = normalizarTipoInteracao(currentProfile?.tarefa_interacao_padrao_tipo);
+    const limite = normalizarLimiteInteracao(tipo, currentProfile?.tarefa_interacao_padrao_limite);
+
+    return { tipo, limite };
+  }
+
+  function obterConfiguracaoInteracaoDaTarefa(task) {
+    const tipo = normalizarTipoInteracao(task?.interacao_paciente_tipo);
+    const limite = normalizarLimiteInteracao(tipo, task?.interacao_paciente_limite);
+
+    return { tipo, limite };
+  }
+
+  function obterResumoInteracaoPaciente(task) {
+    const { tipo, limite } = obterConfiguracaoInteracaoDaTarefa(task);
+
+    if (tipo === "ilimitado") return "Paciente: ilimitadas";
+    if (tipo === "limitado") return `Paciente: até ${limite} interação(ões)`;
+    return "Paciente: sem interações";
+  }
+
+  function syncDefaultPolicyVisibility() {
+    if (!defaultInteractionLimitGroup || !defaultInteractionType) return;
+    defaultInteractionLimitGroup.hidden = defaultInteractionType.value !== "limitado";
+  }
+
+  function syncTaskPolicyVisibility() {
+    if (!taskInteractionLimitGroup || !taskInteractionTypeSelect) return;
+    taskInteractionLimitGroup.hidden = taskInteractionTypeSelect.value !== "limitado";
+  }
+
+  function aplicarPadraoProfissionalNaTela() {
+    const { tipo, limite } = obterPadraoInteracaoDoProfissional();
+
+    if (defaultInteractionType) {
+      defaultInteractionType.value = tipo;
+    }
+
+    if (defaultInteractionLimit) {
+      defaultInteractionLimit.value = String(limite || 1);
+    }
+
+    syncDefaultPolicyVisibility();
+  }
 
   function syncAliasButton() {
     if (!btnEditAlias) return;
@@ -117,6 +183,20 @@ document.addEventListener("DOMContentLoaded", () => {
       taskFormMessage.hidden = false;
     } else {
       taskFormMessage.hidden = true;
+    }
+  }
+
+  function setDefaultPolicyMessage(text = "", type = "") {
+    if (!defaultPolicyMessage) return;
+
+    defaultPolicyMessage.textContent = text;
+    defaultPolicyMessage.className = "form-message";
+
+    if (type) {
+      defaultPolicyMessage.classList.add(`form-message--${type}`);
+      defaultPolicyMessage.hidden = false;
+    } else {
+      defaultPolicyMessage.hidden = true;
     }
   }
 
@@ -252,6 +332,13 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
+    if (normalizarTipoInteracao(task.interacao_paciente_tipo) === "nao_permitir") {
+      return {
+        label: "Sem interação",
+        className: "task-status-chip task-status-chip--muted"
+      };
+    }
+
     if (task.status === "encerrada") {
       return {
         label: "Encerrada",
@@ -325,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { data: perfil, error } = await supabase
       .from("perfis")
-      .select("nome, email, perfil")
+      .select("nome, email, perfil, tarefa_interacao_padrao_tipo, tarefa_interacao_padrao_limite")
       .eq("user_id", currentUser.id)
       .single();
 
@@ -367,6 +454,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskTitleInput) taskTitleInput.value = "";
     if (taskDescriptionInput) taskDescriptionInput.value = "";
+    const padrao = obterPadraoInteracaoDoProfissional();
+    if (taskInteractionTypeSelect) {
+      taskInteractionTypeSelect.value = padrao.tipo;
+    }
+    if (taskInteractionLimitInput) {
+      taskInteractionLimitInput.value = String(padrao.limite || 1);
+    }
+    syncTaskPolicyVisibility();
     setTaskFormMessage();
   }
 
@@ -397,6 +492,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskTitleInput) taskTitleInput.value = task.titulo || "";
     if (taskDescriptionInput) taskDescriptionInput.value = task.descricao || "";
+    const configuracao = obterConfiguracaoInteracaoDaTarefa(task);
+    if (taskInteractionTypeSelect) {
+      taskInteractionTypeSelect.value = configuracao.tipo;
+    }
+    if (taskInteractionLimitInput) {
+      taskInteractionLimitInput.value = String(configuracao.limite || 1);
+    }
+    syncTaskPolicyVisibility();
     setTaskFormMessage();
     taskFormCard.hidden = false;
 
@@ -601,6 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <p class="task-card__description">${escapeHtml(task.descricao)}</p>
             <div class="task-card__meta">
               <span>Criada em ${escapeHtml(formatDateTime(task.created_at))}</span>
+              <span>${escapeHtml(obterResumoInteracaoPaciente(task))}</span>
               <span>${getTaskInteractions(task.id).length} interação(ões)</span>
             </div>
           </article>
@@ -724,10 +828,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function salvarPadraoProfissional() {
+    if (!currentUser || !btnSaveDefaultPolicy || !defaultInteractionType) return;
+
+    const tipo = normalizarTipoInteracao(defaultInteractionType.value);
+    const limite = normalizarLimiteInteracao(tipo, defaultInteractionLimit?.value);
+
+    btnSaveDefaultPolicy.disabled = true;
+    setDefaultPolicyMessage();
+
+    try {
+      const { error } = await supabase
+        .from("perfis")
+        .update({
+          tarefa_interacao_padrao_tipo: tipo,
+          tarefa_interacao_padrao_limite: limite
+        })
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        throw new Error(`Não foi possível salvar o padrão: ${error.message}`);
+      }
+
+      currentProfile = {
+        ...currentProfile,
+        tarefa_interacao_padrao_tipo: tipo,
+        tarefa_interacao_padrao_limite: limite
+      };
+
+      aplicarPadraoProfissionalNaTela();
+      setDefaultPolicyMessage("Padrão salvo com sucesso.", "success");
+    } catch (error) {
+      setDefaultPolicyMessage(error.message || "Erro ao salvar padrão.", "error");
+    } finally {
+      btnSaveDefaultPolicy.disabled = false;
+    }
+  }
+
   async function criarTarefa() {
     const patient = getSelectedPatient();
     const titulo = taskTitleInput?.value.trim() || "";
     const descricao = taskDescriptionInput?.value.trim() || "";
+    const interacaoTipo = normalizarTipoInteracao(taskInteractionTypeSelect?.value);
+    const interacaoLimite = normalizarLimiteInteracao(interacaoTipo, taskInteractionLimitInput?.value);
 
     if (!patient) {
       setTaskFormMessage("Selecione um paciente antes de criar a tarefa.", "error");
@@ -756,7 +899,9 @@ document.addEventListener("DOMContentLoaded", () => {
           vinculo_id: patient.vinculo_id,
           titulo,
           descricao,
-          status: "aberta"
+          status: "aberta",
+          interacao_paciente_tipo: interacaoTipo,
+          interacao_paciente_limite: interacaoLimite
         })
         .select()
         .single();
@@ -784,6 +929,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const task = getSelectedTask();
     const titulo = taskTitleInput?.value.trim() || "";
     const descricao = taskDescriptionInput?.value.trim() || "";
+    const interacaoTipo = normalizarTipoInteracao(taskInteractionTypeSelect?.value);
+    const interacaoLimite = normalizarLimiteInteracao(interacaoTipo, taskInteractionLimitInput?.value);
 
     if (!task) {
       setTaskFormMessage("Selecione uma tarefa antes de alterar.", "error");
@@ -808,7 +955,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .from("tarefas")
         .update({
           titulo,
-          descricao
+          descricao,
+          interacao_paciente_tipo: interacaoTipo,
+          interacao_paciente_limite: interacaoLimite
         })
         .eq("id", task.id)
         .eq("professional_user_id", currentUser.id);
@@ -974,6 +1123,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (defaultInteractionType) {
+    defaultInteractionType.addEventListener("change", () => {
+      syncDefaultPolicyVisibility();
+      setDefaultPolicyMessage();
+    });
+  }
+
+  if (taskInteractionTypeSelect) {
+    taskInteractionTypeSelect.addEventListener("change", () => {
+      syncTaskPolicyVisibility();
+      setTaskFormMessage();
+    });
+  }
+
+  if (btnSaveDefaultPolicy) {
+    btnSaveDefaultPolicy.addEventListener("click", salvarPadraoProfissional);
+  }
+
   if (btnCancelTask) {
     btnCancelTask.addEventListener("click", () => {
       closeTaskForm();
@@ -1078,6 +1245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ok = await validarProfissional();
     if (!ok) return;
 
+    aplicarPadraoProfissionalNaTela();
     await carregarPacientes();
     await carregarTarefas();
     renderAll();

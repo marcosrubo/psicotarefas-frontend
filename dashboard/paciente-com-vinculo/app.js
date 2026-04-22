@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const interactionEditMessage = document.getElementById("interactionEditMessage");
   const btnCancelEditInteraction = document.getElementById("btnCancelEditInteraction");
   const btnSaveEditInteraction = document.getElementById("btnSaveEditInteraction");
+  const interactionPermissionState = document.getElementById("interactionPermissionState");
   const interactionFormCard = document.getElementById("interactionFormCard");
   const interactionTextInput = document.getElementById("interactionTextInput");
   const interactionFormMessage = document.getElementById("interactionFormMessage");
@@ -175,6 +176,59 @@ document.addEventListener("DOMContentLoaded", () => {
     return interactionsByTask.get(taskId) || [];
   }
 
+  function normalizarTipoInteracao(valor) {
+    if (valor === "limitado" || valor === "ilimitado") return valor;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, valor) {
+    if (tipo !== "limitado") return null;
+
+    const numero = Number.parseInt(String(valor || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function contarInteracoesDoPaciente(taskId) {
+    return getTaskInteractions(taskId).filter((item) => item.autor_tipo === "paciente").length;
+  }
+
+  function obterConfiguracaoInteracaoPaciente(task) {
+    const tipo = normalizarTipoInteracao(task?.interacao_paciente_tipo);
+    const limite = normalizarLimiteInteracao(tipo, task?.interacao_paciente_limite);
+    const usadas = task ? contarInteracoesDoPaciente(task.id) : 0;
+
+    if (tipo === "ilimitado") {
+      return {
+        tipo,
+        limite,
+        usadas,
+        permitido: true,
+        mensagem: ""
+      };
+    }
+
+    if (tipo === "limitado") {
+      const permitido = usadas < limite;
+      return {
+        tipo,
+        limite,
+        usadas,
+        permitido,
+        mensagem: permitido
+          ? ""
+          : `Esta tarefa já atingiu o limite de ${limite} interação(ões) do paciente.`
+      };
+    }
+
+    return {
+      tipo,
+      limite,
+      usadas,
+      permitido: false,
+      mensagem: "Esta tarefa não permite interações do paciente."
+    };
+  }
+
   function getEditingInteraction() {
     if (!editingInteractionId) return null;
 
@@ -190,6 +244,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!task) {
       return {
         label: "Sem tarefa",
+        className: "task-status-chip task-status-chip--muted"
+      };
+    }
+
+    if (normalizarTipoInteracao(task.interacao_paciente_tipo) === "nao_permitir") {
+      return {
+        label: "Sem interação",
         className: "task-status-chip task-status-chip--muted"
       };
     }
@@ -468,6 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (interactionsDivider) interactionsDivider.hidden = true;
       if (interactionsList) interactionsList.innerHTML = "";
       closeInteractionEditCard();
+      if (interactionPermissionState) interactionPermissionState.hidden = true;
       if (interactionFormCard) interactionFormCard.hidden = true;
       setInteractionFormMessage();
       return;
@@ -475,6 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const status = getTaskStatus(task);
     const interactions = getTaskInteractions(task.id);
+    const configuracaoInteracao = obterConfiguracaoInteracaoPaciente(task);
 
     if (taskDetailCard) taskDetailCard.hidden = false;
     if (taskDetailEmptyState) taskDetailEmptyState.hidden = true;
@@ -524,7 +587,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (interactionFormCard) {
-      interactionFormCard.hidden = task.status === "encerrada";
+      interactionFormCard.hidden = task.status === "encerrada" || !configuracaoInteracao.permitido;
+    }
+
+    if (interactionPermissionState) {
+      if (task.status === "encerrada") {
+        interactionPermissionState.hidden = false;
+        interactionPermissionState.textContent = "Esta tarefa está encerrada e não recebe novas interações.";
+      } else if (!configuracaoInteracao.permitido) {
+        interactionPermissionState.hidden = false;
+        interactionPermissionState.textContent = configuracaoInteracao.mensagem;
+      } else {
+        interactionPermissionState.hidden = true;
+        interactionPermissionState.textContent = "";
+      }
     }
   }
 
@@ -536,9 +612,18 @@ document.addEventListener("DOMContentLoaded", () => {
   async function criarInteracao() {
     const task = getSelectedTask();
     const mensagem = interactionTextInput?.value.trim() || "";
+    const configuracaoInteracao = obterConfiguracaoInteracaoPaciente(task);
 
     if (!task) {
       setInteractionFormMessage("Selecione uma tarefa antes de enviar sua interação.", "error");
+      return;
+    }
+
+    if (!configuracaoInteracao.permitido) {
+      setInteractionFormMessage(
+        configuracaoInteracao.mensagem || "Esta tarefa não permite novas interações.",
+        "error"
+      );
       return;
     }
 

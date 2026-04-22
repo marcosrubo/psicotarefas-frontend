@@ -44,7 +44,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -116,6 +117,39 @@ a {
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
+}
+
+.default-policy-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 12px;
+}
+
+.default-policy-card__header strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.default-policy-card__header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.default-policy-card__grid {
+  display: grid;
+  gap: 12px;
+}
+
+.default-policy-card__actions {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .btn-ghost,
@@ -409,6 +443,7 @@ a {
 
 .alias-box input,
 .form-group input,
+.form-group select,
 .form-group textarea {
   width: 100%;
   border: 1px solid #d0d5dd;
@@ -421,6 +456,7 @@ a {
 
 .alias-box input:focus,
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
@@ -723,5 +759,10 @@ a {
 
   .tasks-panel__actions {
     justify-items: end;
+  }
+
+  .default-policy-card__grid {
+    grid-template-columns: minmax(0, 240px) minmax(0, 180px);
+    align-items: end;
   }
 }
