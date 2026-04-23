@@ -200,6 +200,11 @@ a {
   line-height: 1.55;
 }
 
+.ia-task-box__grid {
+  display: grid;
+  gap: 12px;
+}
+
 .ia-task-box__badge {
   display: inline-flex;
   align-items: center;
@@ -1073,5 +1078,9 @@ a {
   .default-policy-card__grid {
     grid-template-columns: minmax(0, 240px) minmax(0, 180px);
     align-items: end;
+  }
+
+  .ia-task-box__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

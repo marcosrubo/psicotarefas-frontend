@@ -187,6 +187,108 @@
                 <span class="ia-task-box__badge">Em breve</span>
               </div>
 
+              <div class="ia-task-box__grid">
+                <div class="form-group">
+                  <label for="taskAiAgeRange">Faixa etária</label>
+                  <select id="taskAiAgeRange">
+                    <option value="">Selecionar</option>
+                    <option value="crianca">Criança</option>
+                    <option value="adolescente">Adolescente</option>
+                    <option value="adulto">Adulto</option>
+                    <option value="idoso">Idoso</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskAiGoal">Objetivo da tarefa</label>
+                  <select id="taskAiGoal">
+                    <option value="">Selecionar</option>
+                    <option value="observacao">Observação</option>
+                    <option value="reflexao">Reflexão</option>
+                    <option value="registro">Registro</option>
+                    <option value="psicoeducacao">Psicoeducação</option>
+                    <option value="autoconhecimento">Autoconhecimento</option>
+                    <option value="comunicacao">Comunicação</option>
+                    <option value="organizacao_emocional">Organização emocional</option>
+                    <option value="enfrentamento">Enfrentamento</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskAiTone">Tom da linguagem</label>
+                  <select id="taskAiTone">
+                    <option value="">Selecionar</option>
+                    <option value="acolhedor">Acolhedor</option>
+                    <option value="leve">Leve</option>
+                    <option value="direto">Direto</option>
+                    <option value="motivador">Motivador</option>
+                    <option value="psicoeducativo">Psicoeducativo</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskAiEstimatedTime">Tempo estimado</label>
+                  <select id="taskAiEstimatedTime">
+                    <option value="">Selecionar</option>
+                    <option value="5">Até 5 minutos</option>
+                    <option value="10">10 minutos</option>
+                    <option value="15">15 minutos</option>
+                    <option value="20">20 minutos</option>
+                    <option value="livre">Livre</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskAiFormat">Formato da atividade</label>
+                  <select id="taskAiFormat">
+                    <option value="">Selecionar</option>
+                    <option value="perguntas_abertas">Perguntas abertas</option>
+                    <option value="checklist">Checklist</option>
+                    <option value="diario_breve">Diário breve</option>
+                    <option value="tabela_registro">Tabela de registro</option>
+                    <option value="passo_a_passo">Passo a passo</option>
+                    <option value="escala_autoavaliacao">Escala de autoavaliação</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskAiFrequency">Frequência sugerida</label>
+                  <select id="taskAiFrequency">
+                    <option value="">Selecionar</option>
+                    <option value="uma_vez">Uma vez</option>
+                    <option value="diariamente">Diariamente</option>
+                    <option value="tres_vezes_semana">3 vezes na semana</option>
+                    <option value="ao_longo_da_semana">Ao longo da semana</option>
+                    <option value="quando_necessario">Quando necessário</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskAiContext">Contexto principal</label>
+                  <select id="taskAiContext">
+                    <option value="">Selecionar</option>
+                    <option value="trabalho">Trabalho</option>
+                    <option value="faculdade">Faculdade</option>
+                    <option value="familia">Família</option>
+                    <option value="relacionamento">Relacionamento</option>
+                    <option value="rotina">Rotina</option>
+                    <option value="ansiedade">Ansiedade</option>
+                    <option value="humor">Humor</option>
+                    <option value="autoestima">Autoestima</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="taskAiObserveAfter">O que observar depois</label>
+                <textarea
+                  id="taskAiObserveAfter"
+                  rows="3"
+                  placeholder="Ex.: observar se a paciente identifica gatilhos com mais clareza ao longo da semana..."
+                ></textarea>
+              </div>
+
               <div class="form-group">
                 <label for="taskAiPromptInput">Complementos para a IA</label>
                 <textarea
