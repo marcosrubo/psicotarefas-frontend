@@ -299,6 +299,12 @@ ul {
     linear-gradient(180deg, #ffffff 0%, #faf9ff 100%);
 }
 
+.story-block--ai {
+  background:
+    radial-gradient(circle at top right, rgba(109, 94, 252, 0.08), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
 .story-block__copy--wide {
   padding: 0;
   margin-bottom: 18px;
