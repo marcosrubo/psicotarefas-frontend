@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskInteractionTypeSelect = document.getElementById("taskInteractionTypeSelect");
   const taskInteractionLimitGroup = document.getElementById("taskInteractionLimitGroup");
   const taskInteractionLimitInput = document.getElementById("taskInteractionLimitInput");
+  const btnToggleTaskAi = document.getElementById("btnToggleTaskAi");
+  const taskAiBox = document.getElementById("taskAiBox");
   const taskAiAgeRange = document.getElementById("taskAiAgeRange");
   const taskAiGoal = document.getElementById("taskAiGoal");
   const taskAiTone = document.getElementById("taskAiTone");
@@ -48,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskAiObserveAfter = document.getElementById("taskAiObserveAfter");
   const taskAiPromptInput = document.getElementById("taskAiPromptInput");
   const btnGenerateTaskWithAi = document.getElementById("btnGenerateTaskWithAi");
+  const btnCloseTaskAi = document.getElementById("btnCloseTaskAi");
   const taskAiMessage = document.getElementById("taskAiMessage");
   const taskAiPreview = document.getElementById("taskAiPreview");
   const taskAiPreviewTitle = document.getElementById("taskAiPreviewTitle");
@@ -363,6 +366,36 @@ document.addEventListener("DOMContentLoaded", () => {
       context: getSelectedOptionLabel(taskAiContext),
       observe_after: taskAiObserveAfter?.value.trim() || ""
     };
+  }
+
+  function closeTaskAiBox() {
+    if (taskAiBox) {
+      taskAiBox.hidden = true;
+    }
+
+    if (btnToggleTaskAi) {
+      btnToggleTaskAi.textContent = "Utilizar IA";
+    }
+  }
+
+  function openTaskAiBox() {
+    if (taskAiBox) {
+      taskAiBox.hidden = false;
+    }
+
+    if (btnToggleTaskAi) {
+      btnToggleTaskAi.textContent = "Ocultar IA";
+    }
+  }
+
+  function toggleTaskAiBox() {
+    if (!taskAiBox) return;
+
+    if (taskAiBox.hidden) {
+      openTaskAiBox();
+    } else {
+      closeTaskAiBox();
+    }
   }
 
   function renderAiPreviewSection(title, bodyHtml) {
@@ -727,6 +760,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskAiMessage();
     lastGeneratedAiMaterial = null;
     renderAiPreview(null);
+    closeTaskAiBox();
   }
 
   function openTaskFormForCreate() {
@@ -1505,6 +1539,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnGenerateTaskWithAi) {
     btnGenerateTaskWithAi.addEventListener("click", gerarMaterialComIa);
+  }
+
+  if (btnToggleTaskAi) {
+    btnToggleTaskAi.addEventListener("click", toggleTaskAiBox);
+  }
+
+  if (btnCloseTaskAi) {
+    btnCloseTaskAi.addEventListener("click", closeTaskAiBox);
   }
 
   if (btnEditTask) {

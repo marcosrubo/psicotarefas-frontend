@@ -175,7 +175,13 @@
               ></textarea>
             </div>
 
-            <section class="ia-task-box" aria-label="Material da tarefa com IA">
+            <div class="task-form-card__actions task-form-card__actions--ia-toggle">
+              <button class="btn-secondary" id="btnToggleTaskAi" type="button">
+                Utilizar IA
+              </button>
+            </div>
+
+            <section class="ia-task-box" id="taskAiBox" aria-label="Material da tarefa com IA" hidden>
               <div class="ia-task-box__header">
                 <div>
                   <h5>Material da tarefa com IA</h5>
@@ -301,6 +307,9 @@
               <div class="ia-task-box__actions">
                 <button class="btn-secondary" id="btnGenerateTaskWithAi" type="button">
                   Gerar com IA
+                </button>
+                <button class="btn-secondary" id="btnCloseTaskAi" type="button">
+                  Fechar IA
                 </button>
               </div>
 

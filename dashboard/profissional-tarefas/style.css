@@ -181,6 +181,10 @@ a {
     linear-gradient(180deg, rgba(109, 94, 252, 0.04), rgba(255, 255, 255, 0.96));
 }
 
+.ia-task-box[hidden] {
+  display: none !important;
+}
+
 .ia-task-box__header {
   display: flex;
   align-items: flex-start;
@@ -220,6 +224,14 @@ a {
 
 .ia-task-box__actions {
   display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.task-form-card__actions--ia-toggle {
+  margin-top: -2px;
+  margin-bottom: 12px;
   justify-content: flex-start;
 }
 
