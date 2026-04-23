@@ -946,7 +946,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return `
           <article class="patient-card ${isActive}" data-patient-id="${patient.patient_user_id}">
-            <h4 class="patient-card__alias">${escapeHtml(patient.alias)}</h4>
+            <div class="patient-card__top">
+              <h4 class="patient-card__alias">${escapeHtml(patient.alias)}</h4>
+              <button
+                class="btn-secondary btn-secondary--small patient-card__edit-btn"
+                type="button"
+                data-action="edit-alias"
+                data-patient-id="${patient.patient_user_id}"
+              >
+                Alterar apelido
+              </button>
+            </div>
             <p class="patient-card__name">${escapeHtml(patient.nome_real)}</p>
             <p class="patient-card__email">${escapeHtml(patient.email || "E-mail não informado")}</p>
             <div class="patient-card__meta">
@@ -982,7 +992,6 @@ document.addEventListener("DOMContentLoaded", () => {
       tasksEmptyState.hidden = false;
       tasksEmptyState.textContent = "Selecione um paciente para visualizar as tarefas.";
       btnNewTask.disabled = true;
-      if (btnEditAlias) btnEditAlias.disabled = true;
       closeAliasBox();
       closeTaskForm();
       return;
@@ -991,7 +1000,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tasksTitle.textContent = `Tarefas de ${patient.alias}`;
     tasksSubtitle.textContent = patient.nome_real;
     btnNewTask.disabled = false;
-    if (btnEditAlias) btnEditAlias.disabled = false;
     syncAliasButton();
 
     if (!patientTasks.length) {
@@ -1432,6 +1440,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (patientsGrid) {
     patientsGrid.addEventListener("click", (event) => {
+      const editAliasButton = event.target.closest('[data-action="edit-alias"]');
+      if (editAliasButton) {
+        selectedPatientId = editAliasButton.getAttribute("data-patient-id");
+        selectedTaskId = null;
+
+        closeTaskForm();
+        closeInteractionEditCard();
+        setTaskFormMessage();
+        setInteractionFormMessage();
+        renderAll();
+        openAliasBox();
+        return;
+      }
+
       const card = event.target.closest("[data-patient-id]");
       if (!card) return;
 
@@ -1470,18 +1492,6 @@ document.addEventListener("DOMContentLoaded", () => {
         openTaskFormForCreate();
       } else {
         closeTaskForm();
-      }
-    });
-  }
-
-  if (btnEditAlias) {
-    btnEditAlias.addEventListener("click", () => {
-      if (!selectedPatientId || !aliasBox) return;
-
-      if (aliasBox.hidden) {
-        openAliasBox();
-      } else {
-        closeAliasBox();
       }
     });
   }
