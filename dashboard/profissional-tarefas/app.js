@@ -38,6 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskInteractionTypeSelect = document.getElementById("taskInteractionTypeSelect");
   const taskInteractionLimitGroup = document.getElementById("taskInteractionLimitGroup");
   const taskInteractionLimitInput = document.getElementById("taskInteractionLimitInput");
+  const taskAiAgeRange = document.getElementById("taskAiAgeRange");
+  const taskAiGoal = document.getElementById("taskAiGoal");
+  const taskAiTone = document.getElementById("taskAiTone");
+  const taskAiEstimatedTime = document.getElementById("taskAiEstimatedTime");
+  const taskAiFormat = document.getElementById("taskAiFormat");
+  const taskAiFrequency = document.getElementById("taskAiFrequency");
+  const taskAiContext = document.getElementById("taskAiContext");
+  const taskAiObserveAfter = document.getElementById("taskAiObserveAfter");
   const taskAiPromptInput = document.getElementById("taskAiPromptInput");
   const btnGenerateTaskWithAi = document.getElementById("btnGenerateTaskWithAi");
   const taskAiMessage = document.getElementById("taskAiMessage");
@@ -338,6 +346,25 @@ document.addEventListener("DOMContentLoaded", () => {
     return "https://psicotarefas-backend.onrender.com/api/ai/task-material-preview";
   }
 
+  function getSelectedOptionLabel(element) {
+    if (!element) return "";
+    const option = element.options?.[element.selectedIndex];
+    return option?.value ? option.textContent.trim() : "";
+  }
+
+  function buildAiParameters() {
+    return {
+      age_range: getSelectedOptionLabel(taskAiAgeRange),
+      goal: getSelectedOptionLabel(taskAiGoal),
+      tone: getSelectedOptionLabel(taskAiTone),
+      estimated_time: getSelectedOptionLabel(taskAiEstimatedTime),
+      format: getSelectedOptionLabel(taskAiFormat),
+      frequency: getSelectedOptionLabel(taskAiFrequency),
+      context: getSelectedOptionLabel(taskAiContext),
+      observe_after: taskAiObserveAfter?.value.trim() || ""
+    };
+  }
+
   function renderAiPreviewSection(title, bodyHtml) {
     return `
       <section class="ia-task-preview__section">
@@ -410,6 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const titulo = taskTitleInput?.value.trim() || "";
     const descricao = taskDescriptionInput?.value.trim() || "";
     const promptComplementar = taskAiPromptInput?.value.trim() || "";
+    const parameters = buildAiParameters();
 
     if (!titulo) {
       setTaskAiMessage("Informe o título antes de gerar com IA.", "error");
@@ -436,7 +464,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({
           title: titulo,
           description: descricao,
-          promptComplement: promptComplementar
+          promptComplement: promptComplementar,
+          parameters
         })
       });
 
@@ -677,6 +706,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskTitleInput) taskTitleInput.value = "";
     if (taskDescriptionInput) taskDescriptionInput.value = "";
+    if (taskAiAgeRange) taskAiAgeRange.value = "";
+    if (taskAiGoal) taskAiGoal.value = "";
+    if (taskAiTone) taskAiTone.value = "";
+    if (taskAiEstimatedTime) taskAiEstimatedTime.value = "";
+    if (taskAiFormat) taskAiFormat.value = "";
+    if (taskAiFrequency) taskAiFrequency.value = "";
+    if (taskAiContext) taskAiContext.value = "";
+    if (taskAiObserveAfter) taskAiObserveAfter.value = "";
     if (taskAiPromptInput) taskAiPromptInput.value = "";
     const padrao = obterPadraoInteracaoDoProfissional();
     if (taskInteractionTypeSelect) {
@@ -721,6 +758,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskTitleInput) taskTitleInput.value = task.titulo || "";
     if (taskDescriptionInput) taskDescriptionInput.value = task.descricao || "";
+    if (taskAiAgeRange) taskAiAgeRange.value = "";
+    if (taskAiGoal) taskAiGoal.value = "";
+    if (taskAiTone) taskAiTone.value = "";
+    if (taskAiEstimatedTime) taskAiEstimatedTime.value = "";
+    if (taskAiFormat) taskAiFormat.value = "";
+    if (taskAiFrequency) taskAiFrequency.value = "";
+    if (taskAiContext) taskAiContext.value = "";
+    if (taskAiObserveAfter) taskAiObserveAfter.value = "";
     if (taskAiPromptInput) taskAiPromptInput.value = "";
     const configuracao = obterConfiguracaoInteracaoDaTarefa(task);
     if (taskInteractionTypeSelect) {
