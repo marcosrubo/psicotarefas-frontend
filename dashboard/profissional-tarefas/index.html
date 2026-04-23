@@ -118,6 +118,24 @@
           <div class="patients-grid" id="patientsGrid"></div>
         </section>
 
+        <section class="alias-strip" id="aliasBox" hidden>
+          <div class="alias-strip__content">
+            <label for="patientAliasInput">Apelido do paciente</label>
+            <input
+              type="text"
+              id="patientAliasInput"
+              placeholder="Ex.: João vestibular"
+              maxlength="120"
+            />
+            <button class="btn-secondary" id="btnCancelAlias" type="button">
+              Cancelar
+            </button>
+            <button class="btn-secondary" id="btnSaveAlias" type="button">
+              Salvar apelido
+            </button>
+          </div>
+        </section>
+
         <section class="tasks-panel" id="tasksPanel">
           <div class="section-header">
             <div>
@@ -131,24 +149,6 @@
               </button>
             </div>
           </div>
-
-          <section class="alias-box" id="aliasBox" hidden>
-            <label for="patientAliasInput">Apelido do paciente</label>
-            <div class="alias-box__row">
-              <input
-                type="text"
-                id="patientAliasInput"
-                placeholder="Ex.: João vestibular"
-                maxlength="120"
-              />
-              <button class="btn-secondary" id="btnCancelAlias" type="button">
-                Cancelar
-              </button>
-              <button class="btn-secondary" id="btnSaveAlias" type="button">
-                Salvar apelido
-              </button>
-            </div>
-          </section>
 
           <section class="task-form-card" id="taskFormCard" hidden>
             <h4 id="taskFormTitle">Nova tarefa</h4>

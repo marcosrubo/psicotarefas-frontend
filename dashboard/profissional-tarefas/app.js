@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tasksPanel = document.getElementById("tasksPanel");
 
   const btnNewTask = document.getElementById("btnNewTask");
-  const btnEditAlias = document.getElementById("btnEditAlias");
 
   const aliasBox = document.getElementById("aliasBox");
   const patientAliasInput = document.getElementById("patientAliasInput");
@@ -220,16 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setDefaultPolicyMessage();
   }
 
-  function syncAliasButton() {
-    if (!btnEditAlias) return;
-    btnEditAlias.textContent = aliasBox?.hidden === false ? "Ocultar apelido" : "Alterar apelido";
-  }
-
   function closeAliasBox() {
     if (aliasBox) {
       aliasBox.hidden = true;
     }
-    syncAliasButton();
   }
 
   function openAliasBox() {
@@ -237,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!patient || !aliasBox) return;
 
     aliasBox.hidden = false;
-    syncAliasButton();
 
     if (patientAliasInput) {
       patientAliasInput.value = patient.alias;
@@ -1000,7 +992,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tasksTitle.textContent = `Tarefas de ${patient.alias}`;
     tasksSubtitle.textContent = patient.nome_real;
     btnNewTask.disabled = false;
-    syncAliasButton();
 
     if (!patientTasks.length) {
       tasksList.innerHTML = "";
