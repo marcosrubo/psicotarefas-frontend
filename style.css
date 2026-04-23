@@ -305,6 +305,10 @@ ul {
     linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
+.story-block--search .story-block__media {
+  min-height: 220px;
+}
+
 .story-block__copy--wide {
   padding: 0;
   margin-bottom: 18px;
