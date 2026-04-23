@@ -347,166 +347,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  function normalizarAiMaterial(material) {
-    if (!material) return null;
-
-    const guidedQuestions = material.guided_questions || {};
-    const selfEvaluation = material.self_evaluation || {};
-    const illustration = material.illustration || {};
-
-    return {
-      title: material.title || "Prévia da tarefa com IA",
-      summary:
-        material.summary ||
-        "Material inicial gerado a partir do título, descrição e instruções complementares.",
-      objective: material.objective || "",
-      closing_message: material.closing_message || "",
-      raw_text: material.raw_text || "",
-      illustration: {
-        scene_title: illustration.scene_title || material.title || "Cena da tarefa",
-        subject: illustration.subject || "Paciente em reflexão",
-        support_label: illustration.support_label || "Registro guiado",
-        accent_color: illustration.accent_color || "#7C6CFF"
-      },
-      guided_questions: {
-        observation:
-          guidedQuestions.observation ||
-          material.reflection_questions?.[0] ||
-          "O que você percebeu com mais clareza nesta situação?",
-        action_reflection:
-          guidedQuestions.action_reflection ||
-          material.reflection_questions?.[1] ||
-          "O que você fez ou poderia experimentar da próxima vez?",
-        self_evaluation:
-          guidedQuestions.self_evaluation ||
-          material.reflection_questions?.[2] ||
-          "Como você se avalia emocionalmente neste momento?"
-      },
-      self_evaluation: {
-        type: "emotion_faces",
-        title: selfEvaluation.title || "Autoavaliação emocional",
-        prompt:
-          selfEvaluation.prompt ||
-          guidedQuestions.self_evaluation ||
-          "Marque como você se sentiu ao realizar a tarefa.",
-        anchors:
-          Array.isArray(selfEvaluation.anchors) && selfEvaluation.anchors.length
-            ? selfEvaluation.anchors.slice(0, 5)
-            : ["Muito difícil", "Difícil", "Mais ou menos", "Consegui bem", "Consegui muito bem"],
-        notes_prompt:
-          selfEvaluation.notes_prompt ||
-          "Anote aqui impressões, dúvidas ou algo que você queira comentar com a psicóloga."
-      }
-    };
-  }
-
-  function renderAiIllustration(material) {
-    const accent = escapeHtml(material.illustration.accent_color || "#7C6CFF");
-    const sceneTitle = escapeHtml(material.illustration.scene_title);
-    const subject = escapeHtml(material.illustration.subject);
-    const supportLabel = escapeHtml(material.illustration.support_label);
-
-    return `
-      <section class="ia-task-preview__illustration">
-        <div class="ia-task-preview__illustration-copy">
-          <span class="ia-task-preview__illustration-tag">Ilustração temática</span>
-          <h6>${sceneTitle}</h6>
-          <p>${subject}</p>
-          <strong>${supportLabel}</strong>
-        </div>
-        <div class="ia-task-preview__illustration-art" style="--ai-accent:${accent}">
-          <svg viewBox="0 0 260 180" aria-hidden="true" role="img">
-            <defs>
-              <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="${accent}" stop-opacity="0.95"></stop>
-                <stop offset="100%" stop-color="#ffffff" stop-opacity="0.92"></stop>
-              </linearGradient>
-            </defs>
-            <rect x="16" y="18" width="228" height="144" rx="34" fill="url(#aiGradient)"></rect>
-            <ellipse cx="80" cy="84" rx="34" ry="38" fill="#ffffff" fill-opacity="0.98"></ellipse>
-            <rect x="56" y="118" width="50" height="28" rx="14" fill="#ffffff" fill-opacity="0.98"></rect>
-            <path d="M58 52c10-18 38-18 48 0" stroke="#ffffff" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.95"></path>
-            <circle cx="68" cy="82" r="5" fill="${accent}"></circle>
-            <circle cx="92" cy="82" r="5" fill="${accent}"></circle>
-            <path d="M66 98c7 8 21 8 28 0" stroke="${accent}" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
-            <rect x="118" y="48" width="96" height="64" rx="20" fill="#ffffff" fill-opacity="0.92"></rect>
-            <rect x="134" y="62" width="62" height="12" rx="6" fill="${accent}" fill-opacity="0.88"></rect>
-            <rect x="134" y="83" width="48" height="10" rx="5" fill="${accent}" fill-opacity="0.45"></rect>
-            <rect x="126" y="122" width="84" height="20" rx="10" fill="#ffffff" fill-opacity="0.84"></rect>
-            <circle cx="214" cy="58" r="12" fill="#ffffff" fill-opacity="0.75"></circle>
-            <path d="M214 50v16M206 58h16" stroke="${accent}" stroke-width="3.5" stroke-linecap="round"></path>
-          </svg>
-        </div>
-      </section>
-    `;
-  }
-
-  function renderAiQuestions(material) {
-    const questions = [
-      ["Observação", material.guided_questions.observation],
-      ["Ação / reflexão", material.guided_questions.action_reflection],
-      ["Autoavaliação", material.guided_questions.self_evaluation]
-    ];
-
-    return renderAiPreviewSection(
-      "Perguntas guiadas",
-      `
-        <ol class="ia-task-preview__questions">
-          ${questions
-            .map(
-              ([label, value]) => `
-                <li>
-                  <strong>${escapeHtml(label)}</strong>
-                  <span>${escapeHtml(value)}</span>
-                </li>
-              `
-            )
-            .join("")}
-        </ol>
-      `
-    );
-  }
-
-  function renderAiSelfEvaluation(material) {
-    const selfEvaluation = material.self_evaluation;
-    const anchors = selfEvaluation.anchors || [];
-    const prompt = escapeHtml(selfEvaluation.prompt || "");
-    const notesPrompt = escapeHtml(selfEvaluation.notes_prompt || "");
-
-    function renderNotesArea() {
-      return `
-        <div class="ia-task-preview__notes">
-          <strong>Espaço livre</strong>
-          <p>${notesPrompt}</p>
-          <div class="ia-task-preview__notes-box"></div>
-        </div>
-      `;
-    }
-
-    const emojis = ["😟", "🙁", "😐", "🙂", "😄"];
-    return renderAiPreviewSection(
-      selfEvaluation.title || "Autoavaliação emocional",
-      `
-        <div class="ia-task-preview__self-eval">
-          <p>${prompt}</p>
-          <div class="ia-task-preview__faces">
-            ${anchors
-              .map(
-                (anchor, index) => `
-                  <div class="ia-task-preview__face">
-                    <span>${emojis[index] || "🙂"}</span>
-                    <small>${escapeHtml(anchor)}</small>
-                  </div>
-                `
-              )
-              .join("")}
-          </div>
-          ${renderNotesArea()}
-        </div>
-      `
-    );
-  }
-
   function renderAiPreview(material) {
     if (!taskAiPreview || !taskAiPreviewContent || !taskAiPreviewTitle || !taskAiPreviewSummary) {
       return;
@@ -521,38 +361,46 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const normalizedMaterial = normalizarAiMaterial(material);
     const sections = [];
 
-    sections.push(renderAiIllustration(normalizedMaterial));
-
-    if (normalizedMaterial.objective) {
-      sections.push(
-        renderAiPreviewSection("Objetivo", `<p>${escapeHtml(normalizedMaterial.objective)}</p>`)
-      );
+    if (material.objective) {
+      sections.push(renderAiPreviewSection("Objetivo", `<p>${escapeHtml(material.objective)}</p>`));
     }
 
-    sections.push(renderAiQuestions(normalizedMaterial));
-    sections.push(renderAiSelfEvaluation(normalizedMaterial));
-
-    if (normalizedMaterial.closing_message) {
+    if (Array.isArray(material.instructions) && material.instructions.length) {
       sections.push(
         renderAiPreviewSection(
-          "Fechamento",
-          `<p>${escapeHtml(normalizedMaterial.closing_message)}</p>`
+          "Como aplicar",
+          `<ul>${material.instructions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
         )
       );
     }
 
-    if (!sections.length && normalizedMaterial.raw_text) {
+    if (Array.isArray(material.reflection_questions) && material.reflection_questions.length) {
       sections.push(
-        renderAiPreviewSection("Conteúdo gerado", `<p>${escapeHtml(normalizedMaterial.raw_text)}</p>`)
+        renderAiPreviewSection(
+          "Perguntas guiadas",
+          `<ul>${material.reflection_questions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        )
       );
     }
 
-    taskAiPreviewTitle.textContent = normalizedMaterial.title || "Prévia da tarefa com IA";
+    if (material.closing_message) {
+      sections.push(
+        renderAiPreviewSection(
+          "Fechamento",
+          `<p>${escapeHtml(material.closing_message)}</p>`
+        )
+      );
+    }
+
+    if (!sections.length && material.raw_text) {
+      sections.push(renderAiPreviewSection("Conteúdo gerado", `<p>${escapeHtml(material.raw_text)}</p>`));
+    }
+
+    taskAiPreviewTitle.textContent = material.title || "Prévia da tarefa com IA";
     taskAiPreviewSummary.textContent =
-      normalizedMaterial.summary ||
+      material.summary ||
       "Material inicial gerado a partir do título, descrição e instruções complementares.";
     taskAiPreviewContent.innerHTML = sections.join("");
     taskAiPreview.hidden = false;
