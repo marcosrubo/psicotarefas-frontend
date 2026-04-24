@@ -66,7 +66,7 @@
   cursor: pointer;
 }
 
-.topbar__meta--nav {
+.topbar__meta.topbar__meta--nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -96,7 +96,7 @@
     font-size: 13px;
   }
 
-  .topbar__meta--nav {
+  .topbar__meta.topbar__meta--nav {
     margin-bottom: 8px;
   }
 
