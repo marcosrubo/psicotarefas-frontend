@@ -108,6 +108,13 @@ a {
   justify-content: flex-start;
 }
 
+.topbar__utility-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .mobile-flow-indicator {
   display: none;
 }
@@ -586,13 +593,6 @@ a {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
-}
-
-.hero-card__actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 14px;
 }
 
 .workspace {
