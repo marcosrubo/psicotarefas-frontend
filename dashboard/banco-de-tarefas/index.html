@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Banco de Tarefas - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta name="description" content="Biblioteca pública colaborativa de tarefas do PsicoTarefas" />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="library-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img
+          src="../../assets/icons/icon-192.png"
+          alt="Ícone do PsicoTarefas"
+          class="brand__logo"
+        />
+        <div class="brand__text">
+          <p class="brand__badge">Painel do PROFISSIONAL</p>
+          <h1>Banco de tarefas</h1>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <a class="btn-ghost" href="../profissional-tarefas/index.html">← Voltar à Gestão de TAREFAS</a>
+        <a class="btn-ghost" href="../profissional/index.html">Painel</a>
+      </div>
+
+      <p class="professional-line" id="professionalLine">
+        PROFISSIONAL: Carregando...
+      </p>
+    </header>
+
+    <main class="library-main">
+      <section class="hero-card">
+        <div>
+          <p class="hero-card__label">Biblioteca pública colaborativa</p>
+          <h2>Organize temas, publique PDFs e amplie o acervo do sistema</h2>
+          <p>
+            Aqui o profissional pode alimentar o banco de tarefas com materiais públicos por tema.
+            Essas tarefas não são tarefas do paciente: elas entram como biblioteca para uso posterior.
+          </p>
+        </div>
+
+        <div class="hero-card__stats">
+          <div class="hero-chip">
+            <span class="hero-chip__label">Temas</span>
+            <strong id="statThemes">0</strong>
+          </div>
+          <div class="hero-chip">
+            <span class="hero-chip__label">Tarefas públicas</span>
+            <strong id="statTasks">0</strong>
+          </div>
+          <div class="hero-chip">
+            <span class="hero-chip__label">PDFs vinculados</span>
+            <strong id="statPdfs">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="toolbar-card">
+        <div>
+          <h3>Construção inicial</h3>
+          <p>
+            Esta é a primeira base do Banco de Tarefas. Vamos usá-la para organizar temas,
+            cadastrar atividades públicas e preparar o fluxo de uso pela Gestão de TAREFAS.
+          </p>
+        </div>
+        <div class="toolbar-card__actions">
+          <button class="btn-secondary" id="btnToggleThemeForm" type="button">Novo tema</button>
+          <button class="btn-primary" id="btnToggleLibraryTaskForm" type="button">Nova tarefa da biblioteca</button>
+        </div>
+      </section>
+
+      <section class="panel" id="themeFormPanel" hidden>
+        <div class="panel__header">
+          <h3>Cadastrar tema</h3>
+          <p>Crie os grandes agrupadores da biblioteca, como ansiedade, medo, depressão e outros.</p>
+        </div>
+
+        <form class="form-grid">
+          <div class="form-group">
+            <label for="themeName">Nome do tema</label>
+            <input id="themeName" type="text" placeholder="Ex.: Ansiedade" />
+          </div>
+
+          <div class="form-group form-group--wide">
+            <label for="themeDescription">Descrição curta</label>
+            <textarea id="themeDescription" rows="3" placeholder="Explique rapidamente o foco desse tema."></textarea>
+          </div>
+
+          <div class="form-actions form-actions--inline">
+            <button class="btn-secondary" id="btnCloseThemeForm" type="button">Cancelar</button>
+            <button class="btn-primary" type="button">Salvar tema</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="workspace">
+        <section class="panel themes-panel">
+          <div class="panel__header">
+            <h3>Temas da biblioteca</h3>
+            <p>Escolha um tema para navegar nas tarefas públicas já cadastradas.</p>
+          </div>
+
+          <div class="themes-list" id="themesList"></div>
+        </section>
+
+        <section class="panel form-panel" id="libraryTaskFormPanel" hidden>
+          <div class="panel__header">
+            <h3>Nova tarefa da biblioteca</h3>
+            <p>Cadastre uma tarefa pública, por tema, com PDF pronto para uso posterior.</p>
+          </div>
+
+          <form class="form-grid">
+            <div class="form-group">
+              <label for="libraryTaskTheme">Tema</label>
+              <select id="libraryTaskTheme"></select>
+            </div>
+
+            <div class="form-group">
+              <label for="libraryTaskTitle">Título</label>
+              <input id="libraryTaskTitle" type="text" placeholder="Ex.: Atividade 1 - Observando os gatilhos" />
+            </div>
+
+            <div class="form-group form-group--wide">
+              <label for="libraryTaskSummary">Descrição curta</label>
+              <textarea id="libraryTaskSummary" rows="3" placeholder="Resumo para ajudar outros profissionais a entender o foco da tarefa."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="libraryTaskPdf">PDF da tarefa</label>
+              <input id="libraryTaskPdf" type="file" accept="application/pdf" />
+            </div>
+
+            <div class="form-group">
+              <label for="libraryTaskStatus">Status inicial</label>
+              <select id="libraryTaskStatus">
+                <option value="publicada">Publicada</option>
+                <option value="oculta">Oculta</option>
+                <option value="arquivada">Arquivada</option>
+              </select>
+            </div>
+
+            <div class="form-actions form-actions--inline">
+              <button class="btn-secondary" id="btnCloseLibraryTaskForm" type="button">Cancelar</button>
+              <button class="btn-primary" type="button">Publicar no banco</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <section class="panel library-panel">
+        <div class="panel__header">
+          <div>
+            <h3 id="libraryPanelTitle">Tarefas do tema: Ansiedade</h3>
+            <p id="libraryPanelSubtitle">Visualize atividades públicas em PDF organizadas por tema.</p>
+          </div>
+        </div>
+
+        <div class="library-list" id="libraryList"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
