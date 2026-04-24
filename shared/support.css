@@ -71,7 +71,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
   margin-bottom: 10px;
+}
+
+.topbar__meta.topbar__meta--nav .back-link {
+  margin-right: auto;
+}
+
+.topbar__meta.topbar__meta--nav .support-link {
+  margin-left: auto;
 }
 
 .topbar__meta {
