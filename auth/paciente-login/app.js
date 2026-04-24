@@ -21,6 +21,7 @@ const erroEmail = document.getElementById("erroEmail");
 const erroSenha = document.getElementById("erroSenha");
 
 const formMessage = document.getElementById("formMessage");
+const btnResendConfirmation = document.getElementById("btnResendConfirmation");
 const btnSubmit = document.getElementById("btnSubmit");
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const authForm = document.getElementById("authForm");
@@ -29,10 +30,23 @@ const linkEsqueciSenha = document.getElementById("linkEsqueciSenha");
 let conviteInfo = null;
 let conviteBloqueado = false;
 
+function mostrarAcaoReenviarConfirmacao() {
+  if (!btnResendConfirmation) return;
+  btnResendConfirmation.hidden = false;
+}
+
+function esconderAcaoReenviarConfirmacao() {
+  if (!btnResendConfirmation) return;
+  btnResendConfirmation.hidden = true;
+  btnResendConfirmation.disabled = false;
+  btnResendConfirmation.textContent = "Reenviar e-mail de confirmação";
+}
+
 function limparErros() {
   erroEmail.textContent = "";
   erroSenha.textContent = "";
   esconderMensagem();
+  esconderAcaoReenviarConfirmacao();
 }
 
 function mostrarMensagem(texto, tipo = "error") {
@@ -74,6 +88,7 @@ function configurarTelaBase() {
   authSubtitle.textContent =
     "Acesse sua conta para consultar tarefas, responder atividades e acompanhar seu processo no PsicoTarefas.";
 
+  esconderAcaoReenviarConfirmacao();
   aplicarContextoConviteNaTela();
 }
 
@@ -215,6 +230,33 @@ async function fazerLogin(email, senha) {
   return data.user;
 }
 
+function montarRedirectUrlConfirmacao() {
+  const query = new URLSearchParams();
+  query.set("perfil", "paciente");
+
+  if (conviteToken) {
+    query.set("convite", conviteToken);
+  }
+
+  return `${window.location.origin}/?${query.toString()}`;
+}
+
+async function reenviarEmailDeConfirmacao(email) {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: montarRedirectUrlConfirmacao()
+    }
+  });
+
+  if (error) {
+    throw new Error(
+      error.message || "Não foi possível reenviar o e-mail de confirmação."
+    );
+  }
+}
+
 async function buscarPerfilUsuario(userId) {
   const { data, error } = await supabase
     .from("perfis")
@@ -350,6 +392,34 @@ if (linkEsqueciSenha) {
   });
 }
 
+if (btnResendConfirmation) {
+  btnResendConfirmation.addEventListener("click", async () => {
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!email) {
+      erroEmail.textContent = "Informe seu e-mail para reenviar a confirmação.";
+      mostrarMensagem("Preencha o e-mail antes de pedir um novo link.", "error");
+      return;
+    }
+
+    btnResendConfirmation.disabled = true;
+    btnResendConfirmation.textContent = "Reenviando...";
+
+    try {
+      await reenviarEmailDeConfirmacao(email);
+      mostrarMensagem(
+        "Enviamos um novo e-mail de confirmação. Abra a mensagem mais recente para concluir seu acesso.",
+        "success"
+      );
+    } catch (erro) {
+      mostrarMensagem(erro.message || "Não foi possível reenviar a confirmação.", "error");
+    } finally {
+      btnResendConfirmation.disabled = false;
+      btnResendConfirmation.textContent = "Reenviar e-mail de confirmação";
+    }
+  });
+}
+
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -405,7 +475,13 @@ authForm.addEventListener("submit", async (event) => {
       window.location.href = destino;
     }, 1000);
   } catch (erro) {
-    mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
+    const mensagem = erro.message || "Ocorreu um erro inesperado.";
+
+    if (mensagem.toLowerCase().includes("não foi confirmado")) {
+      mostrarAcaoReenviarConfirmacao();
+    }
+
+    mostrarMensagem(mensagem, "error");
   } finally {
     btnSubmit.disabled = conviteBloqueado;
     btnSubmit.textContent = "Entrar como paciente";

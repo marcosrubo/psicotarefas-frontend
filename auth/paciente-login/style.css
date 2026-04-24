@@ -204,6 +204,10 @@ a {
   display: none !important;
 }
 
+.btn-secondary[hidden] {
+  display: none !important;
+}
+
 .form-group label {
   font-weight: 700;
   font-size: 14px;
@@ -217,6 +221,30 @@ a {
   background: #fff;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-secondary {
+  width: 100%;
+  margin-bottom: 14px;
+  border: 1px solid #c7d2fe;
+  border-radius: 16px;
+  padding: 13px 16px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  transform: translateY(-1px);
+}
+
+.btn-secondary:disabled {
+  cursor: wait;
+  opacity: 0.75;
 }
 
 .form-group input:focus {

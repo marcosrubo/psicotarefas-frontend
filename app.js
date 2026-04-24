@@ -228,9 +228,17 @@ async function tratarEntradaPorLinkEmail() {
     }
 
     if (status === "respondido") {
-      window.confirm(
+      const confirmar = window.confirm(
         `Você foi convidado pelo profissional ${profissional}.\n\nSeu cadastro já foi iniciado, mas ainda é necessário confirmar o e-mail informado.`
       );
+
+      if (confirmar) {
+        window.location.href = montarUrlComConvite(
+          "./auth/paciente-login/index.html",
+          token
+        );
+      }
+
       return true;
     }
 
