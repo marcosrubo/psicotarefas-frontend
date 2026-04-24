@@ -189,21 +189,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderLogs(logs, termo) {
     if (!logsList || !logsEmpty) return;
 
-    const filtrados = logs.filter((log) => {
-      if (!termo) return true;
+    const filtrados = [...logs]
+      .filter((log) => {
+        if (!termo) return true;
 
-      const conteudo = normalizarTexto(
-        [
-          log.email,
-          log.perfil,
-          log.evento,
-          log.pagina,
-          JSON.stringify(log.contexto || {})
-        ].join(" ")
-      );
+        const conteudo = normalizarTexto(
+          [
+            log.email,
+            log.perfil,
+            log.evento,
+            log.pagina,
+            JSON.stringify(log.contexto || {})
+          ].join(" ")
+        );
 
-      return conteudo.includes(termo);
-    });
+        return conteudo.includes(termo);
+      })
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
     if (!filtrados.length) {
       logsList.innerHTML = "";
@@ -212,32 +214,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     logsEmpty.hidden = true;
-    logsList.innerHTML = filtrados
-      .map((log) => {
-        const identidade =
-          log.email ||
-          (log.perfil === "publico" ? "Acesso público" : "Usuário autenticado");
-
-        return `
-          <article class="log-item">
-            <div class="log-item__top">
-              <strong>${escapeHtml(log.evento || "evento")}</strong>
-              <span>${escapeHtml(formatarData(log.created_at))}</span>
-            </div>
-            <div class="log-item__meta">
-              <span class="status-badge status-badge--info">${escapeHtml(log.perfil || "publico")}</span>
-              <span class="status-badge status-badge--muted">${escapeHtml(log.pagina || "-")}</span>
-            </div>
-            <p class="log-item__identity">${escapeHtml(identidade)}</p>
-            ${
-              log.contexto && Object.keys(log.contexto).length
-                ? `<pre class="log-item__context">${escapeHtml(JSON.stringify(log.contexto, null, 2))}</pre>`
-                : ""
-            }
-          </article>
-        `;
-      })
-      .join("");
+    logsList.innerHTML = `
+      <div class="logs-table-wrap">
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>created_at</th>
+              <th>email</th>
+              <th>perfil</th>
+              <th>evento</th>
+              <th>pagina</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtrados
+              .map(
+                (log) => `
+                  <tr>
+                    <td>${escapeHtml(formatarData(log.created_at))}</td>
+                    <td>${escapeHtml(log.email || "-")}</td>
+                    <td>${escapeHtml(log.perfil || "publico")}</td>
+                    <td>${escapeHtml(log.evento || "-")}</td>
+                    <td>${escapeHtml(log.pagina || "-")}</td>
+                  </tr>
+                `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
   function obterDescricaoPacienteSemVinculo(paciente, vinculos, perfis) {

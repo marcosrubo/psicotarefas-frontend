@@ -311,6 +311,10 @@ input {
   gap: 12px;
 }
 
+.logs-list {
+  display: block;
+}
+
 .simple-item {
   padding: 12px;
   display: flex;
@@ -330,51 +334,44 @@ input {
   font-size: 14px;
 }
 
-.log-item {
+.logs-table-wrap {
+  width: 100%;
+  overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 18px;
   background: #fff;
-  display: grid;
-  gap: 10px;
 }
 
-.log-item__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+.logs-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
 }
 
-.log-item__top strong {
-  font-size: 14px;
-}
-
-.log-item__top span,
-.log-item__identity {
-  color: var(--muted);
+.logs-table thead th {
+  text-align: left;
   font-size: 13px;
-}
-
-.log-item__meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.log-item__context {
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  padding: 12px;
-  border-radius: 14px;
-  background: #f8f9fc;
-  border: 1px solid var(--border);
+  font-weight: 700;
   color: var(--muted-text);
-  font-size: 12px;
-  line-height: 1.5;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background: #f8f9fc;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logs-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+  vertical-align: top;
+}
+
+.logs-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.logs-table tbody tr:nth-child(even) {
+  background: rgba(109, 94, 252, 0.02);
 }
 
 .simple-item span,
