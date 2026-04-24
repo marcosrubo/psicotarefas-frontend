@@ -155,10 +155,53 @@
             <h4 id="taskFormTitle">Nova tarefa</h4>
 
             <div class="task-form-card__actions task-form-card__actions--bank">
-              <a class="btn-secondary" href="../banco-de-tarefas/index.html">
-                Usar banco
-              </a>
+              <button class="btn-secondary" id="btnOpenTaskBank" type="button">
+                Usar banco de tarefas
+              </button>
             </div>
+
+            <section class="task-bank-browser" id="taskBankBrowser" hidden>
+              <div class="task-bank-browser__header">
+                <div>
+                  <h5>Selecionar do banco de tarefas</h5>
+                  <p>Escolha um tema e aplique uma tarefa pública da biblioteca ao paciente atual.</p>
+                </div>
+              </div>
+
+              <div class="task-bank-browser__grid">
+                <div class="task-bank-browser__themes" id="taskBankThemes"></div>
+
+                <div class="task-bank-browser__content">
+                  <div class="empty-state" id="taskBankEmptyState" hidden>
+                    Nenhuma tarefa publicada encontrada para este tema.
+                  </div>
+
+                  <div class="task-bank-browser__list" id="taskBankList"></div>
+                </div>
+              </div>
+
+              <div class="task-bank-browser__actions">
+                <button class="btn-secondary" id="btnCloseTaskBank" type="button">
+                  Fechar banco de tarefas
+                </button>
+              </div>
+            </section>
+
+            <section class="selected-bank-task" id="selectedBankTaskBox" hidden>
+              <div class="selected-bank-task__copy">
+                <span class="selected-bank-task__label">PDF do banco vinculado</span>
+                <strong id="selectedBankTaskTitle">Tarefa da biblioteca</strong>
+                <p id="selectedBankTaskMeta">PDF escolhido para esta tarefa.</p>
+              </div>
+              <div class="selected-bank-task__actions">
+                <button class="btn-secondary btn-secondary--small" id="btnOpenSelectedBankPdf" type="button">
+                  Abrir PDF
+                </button>
+                <button class="btn-secondary btn-secondary--small" id="btnClearSelectedBankTask" type="button">
+                  Remover
+                </button>
+              </div>
+            </section>
 
             <div class="form-group">
               <label for="taskTitleInput">Título</label>
@@ -385,6 +428,15 @@
             <div class="selected-task-meta">
               <span id="selectedTaskCreatedAt">Criada em</span>
               <span id="selectedTaskPatient">Paciente</span>
+            </div>
+            <div class="selected-task-pdf" id="selectedTaskPdfBox" hidden>
+              <div>
+                <strong id="selectedTaskPdfTitle">PDF vinculado do banco</strong>
+                <p id="selectedTaskPdfMeta">Arquivo pronto para consulta nesta tarefa.</p>
+              </div>
+              <button class="btn-secondary btn-secondary--small" id="btnOpenTaskPdf" type="button">
+                Abrir PDF
+              </button>
             </div>
           </section>
 

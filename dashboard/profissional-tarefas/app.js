@@ -32,6 +32,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const taskFormCard = document.getElementById("taskFormCard");
   const taskFormTitle = document.getElementById("taskFormTitle");
+  const btnOpenTaskBank = document.getElementById("btnOpenTaskBank");
+  const taskBankBrowser = document.getElementById("taskBankBrowser");
+  const taskBankThemes = document.getElementById("taskBankThemes");
+  const taskBankList = document.getElementById("taskBankList");
+  const taskBankEmptyState = document.getElementById("taskBankEmptyState");
+  const btnCloseTaskBank = document.getElementById("btnCloseTaskBank");
+  const selectedBankTaskBox = document.getElementById("selectedBankTaskBox");
+  const selectedBankTaskTitle = document.getElementById("selectedBankTaskTitle");
+  const selectedBankTaskMeta = document.getElementById("selectedBankTaskMeta");
+  const btnOpenSelectedBankPdf = document.getElementById("btnOpenSelectedBankPdf");
+  const btnClearSelectedBankTask = document.getElementById("btnClearSelectedBankTask");
   const taskTitleInput = document.getElementById("taskTitleInput");
   const taskDescriptionInput = document.getElementById("taskDescriptionInput");
   const taskInteractionTypeSelect = document.getElementById("taskInteractionTypeSelect");
@@ -64,6 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedTaskDescription = document.getElementById("selectedTaskDescription");
   const selectedTaskCreatedAt = document.getElementById("selectedTaskCreatedAt");
   const selectedTaskPatient = document.getElementById("selectedTaskPatient");
+  const selectedTaskPdfBox = document.getElementById("selectedTaskPdfBox");
+  const selectedTaskPdfTitle = document.getElementById("selectedTaskPdfTitle");
+  const selectedTaskPdfMeta = document.getElementById("selectedTaskPdfMeta");
+  const btnOpenTaskPdf = document.getElementById("btnOpenTaskPdf");
   const btnEditTask = document.getElementById("btnEditTask");
   const interactionsDivider = document.getElementById("interactionsDivider");
   const interactionPanel = document.getElementById("interactionPanel");
@@ -87,19 +102,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnClearInteraction = document.getElementById("btnClearInteraction");
   const btnCreateInteraction = document.getElementById("btnCreateInteraction");
 
+  const PDF_BUCKET = "banco-tarefas-pdf";
+
   let currentUser = null;
   let currentProfile = null;
   let patients = [];
   let tasks = [];
+  let bankThemes = [];
+  let bankTasks = [];
   let interactionsByTask = new Map();
   let selectedPatientId = null;
   let selectedTaskId = null;
+  let selectedBankThemeId = null;
+  let selectedBankTask = null;
   let taskFormMode = "create";
   let editingInteractionId = null;
   let mobileView = "patients";
   let autoRefreshTimer = null;
   let isRefreshingData = false;
   let lastGeneratedAiMaterial = null;
+  let hasLoadedTaskBank = false;
 
   function normalizarTipoInteracao(valor) {
     if (valor === "limitado" || valor === "ilimitado") return valor;
@@ -320,6 +342,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function getStatusLabel(status) {
+    const map = {
+      publicada: "Publicada",
+      oculta: "Oculta",
+      arquivada: "Arquivada",
+      pendente: "Pendente"
+    };
+
+    return map[status] || status || "Sem status";
+  }
+
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -327,6 +360,24 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  async function abrirPdfDoBanco(pdfPath) {
+    if (!pdfPath) return;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from(PDF_BUCKET)
+        .createSignedUrl(pdfPath, 60);
+
+      if (error || !data?.signedUrl) {
+        throw new Error(error?.message || "Não foi possível abrir o PDF.");
+      }
+
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      window.alert(error.message || "Não foi possível abrir o PDF.");
+    }
   }
 
   function getAiEndpoint() {
@@ -387,6 +438,202 @@ document.addEventListener("DOMContentLoaded", () => {
       openTaskAiBox();
     } else {
       closeTaskAiBox();
+    }
+  }
+
+  async function carregarBancoDeTarefasDisponivel() {
+    const [themesResponse, tasksResponse] = await Promise.all([
+      supabase
+        .from("banco_tarefas_temas")
+        .select("id, nome, descricao_curta, ordem, ativo")
+        .eq("ativo", true)
+        .order("ordem", { ascending: true })
+        .order("nome", { ascending: true }),
+      supabase
+        .from("banco_tarefas_itens")
+        .select("id, tema_id, titulo, descricao_curta, pdf_path, pdf_nome, autor_nome, status, ativo, created_at")
+        .eq("ativo", true)
+        .eq("status", "publicada")
+        .order("created_at", { ascending: false })
+    ]);
+
+    if (themesResponse.error) {
+      throw new Error(`Falha ao carregar temas do banco: ${themesResponse.error.message}`);
+    }
+
+    if (tasksResponse.error) {
+      throw new Error(`Falha ao carregar tarefas do banco: ${tasksResponse.error.message}`);
+    }
+
+    const loadedTasks = tasksResponse.data || [];
+
+    bankThemes = (themesResponse.data || []).map((theme) => ({
+      ...theme,
+      total: loadedTasks.filter((task) => task.tema_id === theme.id).length
+    }));
+    bankTasks = loadedTasks;
+
+    if (!bankThemes.length) {
+      selectedBankThemeId = null;
+    } else if (!bankThemes.some((theme) => theme.id === selectedBankThemeId)) {
+      selectedBankThemeId = bankThemes[0].id;
+    }
+
+    hasLoadedTaskBank = true;
+  }
+
+  function renderTaskBankThemes() {
+    if (!taskBankThemes) return;
+
+    if (!bankThemes.length) {
+      taskBankThemes.innerHTML = `
+        <div class="empty-state">
+          Nenhum tema público disponível no banco ainda.
+        </div>
+      `;
+      return;
+    }
+
+    taskBankThemes.innerHTML = bankThemes
+      .map(
+        (theme) => `
+          <button
+            class="task-bank-theme ${theme.id === selectedBankThemeId ? "is-active" : ""}"
+            type="button"
+            data-bank-theme-id="${theme.id}"
+          >
+            <div class="task-bank-theme__top">
+              <h6>${escapeHtml(theme.nome)}</h6>
+              <span class="patient-meta-chip">${theme.total} tarefa(s)</span>
+            </div>
+            <p>${escapeHtml(theme.descricao_curta || "Tema público colaborativo do banco de tarefas.")}</p>
+          </button>
+        `
+      )
+      .join("");
+  }
+
+  function renderTaskBankList() {
+    if (!taskBankList || !taskBankEmptyState) return;
+
+    const filteredTasks = bankTasks.filter((task) => task.tema_id === selectedBankThemeId);
+
+    if (!filteredTasks.length) {
+      taskBankList.innerHTML = "";
+      taskBankEmptyState.hidden = false;
+      return;
+    }
+
+    taskBankEmptyState.hidden = true;
+
+    taskBankList.innerHTML = filteredTasks
+      .map(
+        (task) => `
+          <article class="task-bank-item">
+            <div class="task-bank-item__top">
+              <h6>${escapeHtml(task.titulo)}</h6>
+              <span class="patient-meta-chip">${escapeHtml(getStatusLabel(task.status))}</span>
+            </div>
+            <p class="task-bank-item__summary">${escapeHtml(task.descricao_curta || "Sem descrição curta informada.")}</p>
+            <div class="task-bank-item__meta">
+              <span class="patient-meta-chip">${escapeHtml(task.pdf_nome || "PDF sem nome")}</span>
+              <span class="patient-meta-chip">${escapeHtml(task.autor_nome || "Profissional")}</span>
+              <span class="patient-meta-chip">${escapeHtml(formatDateTime(task.created_at))}</span>
+            </div>
+            <div class="task-bank-browser__actions">
+              <button
+                class="btn-secondary btn-secondary--small"
+                type="button"
+                data-action="preview-bank-pdf"
+                data-pdf-path="${escapeHtml(task.pdf_path)}"
+              >
+                Abrir PDF
+              </button>
+              <button
+                class="btn-secondary btn-secondary--small"
+                type="button"
+                data-action="use-bank-task"
+                data-bank-task-id="${task.id}"
+              >
+                Usar esta tarefa
+              </button>
+            </div>
+          </article>
+        `
+      )
+      .join("");
+  }
+
+  function renderSelectedBankTaskSummary() {
+    if (!selectedBankTaskBox || !selectedBankTaskTitle || !selectedBankTaskMeta) return;
+
+    if (!selectedBankTask) {
+      selectedBankTaskBox.hidden = true;
+      return;
+    }
+
+    selectedBankTaskTitle.textContent = selectedBankTask.titulo || "Tarefa da biblioteca";
+    selectedBankTaskMeta.textContent = `${selectedBankTask.pdf_nome || "PDF sem nome"} · ${selectedBankTask.autor_nome || "Profissional"}`;
+    selectedBankTaskBox.hidden = false;
+  }
+
+  function renderTaskBankBrowser() {
+    renderTaskBankThemes();
+    renderTaskBankList();
+    renderSelectedBankTaskSummary();
+  }
+
+  function clearSelectedBankTask(options = {}) {
+    const shouldClearFields = options.clearFields !== false;
+
+    selectedBankTask = null;
+
+    if (shouldClearFields && taskFormMode === "create") {
+      if (taskTitleInput) taskTitleInput.value = "";
+      if (taskDescriptionInput) taskDescriptionInput.value = "";
+    }
+
+    renderSelectedBankTaskSummary();
+  }
+
+  function applyBankTaskToForm(bankTask) {
+    if (!bankTask) return;
+
+    selectedBankTask = bankTask;
+
+    if (taskFormMode === "create") {
+      if (taskTitleInput) taskTitleInput.value = bankTask.titulo || "";
+      if (taskDescriptionInput) {
+        taskDescriptionInput.value = bankTask.descricao_curta || "";
+      }
+    }
+
+    closeTaskBankBrowser();
+    renderSelectedBankTaskSummary();
+    setTaskFormMessage("Tarefa do banco vinculada ao formulário atual.", "success");
+  }
+
+  async function openTaskBankBrowser() {
+    if (!taskBankBrowser) return;
+
+    setTaskFormMessage();
+
+    if (!hasLoadedTaskBank) {
+      try {
+        await carregarBancoDeTarefasDisponivel();
+      } catch (error) {
+        setTaskFormMessage(error.message || "Não foi possível carregar o banco de tarefas.", "error");
+        return;
+      }
+    }
+
+    renderTaskBankBrowser();
+    taskBankBrowser.hidden = false;
+  }
+
+  function closeTaskBankBrowser() {
+    if (taskBankBrowser) {
+      taskBankBrowser.hidden = true;
     }
   }
 
@@ -751,7 +998,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskFormMessage();
     setTaskAiMessage();
     lastGeneratedAiMaterial = null;
+    clearSelectedBankTask({ clearFields: false });
     renderAiPreview(null);
+    closeTaskBankBrowser();
     closeTaskAiBox();
   }
 
@@ -759,6 +1008,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!taskFormCard) return;
 
     resetTaskForm();
+    if (btnOpenTaskBank) btnOpenTaskBank.hidden = false;
     taskFormCard.hidden = false;
     selectedTaskId = null;
     renderInteractionArea();
@@ -804,7 +1054,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskFormMessage();
     setTaskAiMessage();
     lastGeneratedAiMaterial = null;
+    clearSelectedBankTask({ clearFields: false });
     renderAiPreview(null);
+    closeTaskBankBrowser();
+    if (btnOpenTaskBank) btnOpenTaskBank.hidden = true;
     taskFormCard.hidden = false;
 
     if (taskTitleInput) {
@@ -818,6 +1071,7 @@ document.addEventListener("DOMContentLoaded", () => {
       taskFormCard.hidden = true;
     }
 
+    if (btnOpenTaskBank) btnOpenTaskBank.hidden = false;
     resetTaskForm();
     renderInteractionArea();
   }
@@ -1018,6 +1272,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span>Criada em ${escapeHtml(formatDateTime(task.created_at))}</span>
               <span>${escapeHtml(obterResumoInteracaoPaciente(task))}</span>
               <span>${getTaskInteractions(task.id).length} interação(ões)</span>
+              ${task.pdf_path ? `<span>PDF do banco vinculado</span>` : ""}
             </div>
           </article>
         `;
@@ -1045,6 +1300,7 @@ document.addEventListener("DOMContentLoaded", () => {
       interactionsEmptyState.hidden = false;
       interactionsEmptyState.textContent = "Selecione uma tarefa para visualizar as interações.";
       if (interactionPolicyState) interactionPolicyState.hidden = true;
+      if (selectedTaskPdfBox) selectedTaskPdfBox.hidden = true;
       interactionFormCard.hidden = true;
       setInteractionFormMessage();
       return;
@@ -1062,6 +1318,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedTaskCreatedAt) selectedTaskCreatedAt.textContent = `Criada em ${formatDateTime(task.created_at)}`;
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;
     if (btnEditTask) btnEditTask.hidden = false;
+    if (selectedTaskPdfBox && selectedTaskPdfTitle && selectedTaskPdfMeta) {
+      if (task.pdf_path) {
+        selectedTaskPdfTitle.textContent = task.pdf_nome || "PDF vinculado do banco";
+        selectedTaskPdfMeta.textContent = task.origem_banco_tarefa_id
+          ? "Material do banco de tarefas disponível para consulta nesta tarefa."
+          : "Arquivo em PDF disponível para consulta nesta tarefa.";
+        selectedTaskPdfBox.hidden = false;
+      } else {
+        selectedTaskPdfBox.hidden = true;
+      }
+    }
     if (interactionsDivider) interactionsDivider.hidden = false;
 
     if (!interactions.length) {
@@ -1217,18 +1484,27 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskFormMessage();
 
     try {
+      const payload = {
+        professional_user_id: currentUser.id,
+        patient_user_id: patient.patient_user_id,
+        vinculo_id: patient.vinculo_id,
+        titulo,
+        descricao,
+        status: "aberta",
+        interacao_paciente_tipo: interacaoTipo,
+        interacao_paciente_limite: interacaoLimite
+      };
+
+      if (selectedBankTask) {
+        payload.origem_tipo = "banco";
+        payload.origem_banco_tarefa_id = selectedBankTask.id;
+        payload.pdf_path = selectedBankTask.pdf_path || null;
+        payload.pdf_nome = selectedBankTask.pdf_nome || null;
+      }
+
       const { data: novaTarefa, error } = await supabase
         .from("tarefas")
-        .insert({
-          professional_user_id: currentUser.id,
-          patient_user_id: patient.patient_user_id,
-          vinculo_id: patient.vinculo_id,
-          titulo,
-          descricao,
-          status: "aberta",
-          interacao_paciente_tipo: interacaoTipo,
-          interacao_paciente_limite: interacaoLimite
-        })
+        .insert(payload)
         .select()
         .single();
 
@@ -1245,7 +1521,13 @@ document.addEventListener("DOMContentLoaded", () => {
       renderAll();
       setTaskFormMessage("Tarefa criada com sucesso.", "success");
     } catch (error) {
-      setTaskFormMessage(error.message || "Erro ao criar tarefa.", "error");
+      const errorMessage =
+        selectedBankTask &&
+        /origem_tipo|origem_banco_tarefa_id|pdf_path|pdf_nome/i.test(error.message || "")
+          ? "A tarefa foi escolhida no banco, mas ainda faltam as colunas de vínculo do PDF na tabela de tarefas."
+          : error.message || "Erro ao criar tarefa.";
+
+      setTaskFormMessage(errorMessage, "error");
     } finally {
       if (btnCreateTask) btnCreateTask.disabled = false;
     }
@@ -1399,6 +1681,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPatients();
     renderTasksArea();
     renderInteractionArea();
+    renderSelectedBankTaskSummary();
     syncMobileViewWithSelection();
   }
 
@@ -1538,6 +1821,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (btnOpenTaskBank) {
+    btnOpenTaskBank.addEventListener("click", async () => {
+      if (taskBankBrowser?.hidden) {
+        await openTaskBankBrowser();
+      } else {
+        closeTaskBankBrowser();
+      }
+    });
+  }
+
+  if (btnCloseTaskBank) {
+    btnCloseTaskBank.addEventListener("click", closeTaskBankBrowser);
+  }
+
+  if (taskBankThemes) {
+    taskBankThemes.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-bank-theme-id]");
+      if (!button) return;
+
+      selectedBankThemeId = Number.parseInt(button.getAttribute("data-bank-theme-id") || "", 10);
+      renderTaskBankBrowser();
+    });
+  }
+
+  if (taskBankList) {
+    taskBankList.addEventListener("click", (event) => {
+      const previewButton = event.target.closest("[data-action='preview-bank-pdf']");
+      if (previewButton) {
+        abrirPdfDoBanco(previewButton.getAttribute("data-pdf-path"));
+        return;
+      }
+
+      const useButton = event.target.closest("[data-action='use-bank-task']");
+      if (!useButton) return;
+
+      const bankTaskId = Number.parseInt(useButton.getAttribute("data-bank-task-id") || "", 10);
+      const bankTask = bankTasks.find((item) => item.id === bankTaskId) || null;
+      applyBankTaskToForm(bankTask);
+    });
+  }
+
+  if (btnOpenSelectedBankPdf) {
+    btnOpenSelectedBankPdf.addEventListener("click", () => {
+      if (!selectedBankTask?.pdf_path) return;
+      abrirPdfDoBanco(selectedBankTask.pdf_path);
+    });
+  }
+
+  if (btnClearSelectedBankTask) {
+    btnClearSelectedBankTask.addEventListener("click", () => {
+      clearSelectedBankTask();
+      setTaskFormMessage("Vínculo com o banco removido do formulário atual.", "success");
+    });
+  }
+
   if (btnGenerateTaskWithAi) {
     btnGenerateTaskWithAi.addEventListener("click", gerarMaterialComIa);
   }
@@ -1552,6 +1890,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnEditTask) {
     btnEditTask.addEventListener("click", openTaskFormForEdit);
+  }
+
+  if (btnOpenTaskPdf) {
+    btnOpenTaskPdf.addEventListener("click", () => {
+      const task = getSelectedTask();
+      if (!task?.pdf_path) return;
+      abrirPdfDoBanco(task.pdf_path);
+    });
   }
 
   if (btnSaveAlias) {
