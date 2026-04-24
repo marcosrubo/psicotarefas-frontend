@@ -807,6 +807,10 @@ a {
   flex-wrap: wrap;
 }
 
+.task-form-card__actions--bank {
+  margin-bottom: 14px;
+}
+
 .alias-strip__content input,
 .form-group input,
 .form-group select,
