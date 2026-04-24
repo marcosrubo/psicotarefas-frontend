@@ -51,6 +51,11 @@
   display: block;
 }
 
+.topbar__actions .support-link {
+  order: 99;
+  margin-left: auto;
+}
+
 @media (max-width: 640px) {
   .hero__topbar,
   .auth-hero__topbar {
@@ -60,5 +65,9 @@
   .support-link {
     padding: 9px 12px;
     font-size: 13px;
+  }
+
+  .topbar__actions .support-link {
+    margin-left: 0;
   }
 }
