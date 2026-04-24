@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCancelName = document.getElementById("btnCancelName");
   const btnSaveName = document.getElementById("btnSaveName");
 
-  const btnLogout = document.getElementById("btnLogout");
+  const btnBack = document.getElementById("btnBack");
   const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
   const invitePanel = document.getElementById("invitePanel");
@@ -904,8 +904,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  if (btnLogout) {
-    btnLogout.addEventListener("click", async () => {
+  if (btnBack) {
+    btnBack.addEventListener("click", async () => {
       await registrarEvento({
         evento: "logout",
         pagina: "dashboard_profissional",

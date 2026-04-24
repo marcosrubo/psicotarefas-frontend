@@ -19,8 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const logsEmpty = document.getElementById("logsEmpty");
   const professionalsList = document.getElementById("professionalsList");
   const professionalsEmpty = document.getElementById("professionalsEmpty");
-  const btnLogout = document.getElementById("btnLogout");
-
   let currentUser = null;
   let adminData = null;
 
@@ -582,13 +580,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (searchTerm) {
     searchTerm.addEventListener("input", renderAll);
-  }
-
-  if (btnLogout) {
-    btnLogout.addEventListener("click", async () => {
-      await supabase.auth.signOut();
-      window.location.href = "/";
-    });
   }
 
   async function iniciar() {

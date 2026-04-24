@@ -582,10 +582,17 @@ a {
   line-height: 1.1;
 }
 
-.hero-card p:last-child {
+.hero-card > p:not(.hero-card__label) {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.hero-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
 }
 
 .workspace {

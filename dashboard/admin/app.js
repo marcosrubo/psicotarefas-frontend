@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const recentInvitesList = document.getElementById("recentInvitesList");
   const recentInvitesEmpty = document.getElementById("recentInvitesEmpty");
 
-  const btnLogout = document.getElementById("btnLogout");
+  const btnBack = document.getElementById("btnBack");
 
   let currentUser = null;
 
@@ -310,10 +310,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  btnLogout.addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  });
+  if (btnBack) {
+    btnBack.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    });
+  }
 
   async function iniciar() {
     const ok = await validarAdmin();
@@ -325,4 +327,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   iniciar();
 });
-

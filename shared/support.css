@@ -51,6 +51,29 @@
   display: block;
 }
 
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: #5647ef;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.topbar__meta--nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
 .topbar__meta {
   display: flex;
   justify-content: flex-end;
@@ -66,6 +89,15 @@
   .support-link {
     padding: 9px 12px;
     font-size: 13px;
+  }
+
+  .back-link {
+    padding: 8px 0;
+    font-size: 13px;
+  }
+
+  .topbar__meta--nav {
+    margin-bottom: 8px;
   }
 
   .topbar__meta {

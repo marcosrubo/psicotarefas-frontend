@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalsEmpty = document.getElementById("professionalsEmpty");
   const requestMessage = document.getElementById("requestMessage");
 
-  const btnLogout = document.getElementById("btnLogout");
+  const btnBack = document.getElementById("btnBack");
 
   let currentUser = null;
   let currentPatientProfile = null;
@@ -408,22 +408,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  btnLogout.addEventListener("click", async () => {
-    await registrarEvento({
-      evento: "logout",
-      pagina: "dashboard_paciente_sem_vinculo",
-      perfil: "paciente",
-      userId: currentUser?.id || null,
-      email: currentPatientProfile?.email || currentUser?.email || null
-    });
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Erro ao sair:", error);
-    }
+  if (btnBack) {
+    btnBack.addEventListener("click", async () => {
+      await registrarEvento({
+        evento: "logout",
+        pagina: "dashboard_paciente_sem_vinculo",
+        perfil: "paciente",
+        userId: currentUser?.id || null,
+        email: currentPatientProfile?.email || currentUser?.email || null
+      });
+      try {
+        await supabase.auth.signOut();
+      } catch (error) {
+        console.error("Erro ao sair:", error);
+      }
 
-    window.location.href = "/";
-  });
+      window.location.href = "/";
+    });
+  }
 
   async function iniciarDashboard() {
     try {
