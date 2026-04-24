@@ -204,16 +204,26 @@
               <button class="btn-secondary" id="btnOpenTaskBank" type="button">
                 Usar banco de tarefas
               </button>
+              <button class="btn-secondary" id="btnUploadTaskPdf" type="button">
+                Carregar PDF
+              </button>
               <button class="btn-secondary" id="btnToggleTaskAi" type="button">
                 Utilizar IA
               </button>
             </div>
 
+            <input
+              type="file"
+              id="taskPdfUploadInput"
+              accept="application/pdf"
+              hidden
+            />
+
             <section class="selected-bank-task" id="selectedBankTaskBox" hidden>
               <div class="selected-bank-task__copy">
-                <span class="selected-bank-task__label">PDF do banco vinculado</span>
-                <strong id="selectedBankTaskTitle">Tarefa da biblioteca</strong>
-                <p id="selectedBankTaskMeta">PDF escolhido para esta tarefa.</p>
+                <span class="selected-bank-task__label" id="selectedBankTaskLabel">Material vinculado</span>
+                <strong id="selectedBankTaskTitle">PDF vinculado</strong>
+                <p id="selectedBankTaskMeta">Material escolhido para esta tarefa.</p>
               </div>
               <div class="selected-bank-task__actions">
                 <button class="btn-secondary btn-secondary--small" id="btnOpenSelectedBankPdf" type="button">

@@ -33,12 +33,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskFormCard = document.getElementById("taskFormCard");
   const taskFormTitle = document.getElementById("taskFormTitle");
   const btnOpenTaskBank = document.getElementById("btnOpenTaskBank");
+  const btnUploadTaskPdf = document.getElementById("btnUploadTaskPdf");
+  const taskPdfUploadInput = document.getElementById("taskPdfUploadInput");
   const taskBankBrowser = document.getElementById("taskBankBrowser");
   const taskBankThemes = document.getElementById("taskBankThemes");
   const taskBankList = document.getElementById("taskBankList");
   const taskBankEmptyState = document.getElementById("taskBankEmptyState");
   const btnCloseTaskBank = document.getElementById("btnCloseTaskBank");
   const selectedBankTaskBox = document.getElementById("selectedBankTaskBox");
+  const selectedBankTaskLabel = document.getElementById("selectedBankTaskLabel");
   const selectedBankTaskTitle = document.getElementById("selectedBankTaskTitle");
   const selectedBankTaskMeta = document.getElementById("selectedBankTaskMeta");
   const btnOpenSelectedBankPdf = document.getElementById("btnOpenSelectedBankPdf");
@@ -115,6 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedTaskId = null;
   let selectedBankThemeId = null;
   let selectedBankTask = null;
+  let selectedCustomPdfFile = null;
+  let selectedCustomPdfPreviewUrl = null;
   let taskFormMode = "create";
   let editingInteractionId = null;
   let mobileView = "patients";
@@ -353,6 +358,76 @@ document.addEventListener("DOMContentLoaded", () => {
     return map[status] || status || "Sem status";
   }
 
+  function slugifyFileName(value) {
+    return String(value || "arquivo")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase();
+  }
+
+  function getTaskMaterialInfo(task) {
+    if (!task?.pdf_path) return null;
+
+    if (task.origem_tipo === "banco" || task.origem_banco_tarefa_id) {
+      return {
+        tipo: "banco",
+        label: "PDF do banco vinculado",
+        meta: "Material do banco de tarefas disponível para consulta nesta tarefa."
+      };
+    }
+
+    if (task.pdf_path.includes("/manual/")) {
+      return {
+        tipo: "manual",
+        label: "PDF do profissional",
+        meta: "Material exclusivo enviado pelo profissional para esta tarefa."
+      };
+    }
+
+    return {
+      tipo: "ia",
+      label: "PDF gerado com IA",
+      meta: "Material gerado por IA disponível para consulta nesta tarefa."
+    };
+  }
+
+  function slugifyFileName(value) {
+    return String(value || "arquivo")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase();
+  }
+
+  function getTaskMaterialInfo(task) {
+    if (!task?.pdf_path) return null;
+
+    if (task.origem_tipo === "banco" || task.origem_banco_tarefa_id) {
+      return {
+        tipo: "banco",
+        label: "PDF do banco vinculado",
+        meta: "Material do banco de tarefas disponível para consulta nesta tarefa."
+      };
+    }
+
+    if (task.pdf_path.includes("/manual/")) {
+      return {
+        tipo: "manual",
+        label: "PDF do profissional",
+        meta: "Material exclusivo enviado pelo profissional para esta tarefa."
+      };
+    }
+
+    return {
+      tipo: "ia",
+      label: "PDF gerado com IA",
+      meta: "Material gerado por IA disponível para consulta nesta tarefa."
+    };
+  }
+
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -378,6 +453,58 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       window.alert(error.message || "Não foi possível abrir o PDF.");
     }
+  }
+
+  async function uploadCustomTaskPdf(file) {
+    if (!currentUser?.id) {
+      throw new Error("Sessão inválida para enviar o PDF.");
+    }
+
+    const baseName = file.name.replace(/\.pdf$/i, "") || "material";
+    const safeBase = slugifyFileName(baseName) || "material";
+    const fileName = `${Date.now()}-${safeBase}.pdf`;
+    const storagePath = `${currentUser.id}/manual/${fileName}`;
+
+    const { error } = await supabase.storage.from(PDF_BUCKET).upload(storagePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: "application/pdf"
+    });
+
+    if (error) {
+      throw new Error(`Não foi possível enviar o PDF: ${error.message}`);
+    }
+
+    return {
+      pdfPath: storagePath,
+      pdfName: file.name
+    };
+  }
+
+  async function uploadCustomTaskPdf(file) {
+    if (!currentUser?.id) {
+      throw new Error("Sessão inválida para enviar o PDF.");
+    }
+
+    const baseName = file.name.replace(/\.pdf$/i, "") || "material";
+    const safeBase = slugifyFileName(baseName) || "material";
+    const fileName = `${Date.now()}-${safeBase}.pdf`;
+    const storagePath = `${currentUser.id}/manual/${fileName}`;
+
+    const { error } = await supabase.storage.from(PDF_BUCKET).upload(storagePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: "application/pdf"
+    });
+
+    if (error) {
+      throw new Error(`Não foi possível enviar o PDF: ${error.message}`);
+    }
+
+    return {
+      pdfPath: storagePath,
+      pdfName: file.name
+    };
   }
 
   function getAiEndpoint() {
@@ -577,13 +704,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSelectedBankTaskSummary() {
-    if (!selectedBankTaskBox || !selectedBankTaskTitle || !selectedBankTaskMeta) return;
+    if (
+      !selectedBankTaskBox ||
+      !selectedBankTaskLabel ||
+      !selectedBankTaskTitle ||
+      !selectedBankTaskMeta
+    ) {
+      return;
+    }
 
-    if (!selectedBankTask) {
+    if (!selectedBankTask && !selectedCustomPdfFile) {
       selectedBankTaskBox.hidden = true;
       return;
     }
 
+    if (selectedCustomPdfFile) {
+      selectedBankTaskLabel.textContent = "PDF próprio do profissional";
+      selectedBankTaskTitle.textContent = selectedCustomPdfFile.name || "PDF carregado";
+      selectedBankTaskMeta.textContent = "Material exclusivo que será vinculado apenas a esta tarefa.";
+      selectedBankTaskBox.hidden = false;
+      return;
+    }
+
+    selectedBankTaskLabel.textContent = "PDF do banco vinculado";
     selectedBankTaskTitle.textContent = selectedBankTask.titulo || "Tarefa da biblioteca";
     selectedBankTaskMeta.textContent = `${selectedBankTask.pdf_nome || "PDF sem nome"} · ${selectedBankTask.autor_nome || "Profissional"}`;
     selectedBankTaskBox.hidden = false;
@@ -608,9 +751,25 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSelectedBankTaskSummary();
   }
 
+  function clearSelectedCustomPdf() {
+    selectedCustomPdfFile = null;
+
+    if (selectedCustomPdfPreviewUrl) {
+      URL.revokeObjectURL(selectedCustomPdfPreviewUrl);
+      selectedCustomPdfPreviewUrl = null;
+    }
+
+    if (taskPdfUploadInput) {
+      taskPdfUploadInput.value = "";
+    }
+
+    renderSelectedBankTaskSummary();
+  }
+
   function applyBankTaskToForm(bankTask) {
     if (!bankTask) return;
 
+    clearSelectedCustomPdf();
     selectedBankTask = bankTask;
 
     if (taskFormMode === "create") {
@@ -623,6 +782,21 @@ document.addEventListener("DOMContentLoaded", () => {
     closeTaskBankBrowser();
     renderSelectedBankTaskSummary();
     setTaskFormMessage("Tarefa do banco vinculada ao formulário atual.", "success");
+  }
+
+  function applyCustomPdfToForm(file) {
+    if (!file) return;
+
+    clearSelectedBankTask({ clearFields: false });
+
+    if (selectedCustomPdfPreviewUrl) {
+      URL.revokeObjectURL(selectedCustomPdfPreviewUrl);
+    }
+
+    selectedCustomPdfFile = file;
+    selectedCustomPdfPreviewUrl = URL.createObjectURL(file);
+    renderSelectedBankTaskSummary();
+    setTaskFormMessage("PDF próprio vinculado ao formulário atual.", "success");
   }
 
   async function openTaskBankBrowser() {
@@ -1045,6 +1219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskAiMessage();
     lastGeneratedAiMaterial = null;
     clearSelectedBankTask({ clearFields: false });
+    clearSelectedCustomPdf();
     renderAiPreview(null);
     closeTaskBankBrowser();
     closeTaskAiBox();
@@ -1055,6 +1230,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetTaskForm();
     if (btnOpenTaskBank) btnOpenTaskBank.hidden = false;
+    if (btnUploadTaskPdf) btnUploadTaskPdf.hidden = false;
     taskFormCard.hidden = false;
     selectedTaskId = null;
     renderInteractionArea();
@@ -1101,9 +1277,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskAiMessage();
     lastGeneratedAiMaterial = null;
     clearSelectedBankTask({ clearFields: false });
+    clearSelectedCustomPdf();
     renderAiPreview(null);
     closeTaskBankBrowser();
     if (btnOpenTaskBank) btnOpenTaskBank.hidden = true;
+    if (btnUploadTaskPdf) btnUploadTaskPdf.hidden = true;
     taskFormCard.hidden = false;
 
     if (taskTitleInput) {
@@ -1118,6 +1296,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (btnOpenTaskBank) btnOpenTaskBank.hidden = false;
+    if (btnUploadTaskPdf) btnUploadTaskPdf.hidden = false;
     resetTaskForm();
     renderInteractionArea();
   }
@@ -1306,6 +1485,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((task) => {
         const status = getTaskStatus(task);
         const isActive = task.id === selectedTaskId ? "is-active" : "";
+        const material = getTaskMaterialInfo(task);
 
         return `
           <article class="task-card ${isActive}" data-task-id="${task.id}">
@@ -1318,7 +1498,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span>Criada em ${escapeHtml(formatDateTime(task.created_at))}</span>
               <span>${escapeHtml(obterResumoInteracaoPaciente(task))}</span>
               <span>${getTaskInteractions(task.id).length} interação(ões)</span>
-              ${task.pdf_path ? `<span>PDF do banco vinculado</span>` : ""}
+              ${material ? `<span>${escapeHtml(material.label)}</span>` : ""}
             </div>
           </article>
         `;
@@ -1355,6 +1535,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const status = getTaskStatus(task);
     const interactions = getTaskInteractions(task.id);
     const permissaoInteracao = obterPermissaoInteracaoDaTarefa(task);
+    const material = getTaskMaterialInfo(task);
 
     selectedTaskBox.hidden = false;
     if (selectedTaskName) selectedTaskName.textContent = `TAREFA: ${task.titulo}`;
@@ -1365,13 +1546,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedTaskPatient) selectedTaskPatient.textContent = `Paciente: ${patient ? patient.nome_real : "-"}`;
     if (btnEditTask) btnEditTask.hidden = false;
     if (selectedTaskPdfBox && selectedTaskPdfTitle && selectedTaskPdfMeta) {
-      if (task.pdf_path) {
-        selectedTaskPdfTitle.textContent = task.pdf_nome || (task.origem_banco_tarefa_id
-          ? "PDF vinculado do banco"
-          : "PDF gerado com IA");
-        selectedTaskPdfMeta.textContent = task.origem_banco_tarefa_id
-          ? "Material do banco de tarefas disponível para consulta nesta tarefa."
-          : "Material gerado por IA disponível para consulta nesta tarefa.";
+      if (task.pdf_path && material) {
+        selectedTaskPdfTitle.textContent = task.pdf_nome || material.label;
+        selectedTaskPdfMeta.textContent = material.meta;
         selectedTaskPdfBox.hidden = false;
       } else {
         selectedTaskPdfBox.hidden = true;
@@ -1545,6 +1722,8 @@ document.addEventListener("DOMContentLoaded", () => {
           pdfPath: selectedBankTask.pdf_path || null,
           pdfName: selectedBankTask.pdf_nome || null
         };
+      } else if (selectedCustomPdfFile) {
+        linkedPdf = await uploadCustomTaskPdf(selectedCustomPdfFile);
       } else if (lastGeneratedAiMaterial) {
         linkedPdf = await gerarPdfDaPreviaComIa({
           title: titulo,
@@ -1910,6 +2089,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (btnUploadTaskPdf) {
+    btnUploadTaskPdf.addEventListener("click", () => {
+      taskPdfUploadInput?.click();
+    });
+  }
+
+  if (taskPdfUploadInput) {
+    taskPdfUploadInput.addEventListener("change", (event) => {
+      const file = event.target.files?.[0] || null;
+      if (!file) return;
+
+      if (!/\.pdf$/i.test(file.name) || (file.type && file.type !== "application/pdf")) {
+        setTaskFormMessage("Selecione um arquivo PDF válido.", "error");
+        taskPdfUploadInput.value = "";
+        return;
+      }
+
+      applyCustomPdfToForm(file);
+    });
+  }
+
   if (btnCloseTaskBank) {
     btnCloseTaskBank.addEventListener("click", closeTaskBankBrowser);
   }
@@ -1943,6 +2143,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnOpenSelectedBankPdf) {
     btnOpenSelectedBankPdf.addEventListener("click", () => {
+      if (selectedCustomPdfPreviewUrl) {
+        window.open(selectedCustomPdfPreviewUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       if (!selectedBankTask?.pdf_path) return;
       abrirPdfDoBanco(selectedBankTask.pdf_path);
     });
@@ -1950,6 +2155,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnClearSelectedBankTask) {
     btnClearSelectedBankTask.addEventListener("click", () => {
+      if (selectedCustomPdfFile) {
+        clearSelectedCustomPdf();
+        setTaskFormMessage("PDF próprio removido do formulário atual.", "success");
+        return;
+      }
+
       clearSelectedBankTask();
       setTaskFormMessage("Vínculo com o banco removido do formulário atual.", "success");
     });

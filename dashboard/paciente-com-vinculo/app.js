@@ -132,6 +132,13 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
+    if (task.pdf_path.includes("/manual/")) {
+      return {
+        tipo: "manual",
+        label: "Material do profissional"
+      };
+    }
+
     return {
       tipo: "ia",
       label: "Material com IA"
@@ -615,10 +622,16 @@ document.addEventListener("DOMContentLoaded", () => {
         taskPdfBox.hidden = false;
         taskPdfTitle.textContent =
           task.pdf_nome ||
-          (material.tipo === "banco" ? "PDF do banco de tarefas" : "PDF gerado com IA");
+          (material.tipo === "banco"
+            ? "PDF do banco de tarefas"
+            : material.tipo === "manual"
+              ? "PDF do profissional"
+              : "PDF gerado com IA");
         taskPdfMeta.textContent =
           material.tipo === "banco"
             ? "Esta tarefa inclui um material do banco de tarefas disponível para consulta."
+            : material.tipo === "manual"
+              ? "Esta tarefa inclui um material exclusivo enviado pelo profissional para consulta."
             : "Esta tarefa inclui um material gerado com IA disponível para consulta.";
       } else {
         taskPdfBox.hidden = true;
