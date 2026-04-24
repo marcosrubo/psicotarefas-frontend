@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 import {
   carregarDocumentosPublicados,
   guardarAceitesPendentes,
@@ -30,6 +31,11 @@ const btnCloseLegalModal = document.getElementById("btnCloseLegalModal");
 const toggleButtons = document.querySelectorAll(".toggle-password");
 let consentimentosDisponiveis = [];
 let consentimentosCarregados = false;
+
+registrarAcessoPagina({
+  pagina: "cadastro_profissional",
+  perfil: "publico"
+});
 
 function limparErros() {
   erroNome.textContent = "";
@@ -280,6 +286,14 @@ authForm.addEventListener("submit", async (event) => {
         }))
       });
     }
+
+    await registrarEvento({
+      evento: "cadastro_profissional_sucesso",
+      pagina: "cadastro_profissional",
+      perfil: "profissional",
+      userId: sessionUserId,
+      email
+    });
 
     mostrarMensagem(
       "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema.",

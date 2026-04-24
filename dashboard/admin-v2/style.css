@@ -295,6 +295,7 @@ input {
 }
 
 .simple-list,
+.logs-list,
 .professionals-list,
 .patient-browser-list,
 .tasks-browser-list,
@@ -320,6 +321,53 @@ input {
 
 .simple-item strong {
   font-size: 14px;
+}
+
+.log-item {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+  display: grid;
+  gap: 10px;
+}
+
+.log-item__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.log-item__top strong {
+  font-size: 14px;
+}
+
+.log-item__top span,
+.log-item__identity {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.log-item__meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.log-item__context {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8f9fc;
+  border: 1px solid var(--border);
+  color: var(--muted-text);
+  font-size: 12px;
+  line-height: 1.5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
 .simple-item span,

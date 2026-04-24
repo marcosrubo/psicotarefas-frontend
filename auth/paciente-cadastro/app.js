@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 import {
   carregarDocumentosPublicados,
   guardarAceitesPendentes,
@@ -45,6 +46,12 @@ let conviteInfo = null;
 let conviteBloqueado = false;
 let consentimentosDisponiveis = [];
 let consentimentosCarregados = false;
+
+registrarAcessoPagina({
+  pagina: "cadastro_paciente",
+  perfil: "publico",
+  contexto: conviteToken ? { convite: true } : {}
+});
 
 function limparErros() {
   erroNome.textContent = "";
@@ -486,6 +493,17 @@ authForm.addEventListener("submit", async (event) => {
         patientEmail: email
       });
     }
+
+    await registrarEvento({
+      evento: "cadastro_paciente_sucesso",
+      pagina: "cadastro_paciente",
+      perfil: "paciente",
+      userId: sessionUserId,
+      email,
+      contexto: {
+        convite: Boolean(conviteToken)
+      }
+    });
 
     mostrarMensagem(
       "Conta criada com sucesso! Agora confirme seu e-mail para entrar no sistema.",

@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
@@ -202,6 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentPatientProfile = perfil;
     aplicarNomePacienteNaTela(perfil.nome, perfil.email);
+    await registrarAcessoPagina({
+      pagina: "dashboard_paciente_sem_vinculo",
+      perfil: "paciente",
+      userId: currentUser.id,
+      email: perfil.email || currentUser.email || null
+    });
 
     return true;
   }
@@ -358,6 +365,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       await solicitarVinculo(professionalUserId);
+      await registrarEvento({
+        evento: "solicitacao_vinculo_criada",
+        pagina: "dashboard_paciente_sem_vinculo",
+        perfil: "paciente",
+        userId: currentUser.id,
+        email: currentPatientProfile?.email || currentUser.email || null,
+        contexto: {
+          professional_user_id: professionalUserId
+        }
+      });
       mostrarMensagem("Solicitação de vínculo enviada com sucesso.", "success");
       renderProfessionals();
     } catch (error) {
@@ -392,6 +409,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   btnLogout.addEventListener("click", async () => {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "dashboard_paciente_sem_vinculo",
+      perfil: "paciente",
+      userId: currentUser?.id || null,
+      email: currentPatientProfile?.email || currentUser?.email || null
+    });
     try {
       await supabase.auth.signOut();
     } catch (error) {

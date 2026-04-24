@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const ADMIN_EMAIL = "marcos@rubo.com.br";
@@ -14,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchTerm = document.getElementById("searchTerm");
   const patientsWithoutLinkList = document.getElementById("patientsWithoutLinkList");
   const patientsWithoutLinkEmpty = document.getElementById("patientsWithoutLinkEmpty");
+  const logsList = document.getElementById("logsList");
+  const logsEmpty = document.getElementById("logsEmpty");
   const professionalsList = document.getElementById("professionalsList");
   const professionalsEmpty = document.getElementById("professionalsEmpty");
   const btnLogout = document.getElementById("btnLogout");
@@ -130,6 +133,12 @@ document.addEventListener("DOMContentLoaded", () => {
     userRole.textContent = "Administrador";
     userAvatar.textContent = obterIniciais(nome);
     welcomeTitle.textContent = `Olá, ${nome}`;
+    registrarAcessoPagina({
+      pagina: "admin_v2",
+      perfil: "admin",
+      userId: session.user.id,
+      email: session.user.email || ""
+    });
     return true;
   }
 
@@ -139,13 +148,15 @@ document.addEventListener("DOMContentLoaded", () => {
       vinculosResult,
       convitesResult,
       tarefasResult,
-      interacoesResult
+      interacoesResult,
+      logsResult
     ] = await Promise.all([
       supabase.from("perfis").select("*"),
       supabase.from("vinculos").select("*"),
       supabase.from("convites").select("*").order("created_at", { ascending: false }),
       supabase.from("tarefas").select("*").order("created_at", { ascending: false }),
-      supabase.from("tarefa_interacoes").select("*").order("created_at", { ascending: true })
+      supabase.from("tarefa_interacoes").select("*").order("created_at", { ascending: true }),
+      supabase.from("logs_eventos").select("*").order("created_at", { ascending: false }).limit(80)
     ]);
 
     const falhas = [
@@ -153,7 +164,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ["vinculos", vinculosResult.error],
       ["convites", convitesResult.error],
       ["tarefas", tarefasResult.error],
-      ["tarefa_interacoes", interacoesResult.error]
+      ["tarefa_interacoes", interacoesResult.error],
+      ["logs_eventos", logsResult.error]
     ].filter(([, error]) => error);
 
     if (falhas.length) {
@@ -169,8 +181,63 @@ document.addEventListener("DOMContentLoaded", () => {
       vinculos: vinculosResult.data || [],
       convites: convitesResult.data || [],
       tarefas: tarefasResult.data || [],
-      interacoes: interacoesResult.data || []
+      interacoes: interacoesResult.data || [],
+      logs: logsResult.data || []
     };
+  }
+
+  function renderLogs(logs, termo) {
+    if (!logsList || !logsEmpty) return;
+
+    const filtrados = logs.filter((log) => {
+      if (!termo) return true;
+
+      const conteudo = normalizarTexto(
+        [
+          log.email,
+          log.perfil,
+          log.evento,
+          log.pagina,
+          JSON.stringify(log.contexto || {})
+        ].join(" ")
+      );
+
+      return conteudo.includes(termo);
+    });
+
+    if (!filtrados.length) {
+      logsList.innerHTML = "";
+      logsEmpty.hidden = false;
+      return;
+    }
+
+    logsEmpty.hidden = true;
+    logsList.innerHTML = filtrados
+      .map((log) => {
+        const identidade =
+          log.email ||
+          (log.perfil === "publico" ? "Acesso público" : "Usuário autenticado");
+
+        return `
+          <article class="log-item">
+            <div class="log-item__top">
+              <strong>${escapeHtml(log.evento || "evento")}</strong>
+              <span>${escapeHtml(formatarData(log.created_at))}</span>
+            </div>
+            <div class="log-item__meta">
+              <span class="status-badge status-badge--info">${escapeHtml(log.perfil || "publico")}</span>
+              <span class="status-badge status-badge--muted">${escapeHtml(log.pagina || "-")}</span>
+            </div>
+            <p class="log-item__identity">${escapeHtml(identidade)}</p>
+            ${
+              log.contexto && Object.keys(log.contexto).length
+                ? `<pre class="log-item__context">${escapeHtml(JSON.stringify(log.contexto, null, 2))}</pre>`
+                : ""
+            }
+          </article>
+        `;
+      })
+      .join("");
   }
 
   function obterDescricaoPacienteSemVinculo(paciente, vinculos, perfis) {
@@ -508,6 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const termo = normalizarTexto(searchTerm?.value || "");
     const pacientes = adminData.perfis.filter((item) => item.perfil === "paciente");
 
+    renderLogs(adminData.logs || [], termo);
     renderPacientesSemVinculo(pacientes, adminData.vinculos, adminData.perfis, termo);
     renderProfissionais(adminData, termo);
   }

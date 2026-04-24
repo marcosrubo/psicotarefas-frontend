@@ -1,3 +1,5 @@
+import { registrarAcessoPagina, registrarEvento } from "./shared/activity-log.js";
+
 const SUPABASE_URL = "https://haawjoesqdlccertgpqi.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsWcsI7pnPuUdW5Wz15YRQ_NbtgGABm";
 const ADMIN_EMAIL = "marcos@rubo.com.br";
@@ -20,6 +22,11 @@ const adminEmailInput = document.getElementById("adminEmail");
 const adminPasswordInput = document.getElementById("adminPassword");
 const adminLoginMessage = document.getElementById("adminLoginMessage");
 const btnSubmitAdminLogin = document.getElementById("btnSubmitAdminLogin");
+
+registrarAcessoPagina({
+  pagina: "home",
+  perfil: "publico"
+});
 
 // ============================
 // HELPERS
@@ -594,6 +601,13 @@ async function handleAdminLogin(event) {
   }
 
   adminSessionActive = true;
+  await registrarEvento({
+    evento: "login_admin_sucesso",
+    pagina: "home",
+    perfil: "admin",
+    userId: data.user.id,
+    email: data.user.email || email
+  });
   setMessage("Acesso liberado. Redirecionando para a dashboard...", "success");
 
   window.setTimeout(() => {

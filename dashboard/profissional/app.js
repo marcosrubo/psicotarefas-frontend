@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
@@ -397,6 +398,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentProfile = perfil;
       aplicarNomeNaTela(perfil.nome, perfil.email);
+      await registrarAcessoPagina({
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: perfil.email || currentUser.email || null
+      });
     } catch (error) {
       console.error("Erro ao carregar usuário:", error);
       mostrarMensagem(
@@ -790,6 +797,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         preencherResumoConvite(patientName, patientWhatsapp, inviteLink);
+        await registrarEvento({
+          evento: "convite_criado",
+          pagina: "dashboard_profissional",
+          perfil: "profissional",
+          userId: currentUser.id,
+          email: currentProfile?.email || currentUser.email || null,
+          contexto: {
+            patient_name: patientName
+          }
+        });
 
         mostrarMensagem(
           "Convite gerado com sucesso! Agora envie pelo WhatsApp.",
@@ -868,6 +885,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await cancelarConvite(inviteId);
+        await registrarEvento({
+          evento: "convite_cancelado",
+          pagina: "dashboard_profissional",
+          perfil: "profissional",
+          userId: currentUser.id,
+          email: currentProfile?.email || currentUser.email || null,
+          contexto: {
+            convite_id: inviteId
+          }
+        });
         mostrarMensagem("Convite cancelado com sucesso.", "success");
         await carregarConvites();
       } catch (error) {
@@ -879,6 +906,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnLogout) {
     btnLogout.addEventListener("click", async () => {
+      await registrarEvento({
+        evento: "logout",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
       try {
         await supabase.auth.signOut();
       } catch (error) {

@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
@@ -400,6 +401,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentPatientProfile = perfil;
     aplicarNomePacienteNaTela(perfil.nome, perfil.email);
+    await registrarAcessoPagina({
+      pagina: "dashboard_paciente_com_vinculo",
+      perfil: "paciente",
+      userId: currentUser.id,
+      email: perfil.email || currentUser.email || null
+    });
 
     return true;
   }
@@ -771,6 +778,16 @@ document.addEventListener("DOMContentLoaded", () => {
       await carregarTarefas();
       closeInteractionEditCard();
       renderAll();
+      await registrarEvento({
+        evento: "interacao_paciente_criada",
+        pagina: "dashboard_paciente_com_vinculo",
+        perfil: "paciente",
+        userId: currentUser.id,
+        email: currentPatientProfile?.email || currentUser.email || null,
+        contexto: {
+          tarefa_id: task.id
+        }
+      });
       setInteractionFormMessage("Interação enviada com sucesso.", "success");
     } catch (error) {
       setInteractionFormMessage(error.message || "Erro ao enviar interação.", "error");
@@ -808,6 +825,17 @@ document.addEventListener("DOMContentLoaded", () => {
       await carregarTarefas();
       closeInteractionEditCard();
       renderAll();
+      await registrarEvento({
+        evento: "interacao_paciente_editada",
+        pagina: "dashboard_paciente_com_vinculo",
+        perfil: "paciente",
+        userId: currentUser.id,
+        email: currentPatientProfile?.email || currentUser.email || null,
+        contexto: {
+          tarefa_id: interaction.tarefa_id,
+          interacao_id: interaction.id
+        }
+      });
       setInteractionFormMessage("Interação alterada com sucesso.", "success");
     } catch (error) {
       setInteractionEditMessage(error.message || "Erro ao alterar interação.", "error");
@@ -817,6 +845,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   btnLogout.addEventListener("click", async () => {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "dashboard_paciente_com_vinculo",
+      perfil: "paciente",
+      userId: currentUser?.id || null,
+      email: currentPatientProfile?.email || currentUser?.email || null
+    });
     try {
       await supabase.auth.signOut();
     } catch (error) {
@@ -884,6 +919,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!task?.pdf_path) return;
 
       try {
+        await registrarEvento({
+          evento: "pdf_tarefa_aberto",
+          pagina: "dashboard_paciente_com_vinculo",
+          perfil: "paciente",
+          userId: currentUser?.id || null,
+          email: currentPatientProfile?.email || currentUser?.email || null,
+          contexto: {
+            tarefa_id: task.id,
+            origem_tipo: task.origem_tipo || "manual"
+          }
+        });
         await abrirPdfDaTarefa(task.pdf_path);
       } catch (error) {
         setInteractionFormMessage(error.message || "Erro ao abrir PDF.", "error");

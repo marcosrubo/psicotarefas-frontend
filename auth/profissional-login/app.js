@@ -1,5 +1,6 @@
 import supabase from "../../shared/supabase.js";
 import { processarAceitesPendentesNoLogin } from "../../shared/legal-documents.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 const authForm = document.getElementById("authForm");
 const emailInput = document.getElementById("email");
@@ -13,6 +14,11 @@ const btnSubmit = document.getElementById("btnSubmit");
 
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const linkEsqueciSenha = document.getElementById("linkEsqueciSenha");
+
+registrarAcessoPagina({
+  pagina: "login_profissional",
+  perfil: "publico"
+});
 
 function limparErros() {
   erroEmail.textContent = "";
@@ -173,6 +179,13 @@ authForm.addEventListener("submit", async (event) => {
       perfil: "profissional",
       email,
       userId: user.id
+    });
+    await registrarEvento({
+      evento: "login_profissional_sucesso",
+      pagina: "login_profissional",
+      perfil: "profissional",
+      userId: user.id,
+      email
     });
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");

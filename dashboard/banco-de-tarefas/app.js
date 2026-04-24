@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const professionalLine = document.getElementById("professionalLine");
@@ -168,6 +169,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
+    await registrarAcessoPagina({
+      pagina: "banco_de_tarefas",
+      perfil: "profissional",
+      userId: currentUser.id,
+      email: perfil.email || currentUser.email || null
+    });
     return true;
   }
 
@@ -410,6 +417,16 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedThemeId =
         themes.find((theme) => theme.nome.toLowerCase() === nome.toLowerCase())?.id || selectedThemeId;
       renderAll();
+      await registrarEvento({
+        evento: "tema_banco_criado",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          tema: nome
+        }
+      });
       closeThemeForm();
     } catch (error) {
       setFormMessage(
@@ -499,6 +516,17 @@ document.addEventListener("DOMContentLoaded", () => {
       await carregarBancoTarefas();
       selectedThemeId = temaId;
       renderAll();
+      await registrarEvento({
+        evento: "tarefa_banco_publicada",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          tema_id: temaId,
+          titulo
+        }
+      });
       closeLibraryTaskForm();
     } catch (error) {
       setFormMessage(

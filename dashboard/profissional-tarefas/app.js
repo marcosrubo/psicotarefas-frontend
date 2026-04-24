@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const professionalLine = document.getElementById("professionalLine");
@@ -938,6 +939,19 @@ document.addEventListener("DOMContentLoaded", () => {
       lastGeneratedAiMaterial = data?.material || null;
       renderAiPreview(lastGeneratedAiMaterial);
       setTaskAiMessage("Prévia gerada com sucesso.", "success");
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "previa_ia_gerada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          paciente_id: selectedPatientId,
+          titulo,
+          objetivo_ia: parameters.goal || null,
+          formato_ia: parameters.format || null
+        }
+      });
     } catch (error) {
       renderAiPreview(null);
       setTaskAiMessage(error.message || "Erro ao gerar material com IA.", "error");
@@ -1171,6 +1185,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
+    registrarAcessoPagina({
+      pagina: "gestao_tarefas",
+      perfil: "profissional",
+      userId: currentUser.id,
+      email: currentProfile.email || currentUser.email || ""
+    });
     return true;
   }
 
@@ -1639,6 +1659,17 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPatients();
       renderTasksArea();
       renderInteractionArea();
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "apelido_paciente_atualizado",
+        pagina: "gestao_tarefas",
+        contexto: {
+          paciente_id: patient.patient_user_id,
+          vinculo_id: patient.vinculo_id
+        }
+      });
     } catch (error) {
       window.alert(error.message || "Erro ao salvar o apelido.");
     } finally {
@@ -1676,6 +1707,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       aplicarPadraoProfissionalNaTela();
       closeDefaultPolicyEditor();
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "padrao_interacao_atualizado",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tipo,
+          limite
+        }
+      });
     } catch (error) {
       setDefaultPolicyMessage(error.message || "Erro ao salvar padrão.", "error");
     } finally {
@@ -1772,6 +1814,25 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedTaskId = novaTarefa.id;
       renderAll();
       setTaskFormMessage("Tarefa criada com sucesso.", "success");
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "tarefa_criada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tarefa_id: novaTarefa.id,
+          paciente_id: patient.patient_user_id,
+          origem_tipo:
+            payload.origem_tipo ||
+            (lastGeneratedAiMaterial
+              ? "ia"
+              : selectedCustomPdfFile
+                ? "manual_pdf"
+                : "manual"),
+          possui_pdf: Boolean(linkedPdf?.pdfPath)
+        }
+      });
     } catch (error) {
       const errorMessage =
         selectedBankTask &&
@@ -1889,6 +1950,17 @@ document.addEventListener("DOMContentLoaded", () => {
       renderTasksArea();
       renderInteractionArea();
       setInteractionFormMessage("Interação registrada com sucesso.", "success");
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "interacao_profissional_criada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tarefa_id: task.id,
+          paciente_id: task.patient_user_id
+        }
+      });
     } catch (error) {
       setInteractionFormMessage(error.message || "Erro ao registrar a interação.", "error");
     } finally {

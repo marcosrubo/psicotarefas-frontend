@@ -1,5 +1,6 @@
 import supabase from "../../shared/supabase.js";
 import { processarAceitesPendentesNoLogin } from "../../shared/legal-documents.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();
@@ -29,6 +30,12 @@ const linkEsqueciSenha = document.getElementById("linkEsqueciSenha");
 
 let conviteInfo = null;
 let conviteBloqueado = false;
+
+registrarAcessoPagina({
+  pagina: "login_paciente",
+  perfil: "publico",
+  contexto: conviteToken ? { convite: true } : {}
+});
 
 function mostrarAcaoReenviarConfirmacao() {
   if (!btnResendConfirmation) return;
@@ -468,6 +475,18 @@ authForm.addEventListener("submit", async (event) => {
     const destino = temVinculo
       ? "../../dashboard/paciente-com-vinculo/index.html"
       : "../../dashboard/paciente-sem-vinculo/index.html";
+
+    await registrarEvento({
+      evento: "login_paciente_sucesso",
+      pagina: "login_paciente",
+      perfil: "paciente",
+      userId: user.id,
+      email,
+      contexto: {
+        destino: temVinculo ? "paciente_com_vinculo" : "paciente_sem_vinculo",
+        convite: Boolean(conviteToken)
+      }
+    });
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
 
