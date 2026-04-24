@@ -69,6 +69,107 @@ function obterLoginUrlPorPerfil(perfil, token = "") {
   return montarUrlComConvite("./auth/paciente-login/index.html", token);
 }
 
+async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
+  const { error } = await supabaseClient
+    .from("perfis")
+    .update({
+      email_confirmed_at: confirmedAtIso
+    })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error("Não foi possível atualizar o status de confirmação do e-mail.");
+  }
+}
+
+async function ativarVinculoDoPacientePorConvite({
+  conviteToken,
+  patientUserId,
+  patientEmail,
+  confirmedAtIso
+}) {
+  if (!conviteToken || !patientUserId || !patientEmail) {
+    return;
+  }
+
+  const convite = await buscarConvitePublico(conviteToken);
+
+  if (!convite) {
+    return;
+  }
+
+  if (convite.status === "cancelado" || convite.status === "expirado") {
+    return;
+  }
+
+  const { data: vinculoExistente, error: erroBuscarVinculo } = await supabaseClient
+    .from("vinculos")
+    .select("id, respondeu_convite_at")
+    .eq("token_convite", conviteToken)
+    .maybeSingle();
+
+  if (erroBuscarVinculo || !vinculoExistente) {
+    throw new Error("Não foi possível localizar o vínculo do convite.");
+  }
+
+  const payloadAtualizacao = {
+    patient_user_id: patientUserId,
+    patient_email: patientEmail,
+    confirmed_at: confirmedAtIso,
+    status: "ativo"
+  };
+
+  if (!vinculoExistente.respondeu_convite_at) {
+    payloadAtualizacao.respondeu_convite_at = confirmedAtIso;
+  }
+
+  const { error: erroAtualizarVinculo } = await supabaseClient
+    .from("vinculos")
+    .update(payloadAtualizacao)
+    .eq("id", vinculoExistente.id);
+
+  if (erroAtualizarVinculo) {
+    throw new Error("Não foi possível ativar o vínculo com o profissional.");
+  }
+
+  const { error: erroAtualizarConvite } = await supabaseClient
+    .from("convites")
+    .update({
+      status: "aceito",
+      accepted_at: confirmedAtIso
+    })
+    .eq("token", conviteToken);
+
+  if (erroAtualizarConvite) {
+    throw new Error("Não foi possível marcar o convite como aceito.");
+  }
+}
+
+async function sincronizarConfirmacaoDeEmail(user, conviteToken = "") {
+  if (!user?.id || !user.email_confirmed_at) {
+    return;
+  }
+
+  await atualizarConfirmacaoEmailNoPerfil(user.id, user.email_confirmed_at);
+
+  const perfil = user.user_metadata?.perfil || "paciente";
+  const token =
+    conviteToken ||
+    user.user_metadata?.convite_token ||
+    "";
+
+  if (perfil !== "paciente" || !token) {
+    return;
+  }
+
+  await ativarVinculoDoPacientePorConvite({
+    conviteToken: token,
+    patientUserId: user.id,
+    patientEmail: user.email || "",
+    confirmedAtIso: user.email_confirmed_at
+  });
+}
+
 async function buscarConvitePublico(token) {
   supabaseClient = supabaseClient || createSupabaseClient();
 
@@ -223,7 +324,11 @@ async function tratarConfirmacaoDeEmail() {
 
       const loginUrl = obterLoginUrlPorPerfil(perfil, conviteToken);
 
-      if (tipo === "email" || tipo === "signup" || hasAccessToken) {
+      if (user.email_confirmed_at) {
+        await sincronizarConfirmacaoDeEmail(user, conviteToken);
+      }
+
+      if ((tipo === "email" || tipo === "signup" || hasAccessToken) && user.email_confirmed_at) {
         const confirmou = window.confirm(
           "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
         );
@@ -232,6 +337,13 @@ async function tratarConfirmacaoDeEmail() {
           window.location.href = loginUrl;
         }
 
+        return true;
+      }
+
+      if (tipo === "email" || tipo === "signup" || hasAccessToken) {
+        window.confirm(
+          "Não foi possível confirmar este e-mail automaticamente.\nTente novamente pelo link mais recente enviado para sua caixa de entrada."
+        );
         return true;
       }
 
@@ -252,9 +364,6 @@ async function tratarConfirmacaoDeEmail() {
       const textoErro = `${errorCode} ${errorDescription}`.toLowerCase();
 
       if (
-        textoErro.includes("otp_expired") ||
-        textoErro.includes("expired") ||
-        textoErro.includes("invalid") ||
         textoErro.includes("already") ||
         textoErro.includes("used")
       ) {
@@ -271,19 +380,23 @@ async function tratarConfirmacaoDeEmail() {
 
         return true;
       }
+
+      if (
+        textoErro.includes("otp_expired") ||
+        textoErro.includes("expired") ||
+        textoErro.includes("invalid")
+      ) {
+        window.confirm(
+          "Este link de confirmação é inválido ou expirou.\nSolicite um novo e-mail de confirmação antes de entrar."
+        );
+        return true;
+      }
     }
 
     if ((tipo === "email" || tipo === "signup") && tokenHash) {
-      const confirmou = window.confirm(
-        "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
+      window.confirm(
+        "Não foi possível confirmar este e-mail automaticamente.\nTente abrir novamente o link mais recente enviado para sua caixa de entrada."
       );
-
-      if (confirmou) {
-        window.location.href = montarUrlComConvite(
-          "./auth/paciente-login/index.html",
-          tokenConvite
-        );
-      }
 
       return true;
     }
@@ -293,16 +406,9 @@ async function tratarConfirmacaoDeEmail() {
     console.error("Erro ao tratar confirmação de e-mail:", erro);
 
     if ((tipo === "email" || tipo === "signup") && tokenHash) {
-      const confirmou = window.confirm(
-        "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
+      window.confirm(
+        "Não foi possível concluir a confirmação do e-mail agora.\nTente novamente pelo link mais recente enviado para sua caixa de entrada."
       );
-
-      if (confirmou) {
-        window.location.href = montarUrlComConvite(
-          "./auth/paciente-login/index.html",
-          tokenConvite
-        );
-      }
 
       return true;
     }
@@ -502,4 +608,3 @@ async function inicializarTelaPrincipal() {
 }
 
 inicializarTelaPrincipal();
-
