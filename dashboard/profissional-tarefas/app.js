@@ -392,6 +392,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return "https://psicotarefas-backend.onrender.com/api/ai/task-material-preview";
   }
 
+  function getAiPdfEndpoint() {
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isLocal) {
+      return "http://localhost:3000/api/ai/task-material-pdf";
+    }
+
+    return "https://psicotarefas-backend.onrender.com/api/ai/task-material-pdf";
+  }
+
   function getSelectedOptionLabel(element) {
     if (!element) return "";
     const option = element.options?.[element.selectedIndex];
@@ -759,6 +771,40 @@ document.addEventListener("DOMContentLoaded", () => {
       btnGenerateTaskWithAi.disabled = false;
       btnGenerateTaskWithAi.textContent = "Gerar com IA";
     }
+  }
+
+  async function gerarPdfDaPreviaComIa({ title, description, patientName, professionalName }) {
+    if (!lastGeneratedAiMaterial) {
+      return null;
+    }
+
+    const response = await fetch(getAiPdfEndpoint(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: currentUser?.id,
+        title,
+        description,
+        material: lastGeneratedAiMaterial,
+        patientName,
+        professionalName
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error || "Não foi possível gerar o PDF da prévia com IA."
+      );
+    }
+
+    return {
+      pdfPath: data?.pdfPath || null,
+      pdfName: data?.pdfName || null
+    };
   }
 
   function formatDateTime(value) {
@@ -1320,10 +1366,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnEditTask) btnEditTask.hidden = false;
     if (selectedTaskPdfBox && selectedTaskPdfTitle && selectedTaskPdfMeta) {
       if (task.pdf_path) {
-        selectedTaskPdfTitle.textContent = task.pdf_nome || "PDF vinculado do banco";
+        selectedTaskPdfTitle.textContent = task.pdf_nome || (task.origem_banco_tarefa_id
+          ? "PDF vinculado do banco"
+          : "PDF gerado com IA");
         selectedTaskPdfMeta.textContent = task.origem_banco_tarefa_id
           ? "Material do banco de tarefas disponível para consulta nesta tarefa."
-          : "Arquivo em PDF disponível para consulta nesta tarefa.";
+          : "Material gerado por IA disponível para consulta nesta tarefa.";
         selectedTaskPdfBox.hidden = false;
       } else {
         selectedTaskPdfBox.hidden = true;
@@ -1481,9 +1529,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (btnCreateTask) btnCreateTask.disabled = true;
+    const previousButtonText = btnCreateTask?.textContent || "Criar tarefa";
+    if (btnCreateTask) {
+      btnCreateTask.textContent = lastGeneratedAiMaterial && !selectedBankTask
+        ? "Gerando PDF..."
+        : "Criando...";
+    }
     setTaskFormMessage();
 
     try {
+      let linkedPdf = null;
+
+      if (selectedBankTask) {
+        linkedPdf = {
+          pdfPath: selectedBankTask.pdf_path || null,
+          pdfName: selectedBankTask.pdf_nome || null
+        };
+      } else if (lastGeneratedAiMaterial) {
+        linkedPdf = await gerarPdfDaPreviaComIa({
+          title: titulo,
+          description: descricao,
+          patientName: patient.alias || patient.nome_real,
+          professionalName: currentProfile?.nome || currentProfile?.email || "Profissional"
+        });
+      }
+
       const payload = {
         professional_user_id: currentUser.id,
         patient_user_id: patient.patient_user_id,
@@ -1498,8 +1568,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (selectedBankTask) {
         payload.origem_tipo = "banco";
         payload.origem_banco_tarefa_id = selectedBankTask.id;
-        payload.pdf_path = selectedBankTask.pdf_path || null;
-        payload.pdf_nome = selectedBankTask.pdf_nome || null;
+      }
+
+      if (linkedPdf?.pdfPath) {
+        payload.pdf_path = linkedPdf.pdfPath;
+        payload.pdf_nome = linkedPdf.pdfName || null;
       }
 
       const { data: novaTarefa, error } = await supabase
@@ -1525,11 +1598,17 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedBankTask &&
         /origem_tipo|origem_banco_tarefa_id|pdf_path|pdf_nome/i.test(error.message || "")
           ? "A tarefa foi escolhida no banco, mas ainda faltam as colunas de vínculo do PDF na tabela de tarefas."
+          : lastGeneratedAiMaterial &&
+              /pdf_path|pdf_nome/i.test(error.message || "")
+            ? "O PDF da tarefa com IA foi gerado, mas ainda faltam as colunas de PDF na tabela de tarefas."
           : error.message || "Erro ao criar tarefa.";
 
       setTaskFormMessage(errorMessage, "error");
     } finally {
-      if (btnCreateTask) btnCreateTask.disabled = false;
+      if (btnCreateTask) {
+        btnCreateTask.disabled = false;
+        btnCreateTask.textContent = previousButtonText;
+      }
     }
   }
 
