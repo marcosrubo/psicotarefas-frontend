@@ -460,6 +460,13 @@ textarea {
   white-space: pre-line;
 }
 
+.task-card__support {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
 .task-card__meta,
 .task-detail-meta {
   display: flex;
@@ -503,6 +510,57 @@ textarea {
   color: var(--muted);
   line-height: 1.6;
   white-space: pre-line;
+}
+
+.task-material-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-material-chip--bank {
+  background: rgba(109, 94, 252, 0.1);
+  color: var(--primary-dark);
+}
+
+.task-material-chip--ai {
+  background: rgba(2, 122, 72, 0.12);
+  color: var(--success-text);
+}
+
+.task-pdf-box {
+  margin-top: 16px;
+  border: 1px solid rgba(109, 94, 252, 0.16);
+  background: linear-gradient(135deg, rgba(109, 94, 252, 0.08), rgba(109, 94, 252, 0.03));
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.task-pdf-box[hidden] {
+  display: none !important;
+}
+
+.task-pdf-box__content {
+  display: grid;
+  gap: 6px;
+}
+
+.task-pdf-box__content strong {
+  font-size: 15px;
+}
+
+.task-pdf-box__content p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .task-status-chip {
@@ -639,6 +697,11 @@ textarea {
   .interaction-form-card__actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .task-pdf-box {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .btn-primary,
