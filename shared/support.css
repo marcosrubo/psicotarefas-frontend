@@ -51,9 +51,10 @@
   display: block;
 }
 
-.topbar__actions .support-link {
-  order: 99;
-  margin-left: auto;
+.topbar__meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 }
 
 @media (max-width: 640px) {
@@ -67,7 +68,7 @@
     font-size: 13px;
   }
 
-  .topbar__actions .support-link {
-    margin-left: 0;
+  .topbar__meta {
+    margin-bottom: 8px;
   }
 }
