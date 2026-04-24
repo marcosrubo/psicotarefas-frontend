@@ -872,6 +872,16 @@ document.addEventListener("DOMContentLoaded", () => {
       closeInteractionEditCard();
       setInteractionFormMessage();
       renderAll();
+      registrarEvento({
+        evento: "tarefa_selecionada",
+        pagina: "dashboard_paciente_com_vinculo",
+        perfil: "paciente",
+        userId: currentUser?.id || null,
+        email: currentPatientProfile?.email || currentUser?.email || null,
+        contexto: {
+          tarefa_id: selectedTaskId
+        }
+      });
     });
   }
 

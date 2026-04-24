@@ -1,4 +1,5 @@
 import supabase from "../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const ADMIN_EMAIL = "marcos@rubo.com.br";
@@ -138,6 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
     userRole.textContent = "Administrador";
     userAvatar.textContent = obterIniciais(nome);
     welcomeTitle.textContent = `Olá, ${nome}`;
+    registrarAcessoPagina({
+      pagina: "admin",
+      perfil: "admin",
+      userId: session.user.id,
+      email: session.user.email || ""
+    });
 
     return true;
   }
@@ -312,6 +319,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnBack) {
     btnBack.addEventListener("click", async () => {
+      await registrarEvento({
+        evento: "logout",
+        pagina: "admin",
+        perfil: "admin",
+        userId: currentUser?.id || null,
+        email: currentUser?.email || null
+      });
       await supabase.auth.signOut();
       window.location.href = "/";
     });

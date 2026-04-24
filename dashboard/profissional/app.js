@@ -737,6 +737,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnTasks) {
     btnTasks.addEventListener("click", () => {
+      registrarEvento({
+        evento: "gestao_tarefas_aberta",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
       window.location.href = "../profissional-tarefas/index.html";
     });
   }
@@ -747,6 +754,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (vaiAbrir) {
         invitePanel.hidden = false;
+        registrarEvento({
+          evento: "painel_convite_aberto",
+          pagina: "dashboard_profissional",
+          perfil: "profissional",
+          userId: currentUser?.id || null,
+          email: currentProfile?.email || currentUser?.email || null
+        });
         if (patientNameInput) {
           patientNameInput.focus();
         }
@@ -829,6 +843,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await copiarTexto(currentInviteLink);
+        await registrarEvento({
+          evento: "link_convite_copiado",
+          pagina: "dashboard_profissional",
+          perfil: "profissional",
+          userId: currentUser?.id || null,
+          email: currentProfile?.email || currentUser?.email || null,
+          contexto: {
+            origem: "resumo_convite"
+          }
+        });
         mostrarMensagem("Link copiado para a área de transferência.", "success");
       } catch (error) {
         console.error("Erro ao copiar link:", error);
@@ -840,6 +864,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnOpenWhatsapp) {
     btnOpenWhatsapp.addEventListener("click", () => {
       const link = generatedLinkInput.value.trim();
+      registrarEvento({
+        evento: "whatsapp_convite_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          origem: "resumo_convite",
+          patient_name: currentInvitePatientName || null
+        }
+      });
 
       abrirWhatsapp(
         currentWhatsappDigits,
@@ -859,6 +894,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await copiarTexto(link);
+        await registrarEvento({
+          evento: "link_convite_copiado",
+          pagina: "dashboard_profissional",
+          perfil: "profissional",
+          userId: currentUser?.id || null,
+          email: currentProfile?.email || currentUser?.email || null,
+          contexto: {
+            origem: "lista_convites"
+          }
+        });
         mostrarMensagem("Link copiado para a área de transferência.", "success");
       } catch (error) {
         console.error("Erro ao copiar link:", error);
@@ -873,6 +918,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const nomePaciente = whatsappButton.getAttribute("data-patient-name");
       const link = whatsappButton.getAttribute("data-link");
 
+      registrarEvento({
+        evento: "whatsapp_convite_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          origem: "lista_convites",
+          patient_name: nomePaciente || null
+        }
+      });
       abrirWhatsapp(numero, nomePaciente, link);
       return;
     }

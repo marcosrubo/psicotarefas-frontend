@@ -543,6 +543,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!pdfPath) return;
 
     try {
+      await registrarEvento({
+        evento: "pdf_banco_aberto",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          pdf_path: pdfPath
+        }
+      });
       const { data, error } = await supabase.storage
         .from(PDF_BUCKET)
         .createSignedUrl(pdfPath, 60);
@@ -594,6 +604,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       selectedThemeId = Number.parseInt(card.getAttribute("data-theme-id") || "", 10);
       renderAll();
+      const tema = themes.find((item) => item.id === selectedThemeId);
+      registrarEvento({
+        evento: "tema_banco_selecionado",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          tema_id: selectedThemeId,
+          tema: tema?.nome || null
+        }
+      });
     });
   }
 

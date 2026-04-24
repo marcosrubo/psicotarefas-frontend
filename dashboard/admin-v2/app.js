@@ -1,5 +1,5 @@
 import supabase from "../../shared/supabase.js";
-import { registrarAcessoPagina } from "../../shared/activity-log.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const ADMIN_EMAIL = "marcos@rubo.com.br";
@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalsEmpty = document.getElementById("professionalsEmpty");
   let currentUser = null;
   let adminData = null;
+  let searchLogTimeout = null;
+  let lastLoggedSearch = "";
 
   function mostrarErroTela(texto) {
     if (!screenMessage) return;
@@ -339,7 +341,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderPatientBrowser(patient, tarefas, interacoes) {
     return `
-      <details class="patient-browser-card">
+      <details
+        class="patient-browser-card"
+        data-patient-user-id="${escapeHtml(patient.patient_user_id || "")}"
+        data-patient-email="${escapeHtml(patient.email || "")}"
+        data-patient-name="${escapeHtml(patient.nome || patient.email || "Paciente")}"
+      >
         <summary class="patient-browser-card__summary">
           <div class="patient-browser-card__top">
             <div>
@@ -579,7 +586,54 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (searchTerm) {
-    searchTerm.addEventListener("input", renderAll);
+    searchTerm.addEventListener("input", () => {
+      renderAll();
+
+      const termo = normalizarTexto(searchTerm.value || "");
+      if (searchLogTimeout) {
+        window.clearTimeout(searchLogTimeout);
+      }
+
+      searchLogTimeout = window.setTimeout(() => {
+        if (!termo || termo.length < 2 || termo === lastLoggedSearch) return;
+        lastLoggedSearch = termo;
+        registrarEvento({
+          evento: "busca_admin_executada",
+          pagina: "admin_v2",
+          perfil: "admin",
+          userId: currentUser?.id || null,
+          email: currentUser?.email || null,
+          contexto: {
+            termo
+          }
+        });
+      }, 500);
+    });
+  }
+
+  if (professionalsList) {
+    professionalsList.addEventListener(
+      "toggle",
+      (event) => {
+        const card = event.target;
+        if (!(card instanceof HTMLDetailsElement)) return;
+        if (!card.classList.contains("patient-browser-card") || !card.open) return;
+
+        registrarEvento({
+          evento: "detalhe_paciente_admin_aberto",
+          pagina: "admin_v2",
+          perfil: "admin",
+          userId: currentUser?.id || null,
+          email: currentUser?.email || null,
+          contexto: {
+            patient_user_id: card.dataset.patientUserId || null,
+            patient_email: card.dataset.patientEmail || null,
+            patient_name: card.dataset.patientName || null
+          }
+        });
+      },
+      true
+    );
   }
 
   async function iniciar() {

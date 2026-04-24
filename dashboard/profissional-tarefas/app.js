@@ -1897,6 +1897,17 @@ document.addEventListener("DOMContentLoaded", () => {
       renderAll();
       closeTaskForm();
       setTaskFormMessage("Tarefa alterada com sucesso.", "success");
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "tarefa_editada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tarefa_id: task.id,
+          paciente_id: task.patient_user_id
+        }
+      });
     } catch (error) {
       setTaskFormMessage(error.message || "Erro ao alterar tarefa.", "error");
     } finally {
@@ -1999,6 +2010,17 @@ document.addEventListener("DOMContentLoaded", () => {
       renderInteractionArea();
       closeInteractionEditCard();
       setInteractionFormMessage("Interação alterada com sucesso.", "success");
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "interacao_profissional_editada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tarefa_id: interaction.tarefa_id,
+          interacao_id: interaction.id
+        }
+      });
     } catch (error) {
       setInteractionEditMessage(error.message || "Erro ao alterar interação.", "error");
     } finally {
@@ -2055,6 +2077,16 @@ document.addEventListener("DOMContentLoaded", () => {
         setInteractionFormMessage();
         renderAll();
         openAliasBox();
+        registrarEvento({
+          userId: currentUser?.id,
+          email: currentProfile?.email || currentUser?.email || "",
+          perfil: "profissional",
+          evento: "edicao_apelido_aberta",
+          pagina: "gestao_tarefas",
+          contexto: {
+            paciente_id: selectedPatientId
+          }
+        });
         return;
       }
 
@@ -2070,6 +2102,16 @@ document.addEventListener("DOMContentLoaded", () => {
       setTaskFormMessage();
       setInteractionFormMessage();
       renderAll();
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "paciente_selecionado",
+        pagina: "gestao_tarefas",
+        contexto: {
+          paciente_id: selectedPatientId
+        }
+      });
     });
   }
 
@@ -2085,6 +2127,16 @@ document.addEventListener("DOMContentLoaded", () => {
       renderTasksArea();
       renderInteractionArea();
       syncMobileViewWithSelection();
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "tarefa_selecionada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tarefa_id: selectedTaskId
+        }
+      });
     });
   }
 
@@ -2155,6 +2207,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btnOpenTaskBank.addEventListener("click", async () => {
       if (taskBankBrowser?.hidden) {
         await openTaskBankBrowser();
+        registrarEvento({
+          userId: currentUser?.id,
+          email: currentProfile?.email || currentUser?.email || "",
+          perfil: "profissional",
+          evento: "browse_banco_aberto",
+          pagina: "gestao_tarefas"
+        });
       } else {
         closeTaskBankBrowser();
       }
@@ -2179,6 +2238,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       applyCustomPdfToForm(file);
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "pdf_proprio_selecionado",
+        pagina: "gestao_tarefas",
+        contexto: {
+          pdf_nome: file.name
+        }
+      });
     });
   }
 
@@ -2193,6 +2262,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       selectedBankThemeId = Number.parseInt(button.getAttribute("data-bank-theme-id") || "", 10);
       renderTaskBankBrowser();
+      const tema = bankThemes.find((item) => item.id === selectedBankThemeId);
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "tema_banco_selecionado",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tema_id: selectedBankThemeId,
+          tema: tema?.nome || null
+        }
+      });
     });
   }
 
@@ -2200,6 +2281,17 @@ document.addEventListener("DOMContentLoaded", () => {
     taskBankList.addEventListener("click", (event) => {
       const previewButton = event.target.closest("[data-action='preview-bank-pdf']");
       if (previewButton) {
+        registrarEvento({
+          userId: currentUser?.id,
+          email: currentProfile?.email || currentUser?.email || "",
+          perfil: "profissional",
+          evento: "pdf_banco_aberto",
+          pagina: "gestao_tarefas",
+          contexto: {
+            pdf_path: previewButton.getAttribute("data-pdf-path") || null,
+            origem: "browse_banco"
+          }
+        });
         abrirPdfDoBanco(previewButton.getAttribute("data-pdf-path"));
         return;
       }
@@ -2210,17 +2302,49 @@ document.addEventListener("DOMContentLoaded", () => {
       const bankTaskId = Number.parseInt(useButton.getAttribute("data-bank-task-id") || "", 10);
       const bankTask = bankTasks.find((item) => item.id === bankTaskId) || null;
       applyBankTaskToForm(bankTask);
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "tarefa_banco_aplicada",
+        pagina: "gestao_tarefas",
+        contexto: {
+          banco_tarefa_id: bankTask?.id || null,
+          titulo: bankTask?.titulo || null
+        }
+      });
     });
   }
 
   if (btnOpenSelectedBankPdf) {
     btnOpenSelectedBankPdf.addEventListener("click", () => {
       if (selectedCustomPdfPreviewUrl) {
+        registrarEvento({
+          userId: currentUser?.id,
+          email: currentProfile?.email || currentUser?.email || "",
+          perfil: "profissional",
+          evento: "pdf_proprio_aberto",
+          pagina: "gestao_tarefas",
+          contexto: {
+            origem: "formulario_tarefa"
+          }
+        });
         window.open(selectedCustomPdfPreviewUrl, "_blank", "noopener,noreferrer");
         return;
       }
 
       if (!selectedBankTask?.pdf_path) return;
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "pdf_banco_aberto",
+        pagina: "gestao_tarefas",
+        contexto: {
+          pdf_path: selectedBankTask.pdf_path,
+          origem: "formulario_tarefa"
+        }
+      });
       abrirPdfDoBanco(selectedBankTask.pdf_path);
     });
   }
@@ -2258,6 +2382,17 @@ document.addEventListener("DOMContentLoaded", () => {
     btnOpenTaskPdf.addEventListener("click", () => {
       const task = getSelectedTask();
       if (!task?.pdf_path) return;
+      registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: task.origem_tipo === "banco" ? "pdf_banco_aberto" : "pdf_tarefa_aberto",
+        pagina: "gestao_tarefas",
+        contexto: {
+          tarefa_id: task.id,
+          origem_tipo: task.origem_tipo || "manual"
+        }
+      });
       abrirPdfDoBanco(task.pdf_path);
     });
   }
