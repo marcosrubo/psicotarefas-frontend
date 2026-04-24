@@ -206,6 +206,12 @@ a {
   gap: 18px;
 }
 
+.library-column {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
 .panel__header {
   margin-bottom: 14px;
 }
@@ -453,6 +459,10 @@ a {
   .workspace {
     grid-template-columns: 0.95fr 1.05fr;
     align-items: start;
+  }
+
+  .library-column {
+    min-width: 0;
   }
 
   .form-grid {
