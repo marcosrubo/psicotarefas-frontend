@@ -269,6 +269,10 @@ a {
   flex-wrap: wrap;
 }
 
+.library-card .form-actions {
+  margin-top: 12px;
+}
+
 .meta-chip {
   display: inline-flex;
   width: fit-content;
@@ -321,6 +325,34 @@ a {
 .form-group select:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.form-message {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.form-message--error {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.form-message--success {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.empty-state {
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.86);
 }
 
 .form-actions {
