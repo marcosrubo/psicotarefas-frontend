@@ -96,7 +96,7 @@ ul {
 .hero__brand-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .hero__title {
@@ -128,7 +128,7 @@ ul {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 20px 16px;
+  padding: 22px 18px;
   box-shadow: var(--shadow);
   display: grid;
   gap: 16px;
@@ -146,7 +146,7 @@ ul {
 
 .audience-card__content {
   display: grid;
-  gap: 14px;
+  gap: 18px;
 }
 
 .audience-card__header {
@@ -176,13 +176,13 @@ ul {
 
 .audience-card h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   letter-spacing: 0.02em;
 }
 
 .audience-card__actions {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -347,20 +347,21 @@ ul {
 }
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-tertiary {
   border: none;
   border-radius: 14px;
   padding: 12px 18px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  min-width: 170px;
   white-space: nowrap;
   transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  width: 100%;
 }
 
 .btn-primary {
@@ -389,6 +390,18 @@ ul {
 
 .btn-secondary:hover {
   background: #f8f7ff;
+}
+
+.btn-tertiary {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), #ffffff 100%);
+  color: var(--text);
+  border: 1px dashed rgba(109, 94, 252, 0.4);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-tertiary:hover {
+  background: #f8f7ff;
+  color: var(--primary-dark);
 }
 
 .btn-primary--button {
@@ -577,6 +590,7 @@ ul {
 
   .btn-primary,
   .btn-secondary,
+  .btn-tertiary,
   .btn-primary--button,
   .modal__actions .btn-primary,
   .modal__actions .btn-secondary {
@@ -648,6 +662,10 @@ ul {
 
   .audience-card {
     padding: 22px 20px;
+  }
+
+  .audience-card__actions {
+    grid-template-columns: 1fr;
   }
 
   .story-block {

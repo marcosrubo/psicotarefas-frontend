@@ -11,6 +11,8 @@ let adminSessionActive = false;
 
 const installBox = document.getElementById("installBox");
 const btnInstall = document.getElementById("btnInstall");
+const btnTestPatient = document.getElementById("btnTestPatient");
+const btnTestProfessional = document.getElementById("btnTestProfessional");
 
 const adminModal = document.getElementById("adminModal");
 const adminModalBackdrop = document.getElementById("adminModalBackdrop");
@@ -507,6 +509,13 @@ function setMessage(text = "", type = "") {
   }
 }
 
+function setTestButtonLoading(button, isLoading, idleLabel = "TESTAR") {
+  if (!button) return;
+
+  button.disabled = isLoading;
+  button.textContent = isLoading ? "ENTRANDO..." : idleLabel;
+}
+
 function setAdminLoadingState(isLoading) {
   btnSubmitAdminLogin.disabled = isLoading;
   btnSubmitAdminLogin.textContent = isLoading ? "ENTRANDO..." : "ENTRAR";
@@ -692,8 +701,67 @@ async function handleAdminLogin(event) {
   }, 500);
 }
 
+async function handleTestLogin(perfil) {
+  const button = perfil === "paciente" ? btnTestPatient : btnTestProfessional;
+
+  supabaseClient = supabaseClient || createSupabaseClient();
+
+  if (!supabaseClient) {
+    window.alert("Não foi possível iniciar o acesso de teste agora.");
+    return;
+  }
+
+  const credentials =
+    perfil === "paciente"
+      ? { email: "pac1@psicotarefas.com.br", password: "senhaforte" }
+      : { email: "prof1@psicotarefas.com.br", password: "senhaforte" };
+
+  try {
+    setTestButtonLoading(button, true);
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword(credentials);
+
+    if (error || !data?.user) {
+      throw new Error("Não foi possível entrar com a conta de teste.");
+    }
+
+    const destino = await obterDestinoDashboardPorSessao(data.user);
+
+    await registrarEvento({
+      evento: perfil === "paciente" ? "login_teste_paciente_sucesso" : "login_teste_profissional_sucesso",
+      pagina: "home",
+      perfil: "publico",
+      userId: data.user.id,
+      email: data.user.email || credentials.email
+    });
+
+    if (!destino) {
+      throw new Error("A conta de teste entrou, mas não foi possível definir o destino.");
+    }
+
+    window.location.href = destino;
+  } catch (error) {
+    console.error(`Erro ao entrar com conta de teste de ${perfil}:`, error);
+    window.alert(error.message || "Não foi possível acessar a conta de teste.");
+  } finally {
+    setTestButtonLoading(button, false);
+  }
+}
+
 if (adminLoginForm) {
   adminLoginForm.addEventListener("submit", handleAdminLogin);
+}
+
+if (btnTestPatient) {
+  btnTestPatient.addEventListener("click", () => {
+    handleTestLogin("paciente");
+  });
+}
+
+if (btnTestProfessional) {
+  btnTestProfessional.addEventListener("click", () => {
+    handleTestLogin("profissional");
+  });
 }
 
 async function inicializarTelaPrincipal() {

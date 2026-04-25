@@ -42,10 +42,6 @@
         />
         <div class="hero__brand-text">
           <h1 class="hero__title">PsicoTarefas</h1>
-          <p class="hero__subtitle">
-            Um espaço organizado para conectar profissional e paciente por meio
-            de tarefas terapêuticas, respostas e acompanhamento.
-          </p>
         </div>
       </div>
     </header>
@@ -58,16 +54,19 @@
           <div class="audience-card__content">
             <div class="audience-card__header">
               <span class="audience-card__badge-icon" aria-hidden="true">🧠</span>
-              <h2>ÁREA DO PACIENTE</h2>
+              <h2>PACIENTE</h2>
             </div>
 
             <div class="audience-card__actions">
               <a class="btn-primary" href="./auth/paciente-login/index.html">
-                ENTRAR COMO PACIENTE
+                ENTRAR
               </a>
               <a class="btn-secondary" href="./auth/paciente-cadastro/index.html">
-                CRIAR CONTA DE PACIENTE
+                CADASTRAR
               </a>
+              <button id="btnTestPatient" class="btn-tertiary" type="button">
+                TESTAR
+              </button>
             </div>
           </div>
         </article>
@@ -77,16 +76,19 @@
           <div class="audience-card__content">
             <div class="audience-card__header">
               <span class="audience-card__badge-icon" aria-hidden="true">🗒️</span>
-              <h2>ÁREA DO PROFISSIONAL</h2>
+              <h2>PROFISSIONAL</h2>
             </div>
 
             <div class="audience-card__actions">
               <a class="btn-primary" href="./auth/profissional-login/index.html">
-                ENTRAR COMO PROFISSIONAL
+                ENTRAR
               </a>
               <a class="btn-secondary" href="./auth/profissional-cadastro/index.html">
-                CRIAR CONTA DE PROFISSIONAL
+                CADASTRAR
               </a>
+              <button id="btnTestProfessional" class="btn-tertiary" type="button">
+                TESTAR
+              </button>
             </div>
           </div>
         </article>
@@ -98,7 +100,6 @@
           <article class="install-pane install-pane--android" id="installBox" hidden>
             <div class="install-pane__content">
               <h3>Android</h3>
-              <p>Adicione o app à tela inicial para usar o PsicoTarefas como aplicativo.</p>
             </div>
             <button id="btnInstall" class="btn-primary btn-primary--button" type="button">
               Instalar
