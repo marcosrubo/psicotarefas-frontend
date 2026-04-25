@@ -445,24 +445,30 @@ document.addEventListener("DOMContentLoaded", () => {
     setFormMessage(editThemeFormMessage);
 
     try {
-      const { error } = await supabase
+      const { data: updatedTheme, error } = await supabase
         .from("banco_tarefas_temas")
         .update({
           nome,
           descricao_curta: descricaoCurta || null
         })
-        .eq("id", selectedTheme.id);
+        .eq("id", selectedTheme.id)
+        .select("id, nome, descricao_curta")
+        .maybeSingle();
 
       if (error) {
         throw new Error(error.message);
+      }
+
+      if (!updatedTheme) {
+        throw new Error("Não foi possível salvar este tema. Ele pode não estar editável para este usuário.");
       }
 
       themes = themes.map((theme) =>
         theme.id === selectedThemeIdAtual
           ? {
               ...theme,
-              nome,
-              descricao_curta: descricaoCurta || null
+              nome: updatedTheme.nome,
+              descricao_curta: updatedTheme.descricao_curta || null
             }
           : theme
       );
