@@ -4,6 +4,12 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 document.addEventListener("DOMContentLoaded", () => {
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
+  const awaitingEmailList = document.getElementById("awaitingEmailList");
+  const awaitingEmailEmptyState = document.getElementById("awaitingEmailEmptyState");
+  const pendingInviteList = document.getElementById("pendingInviteList");
+  const pendingInviteEmptyState = document.getElementById("pendingInviteEmptyState");
+  const canceledInviteList = document.getElementById("canceledInviteList");
+  const canceledInviteEmptyState = document.getElementById("canceledInviteEmptyState");
   const screenMessage = document.getElementById("screenMessage");
   const taskChoiceModal = document.getElementById("taskChoiceModal");
   const taskChoiceBackdrop = document.getElementById("taskChoiceBackdrop");
@@ -22,6 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let currentProfile = null;
   let patients = [];
+  let awaitingEmailPatients = [];
+  let pendingInvitePatients = [];
+  let canceledInvitePatients = [];
   let selectedPatient = null;
 
   function showScreenError(message) {
@@ -58,6 +67,19 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  function formatarWhatsapp(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+
+    if (!digits) return "Não informado";
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+
+    return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
   }
 
   function fecharMenuInferior() {
@@ -264,6 +286,72 @@ document.addEventListener("DOMContentLoaded", () => {
       .sort((a, b) => a.alias.localeCompare(b.alias, "pt-BR", { sensitivity: "base" }));
   }
 
+  async function carregarPacientesPorStatus() {
+    if (!currentUser) return;
+
+    const [{ data: convites, error: convitesError }, { data: vinculos, error: vinculosError }] =
+      await Promise.all([
+        supabase
+          .from("convites")
+          .select("id, token, patient_name, patient_whatsapp, status")
+          .eq("professional_user_id", currentUser.id)
+          .in("status", ["pendente", "respondido", "aceito", "cancelado"])
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("vinculos")
+          .select("token_convite, status, patient_name, patient_email, patient_whatsapp, patient_alias")
+          .eq("professional_user_id", currentUser.id)
+      ]);
+
+    if (convitesError) {
+      throw new Error(`Falha ao carregar convites: ${convitesError.message}`);
+    }
+
+    if (vinculosError) {
+      throw new Error(`Falha ao carregar vínculos: ${vinculosError.message}`);
+    }
+
+    const vinculosPorToken = new Map((vinculos || []).map((item) => [item.token_convite, item]));
+
+    const convitesClassificados = (convites || []).map((convite) => {
+      const vinculo = vinculosPorToken.get(convite.token) || null;
+      const nome =
+        vinculo?.patient_name?.trim() ||
+        convite.patient_name?.trim() ||
+        "Paciente";
+
+      const email = vinculo?.patient_email?.trim() || "";
+      const whatsapp = vinculo?.patient_whatsapp?.trim() || convite.patient_whatsapp?.trim() || "";
+
+      let categoria = "pendente";
+
+      if (convite.status === "cancelado") {
+        categoria = "cancelado";
+      } else if (
+        vinculo?.status === "aguardando_confirmacao_email" ||
+        convite.status === "respondido"
+      ) {
+        categoria = "aguardando_email";
+      } else if (convite.status === "pendente" || vinculo?.status === "pendente_convite") {
+        categoria = "pendente";
+      } else {
+        categoria = "ignorar";
+      }
+
+      return {
+        nome,
+        email,
+        whatsapp,
+        alias: vinculo?.patient_alias?.trim() || "",
+        categoria
+      };
+    });
+
+    awaitingEmailPatients = convitesClassificados.filter((item) => item.categoria === "aguardando_email");
+    pendingInvitePatients = convitesClassificados.filter((item) => item.categoria === "pendente");
+    canceledInvitePatients = convitesClassificados.filter((item) => item.categoria === "cancelado");
+  }
+
   function renderPatients() {
     if (!patientsGrid || !patientsEmptyState) return;
 
@@ -286,6 +374,30 @@ document.addEventListener("DOMContentLoaded", () => {
           >
             ${escapeHtml(patient.alias)}
           </button>
+        `;
+      })
+      .join("");
+  }
+
+  function renderCompactSection(listEl, emptyEl, items, emptyText) {
+    if (!listEl || !emptyEl) return;
+
+    if (!items.length) {
+      listEl.innerHTML = "";
+      emptyEl.hidden = false;
+      emptyEl.textContent = emptyText;
+      return;
+    }
+
+    emptyEl.hidden = true;
+    listEl.innerHTML = items
+      .map((item) => {
+        return `
+          <article class="compact-patient-item">
+            <strong class="compact-patient-item__name">${escapeHtml(item.nome)}</strong>
+            <span class="compact-patient-item__meta">E-mail: ${escapeHtml(item.email || "Não informado")}</span>
+            <span class="compact-patient-item__meta">WhatsApp: ${escapeHtml(formatarWhatsapp(item.whatsapp))}</span>
+          </article>
         `;
       })
       .join("");
@@ -365,7 +477,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) return;
 
     await carregarPacientes();
+    await carregarPacientesPorStatus();
     renderPatients();
+    renderCompactSection(
+      awaitingEmailList,
+      awaitingEmailEmptyState,
+      awaitingEmailPatients,
+      "Nenhum paciente aguardando confirmação de e-mail."
+    );
+    renderCompactSection(
+      pendingInviteList,
+      pendingInviteEmptyState,
+      pendingInvitePatients,
+      "Nenhum paciente aguardando aceite de convite."
+    );
+    renderCompactSection(
+      canceledInviteList,
+      canceledInviteEmptyState,
+      canceledInvitePatients,
+      "Nenhum convite cancelado."
+    );
   }
 
   iniciar().catch((error) => {

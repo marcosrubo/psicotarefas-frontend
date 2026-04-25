@@ -116,6 +116,10 @@ a {
   padding: 18px;
 }
 
+.compact-panel {
+  padding-top: 16px;
+}
+
 .section-header h2 {
   margin: 0 0 6px;
   font-size: 28px;
@@ -166,6 +170,34 @@ a {
 
 .patient-select-button:active {
   transform: scale(0.98);
+}
+
+.compact-patients-list {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.compact-patient-item {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: #fbfcff;
+  display: grid;
+  gap: 4px;
+}
+
+.compact-patient-item__name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1f2430;
+}
+
+.compact-patient-item__meta {
+  font-size: 14px;
+  color: #667085;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 .task-choice-modal[hidden] {
@@ -473,7 +505,7 @@ a {
   }
 
   .section-header h2 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .patient-select-button {

@@ -59,6 +59,48 @@
         <div class="patients-grid" id="patientsGrid"></div>
       </section>
 
+      <section class="patients-panel compact-panel">
+        <div class="section-header">
+          <div>
+            <h2>Pacientes aguardando confirmação de e-mail</h2>
+          </div>
+        </div>
+
+        <div class="empty-state" id="awaitingEmailEmptyState" hidden>
+          Nenhum paciente aguardando confirmação de e-mail.
+        </div>
+
+        <div class="compact-patients-list" id="awaitingEmailList"></div>
+      </section>
+
+      <section class="patients-panel compact-panel">
+        <div class="section-header">
+          <div>
+            <h2>Pacientes aguardando aceitar convite</h2>
+          </div>
+        </div>
+
+        <div class="empty-state" id="pendingInviteEmptyState" hidden>
+          Nenhum paciente aguardando aceite de convite.
+        </div>
+
+        <div class="compact-patients-list" id="pendingInviteList"></div>
+      </section>
+
+      <section class="patients-panel compact-panel">
+        <div class="section-header">
+          <div>
+            <h2>Pacientes com convites cancelados</h2>
+          </div>
+        </div>
+
+        <div class="empty-state" id="canceledInviteEmptyState" hidden>
+          Nenhum convite cancelado.
+        </div>
+
+        <div class="compact-patients-list" id="canceledInviteList"></div>
+      </section>
+
       <section class="task-choice-modal" id="taskChoiceModal" hidden aria-label="Mensagem de edição">
         <div class="task-choice-modal__backdrop" id="taskChoiceBackdrop"></div>
         <div class="task-choice-modal__card" role="dialog" aria-modal="true" aria-labelledby="taskChoiceTitle">
