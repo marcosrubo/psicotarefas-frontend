@@ -5,7 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
   const screenMessage = document.getElementById("screenMessage");
-  const btnBottomLogout = document.getElementById("btnBottomLogout");
+  const btnBottomMenu = document.getElementById("btnBottomMenu");
+  const bottomMenuPanel = document.getElementById("bottomMenuPanel");
+  const btnMenuLogout = document.getElementById("btnMenuLogout");
 
   let currentUser = null;
   let currentProfile = null;
@@ -42,6 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
       hour: "2-digit",
       minute: "2-digit"
     });
+  }
+
+  function fecharMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    bottomMenuPanel.hidden = true;
+    btnBottomMenu.setAttribute("aria-expanded", "false");
+  }
+
+  function alternarMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    const vaiAbrir = bottomMenuPanel.hidden;
+    bottomMenuPanel.hidden = !vaiAbrir;
+    btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
   async function sairDoSistema() {
@@ -223,9 +238,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (btnBottomLogout) {
-    btnBottomLogout.addEventListener("click", sairDoSistema);
+  if (btnBottomMenu) {
+    btnBottomMenu.addEventListener("click", alternarMenuInferior);
   }
+
+  if (btnMenuLogout) {
+    btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+
+    const clicouDentroDoMenu = bottomMenuPanel.contains(event.target);
+    const clicouNoBotao = btnBottomMenu.contains(event.target);
+
+    if (!clicouDentroDoMenu && !clicouNoBotao) {
+      fecharMenuInferior();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      fecharMenuInferior();
+    }
+  });
 
   async function iniciar() {
     hideScreenError();

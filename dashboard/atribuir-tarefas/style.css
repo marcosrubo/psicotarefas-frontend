@@ -295,6 +295,71 @@ a {
   line-height: 1;
 }
 
+.bottom-nav__menu-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.bottom-nav__menu-wrap .bottom-nav__item {
+  width: 100%;
+}
+
+.bottom-nav__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  min-width: 180px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(35, 48, 70, 0.98);
+  box-shadow: 0 18px 38px rgba(20, 24, 38, 0.22);
+  backdrop-filter: blur(16px);
+}
+
+.bottom-nav__menu[hidden] {
+  display: none !important;
+}
+
+.bottom-nav__menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bottom-nav__menu-item {
+  appearance: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  padding: 14px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bottom-nav__menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bottom-nav__menu-item--current {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  cursor: default;
+}
+
+.bottom-nav__menu-item--danger {
+  color: #fecaca;
+}
+
+.bottom-nav__menu-item--danger:hover {
+  background: rgba(185, 28, 28, 0.16);
+}
+
 @media (min-width: 768px) {
   .topbar,
   .assign-main {
