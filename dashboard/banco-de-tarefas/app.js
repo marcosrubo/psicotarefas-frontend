@@ -427,6 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     const selectedTheme = getSelectedTheme();
+    const selectedThemeIdAtual = selectedTheme?.id || null;
     const nome = editThemeName?.value.trim() || "";
     const descricaoCurta = editThemeDescription?.value.trim() || "";
 
@@ -456,6 +457,17 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(error.message);
       }
 
+      themes = themes.map((theme) =>
+        theme.id === selectedThemeIdAtual
+          ? {
+              ...theme,
+              nome,
+              descricao_curta: descricaoCurta || null
+            }
+          : theme
+      );
+      renderAll();
+
       await carregarBancoTarefas();
       renderAll();
       await registrarEvento({
@@ -465,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userId: currentUser.id,
         email: currentProfile?.email || currentUser.email || null,
         contexto: {
-          tema_id: selectedTheme.id,
+          tema_id: selectedThemeIdAtual,
           tema: nome
         }
       });
