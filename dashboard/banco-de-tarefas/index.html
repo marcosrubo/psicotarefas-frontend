@@ -121,6 +121,32 @@
         </section>
 
         <section class="library-column">
+          <section class="panel form-panel" id="editThemePanel" hidden>
+            <div class="panel__header">
+              <h3>Alterar tema</h3>
+              <p>Atualize o nome e a descrição curta do tema selecionado.</p>
+            </div>
+
+            <form class="form-grid" id="editThemeForm">
+              <div class="form-group">
+                <label for="editThemeName">Nome do tema</label>
+                <input id="editThemeName" type="text" placeholder="Ex.: Ansiedade" />
+              </div>
+
+              <div class="form-group form-group--wide">
+                <label for="editThemeDescription">Descrição curta</label>
+                <textarea id="editThemeDescription" rows="3" placeholder="Explique rapidamente o foco desse tema."></textarea>
+              </div>
+
+              <div class="form-message form-group--wide" id="editThemeFormMessage" hidden></div>
+
+              <div class="form-actions form-actions--inline">
+                <button class="btn-secondary" id="btnCloseEditTheme" type="button">Cancelar</button>
+                <button class="btn-primary" id="btnUpdateTheme" type="submit">Salvar alterações</button>
+              </div>
+            </form>
+          </section>
+
           <section class="panel form-panel" id="libraryTaskFormPanel" hidden>
             <div class="panel__header">
               <h3>Nova tarefa da biblioteca</h3>
@@ -168,11 +194,14 @@
           </section>
 
           <section class="panel library-panel">
-            <div class="panel__header">
+            <div class="panel__header panel__header--actions">
               <div>
                 <h3 id="libraryPanelTitle">Tarefas do tema: Ansiedade</h3>
                 <p id="libraryPanelSubtitle">Visualize atividades públicas em PDF organizadas por tema.</p>
               </div>
+              <button class="btn-secondary btn-secondary--sm" id="btnEditSelectedTheme" type="button" hidden>
+                Alterar tema
+              </button>
             </div>
 
             <div class="empty-state" id="libraryEmptyState" hidden>

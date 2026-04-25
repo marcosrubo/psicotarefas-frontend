@@ -9,19 +9,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnToggleThemeForm = document.getElementById("btnToggleThemeForm");
   const btnToggleLibraryTaskForm = document.getElementById("btnToggleLibraryTaskForm");
+  const btnEditSelectedTheme = document.getElementById("btnEditSelectedTheme");
   const btnCloseThemeForm = document.getElementById("btnCloseThemeForm");
   const btnCloseLibraryTaskForm = document.getElementById("btnCloseLibraryTaskForm");
+  const btnCloseEditTheme = document.getElementById("btnCloseEditTheme");
   const btnSaveTheme = document.getElementById("btnSaveTheme");
   const btnSaveLibraryTask = document.getElementById("btnSaveLibraryTask");
+  const btnUpdateTheme = document.getElementById("btnUpdateTheme");
 
   const themeFormPanel = document.getElementById("themeFormPanel");
   const libraryTaskFormPanel = document.getElementById("libraryTaskFormPanel");
+  const editThemePanel = document.getElementById("editThemePanel");
 
   const themeForm = document.getElementById("themeForm");
   const libraryTaskForm = document.getElementById("libraryTaskForm");
+  const editThemeForm = document.getElementById("editThemeForm");
   const themeName = document.getElementById("themeName");
   const themeDescription = document.getElementById("themeDescription");
   const themeFormMessage = document.getElementById("themeFormMessage");
+  const editThemeName = document.getElementById("editThemeName");
+  const editThemeDescription = document.getElementById("editThemeDescription");
+  const editThemeFormMessage = document.getElementById("editThemeFormMessage");
 
   const themesList = document.getElementById("themesList");
   const libraryList = document.getElementById("libraryList");
@@ -97,6 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       element.hidden = true;
     }
+  }
+
+  function getSelectedTheme() {
+    return themes.find((theme) => theme.id === selectedThemeId) || null;
   }
 
   function getStatusLabel(status) {
@@ -289,8 +301,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderLibraryList() {
     if (!libraryList || !libraryPanelTitle || !libraryPanelSubtitle || !libraryEmptyState) return;
 
-    const selectedTheme = themes.find((theme) => theme.id === selectedThemeId) || null;
+    const selectedTheme = getSelectedTheme();
     const filteredTasks = libraryTasks.filter((task) => task.tema_id === selectedThemeId);
+
+    if (btnEditSelectedTheme) {
+      btnEditSelectedTheme.hidden = !selectedTheme;
+      btnEditSelectedTheme.disabled = !selectedTheme;
+    }
 
     if (selectedTheme) {
       libraryPanelTitle.textContent = `Tarefas do tema: ${selectedTheme.nome}`;
@@ -354,6 +371,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setFormMessage(themeFormMessage);
   }
 
+  function resetEditThemeForm() {
+    if (editThemeForm) editThemeForm.reset();
+    setFormMessage(editThemeFormMessage);
+  }
+
   function resetLibraryTaskForm() {
     if (libraryTaskForm) libraryTaskForm.reset();
     if (libraryTaskTheme && selectedThemeId) {
@@ -373,6 +395,22 @@ document.addEventListener("DOMContentLoaded", () => {
     resetThemeForm();
   }
 
+  function openEditThemeForm() {
+    const selectedTheme = getSelectedTheme();
+    if (!selectedTheme) return;
+
+    if (editThemePanel) editThemePanel.hidden = false;
+    if (editThemeName) editThemeName.value = selectedTheme.nome || "";
+    if (editThemeDescription) editThemeDescription.value = selectedTheme.descricao_curta || "";
+    setFormMessage(editThemeFormMessage);
+    editThemeName?.focus();
+  }
+
+  function closeEditThemeForm() {
+    if (editThemePanel) editThemePanel.hidden = true;
+    resetEditThemeForm();
+  }
+
   function openLibraryTaskForm() {
     if (libraryTaskFormPanel) libraryTaskFormPanel.hidden = false;
     renderThemeOptions();
@@ -383,6 +421,64 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeLibraryTaskForm() {
     if (libraryTaskFormPanel) libraryTaskFormPanel.hidden = true;
     resetLibraryTaskForm();
+  }
+
+  async function salvarEdicaoTema(event) {
+    event.preventDefault();
+
+    const selectedTheme = getSelectedTheme();
+    const nome = editThemeName?.value.trim() || "";
+    const descricaoCurta = editThemeDescription?.value.trim() || "";
+
+    if (!selectedTheme) {
+      setFormMessage(editThemeFormMessage, "Selecione um tema para alterar.", "error");
+      return;
+    }
+
+    if (!nome) {
+      setFormMessage(editThemeFormMessage, "Informe o nome do tema.", "error");
+      return;
+    }
+
+    setButtonLoading(btnUpdateTheme, true, "Salvando...", "Salvar alterações");
+    setFormMessage(editThemeFormMessage);
+
+    try {
+      const { error } = await supabase
+        .from("banco_tarefas_temas")
+        .update({
+          nome,
+          descricao_curta: descricaoCurta || null
+        })
+        .eq("id", selectedTheme.id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      await carregarBancoTarefas();
+      renderAll();
+      await registrarEvento({
+        evento: "tema_banco_editado",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          tema_id: selectedTheme.id,
+          tema: nome
+        }
+      });
+      closeEditThemeForm();
+    } catch (error) {
+      setFormMessage(
+        editThemeFormMessage,
+        error.message || "Não foi possível atualizar o tema neste momento.",
+        "error"
+      );
+    } finally {
+      setButtonLoading(btnUpdateTheme, false, "Salvando...", "Salvar alterações");
+    }
   }
 
   async function salvarTema(event) {
@@ -589,12 +685,24 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCloseLibraryTaskForm.addEventListener("click", closeLibraryTaskForm);
   }
 
+  if (btnEditSelectedTheme) {
+    btnEditSelectedTheme.addEventListener("click", openEditThemeForm);
+  }
+
+  if (btnCloseEditTheme) {
+    btnCloseEditTheme.addEventListener("click", closeEditThemeForm);
+  }
+
   if (themeForm) {
     themeForm.addEventListener("submit", salvarTema);
   }
 
   if (libraryTaskForm) {
     libraryTaskForm.addEventListener("submit", salvarTarefaBiblioteca);
+  }
+
+  if (editThemeForm) {
+    editThemeForm.addEventListener("submit", salvarEdicaoTema);
   }
 
   if (themesList) {

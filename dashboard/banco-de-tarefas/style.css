@@ -216,6 +216,13 @@ a {
   margin-bottom: 14px;
 }
 
+.panel__header--actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .themes-list,
 .library-list {
   display: grid;
@@ -406,6 +413,11 @@ a {
   box-shadow: var(--shadow-soft);
 }
 
+.btn-secondary--sm {
+  padding: 11px 16px;
+  white-space: nowrap;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
@@ -428,6 +440,11 @@ a {
   .form-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .panel__header--actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
