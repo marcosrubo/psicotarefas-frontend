@@ -333,6 +333,12 @@ input {
   display: none !important;
 }
 
+.bottom-nav__menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 2px 4px;
+}
+
 .bottom-nav__menu-item {
   border: none;
   border-radius: 12px;
@@ -346,6 +352,14 @@ input {
 
 .bottom-nav__menu-item:hover {
   background: rgba(109, 94, 252, 0.24);
+}
+
+.bottom-nav__menu-item--danger {
+  color: #ffd5d5;
+}
+
+.bottom-nav__menu-item--danger:hover {
+  background: rgba(220, 38, 38, 0.24);
 }
 
 .welcome-card,

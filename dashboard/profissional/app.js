@@ -20,6 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBottomHome = document.getElementById("btnBottomHome");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
+  const btnMenuProfile = document.getElementById("btnMenuProfile");
+  const btnMenuPatients = document.getElementById("btnMenuPatients");
+  const btnMenuTasks = document.getElementById("btnMenuTasks");
+  const btnMenuTaskBank = document.getElementById("btnMenuTaskBank");
+  const btnMenuLogout = document.getElementById("btnMenuLogout");
   const invitePanel = document.getElementById("invitePanel");
   const inviteForm = document.getElementById("inviteForm");
   const inviteMessage = document.getElementById("inviteMessage");
@@ -212,6 +217,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const vaiAbrir = bottomMenuPanel.hidden;
     bottomMenuPanel.hidden = !vaiAbrir;
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
+  }
+
+  async function sairDoSistema() {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "dashboard_profissional",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null
+    });
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+
+    window.location.href = "/";
   }
 
   function preencherResumoConvite(nomePaciente, whatsappDigits, inviteLink) {
@@ -1008,22 +1030,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   if (btnBack) {
-    btnBack.addEventListener("click", async () => {
-      await registrarEvento({
-        evento: "logout",
-        pagina: "dashboard_profissional",
-        perfil: "profissional",
-        userId: currentUser?.id || null,
-        email: currentProfile?.email || currentUser?.email || null
-      });
-      try {
-        await supabase.auth.signOut();
-      } catch (error) {
-        console.error("Erro ao sair:", error);
-      }
-
-      window.location.href = "/";
-    });
+    btnBack.addEventListener("click", sairDoSistema);
   }
 
   if (btnBottomHome) {
@@ -1036,6 +1043,48 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBottomMenu.addEventListener("click", (event) => {
       event.stopPropagation();
       alternarMenuInferior();
+    });
+  }
+
+  if (btnMenuProfile) {
+    btnMenuProfile.addEventListener("click", () => {
+      fecharMenuInferior();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      abrirEdicaoNome();
+    });
+  }
+
+  if (btnMenuPatients) {
+    btnMenuPatients.addEventListener("click", () => {
+      fecharMenuInferior();
+      window.scrollTo({ top: document.body.scrollHeight * 0.2, behavior: "smooth" });
+      if (invitePanel?.hidden) {
+        invitePanel.hidden = false;
+      }
+      if (patientNameInput) {
+        window.setTimeout(() => patientNameInput.focus(), 250);
+      }
+    });
+  }
+
+  if (btnMenuTasks) {
+    btnMenuTasks.addEventListener("click", () => {
+      fecharMenuInferior();
+      window.location.href = "../profissional-tarefas/index.html";
+    });
+  }
+
+  if (btnMenuTaskBank) {
+    btnMenuTaskBank.addEventListener("click", () => {
+      fecharMenuInferior();
+      window.location.href = "../banco-de-tarefas/index.html";
+    });
+  }
+
+  if (btnMenuLogout) {
+    btnMenuLogout.addEventListener("click", async () => {
+      fecharMenuInferior();
+      await sairDoSistema();
     });
   }
 
