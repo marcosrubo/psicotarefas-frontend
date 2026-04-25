@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
   const welcomeTitle = document.getElementById("welcomeTitle");
-  const welcomeText = document.getElementById("welcomeText");
 
   const btnEditName = document.getElementById("btnEditName");
   const editNameBox = document.getElementById("editNameBox");
@@ -161,8 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
     userRole.textContent = "Psicólogo(a)";
     userAvatar.textContent = obterIniciais(nomeExibicao);
     welcomeTitle.textContent = `Olá, ${primeiroNome}`;
-    welcomeText.textContent =
-      "Convide pacientes, acompanhe os status dos convites e organize as tarefas entre vocês de forma simples e objetiva.";
 
     editNameInput.value = nomeExibicao;
   }

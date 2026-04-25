@@ -33,74 +33,28 @@
           class="brand__logo"
         />
         <div class="brand__text">
-          <p class="brand__badge">Painel do PROFISSIONAL</p>
           <h1>PsicoTarefas</h1>
         </div>
-      </div>
-
-      <div class="topbar__actions">
-        <div class="user-chip">
-          <div class="user-chip__avatar" id="userAvatar">PT</div>
-
-          <div class="user-chip__text" id="userTextBox">
-            <div class="user-chip__name-row">
-              <strong id="userName">Profissional</strong>
-              <button class="edit-name-btn" id="btnEditName" type="button">
-                Alterar nome
-              </button>
-            </div>
-
-            <div class="user-chip__edit-box" id="editNameBox" hidden>
-              <input
-                type="text"
-                id="editNameInput"
-                placeholder="Digite seu nome"
-                maxlength="120"
-                autocomplete="name"
-              />
-              <div class="user-chip__edit-actions">
-                <button class="mini-btn mini-btn--ghost" id="btnCancelName" type="button">
-                  Cancelar
-                </button>
-                <button class="mini-btn" id="btnSaveName" type="button">
-                  Salvar
-                </button>
-              </div>
-            </div>
-
-            <span id="userRole">Psicólogo(a)</span>
-          </div>
-        </div>
-
       </div>
     </header>
 
     <main class="dashboard-main">
       <section class="welcome-card">
         <div class="welcome-card__content">
-          <p class="welcome-card__label">Painel profissional</p>
           <h2 id="welcomeTitle">Olá</h2>
-          <p id="welcomeText">
-            Convide pacientes, acompanhe seus convites e organize as tarefas entre vocês de forma simples e rápida.
-          </p>
         </div>
       </section>
 
-      <section class="tasks-entry-card">
-        <button class="btn-primary btn-tasks" id="btnTasks" type="button">
-          Gestão de TAREFAS
+      <section class="primary-shortcuts-card">
+        <button class="btn-primary primary-shortcuts-card__button" id="btnToggleInvite" type="button">
+          Cadastro dos PACIENTES
+        </button>
+        <button class="btn-primary primary-shortcuts-card__button" id="btnTasks" type="button">
+          Atribuir TAREFAS
         </button>
       </section>
 
-      <section class="primary-action-card">
-        <div>
-          <h3>Convide um paciente</h3>
-          <p>Gere um link e envie pelo WhatsApp em poucos segundos.</p>
-        </div>
-        <button class="btn-primary" id="btnToggleInvite" type="button">
-          Convidar paciente
-        </button>
-      </section>
+      <div class="dashboard-spacer" aria-hidden="true"></div>
 
       <section class="panel" id="invitePanel" hidden>
         <div class="panel__header">
@@ -209,6 +163,41 @@
         </div>
 
         <div class="invites-list" id="canceledInvitesList"></div>
+      </section>
+
+      <section class="panel profile-panel">
+        <div class="user-chip">
+          <div class="user-chip__avatar" id="userAvatar">PT</div>
+
+          <div class="user-chip__text" id="userTextBox">
+            <div class="user-chip__name-row">
+              <strong id="userName">Profissional</strong>
+              <button class="edit-name-btn" id="btnEditName" type="button">
+                Alterar nome
+              </button>
+            </div>
+
+            <div class="user-chip__edit-box" id="editNameBox" hidden>
+              <input
+                type="text"
+                id="editNameInput"
+                placeholder="Digite seu nome"
+                maxlength="120"
+                autocomplete="name"
+              />
+              <div class="user-chip__edit-actions">
+                <button class="mini-btn mini-btn--ghost" id="btnCancelName" type="button">
+                  Cancelar
+                </button>
+                <button class="mini-btn" id="btnSaveName" type="button">
+                  Salvar
+                </button>
+              </div>
+            </div>
+
+            <span id="userRole">Psicólogo(a)</span>
+          </div>
+        </div>
       </section>
     </main>
 
