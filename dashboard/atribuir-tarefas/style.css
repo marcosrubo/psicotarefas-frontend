@@ -295,53 +295,6 @@ a {
   line-height: 1;
 }
 
-.bottom-nav__menu-wrap {
-  position: relative;
-  display: flex;
-}
-
-.bottom-nav__menu {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 10px);
-  min-width: 250px;
-  padding: 10px;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
-  display: grid;
-  gap: 4px;
-}
-
-.bottom-nav__menu-item {
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-  padding: 12px 14px;
-  border-radius: 12px;
-  color: #344054;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.bottom-nav__menu-item--current {
-  background: rgba(109, 94, 252, 0.1);
-  color: var(--primary-dark);
-  cursor: default;
-}
-
-.bottom-nav__menu-item--danger {
-  color: #b42318;
-}
-
-.bottom-nav__menu-divider {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 4px 0;
-}
-
 @media (min-width: 768px) {
   .topbar,
   .assign-main {
