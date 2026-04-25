@@ -228,6 +228,47 @@ a {
   line-height: 1.5;
 }
 
+.patient-edit-form {
+  display: grid;
+  gap: 14px;
+}
+
+.patient-edit-field {
+  display: grid;
+  gap: 6px;
+}
+
+.patient-edit-field__label {
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.patient-edit-field__value {
+  color: #344054;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.patient-edit-field__input {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #ffffff;
+  color: #1f2430;
+  outline: none;
+}
+
+.patient-edit-field__input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
 .task-choice-modal__close {
   border: none;
   background: #f2f4f7;
@@ -242,6 +283,8 @@ a {
 .task-choice-modal__actions {
   display: flex;
   justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .task-choice-cancel {
@@ -253,6 +296,17 @@ a {
   font-weight: 800;
   cursor: pointer;
   box-shadow: var(--shadow-soft);
+}
+
+.task-choice-save {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
 }
 
 .bottom-nav {

@@ -66,16 +66,49 @@
             <div>
               <p class="task-choice-modal__label">Paciente selecionado</p>
               <h3 id="taskChoiceTitle">Vamos alterar os dados desse paciente</h3>
-              <p class="task-choice-modal__subtitle" id="taskChoicePatientName"></p>
+              <p class="task-choice-modal__subtitle">Somente o apelido poderá ser alterado nesta etapa.</p>
             </div>
             <button class="task-choice-modal__close" id="btnCloseTaskChoice" type="button" aria-label="Fechar">
               ✕
             </button>
           </div>
 
+          <div class="patient-edit-form">
+            <div class="patient-edit-field">
+              <span class="patient-edit-field__label">Nome do paciente</span>
+              <strong class="patient-edit-field__value" id="taskChoicePatientName">-</strong>
+            </div>
+
+            <div class="patient-edit-field">
+              <span class="patient-edit-field__label">E-mail do paciente</span>
+              <strong class="patient-edit-field__value" id="taskChoicePatientEmail">-</strong>
+            </div>
+
+            <div class="patient-edit-field">
+              <span class="patient-edit-field__label">WhatsApp do paciente</span>
+              <strong class="patient-edit-field__value" id="taskChoicePatientWhatsapp">-</strong>
+            </div>
+
+            <label class="patient-edit-field" for="taskChoicePatientAlias">
+              <span class="patient-edit-field__label">Apelido</span>
+              <input
+                class="patient-edit-field__input"
+                id="taskChoicePatientAlias"
+                type="text"
+                maxlength="120"
+                placeholder="Digite o apelido do paciente"
+              />
+            </label>
+          </div>
+
+          <div class="screen-message" id="taskChoiceMessage" hidden></div>
+
           <div class="task-choice-modal__actions">
             <button class="task-choice-cancel" id="btnCancelTaskChoice" type="button">
               Cancelar
+            </button>
+            <button class="task-choice-save" id="btnSaveTaskChoice" type="button">
+              Gravar
             </button>
           </div>
         </div>

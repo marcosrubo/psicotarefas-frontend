@@ -8,8 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskChoiceModal = document.getElementById("taskChoiceModal");
   const taskChoiceBackdrop = document.getElementById("taskChoiceBackdrop");
   const taskChoicePatientName = document.getElementById("taskChoicePatientName");
+  const taskChoicePatientEmail = document.getElementById("taskChoicePatientEmail");
+  const taskChoicePatientWhatsapp = document.getElementById("taskChoicePatientWhatsapp");
+  const taskChoicePatientAlias = document.getElementById("taskChoicePatientAlias");
+  const taskChoiceMessage = document.getElementById("taskChoiceMessage");
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
   const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
+  const btnSaveTaskChoice = document.getElementById("btnSaveTaskChoice");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -17,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let currentProfile = null;
   let patients = [];
+  let selectedPatient = null;
 
   function showScreenError(message) {
     if (!screenMessage) return;
@@ -28,6 +34,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!screenMessage) return;
     screenMessage.hidden = true;
     screenMessage.textContent = "";
+  }
+
+  function setTaskChoiceMessage(text = "", type = "error") {
+    if (!taskChoiceMessage) return;
+
+    if (!text) {
+      taskChoiceMessage.hidden = true;
+      taskChoiceMessage.textContent = "";
+      taskChoiceMessage.className = "screen-message";
+      return;
+    }
+
+    taskChoiceMessage.hidden = false;
+    taskChoiceMessage.textContent = text;
+    taskChoiceMessage.className = `screen-message screen-message--${type}`;
   }
 
   function escapeHtml(value) {
@@ -55,12 +76,85 @@ document.addEventListener("DOMContentLoaded", () => {
   function fecharMensagemPaciente() {
     if (!taskChoiceModal) return;
     taskChoiceModal.hidden = true;
+    selectedPatient = null;
+    setTaskChoiceMessage();
   }
 
   function abrirMensagemPaciente(patient) {
-    if (!taskChoiceModal || !taskChoicePatientName) return;
-    taskChoicePatientName.textContent = `Paciente: ${patient.alias}`;
+    if (!taskChoiceModal || !taskChoicePatientName || !taskChoicePatientAlias) return;
+    selectedPatient = patient;
+    taskChoicePatientName.textContent = patient.nome_real || "-";
+    if (taskChoicePatientEmail) {
+      taskChoicePatientEmail.textContent = patient.email || "Não informado";
+    }
+    if (taskChoicePatientWhatsapp) {
+      taskChoicePatientWhatsapp.textContent = patient.whatsapp || "Não informado";
+    }
+    taskChoicePatientAlias.value = patient.alias || "";
+    setTaskChoiceMessage();
     taskChoiceModal.hidden = false;
+    window.setTimeout(() => {
+      taskChoicePatientAlias.focus();
+      taskChoicePatientAlias.select();
+    }, 60);
+  }
+
+  async function salvarApelidoPaciente() {
+    if (!selectedPatient || !taskChoicePatientAlias || !btnSaveTaskChoice) return;
+
+    const alias = taskChoicePatientAlias.value.trim();
+
+    if (!alias) {
+      setTaskChoiceMessage("Digite um apelido válido para o paciente.", "error");
+      return;
+    }
+
+    btnSaveTaskChoice.disabled = true;
+    btnSaveTaskChoice.textContent = "Gravando...";
+    setTaskChoiceMessage();
+
+    try {
+      const { error } = await supabase
+        .from("vinculos")
+        .update({
+          patient_alias: alias
+        })
+        .eq("id", selectedPatient.vinculo_id)
+        .eq("professional_user_id", currentUser.id);
+
+      if (error) {
+        throw new Error(`Não foi possível salvar o apelido: ${error.message}`);
+      }
+
+      selectedPatient.alias = alias;
+
+      const patientIndex = patients.findIndex((item) => item.vinculo_id === selectedPatient.vinculo_id);
+      if (patientIndex >= 0) {
+        patients[patientIndex].alias = alias;
+      }
+
+      patients.sort((a, b) => a.alias.localeCompare(b.alias, "pt-BR", { sensitivity: "base" }));
+      renderPatients();
+
+      await registrarEvento({
+        userId: currentUser?.id,
+        email: currentProfile?.email || currentUser?.email || "",
+        perfil: "profissional",
+        evento: "apelido_paciente_atualizado",
+        pagina: "cadastro_pacientes",
+        contexto: {
+          paciente_id: selectedPatient.patient_user_id,
+          vinculo_id: selectedPatient.vinculo_id
+        }
+      });
+
+      fecharMensagemPaciente();
+    } catch (error) {
+      setTaskChoiceMessage(error.message || "Erro ao salvar o apelido.", "error");
+    } finally {
+      btnSaveTaskChoice.disabled = false;
+      btnSaveTaskChoice.textContent = "Gravar";
+    }
   }
 
   async function sairDoSistema() {
@@ -161,7 +255,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return {
           vinculo_id: item.vinculo_id,
           patient_user_id: item.patient_user_id,
-          alias: item.patient_alias || nomeCompleto
+          alias: item.patient_alias || nomeCompleto,
+          nome_real: nomeCompleto,
+          email: item.patient_email || "",
+          whatsapp: item.patient_whatsapp || ""
         };
       })
       .sort((a, b) => a.alias.localeCompare(b.alias, "pt-BR", { sensitivity: "base" }));
@@ -229,6 +326,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCancelTaskChoice) {
     btnCancelTaskChoice.addEventListener("click", fecharMensagemPaciente);
+  }
+
+  if (btnSaveTaskChoice) {
+    btnSaveTaskChoice.addEventListener("click", salvarApelidoPaciente);
   }
 
   if (btnBottomMenu) {
