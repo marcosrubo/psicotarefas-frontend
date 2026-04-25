@@ -155,26 +155,70 @@ a {
 .patients-grid {
   margin-top: 18px;
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .patient-select-button {
-  border: none;
-  border-radius: 18px;
-  min-height: 72px;
-  padding: 18px 20px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
-  font-weight: 800;
-  font-size: 22px;
-  line-height: 1.1;
-  text-align: center;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
+  appearance: none;
+  border: 1px solid rgba(108, 94, 252, 0.12);
+  border-radius: 20px;
+  min-height: 74px;
+  padding: 18px 56px 18px 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 253, 0.96));
+  color: #1f2430;
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.15;
+  text-align: left;
+  box-shadow:
+    0 10px 24px rgba(31, 36, 48, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.patient-select-button::after {
+  content: "›";
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(86, 71, 239, 0.72);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.patient-select-button:hover,
+.patient-select-button:focus-visible {
+  border-color: rgba(108, 94, 252, 0.3);
+  background:
+    linear-gradient(135deg, rgba(109, 94, 252, 0.1), rgba(86, 71, 239, 0.06)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 248, 253, 0.98));
+  color: #171b26;
+  box-shadow:
+    0 16px 36px rgba(86, 71, 239, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  transform: translateY(-1px);
+}
+
+.patient-select-button:focus-visible {
+  outline: none;
+}
+
+.patient-select-button:hover::after,
+.patient-select-button:focus-visible::after {
+  color: var(--primary-dark);
 }
 
 .patient-select-button:active {
-  transform: scale(0.98);
+  transform: scale(0.992);
 }
 
 .task-choice-modal[hidden] {
