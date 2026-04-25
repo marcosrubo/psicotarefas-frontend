@@ -58,6 +58,37 @@
 
         <div class="patients-grid" id="patientsGrid"></div>
       </section>
+
+      <section class="task-choice-modal" id="taskChoiceModal" hidden aria-label="Opções de tarefa">
+        <div class="task-choice-modal__backdrop" id="taskChoiceBackdrop"></div>
+        <div class="task-choice-modal__card" role="dialog" aria-modal="true" aria-labelledby="taskChoiceTitle">
+          <div class="task-choice-modal__header">
+            <div>
+              <p class="task-choice-modal__label">Paciente selecionado</p>
+              <h3 id="taskChoiceTitle">Escolha como deseja atribuir a tarefa</h3>
+              <p class="task-choice-modal__subtitle" id="taskChoicePatientName"></p>
+            </div>
+            <button class="task-choice-modal__close" id="btnCloseTaskChoice" type="button" aria-label="Fechar">
+              ✕
+            </button>
+          </div>
+
+          <div class="task-choice-modal__options">
+            <button class="task-choice-option" type="button">
+              Atribuir uma TAREFA SIMPLES
+            </button>
+            <button class="task-choice-option" type="button">
+              Anexar um PDF
+            </button>
+            <button class="task-choice-option" type="button">
+              Atribuir uma TAREFA do BANCO de TAREFAS
+            </button>
+            <button class="task-choice-option" type="button">
+              Criar uma TAREFA com IA
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">

@@ -177,6 +177,100 @@ a {
   transform: scale(0.98);
 }
 
+.task-choice-modal[hidden] {
+  display: none !important;
+}
+
+.task-choice-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.task-choice-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+.task-choice-modal__card {
+  position: relative;
+  z-index: 1;
+  width: min(calc(100vw - 24px), 560px);
+  margin: 10vh auto 0;
+  padding: 20px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  display: grid;
+  gap: 18px;
+}
+
+.task-choice-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.task-choice-modal__label {
+  margin: 0 0 6px;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.task-choice-modal__header h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.task-choice-modal__subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.task-choice-modal__close {
+  border: none;
+  background: #f2f4f7;
+  color: #344054;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.task-choice-modal__options {
+  display: grid;
+  gap: 12px;
+}
+
+.task-choice-option {
+  border: 1px solid rgba(109, 94, 252, 0.14);
+  border-radius: 18px;
+  padding: 18px 20px;
+  background:
+    radial-gradient(circle at top right, rgba(109, 94, 252, 0.1), transparent 35%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
+  color: #1f2430;
+  font-weight: 800;
+  font-size: 18px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task-choice-option:active {
+  transform: scale(0.99);
+}
+
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -313,10 +407,6 @@ a {
     padding-top: 24px;
   }
 
-  .patients-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .bottom-nav {
     left: 50%;
     right: auto;
@@ -355,5 +445,18 @@ a {
   .patient-select-button {
     width: 100%;
     font-size: 20px;
+  }
+
+  .task-choice-modal__card {
+    margin-top: 8vh;
+    padding: 18px;
+  }
+
+  .task-choice-modal__header h3 {
+    font-size: 21px;
+  }
+
+  .task-choice-option {
+    font-size: 17px;
   }
 }

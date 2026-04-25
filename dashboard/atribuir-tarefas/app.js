@@ -5,6 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
   const screenMessage = document.getElementById("screenMessage");
+  const taskChoiceModal = document.getElementById("taskChoiceModal");
+  const taskChoiceBackdrop = document.getElementById("taskChoiceBackdrop");
+  const taskChoicePatientName = document.getElementById("taskChoicePatientName");
+  const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -12,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let currentProfile = null;
   let patients = [];
+  let selectedPatient = null;
 
   function showScreenError(message) {
     if (!screenMessage) return;
@@ -57,6 +62,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const vaiAbrir = bottomMenuPanel.hidden;
     bottomMenuPanel.hidden = !vaiAbrir;
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
+  }
+
+  function fecharEscolhaDeTarefa() {
+    if (!taskChoiceModal) return;
+    taskChoiceModal.hidden = true;
+  }
+
+  function abrirEscolhaDeTarefa(patient) {
+    if (!taskChoiceModal || !taskChoicePatientName) return;
+    selectedPatient = patient;
+    taskChoicePatientName.textContent = `Paciente: ${patient.alias}`;
+    taskChoiceModal.hidden = false;
   }
 
   async function sairDoSistema() {
@@ -193,11 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  function abrirGestaoDeTarefas(patientId) {
-    const url = `../profissional-tarefas/index.html?patient=${encodeURIComponent(patientId)}`;
-    window.location.href = url;
-  }
-
   if (patientsGrid) {
     patientsGrid.addEventListener("click", (event) => {
       const button = event.target.closest("[data-patient-id]");
@@ -218,8 +230,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      abrirGestaoDeTarefas(patientId);
+      abrirEscolhaDeTarefa(patient);
     });
+  }
+
+  if (taskChoiceBackdrop) {
+    taskChoiceBackdrop.addEventListener("click", fecharEscolhaDeTarefa);
+  }
+
+  if (btnCloseTaskChoice) {
+    btnCloseTaskChoice.addEventListener("click", fecharEscolhaDeTarefa);
   }
 
   if (btnBottomMenu) {
@@ -244,6 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       fecharMenuInferior();
+      fecharEscolhaDeTarefa();
     }
   });
 
