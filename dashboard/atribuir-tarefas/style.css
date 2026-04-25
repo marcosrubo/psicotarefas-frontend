@@ -253,6 +253,11 @@ a {
   gap: 12px;
 }
 
+.task-choice-modal__actions {
+  display: flex;
+  justify-content: center;
+}
+
 .task-choice-option {
   border: 1px solid rgba(109, 94, 252, 0.14);
   border-radius: 18px;
@@ -269,6 +274,17 @@ a {
 
 .task-choice-option:active {
   transform: scale(0.99);
+}
+
+.task-choice-cancel {
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 12px 28px;
+  background: #ffffff;
+  color: #344054;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
 }
 
 .bottom-nav {

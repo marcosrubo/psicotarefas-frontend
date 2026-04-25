@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskChoiceBackdrop = document.getElementById("taskChoiceBackdrop");
   const taskChoicePatientName = document.getElementById("taskChoicePatientName");
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
+  const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -240,6 +241,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCloseTaskChoice) {
     btnCloseTaskChoice.addEventListener("click", fecharEscolhaDeTarefa);
+  }
+
+  if (btnCancelTaskChoice) {
+    btnCancelTaskChoice.addEventListener("click", fecharEscolhaDeTarefa);
   }
 
   if (btnBottomMenu) {
