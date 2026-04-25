@@ -190,18 +190,19 @@ ul {
 
 .install-dock {
   position: fixed;
-  left: 50%;
-  bottom: 16px;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: none;
   z-index: 950;
-  width: min(calc(100vw - 24px), 720px);
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
-  padding: 8px;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
   background: rgba(35, 48, 70, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+  border-radius: 24px 24px 0 0;
   box-shadow: 0 18px 36px rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(14px);
 }
@@ -704,9 +705,9 @@ ul {
   }
 
   .install-dock {
-    width: calc(100vw - 12px);
-    bottom: 6px;
-    padding: 8px;
+    width: 100%;
+    bottom: 0;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
     gap: 2px;
   }
 
@@ -726,6 +727,16 @@ ul {
   .app-shell {
     max-width: 900px;
     margin: 0 auto;
+  }
+
+  .install-dock {
+    left: 50%;
+    right: auto;
+    bottom: 18px;
+    transform: translateX(-50%);
+    width: min(calc(100vw - 24px), 720px);
+    padding: 8px;
+    border-radius: 24px;
   }
 
   .hero {
