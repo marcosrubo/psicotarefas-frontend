@@ -125,6 +125,25 @@ a {
   font-size: 28px;
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-header__action {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.2);
+  flex-shrink: 0;
+}
+
 .screen-message {
   border-radius: 16px;
   padding: 14px 16px;
@@ -506,6 +525,14 @@ a {
 
   .section-header h2 {
     font-size: 22px;
+  }
+
+  .section-header {
+    align-items: flex-start;
+  }
+
+  .section-header__action {
+    padding-inline: 16px;
   }
 
   .patient-select-button {

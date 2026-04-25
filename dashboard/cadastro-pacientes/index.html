@@ -50,6 +50,9 @@
           <div>
             <h2>Pacientes vinculados</h2>
           </div>
+          <button class="section-header__action" id="btnOpenInviteModal" type="button">
+            Convidar
+          </button>
         </div>
 
         <div class="empty-state" id="patientsEmptyState" hidden>
@@ -151,6 +154,59 @@
             </button>
             <button class="task-choice-save" id="btnSaveTaskChoice" type="button">
               Gravar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="task-choice-modal" id="inviteModal" hidden aria-label="Novo convite">
+        <div class="task-choice-modal__backdrop" id="inviteModalBackdrop"></div>
+        <div class="task-choice-modal__card" role="dialog" aria-modal="true" aria-labelledby="inviteModalTitle">
+          <div class="task-choice-modal__header">
+            <div>
+              <p class="task-choice-modal__label">Novo convite</p>
+              <h3 id="inviteModalTitle">Convidar paciente</h3>
+              <p class="task-choice-modal__subtitle">Preencha os dados abaixo para enviar o convite pelo WhatsApp.</p>
+            </div>
+            <button class="task-choice-modal__close" id="btnCloseInviteModal" type="button" aria-label="Fechar">
+              ✕
+            </button>
+          </div>
+
+          <div class="patient-edit-form">
+            <label class="patient-edit-field" for="invitePatientName">
+              <span class="patient-edit-field__label">Nome</span>
+              <input
+                class="patient-edit-field__input"
+                id="invitePatientName"
+                type="text"
+                maxlength="120"
+                placeholder="Digite o nome do paciente"
+                autocomplete="name"
+              />
+            </label>
+
+            <label class="patient-edit-field" for="invitePatientWhatsapp">
+              <span class="patient-edit-field__label">WhatsApp</span>
+              <input
+                class="patient-edit-field__input"
+                id="invitePatientWhatsapp"
+                type="tel"
+                maxlength="20"
+                placeholder="(43) 99999-9999"
+                autocomplete="tel"
+              />
+            </label>
+          </div>
+
+          <div class="screen-message" id="inviteModalMessage" hidden></div>
+
+          <div class="task-choice-modal__actions">
+            <button class="task-choice-cancel" id="btnCancelInviteModal" type="button">
+              Cancelar
+            </button>
+            <button class="task-choice-save" id="btnSubmitInviteModal" type="button">
+              CONVIDAR
             </button>
           </div>
         </div>

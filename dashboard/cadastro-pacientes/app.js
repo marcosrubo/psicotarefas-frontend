@@ -4,6 +4,7 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 document.addEventListener("DOMContentLoaded", () => {
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
+  const btnOpenInviteModal = document.getElementById("btnOpenInviteModal");
   const awaitingEmailList = document.getElementById("awaitingEmailList");
   const awaitingEmailEmptyState = document.getElementById("awaitingEmailEmptyState");
   const pendingInviteList = document.getElementById("pendingInviteList");
@@ -21,12 +22,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
   const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
   const btnSaveTaskChoice = document.getElementById("btnSaveTaskChoice");
+  const inviteModal = document.getElementById("inviteModal");
+  const inviteModalBackdrop = document.getElementById("inviteModalBackdrop");
+  const invitePatientName = document.getElementById("invitePatientName");
+  const invitePatientWhatsapp = document.getElementById("invitePatientWhatsapp");
+  const inviteModalMessage = document.getElementById("inviteModalMessage");
+  const btnCloseInviteModal = document.getElementById("btnCloseInviteModal");
+  const btnCancelInviteModal = document.getElementById("btnCancelInviteModal");
+  const btnSubmitInviteModal = document.getElementById("btnSubmitInviteModal");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
 
   let currentUser = null;
   let currentProfile = null;
+  let currentProfessionalName = "seu psicólogo(a)";
   let patients = [];
   let awaitingEmailPatients = [];
   let pendingInvitePatients = [];
@@ -70,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function formatarWhatsapp(value) {
-    const digits = String(value || "").replace(/\D/g, "");
+    const digits = normalizarWhatsapp(value).slice(0, 13);
 
     if (!digits) return "Não informado";
     if (digits.length <= 2) return digits;
@@ -80,6 +90,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+  }
+
+  function normalizarWhatsapp(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  function gerarTokenConvite() {
+    if (window.crypto?.randomUUID) {
+      return window.crypto.randomUUID();
+    }
+
+    return `conv-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+  }
+
+  function montarLinkConvite(token) {
+    return `${window.location.origin}/?convite=${encodeURIComponent(token)}`;
+  }
+
+  function montarMensagemWhatsapp(nomePaciente, link) {
+    return (
+      `Olá, ${nomePaciente}! ` +
+      `Seu psicólogo(a) ${currentProfessionalName} enviou um convite para acessar o PsicoTarefas.\n\n` +
+      `Use este link para entrar no sistema:\n${link}`
+    );
   }
 
   function fecharMenuInferior() {
@@ -118,6 +152,39 @@ document.addEventListener("DOMContentLoaded", () => {
     window.setTimeout(() => {
       taskChoicePatientAlias.focus();
       taskChoicePatientAlias.select();
+    }, 60);
+  }
+
+  function setInviteModalMessage(text = "", type = "error") {
+    if (!inviteModalMessage) return;
+
+    if (!text) {
+      inviteModalMessage.hidden = true;
+      inviteModalMessage.textContent = "";
+      inviteModalMessage.className = "screen-message";
+      return;
+    }
+
+    inviteModalMessage.hidden = false;
+    inviteModalMessage.textContent = text;
+    inviteModalMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function fecharModalConvite() {
+    if (!inviteModal) return;
+    inviteModal.hidden = true;
+    setInviteModalMessage();
+
+    if (invitePatientName) invitePatientName.value = "";
+    if (invitePatientWhatsapp) invitePatientWhatsapp.value = "";
+  }
+
+  function abrirModalConvite() {
+    if (!inviteModal || !invitePatientName) return;
+    setInviteModalMessage();
+    inviteModal.hidden = false;
+    window.setTimeout(() => {
+      invitePatientName.focus();
     }, 60);
   }
 
@@ -176,6 +243,147 @@ document.addEventListener("DOMContentLoaded", () => {
     } finally {
       btnSaveTaskChoice.disabled = false;
       btnSaveTaskChoice.textContent = "Gravar";
+    }
+  }
+
+  async function criarEstruturaConvite({
+    token,
+    patientName,
+    patientWhatsapp,
+    inviteLink
+  }) {
+    const { error: erroCriarConvite } = await supabase.from("convites").insert({
+      token,
+      professional_user_id: currentUser.id,
+      patient_name: patientName,
+      patient_whatsapp: patientWhatsapp,
+      invite_link: inviteLink,
+      status: "pendente"
+    });
+
+    if (erroCriarConvite) {
+      throw erroCriarConvite;
+    }
+
+    const { error: erroCriarVinculo } = await supabase.from("vinculos").insert({
+      professional_user_id: currentUser.id,
+      patient_user_id: null,
+      token_convite: token,
+      patient_name: patientName,
+      patient_whatsapp: patientWhatsapp,
+      patient_email: null,
+      convite_created_at: new Date().toISOString(),
+      respondeu_convite_at: null,
+      confirmed_at: null,
+      status: "pendente_convite"
+    });
+
+    if (erroCriarVinculo) {
+      await supabase
+        .from("convites")
+        .delete()
+        .eq("token", token)
+        .eq("professional_user_id", currentUser.id);
+
+      throw erroCriarVinculo;
+    }
+  }
+
+  function abrirWhatsappConvite(numero, nomePaciente, link) {
+    const digits = normalizarWhatsapp(numero);
+
+    if (!digits) {
+      throw new Error("Informe um WhatsApp válido para abrir o envio.");
+    }
+
+    const mensagem = encodeURIComponent(montarMensagemWhatsapp(nomePaciente, link));
+    const url = `https://wa.me/${digits}?text=${mensagem}`;
+
+    window.open(url, "_blank");
+  }
+
+  async function convidarPaciente() {
+    if (!invitePatientName || !invitePatientWhatsapp || !btnSubmitInviteModal) return;
+
+    const patientName = invitePatientName.value.trim();
+    const patientWhatsapp = normalizarWhatsapp(invitePatientWhatsapp.value);
+
+    if (!patientName) {
+      setInviteModalMessage("Informe o nome do paciente.", "error");
+      return;
+    }
+
+    if (patientWhatsapp.length < 10) {
+      setInviteModalMessage("Informe um WhatsApp válido com DDD.", "error");
+      return;
+    }
+
+    btnSubmitInviteModal.disabled = true;
+    btnSubmitInviteModal.textContent = "Convidando...";
+    setInviteModalMessage();
+
+    const token = gerarTokenConvite();
+    const inviteLink = montarLinkConvite(token);
+
+    try {
+      await criarEstruturaConvite({
+        token,
+        patientName,
+        patientWhatsapp,
+        inviteLink
+      });
+
+      await registrarEvento({
+        evento: "convite_criado",
+        pagina: "cadastro_pacientes",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          patient_name: patientName
+        }
+      });
+
+      abrirWhatsappConvite(patientWhatsapp, patientName, inviteLink);
+
+      await registrarEvento({
+        evento: "whatsapp_convite_aberto",
+        pagina: "cadastro_pacientes",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          origem: "cadastro_pacientes",
+          patient_name: patientName
+        }
+      });
+
+      fecharModalConvite();
+      await carregarPacientesPorStatus();
+      renderCompactSection(
+        awaitingEmailList,
+        awaitingEmailEmptyState,
+        awaitingEmailPatients,
+        "Nenhum paciente aguardando confirmação de e-mail."
+      );
+      renderCompactSection(
+        pendingInviteList,
+        pendingInviteEmptyState,
+        pendingInvitePatients,
+        "Nenhum paciente aguardando aceite de convite."
+      );
+      renderCompactSection(
+        canceledInviteList,
+        canceledInviteEmptyState,
+        canceledInvitePatients,
+        "Nenhum convite cancelado."
+      );
+    } catch (error) {
+      console.error("Erro ao gerar convite:", error);
+      setInviteModalMessage("Não foi possível gerar o convite.", "error");
+    } finally {
+      btnSubmitInviteModal.disabled = false;
+      btnSubmitInviteModal.textContent = "CONVIDAR";
     }
   }
 
@@ -249,6 +457,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
+    currentProfessionalName =
+      (perfil.nome || perfil.email || "")
+        .trim()
+        .split("@")[0]
+        .trim() || "seu psicólogo(a)";
 
     await registrarAcessoPagina({
       pagina: "cadastro_pacientes",
@@ -428,6 +641,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (btnOpenInviteModal) {
+    btnOpenInviteModal.addEventListener("click", abrirModalConvite);
+  }
+
   if (taskChoiceBackdrop) {
     taskChoiceBackdrop.addEventListener("click", fecharMensagemPaciente);
   }
@@ -442,6 +659,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnSaveTaskChoice) {
     btnSaveTaskChoice.addEventListener("click", salvarApelidoPaciente);
+  }
+
+  if (inviteModalBackdrop) {
+    inviteModalBackdrop.addEventListener("click", fecharModalConvite);
+  }
+
+  if (btnCloseInviteModal) {
+    btnCloseInviteModal.addEventListener("click", fecharModalConvite);
+  }
+
+  if (btnCancelInviteModal) {
+    btnCancelInviteModal.addEventListener("click", fecharModalConvite);
+  }
+
+  if (btnSubmitInviteModal) {
+    btnSubmitInviteModal.addEventListener("click", convidarPaciente);
+  }
+
+  if (invitePatientWhatsapp) {
+    invitePatientWhatsapp.addEventListener("input", () => {
+      invitePatientWhatsapp.value = formatarWhatsapp(invitePatientWhatsapp.value);
+    });
   }
 
   if (btnBottomMenu) {
@@ -467,6 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Escape") {
       fecharMenuInferior();
       fecharMensagemPaciente();
+      fecharModalConvite();
     }
   });
 
