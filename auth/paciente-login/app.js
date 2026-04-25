@@ -306,6 +306,17 @@ async function pacienteTemVinculoAtivo(userId) {
   return Array.isArray(data) && data.length > 0;
 }
 
+async function obterDestinoPorPerfil(userId, perfil) {
+  if (perfil === "profissional") {
+    return "../../dashboard/profissional/index.html";
+  }
+
+  const temVinculo = await pacienteTemVinculoAtivo(userId);
+  return temVinculo
+    ? "../../dashboard/paciente-com-vinculo/index.html"
+    : "../../dashboard/paciente-sem-vinculo/index.html";
+}
+
 async function processarConviteParaPaciente(userId, patientEmail) {
   if (!conviteToken) {
     return;
@@ -451,11 +462,14 @@ authForm.addEventListener("submit", async (event) => {
     const perfilUsuario = await buscarPerfilUsuario(user.id);
 
     if (perfilUsuario.perfil !== "paciente") {
-      await supabase.auth.signOut();
+      const destino = await obterDestinoPorPerfil(user.id, perfilUsuario.perfil);
       mostrarMensagem(
-        "Este login não pertence a um paciente. Use a área correta de acesso.",
-        "error"
+        "Esta conta já está ativa em outro painel. Redirecionando...",
+        "success"
       );
+      window.setTimeout(() => {
+        window.location.href = destino;
+      }, 800);
       return;
     }
 
@@ -508,15 +522,23 @@ authForm.addEventListener("submit", async (event) => {
 });
 
 async function inicializarLogin() {
-  try {
-    await supabase.auth.signOut();
-  } catch (error) {
-    console.error("Erro ao limpar sessão no login de paciente:", error);
-  }
-
   configurarTelaBase();
   await validarConvite();
   aplicarContextoConviteNaTela();
+
+  try {
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      const perfilUsuario = await buscarPerfilUsuario(session.user.id);
+      const destino = await obterDestinoPorPerfil(session.user.id, perfilUsuario.perfil);
+      window.location.href = destino;
+    }
+  } catch (error) {
+    console.error("Erro ao inicializar login de paciente:", error);
+  }
 }
 
 inicializarLogin();

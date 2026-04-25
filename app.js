@@ -44,7 +44,13 @@ function createSupabaseClient() {
     return null;
   }
 
-  return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
 }
 
 function obterHashParams() {
@@ -197,6 +203,62 @@ async function buscarConvitePublico(token) {
   }
 
   return data[0];
+}
+
+async function buscarPerfilAutenticado(userId) {
+  const { data, error } = await supabaseClient
+    .from("perfis")
+    .select("perfil")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+async function pacienteTemVinculoAtivo(userId) {
+  const { data, error } = await supabaseClient
+    .from("vinculos")
+    .select("id")
+    .eq("patient_user_id", userId)
+    .eq("status", "ativo")
+    .limit(1);
+
+  if (error) {
+    return false;
+  }
+
+  return Array.isArray(data) && data.length > 0;
+}
+
+async function obterDestinoDashboardPorSessao(user) {
+  if (!user) return "";
+
+  if ((user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    return ADMIN_DASHBOARD_URL;
+  }
+
+  const perfil = await buscarPerfilAutenticado(user.id);
+
+  if (!perfil?.perfil) {
+    return "";
+  }
+
+  if (perfil.perfil === "profissional") {
+    return "./dashboard/profissional/index.html";
+  }
+
+  if (perfil.perfil === "paciente") {
+    const temVinculo = await pacienteTemVinculoAtivo(user.id);
+    return temVinculo
+      ? "./dashboard/paciente-com-vinculo/index.html"
+      : "./dashboard/paciente-sem-vinculo/index.html";
+  }
+
+  return "";
 }
 
 // ============================
@@ -542,12 +604,27 @@ async function checkExistingAdminSession() {
   }
 
   try {
-    await supabaseClient.auth.signOut();
-  } catch (error) {
-    console.error("Erro ao limpar sessão na tela principal:", error);
-  }
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
 
-  adminSessionActive = false;
+    if (!session?.user) {
+      adminSessionActive = false;
+      return;
+    }
+
+    const destino = await obterDestinoDashboardPorSessao(session.user);
+
+    if (destino) {
+      window.location.href = destino;
+      return;
+    }
+
+    adminSessionActive = false;
+  } catch (error) {
+    console.error("Erro ao verificar sessão existente na tela principal:", error);
+    adminSessionActive = false;
+  }
 }
 
 async function handleAdminLogin(event) {

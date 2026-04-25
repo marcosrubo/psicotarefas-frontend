@@ -1126,6 +1126,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  async function pacienteTemVinculoAtivo(userId) {
+    const { data, error } = await supabase
+      .from("vinculos")
+      .select("id")
+      .eq("patient_user_id", userId)
+      .eq("status", "ativo")
+      .limit(1);
+
+    if (error) {
+      return false;
+    }
+
+    return Array.isArray(data) && data.length > 0;
+  }
+
+  async function redirecionarPorPerfil(userId, perfil) {
+    if (perfil === "profissional") {
+      window.location.href = "../../dashboard/profissional/index.html";
+      return;
+    }
+
+    if (perfil === "paciente") {
+      const temVinculo = await pacienteTemVinculoAtivo(userId);
+      window.location.href = temVinculo
+        ? "../../dashboard/paciente-com-vinculo/index.html"
+        : "../../dashboard/paciente-sem-vinculo/index.html";
+      return;
+    }
+
+    window.location.href = "../../auth/profissional-login/index.html";
+  }
+
   async function obterUsuarioAutenticado() {
     for (let tentativa = 0; tentativa < 2; tentativa += 1) {
       const {
@@ -1179,8 +1211,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!perfil || perfil.perfil !== "profissional") {
-      await supabase.auth.signOut();
-      window.location.href = "../../auth/profissional-login/index.html";
+      await redirecionarPorPerfil(currentUser.id, perfil?.perfil || "");
       return false;
     }
 

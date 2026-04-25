@@ -120,6 +120,32 @@ async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
   }
 }
 
+async function pacienteTemVinculoAtivo(userId) {
+  const { data, error } = await supabase
+    .from("vinculos")
+    .select("id")
+    .eq("patient_user_id", userId)
+    .eq("status", "ativo")
+    .limit(1);
+
+  if (error) {
+    return false;
+  }
+
+  return Array.isArray(data) && data.length > 0;
+}
+
+async function obterDestinoPorPerfil(userId, perfil) {
+  if (perfil === "profissional") {
+    return "../../dashboard/profissional/index.html";
+  }
+
+  const temVinculo = await pacienteTemVinculoAtivo(userId);
+  return temVinculo
+    ? "../../dashboard/paciente-com-vinculo/index.html"
+    : "../../dashboard/paciente-sem-vinculo/index.html";
+}
+
 toggleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const targetId = button.getAttribute("data-target");
@@ -165,11 +191,14 @@ authForm.addEventListener("submit", async (event) => {
     const perfilUsuario = await buscarPerfilUsuario(user.id);
 
     if (perfilUsuario.perfil !== "profissional") {
-      await supabase.auth.signOut();
+      const destino = await obterDestinoPorPerfil(user.id, perfilUsuario.perfil);
       mostrarMensagem(
-        "Este login não pertence a um profissional. Use a área correta de acesso.",
-        "error"
+        "Esta conta já está ativa em outro painel. Redirecionando...",
+        "success"
       );
+      window.setTimeout(() => {
+        window.location.href = destino;
+      }, 800);
       return;
     }
 
@@ -208,7 +237,9 @@ async function inicializarLogin() {
     } = await supabase.auth.getSession();
 
     if (session?.user) {
-      window.location.href = "../../dashboard/profissional/index.html";
+      const perfilUsuario = await buscarPerfilUsuario(session.user.id);
+      const destino = await obterDestinoPorPerfil(session.user.id, perfilUsuario.perfil);
+      window.location.href = destino;
     }
   } catch (error) {
     console.error("Erro ao inicializar login de profissional:", error);

@@ -105,6 +105,38 @@ document.addEventListener("DOMContentLoaded", () => {
     return nomeLimpo.split(" ")[0];
   }
 
+  async function pacienteTemVinculoAtivo(userId) {
+    const { data, error } = await supabase
+      .from("vinculos")
+      .select("id")
+      .eq("patient_user_id", userId)
+      .eq("status", "ativo")
+      .limit(1);
+
+    if (error) {
+      return false;
+    }
+
+    return Array.isArray(data) && data.length > 0;
+  }
+
+  async function redirecionarPorPerfil(userId, perfil) {
+    if (perfil === "profissional") {
+      window.location.href = "../../dashboard/profissional/index.html";
+      return;
+    }
+
+    if (perfil === "paciente") {
+      const temVinculo = await pacienteTemVinculoAtivo(userId);
+      window.location.href = temVinculo
+        ? "../../dashboard/paciente-com-vinculo/index.html"
+        : "../../dashboard/paciente-sem-vinculo/index.html";
+      return;
+    }
+
+    window.location.href = "../../auth/index.html?perfil=paciente";
+  }
+
   function formatarData(dataIso) {
     return new Date(dataIso).toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -388,14 +420,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .single();
 
     if (error || !perfil) {
-      await supabase.auth.signOut();
       window.location.href = "../../auth/index.html?perfil=paciente";
       return false;
     }
 
     if (perfil.perfil !== "paciente") {
-      await supabase.auth.signOut();
-      window.location.href = "../../auth/index.html?perfil=paciente";
+      await redirecionarPorPerfil(currentUser.id, perfil.perfil);
       return false;
     }
 

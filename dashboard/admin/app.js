@@ -126,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (session.user.email !== ADMIN_EMAIL) {
-      await supabase.auth.signOut();
       window.location.href = "/";
       return false;
     }
