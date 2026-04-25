@@ -59,6 +59,10 @@ a {
   gap: 10px;
 }
 
+.topbar__nav .back-link {
+  justify-self: start;
+}
+
 .topbar__nav .support-link {
   justify-self: end;
 }
@@ -331,6 +335,7 @@ a {
 
 .bottom-nav__menu-item {
   appearance: none;
+  display: block;
   border: none;
   width: 100%;
   text-align: left;
