@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBack = document.getElementById("btnBack");
   const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
+  const btnBottomHome = document.getElementById("btnBottomHome");
+  const btnBottomMenu = document.getElementById("btnBottomMenu");
+  const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const invitePanel = document.getElementById("invitePanel");
   const inviteForm = document.getElementById("inviteForm");
   const inviteMessage = document.getElementById("inviteMessage");
@@ -196,6 +199,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (generatedLinkInput) generatedLinkInput.value = "";
     if (generatedLinkBox) generatedLinkBox.hidden = true;
+  }
+
+  function fecharMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    bottomMenuPanel.hidden = true;
+    btnBottomMenu.setAttribute("aria-expanded", "false");
+  }
+
+  function alternarMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    const vaiAbrir = bottomMenuPanel.hidden;
+    bottomMenuPanel.hidden = !vaiAbrir;
+    btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
   function preencherResumoConvite(nomePaciente, whatsappDigits, inviteLink) {
@@ -978,6 +994,25 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "/";
     });
   }
+
+  if (btnBottomHome) {
+    btnBottomHome.addEventListener("click", () => {
+      window.location.href = "./index.html";
+    });
+  }
+
+  if (btnBottomMenu) {
+    btnBottomMenu.addEventListener("click", (event) => {
+      event.stopPropagation();
+      alternarMenuInferior();
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!bottomMenuPanel || bottomMenuPanel.hidden) return;
+    if (event.target.closest(".bottom-nav__menu-wrap")) return;
+    fecharMenuInferior();
+  });
 
   async function iniciarDashboard() {
     await carregarUsuario();
