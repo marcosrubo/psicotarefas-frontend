@@ -9,8 +9,8 @@ let deferredPrompt = null;
 let supabaseClient = null;
 let adminSessionActive = false;
 
-const installBox = document.getElementById("installBox");
-const btnInstall = document.getElementById("btnInstall");
+const btnInstallAndroidDock = document.getElementById("btnInstallAndroidDock");
+const btnInstallIosDock = document.getElementById("btnInstallIosDock");
 const btnTestPatient = document.getElementById("btnTestPatient");
 const btnTestProfessional = document.getElementById("btnTestProfessional");
 
@@ -24,6 +24,10 @@ const adminEmailInput = document.getElementById("adminEmail");
 const adminPasswordInput = document.getElementById("adminPassword");
 const adminLoginMessage = document.getElementById("adminLoginMessage");
 const btnSubmitAdminLogin = document.getElementById("btnSubmitAdminLogin");
+const iosInstallModal = document.getElementById("iosInstallModal");
+const iosInstallModalBackdrop = document.getElementById("iosInstallModalBackdrop");
+const btnCloseIosInstallModal = document.getElementById("btnCloseIosInstallModal");
+const btnConfirmIosInstallModal = document.getElementById("btnConfirmIosInstallModal");
 
 registrarAcessoPagina({
   pagina: "home",
@@ -553,33 +557,52 @@ function closeAdminModal() {
   adminEmailInput.value = ADMIN_EMAIL;
 }
 
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-  deferredPrompt = event;
+function openIosInstallModal() {
+  if (!iosInstallModal) return;
 
-  if (installBox) {
-    installBox.hidden = false;
-  }
-});
+  iosInstallModal.classList.add("is-open");
+  iosInstallModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
 
-if (btnInstall) {
-  btnInstall.addEventListener("click", async () => {
-    if (!deferredPrompt) return;
+function closeIosInstallModal() {
+  if (!iosInstallModal) return;
 
+  iosInstallModal.classList.remove("is-open");
+  iosInstallModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+async function handleAndroidInstall() {
+  if (deferredPrompt) {
     deferredPrompt.prompt();
     await deferredPrompt.userChoice;
     deferredPrompt = null;
+    return;
+  }
 
-    if (installBox) {
-      installBox.hidden = true;
-    }
+  window.alert(
+    "A instalação automática não está disponível neste momento. Se você estiver no Android, abra o menu do navegador e procure a opção de instalar o aplicativo."
+  );
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredPrompt = event;
+});
+
+if (btnInstallAndroidDock) {
+  btnInstallAndroidDock.addEventListener("click", () => {
+    handleAndroidInstall();
   });
 }
 
+if (btnInstallIosDock) {
+  btnInstallIosDock.addEventListener("click", openIosInstallModal);
+}
+
 window.addEventListener("appinstalled", () => {
-  if (installBox) {
-    installBox.hidden = true;
-  }
+  deferredPrompt = null;
 });
 
 if (btnOpenAdminModal) {
@@ -598,9 +621,25 @@ if (adminModalBackdrop) {
   adminModalBackdrop.addEventListener("click", closeAdminModal);
 }
 
+if (iosInstallModalBackdrop) {
+  iosInstallModalBackdrop.addEventListener("click", closeIosInstallModal);
+}
+
+if (btnCloseIosInstallModal) {
+  btnCloseIosInstallModal.addEventListener("click", closeIosInstallModal);
+}
+
+if (btnConfirmIosInstallModal) {
+  btnConfirmIosInstallModal.addEventListener("click", closeIosInstallModal);
+}
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && adminModal?.classList.contains("is-open")) {
     closeAdminModal();
+  }
+
+  if (event.key === "Escape" && iosInstallModal?.classList.contains("is-open")) {
+    closeIosInstallModal();
   }
 });
 

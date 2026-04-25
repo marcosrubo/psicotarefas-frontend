@@ -33,6 +33,7 @@ body {
 
 body {
   min-height: 100vh;
+  padding-bottom: 108px;
 }
 
 body.modal-open {
@@ -187,59 +188,59 @@ ul {
   gap: 10px;
 }
 
-.install-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 10px;
-  box-shadow: var(--shadow-soft);
-}
-
-.install-pane h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-}
-
-.install-pane p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.install-section {
-  display: block;
-  margin-bottom: 22px;
-}
-
-.install-card {
+.install-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 950;
+  width: min(calc(100vw - 24px), 720px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(232, 234, 242, 0.9);
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(14px);
 }
 
-.install-pane {
+.install-dock__button {
+  border: none;
   border-radius: 18px;
-  border: 1px solid var(--border);
-  padding: 14px 12px;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
-  display: grid;
-  gap: 12px;
-  min-width: 0;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.24);
 }
 
-.install-pane--android {
-  background: linear-gradient(180deg, rgba(109, 94, 252, 0.05), #ffffff 70%);
+.install-dock__button--secondary {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), #ffffff 100%);
+  color: var(--text);
+  border: 1px solid rgba(109, 94, 252, 0.18);
+  box-shadow: var(--shadow-soft);
 }
 
-.install-pane--ios {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), #ffffff 70%);
+.install-dock__icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.install-pane__content {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.install-dock__icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .story-section {
@@ -466,6 +467,10 @@ ul {
   padding: 22px 18px 18px;
 }
 
+.modal__dialog--install {
+  width: min(92vw, 520px);
+}
+
 .modal__close {
   position: absolute;
   top: 14px;
@@ -510,6 +515,50 @@ ul {
 .modal__form {
   display: grid;
   gap: 14px;
+}
+
+.install-guide {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.install-guide__step {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf9ff 100%);
+}
+
+.install-guide__number {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(109, 94, 252, 0.12);
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.install-guide__icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-dark);
+}
+
+.install-guide__icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .form-group {
@@ -580,6 +629,10 @@ ul {
 }
 
 @media (max-width: 520px) {
+  body {
+    padding-bottom: 120px;
+  }
+
   .audience-section {
     gap: 12px;
   }
@@ -647,28 +700,22 @@ ul {
     flex-direction: column-reverse;
   }
 
-  .install-card {
-    grid-template-columns: 1fr 1fr;
+  .install-dock {
+    width: calc(100vw - 16px);
+    bottom: 10px;
+    padding: 10px;
     gap: 8px;
   }
 
-  .install-pane {
+  .install-dock__button {
     padding: 12px 10px;
+    font-size: 12px;
+    gap: 8px;
   }
 
-  .install-pane h3 {
-    font-size: 16px;
-  }
-
-  .install-pane p {
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .install-pane .btn-primary {
-    min-width: 0;
-    padding: 11px 12px;
-    font-size: 13px;
+  .install-dock__icon {
+    width: 18px;
+    height: 18px;
   }
 }
 

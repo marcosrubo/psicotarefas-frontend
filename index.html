@@ -95,27 +95,6 @@
 
       </section>
 
-      <section class="install-section">
-        <section class="install-card">
-          <article class="install-pane install-pane--android" id="installBox" hidden>
-            <div class="install-pane__content">
-              <h3>Android</h3>
-            </div>
-            <button id="btnInstall" class="btn-primary btn-primary--button" type="button">
-              Instalar
-            </button>
-          </article>
-
-          <article class="install-pane install-pane--ios">
-            <div class="install-pane__content">
-              <h3>iPhone</h3>
-              <p><strong>Compartilhar</strong></p>
-              <p><strong>Adicionar à Tela de Início</strong></p>
-            </div>
-          </article>
-        </section>
-      </section>
-
       <section class="story-section">
         <article class="story-block story-block--image-left story-block--hero-soft">
           <div class="story-block__media">
@@ -314,6 +293,82 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="install-dock" role="navigation" aria-label="Opções de instalação">
+    <button id="btnInstallAndroidDock" class="install-dock__button" type="button">
+      <span class="install-dock__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M17.6 9.48l1.84-3.18a.75.75 0 1 0-1.3-.75l-1.9 3.29A10.03 10.03 0 0 0 12 8c-1.46 0-2.84.31-4.1.86L6 5.55a.75.75 0 1 0-1.3.75l1.84 3.18A8 8 0 0 0 4 15v3a2 2 0 0 0 2 2h1v-4h10v4h1a2 2 0 0 0 2-2v-3a8 8 0 0 0-2.4-5.52ZM8.5 13.25a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm7 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM7 21a1 1 0 0 1-2 0v-2h2v2Zm12 0a1 1 0 0 1-2 0v-2h2v2Z"/>
+        </svg>
+      </span>
+      <span>Instalar no ANDROID</span>
+    </button>
+    <button id="btnInstallIosDock" class="install-dock__button install-dock__button--secondary" type="button">
+      <span class="install-dock__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M16.37 12.06c-.03-2.86 2.34-4.23 2.45-4.3-1.34-1.96-3.42-2.23-4.15-2.26-1.75-.19-3.45 1.05-4.34 1.05-.91 0-2.28-1.03-3.77-1-1.93.03-3.73 1.15-4.72 2.86-2.05 3.55-.52 8.77 1.44 11.63.98 1.4 2.12 2.96 3.61 2.9 1.46-.06 2-.93 3.76-.93 1.74 0 2.25.93 3.77.89 1.57-.02 2.55-1.4 3.49-2.82 1.13-1.61 1.58-3.2 1.6-3.28-.03-.01-3.03-1.16-3.04-4.74ZM13.53 3.65c.78-.94 1.32-2.21 1.18-3.52-1.13.05-2.55.78-3.36 1.7-.72.81-1.36 2.12-1.2 3.38 1.27.09 2.57-.64 3.38-1.56Z"/>
+        </svg>
+      </span>
+      <span>Instalar no iPhone</span>
+    </button>
+  </div>
+
+  <div
+    id="iosInstallModal"
+    class="modal"
+    aria-hidden="true"
+    role="dialog"
+    aria-labelledby="iosInstallModalTitle"
+  >
+    <div class="modal__backdrop" id="iosInstallModalBackdrop"></div>
+
+    <div class="modal__dialog modal__dialog--install">
+      <button
+        id="btnCloseIosInstallModal"
+        class="modal__close"
+        type="button"
+        aria-label="Fechar"
+      >
+        ×
+      </button>
+
+      <div class="modal__header">
+        <p class="modal__eyebrow">Instalação no iPhone</p>
+        <h2 id="iosInstallModalTitle">Para instalar no iPhone, faça o seguinte:</h2>
+      </div>
+
+      <div class="install-guide">
+        <div class="install-guide__step">
+          <span class="install-guide__number">1</span>
+          <span class="install-guide__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 16V4"/>
+              <path d="m8 8 4-4 4 4"/>
+              <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
+            </svg>
+          </span>
+          <span>Clique em <strong>COMPARTILHAR</strong></span>
+        </div>
+        <div class="install-guide__step">
+          <span class="install-guide__number">2</span>
+          <span class="install-guide__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 5v14"/>
+              <path d="M5 12h14"/>
+              <path d="M4 4h16v16H4z"/>
+            </svg>
+          </span>
+          <span>Clique em <strong>ADICIONAR À TELA DE INÍCIO</strong></span>
+        </div>
+      </div>
+
+      <div class="modal__actions">
+        <button type="button" id="btnConfirmIosInstallModal" class="btn-primary">
+          ENTENDI
+        </button>
+      </div>
     </div>
   </div>
 
