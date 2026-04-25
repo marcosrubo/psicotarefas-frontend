@@ -180,30 +180,14 @@ document.addEventListener("DOMContentLoaded", () => {
     patientsGrid.innerHTML = patients
       .map((patient) => {
         return `
-          <article class="patient-card">
-            <div class="patient-card__header">
-              <div class="patient-card__alias-box">
-                <span class="patient-card__label">Apelido</span>
-                <h3 class="patient-card__alias">${escapeHtml(patient.alias)}</h3>
-              </div>
-              <span class="patient-meta-chip">Vínculo ativo</span>
-            </div>
-
-            <p class="patient-card__name">${escapeHtml(patient.nome_real)}</p>
-            <p class="patient-card__email">${escapeHtml(patient.email || "E-mail não informado")}</p>
-
-            <div class="patient-card__meta">
-              <span class="patient-meta-chip">Vínculo desde ${escapeHtml(formatDateTime(patient.created_at))}</span>
-            </div>
-
-            <button
-              class="btn-primary"
-              type="button"
-              data-patient-id="${escapeHtml(patient.patient_user_id)}"
-            >
-              Selecionar paciente
-            </button>
-          </article>
+          <button
+            class="patient-select-button"
+            type="button"
+            data-patient-id="${escapeHtml(patient.patient_user_id)}"
+            aria-label="Selecionar ${escapeHtml(patient.alias)}"
+          >
+            ${escapeHtml(patient.alias)}
+          </button>
         `;
       })
       .join("");

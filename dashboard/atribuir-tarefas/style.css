@@ -158,85 +158,22 @@ a {
   gap: 14px;
 }
 
-.patient-card {
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 18px;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
-  box-shadow: var(--shadow-soft);
-  display: grid;
-  gap: 14px;
-}
-
-.patient-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.patient-card__alias-box {
-  display: grid;
-  gap: 4px;
-}
-
-.patient-card__label {
-  color: var(--primary-dark);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.patient-card__alias {
-  margin: 0;
-  font-size: 24px;
-  line-height: 1.05;
-}
-
-.patient-card__name {
-  margin: 0;
-  color: #344054;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.patient-card__email {
-  margin: -8px 0 0;
-  color: var(--muted);
-  word-break: break-word;
-}
-
-.patient-card__meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.patient-meta-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #4f46e5;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.btn-primary {
+.patient-select-button {
   border: none;
-  border-radius: 14px;
-  padding: 14px 18px;
+  border-radius: 18px;
+  min-height: 72px;
+  padding: 18px 20px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   font-weight: 800;
+  font-size: 22px;
+  line-height: 1.1;
+  text-align: center;
   box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
   cursor: pointer;
 }
 
-.btn-primary:active {
+.patient-select-button:active {
   transform: scale(0.98);
 }
 
@@ -415,7 +352,8 @@ a {
     font-size: 22px;
   }
 
-  .btn-primary {
+  .patient-select-button {
     width: 100%;
+    font-size: 20px;
   }
 }
