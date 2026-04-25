@@ -203,9 +203,15 @@ authForm.addEventListener("submit", async (event) => {
 
 async function inicializarLogin() {
   try {
-    await supabase.auth.signOut();
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      window.location.href = "../../dashboard/profissional/index.html";
+    }
   } catch (error) {
-    console.error("Erro ao limpar sessão no login de profissional:", error);
+    console.error("Erro ao inicializar login de profissional:", error);
   }
 }
 
