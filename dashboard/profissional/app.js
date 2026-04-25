@@ -816,23 +816,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnToggleInvite && invitePanel) {
     btnToggleInvite.addEventListener("click", () => {
-      const vaiAbrir = invitePanel.hidden;
-
-      if (vaiAbrir) {
-        invitePanel.hidden = false;
-        registrarEvento({
-          evento: "painel_convite_aberto",
-          pagina: "dashboard_profissional",
-          perfil: "profissional",
-          userId: currentUser?.id || null,
-          email: currentProfile?.email || currentUser?.email || null
-        });
-        if (patientNameInput) {
-          patientNameInput.focus();
-        }
-      } else {
-        fecharPainelConvite();
-      }
+      registrarEvento({
+        evento: "cadastro_pacientes_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../cadastro-pacientes/index.html";
     });
   }
 
@@ -1054,13 +1045,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnMenuPatients) {
     btnMenuPatients.addEventListener("click", () => {
       fecharMenuInferior();
-      window.scrollTo({ top: document.body.scrollHeight * 0.2, behavior: "smooth" });
-      if (invitePanel?.hidden) {
-        invitePanel.hidden = false;
-      }
-      if (patientNameInput) {
-        window.setTimeout(() => patientNameInput.focus(), 250);
-      }
+      window.location.href = "../cadastro-pacientes/index.html";
     });
   }
 
