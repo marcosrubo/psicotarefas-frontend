@@ -810,7 +810,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userId: currentUser?.id || null,
         email: currentProfile?.email || currentUser?.email || null
       });
-      window.location.href = "../profissional-tarefas/index.html";
+      window.location.href = "../atribuir-tarefas/index.html";
     });
   }
 
@@ -1067,7 +1067,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnMenuTasks) {
     btnMenuTasks.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../profissional-tarefas/index.html";
+      window.location.href = "../atribuir-tarefas/index.html";
     });
   }
 

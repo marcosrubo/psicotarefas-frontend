@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isRefreshingData = false;
   let lastGeneratedAiMaterial = null;
   let hasLoadedTaskBank = false;
+  const initialPatientId = new URLSearchParams(window.location.search).get("patient");
 
   function normalizarTipoInteracao(valor) {
     if (valor === "limitado" || valor === "ilimitado") return valor;
@@ -1413,6 +1414,10 @@ document.addEventListener("DOMContentLoaded", () => {
         created_at: item.created_at
       };
     });
+
+    if (initialPatientId && patients.some((patient) => patient.patient_user_id === initialPatientId)) {
+      selectedPatientId = initialPatientId;
+    }
   }
 
   async function carregarTarefas() {
