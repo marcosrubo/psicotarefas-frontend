@@ -11,6 +11,7 @@ let adminSessionActive = false;
 
 const installBox = document.getElementById("installBox");
 const btnInstall = document.getElementById("btnInstall");
+const btnExitHome = document.getElementById("btnExitHome");
 
 const adminModal = document.getElementById("adminModal");
 const adminModalBackdrop = document.getElementById("adminModalBackdrop");
@@ -627,6 +628,42 @@ async function checkExistingAdminSession() {
   }
 }
 
+async function handleExitHome() {
+  supabaseClient = supabaseClient || createSupabaseClient();
+
+  try {
+    if (supabaseClient) {
+      const {
+        data: { session }
+      } = await supabaseClient.auth.getSession();
+
+      if (session?.user) {
+        const perfil = await buscarPerfilAutenticado(session.user.id);
+        await registrarEvento({
+          evento: "logout",
+          pagina: "home",
+          perfil: perfil?.perfil || "publico",
+          userId: session.user.id,
+          email: session.user.email || null
+        });
+      }
+
+      await supabaseClient.auth.signOut();
+    }
+  } catch (error) {
+    console.error("Erro ao encerrar sessao na tela principal:", error);
+  }
+
+  try {
+    window.open("", "_self");
+    window.close();
+  } catch (error) {
+    console.error("Erro ao tentar fechar a janela:", error);
+  }
+
+  window.location.href = "./";
+}
+
 async function handleAdminLogin(event) {
   event.preventDefault();
 
@@ -694,6 +731,10 @@ async function handleAdminLogin(event) {
 
 if (adminLoginForm) {
   adminLoginForm.addEventListener("submit", handleAdminLogin);
+}
+
+if (btnExitHome) {
+  btnExitHome.addEventListener("click", handleExitHome);
 }
 
 async function inicializarTelaPrincipal() {
