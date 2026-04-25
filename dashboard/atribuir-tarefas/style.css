@@ -104,34 +104,11 @@ a {
   gap: 18px;
 }
 
-.intro-card,
 .patients-panel {
   border: 1px solid var(--border);
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: var(--shadow-soft);
-}
-
-.intro-card {
-  padding: 16px 18px;
-  background:
-    radial-gradient(circle at top right, rgba(109, 94, 252, 0.08), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
-}
-
-.intro-card__label {
-  margin: 0 0 6px;
-  color: var(--primary-dark);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.intro-card__text {
-  margin: 0;
-  color: #475467;
-  line-height: 1.55;
 }
 
 .patients-panel {
@@ -320,6 +297,7 @@ a {
 
 .bottom-nav__menu-wrap {
   position: relative;
+  display: flex;
 }
 
 .bottom-nav__menu {

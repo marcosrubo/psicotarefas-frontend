@@ -147,21 +147,23 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error(`Falha ao carregar pacientes vinculados: ${error.message}`);
     }
 
-    patients = (data || []).map((item) => {
-      const nomeCompleto =
-        item.patient_name?.trim() ||
-        item.patient_email?.trim() ||
-        "Paciente";
+    patients = (data || [])
+      .map((item) => {
+        const nomeCompleto =
+          item.patient_name?.trim() ||
+          item.patient_email?.trim() ||
+          "Paciente";
 
-      return {
-        vinculo_id: item.vinculo_id,
-        patient_user_id: item.patient_user_id,
-        alias: item.patient_alias || nomeCompleto,
-        nome_real: nomeCompleto,
-        email: item.patient_email || "",
-        created_at: item.created_at
-      };
-    });
+        return {
+          vinculo_id: item.vinculo_id,
+          patient_user_id: item.patient_user_id,
+          alias: item.patient_alias || nomeCompleto,
+          nome_real: nomeCompleto,
+          email: item.patient_email || "",
+          created_at: item.created_at
+        };
+      })
+      .sort((a, b) => a.alias.localeCompare(b.alias, "pt-BR", { sensitivity: "base" }));
   }
 
   function renderPatients() {
