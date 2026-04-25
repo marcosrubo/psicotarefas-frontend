@@ -120,6 +120,7 @@ ul {
 
 .audience-section {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -579,6 +580,33 @@ ul {
 }
 
 @media (max-width: 520px) {
+  .audience-section {
+    gap: 12px;
+  }
+
+  .audience-card {
+    padding: 18px 14px;
+  }
+
+  .audience-card__content {
+    gap: 14px;
+  }
+
+  .audience-card__header {
+    gap: 8px;
+  }
+
+  .audience-card__badge-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    font-size: 20px;
+  }
+
+  .audience-card h2 {
+    font-size: 18px;
+  }
+
   .hero__brand {
     align-items: flex-start;
   }
@@ -595,6 +623,19 @@ ul {
   .modal__actions .btn-primary,
   .modal__actions .btn-secondary {
     width: 100%;
+  }
+
+  .audience-card__actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .audience-card__actions .btn-primary,
+  .audience-card__actions .btn-secondary,
+  .audience-card__actions .btn-tertiary {
+    min-width: 0;
+    padding: 11px 10px;
+    font-size: 12px;
   }
 
   .modal__dialog {
@@ -662,10 +703,6 @@ ul {
 
   .audience-card {
     padding: 22px 20px;
-  }
-
-  .audience-card__actions {
-    grid-template-columns: 1fr;
   }
 
   .story-block {
