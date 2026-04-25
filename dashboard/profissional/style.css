@@ -307,6 +307,12 @@ input {
 
 .bottom-nav__menu-wrap {
   position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.bottom-nav__menu-wrap .bottom-nav__item {
+  width: 100%;
 }
 
 .bottom-nav__menu {
@@ -321,6 +327,10 @@ input {
   border-radius: 18px;
   background: rgba(31, 36, 48, 0.96);
   box-shadow: 0 18px 40px rgba(20, 24, 38, 0.28);
+}
+
+.bottom-nav__menu[hidden] {
+  display: none !important;
 }
 
 .bottom-nav__menu-item {
