@@ -13,23 +13,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseThemeForm = document.getElementById("btnCloseThemeForm");
   const btnCloseLibraryTaskForm = document.getElementById("btnCloseLibraryTaskForm");
   const btnCloseEditTheme = document.getElementById("btnCloseEditTheme");
+  const btnCloseEditLibraryTask = document.getElementById("btnCloseEditLibraryTask");
   const btnSaveTheme = document.getElementById("btnSaveTheme");
   const btnSaveLibraryTask = document.getElementById("btnSaveLibraryTask");
   const btnUpdateTheme = document.getElementById("btnUpdateTheme");
+  const btnUpdateLibraryTask = document.getElementById("btnUpdateLibraryTask");
 
   const themeFormPanel = document.getElementById("themeFormPanel");
   const libraryTaskFormPanel = document.getElementById("libraryTaskFormPanel");
   const editThemePanel = document.getElementById("editThemePanel");
+  const editLibraryTaskPanel = document.getElementById("editLibraryTaskPanel");
 
   const themeForm = document.getElementById("themeForm");
   const libraryTaskForm = document.getElementById("libraryTaskForm");
   const editThemeForm = document.getElementById("editThemeForm");
+  const editLibraryTaskForm = document.getElementById("editLibraryTaskForm");
   const themeName = document.getElementById("themeName");
   const themeDescription = document.getElementById("themeDescription");
   const themeFormMessage = document.getElementById("themeFormMessage");
   const editThemeName = document.getElementById("editThemeName");
   const editThemeDescription = document.getElementById("editThemeDescription");
   const editThemeFormMessage = document.getElementById("editThemeFormMessage");
+  const editLibraryTaskTitle = document.getElementById("editLibraryTaskTitle");
+  const editLibraryTaskSummary = document.getElementById("editLibraryTaskSummary");
+  const editLibraryTaskFormMessage = document.getElementById("editLibraryTaskFormMessage");
 
   const themesList = document.getElementById("themesList");
   const libraryList = document.getElementById("libraryList");
@@ -51,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isLoading = false;
   let themes = [];
   let libraryTasks = [];
+  let selectedLibraryTaskId = null;
 
   function esperar(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -141,6 +149,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getSelectedTheme() {
     return themes.find((theme) => theme.id === selectedThemeId) || null;
+  }
+
+  function getSelectedLibraryTask() {
+    return libraryTasks.find((task) => task.id === selectedLibraryTaskId) || null;
   }
 
   function getStatusLabel(status) {
@@ -377,6 +389,14 @@ document.addEventListener("DOMContentLoaded", () => {
               <button
                 class="btn-secondary"
                 type="button"
+                data-action="edit-task"
+                data-task-id="${task.id}"
+              >
+                Alterar tarefa
+              </button>
+              <button
+                class="btn-secondary"
+                type="button"
                 data-action="open-pdf"
                 data-pdf-path="${escapeHtml(task.pdf_path)}"
               >
@@ -413,6 +433,11 @@ document.addEventListener("DOMContentLoaded", () => {
       libraryTaskTheme.value = String(selectedThemeId);
     }
     setFormMessage(libraryTaskFormMessage);
+  }
+
+  function resetEditLibraryTaskForm() {
+    if (editLibraryTaskForm) editLibraryTaskForm.reset();
+    setFormMessage(editLibraryTaskFormMessage);
   }
 
   function openThemeForm() {
@@ -452,6 +477,24 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeLibraryTaskForm() {
     if (libraryTaskFormPanel) libraryTaskFormPanel.hidden = true;
     resetLibraryTaskForm();
+  }
+
+  function openEditLibraryTaskForm(taskId) {
+    const task = libraryTasks.find((item) => item.id === taskId) || null;
+    if (!task) return;
+
+    selectedLibraryTaskId = task.id;
+    if (editLibraryTaskPanel) editLibraryTaskPanel.hidden = false;
+    if (editLibraryTaskTitle) editLibraryTaskTitle.value = task.titulo || "";
+    if (editLibraryTaskSummary) editLibraryTaskSummary.value = task.descricao_curta || "";
+    setFormMessage(editLibraryTaskFormMessage);
+    editLibraryTaskTitle?.focus();
+  }
+
+  function closeEditLibraryTaskForm() {
+    if (editLibraryTaskPanel) editLibraryTaskPanel.hidden = true;
+    resetEditLibraryTaskForm();
+    selectedLibraryTaskId = null;
   }
 
   async function salvarEdicaoTema(event) {
@@ -684,6 +727,84 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function salvarEdicaoTarefaBiblioteca(event) {
+    event.preventDefault();
+
+    const selectedTask = getSelectedLibraryTask();
+    const selectedTaskIdAtual = selectedTask?.id || null;
+    const titulo = editLibraryTaskTitle?.value.trim() || "";
+    const descricaoCurta = editLibraryTaskSummary?.value.trim() || "";
+
+    if (!selectedTask) {
+      setFormMessage(editLibraryTaskFormMessage, "Selecione uma tarefa para alterar.", "error");
+      return;
+    }
+
+    if (!titulo) {
+      setFormMessage(editLibraryTaskFormMessage, "Informe o título da tarefa.", "error");
+      return;
+    }
+
+    setButtonLoading(btnUpdateLibraryTask, true, "Salvando...", "Salvar alterações");
+    setFormMessage(editLibraryTaskFormMessage);
+
+    try {
+      const { data: updatedTask, error } = await supabase
+        .from("banco_tarefas_itens")
+        .update({
+          titulo,
+          descricao_curta: descricaoCurta || null
+        })
+        .eq("id", selectedTask.id)
+        .select("id, titulo, descricao_curta")
+        .maybeSingle();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!updatedTask) {
+        throw new Error("Não foi possível salvar esta tarefa. Ela pode não estar editável para este usuário.");
+      }
+
+      libraryTasks = libraryTasks.map((task) =>
+        task.id === selectedTaskIdAtual
+          ? {
+              ...task,
+              titulo: updatedTask.titulo,
+              descricao_curta: updatedTask.descricao_curta || null
+            }
+          : task
+      );
+
+      renderAll();
+
+      await carregarBancoTarefas();
+      renderAll();
+      await registrarEvento({
+        evento: "tarefa_banco_editada",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          tarefa_id: selectedTaskIdAtual,
+          tema_id: selectedTask.tema_id,
+          titulo
+        }
+      });
+      closeEditLibraryTaskForm();
+    } catch (error) {
+      setFormMessage(
+        editLibraryTaskFormMessage,
+        error.message || "Não foi possível atualizar a tarefa neste momento.",
+        "error"
+      );
+    } finally {
+      setButtonLoading(btnUpdateLibraryTask, false, "Salvando...", "Salvar alterações");
+    }
+  }
+
   async function abrirPdf(pdfPath) {
     if (!pdfPath) return;
 
@@ -742,6 +863,10 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCloseEditTheme.addEventListener("click", closeEditThemeForm);
   }
 
+  if (btnCloseEditLibraryTask) {
+    btnCloseEditLibraryTask.addEventListener("click", closeEditLibraryTaskForm);
+  }
+
   if (themeForm) {
     themeForm.addEventListener("submit", salvarTema);
   }
@@ -752,6 +877,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (editThemeForm) {
     editThemeForm.addEventListener("submit", salvarEdicaoTema);
+  }
+
+  if (editLibraryTaskForm) {
+    editLibraryTaskForm.addEventListener("submit", salvarEdicaoTarefaBiblioteca);
   }
 
   if (themesList) {
@@ -778,6 +907,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (libraryList) {
     libraryList.addEventListener("click", (event) => {
+      const editButton = event.target.closest("[data-action='edit-task']");
+      if (editButton) {
+        const taskId = Number.parseInt(editButton.getAttribute("data-task-id") || "", 10);
+        if (taskId) {
+          openEditLibraryTaskForm(taskId);
+        }
+        return;
+      }
+
       const button = event.target.closest("[data-action='open-pdf']");
       if (!button) return;
 

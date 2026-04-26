@@ -193,6 +193,32 @@
             </form>
           </section>
 
+          <section class="panel form-panel" id="editLibraryTaskPanel" hidden>
+            <div class="panel__header">
+              <h3>Alterar tarefa</h3>
+              <p>Atualize o título e a descrição curta da tarefa pública selecionada.</p>
+            </div>
+
+            <form class="form-grid" id="editLibraryTaskForm">
+              <div class="form-group">
+                <label for="editLibraryTaskTitle">Título</label>
+                <input id="editLibraryTaskTitle" type="text" placeholder="Ex.: Atividade 1 - Observando os gatilhos" />
+              </div>
+
+              <div class="form-group form-group--wide">
+                <label for="editLibraryTaskSummary">Descrição curta</label>
+                <textarea id="editLibraryTaskSummary" rows="3" placeholder="Resumo para ajudar outros profissionais a entender o foco da tarefa."></textarea>
+              </div>
+
+              <div class="form-message form-group--wide" id="editLibraryTaskFormMessage" hidden></div>
+
+              <div class="form-actions form-actions--inline">
+                <button class="btn-secondary" id="btnCloseEditLibraryTask" type="button">Cancelar</button>
+                <button class="btn-primary" id="btnUpdateLibraryTask" type="submit">Salvar alterações</button>
+              </div>
+            </form>
+          </section>
+
           <section class="panel library-panel">
             <div class="panel__header panel__header--actions">
               <div>

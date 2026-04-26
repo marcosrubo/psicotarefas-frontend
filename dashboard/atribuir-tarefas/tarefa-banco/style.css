@@ -441,6 +441,10 @@ a {
   backdrop-filter: blur(16px);
 }
 
+.bottom-nav__menu[hidden] {
+  display: none;
+}
+
 .bottom-nav__menu-item {
   appearance: none;
   border: none;
