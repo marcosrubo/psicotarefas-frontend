@@ -16,8 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
   let currentProfile = null;
-  let registroFieldName = "registro_conselho";
-  let telefoneFieldName = "telefone";
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -132,14 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentProfile = perfil;
 
-    if ("numero_registro" in perfil && !("registro_conselho" in perfil)) {
-      registroFieldName = "numero_registro";
-    }
-
-    if ("phone" in perfil && !("telefone" in perfil)) {
-      telefoneFieldName = "phone";
-    }
-
     await registrarAcessoPagina({
       pagina: "meus_dados_profissional",
       perfil: "profissional",
@@ -163,19 +153,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (professionalCouncil) {
       professionalCouncil.value =
-        currentProfile[registroFieldName] ||
-        currentProfile.registro_conselho ||
-        currentProfile.numero_registro ||
-        "";
+        currentProfile.registro_conselho || "";
     }
 
     if (professionalPhone) {
-      professionalPhone.value = formatarTelefone(
-        currentProfile[telefoneFieldName] ||
-        currentProfile.telefone ||
-        currentProfile.phone ||
-        ""
-      );
+      professionalPhone.value = formatarTelefone(currentProfile.telefone || "");
     }
   }
 
@@ -224,8 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const payloadCompleto = {
       nome,
-      [registroFieldName]: registro,
-      [telefoneFieldName]: telefone
+      registro_conselho: registro,
+      telefone
     };
 
     try {
@@ -239,8 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       currentProfile.nome = nome;
-      currentProfile[registroFieldName] = registro;
-      currentProfile[telefoneFieldName] = telefone;
+      currentProfile.registro_conselho = registro;
+      currentProfile.telefone = telefone;
 
       await registrarEvento({
         userId: currentUser.id,
@@ -252,39 +234,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setFormMessage("Dados atualizados com sucesso.", "success");
     } catch (error) {
-      const message = error?.message || "";
-      const faltamColunas =
-        /column .* does not exist|schema cache/i.test(message);
-
-      if (!faltamColunas) {
-        setFormMessage("Não foi possível atualizar os dados.", "error");
-        console.error("Erro ao atualizar dados do profissional:", error);
-        if (btnSaveProfile) {
-          btnSaveProfile.disabled = false;
-          btnSaveProfile.textContent = "Gravar";
-        }
-        return;
-      }
-
-      try {
-        const { error: fallbackError } = await supabase
-          .from("perfis")
-          .update({ nome })
-          .eq("user_id", currentUser.id);
-
-        if (fallbackError) {
-          throw fallbackError;
-        }
-
-        currentProfile.nome = nome;
-        setFormMessage(
-          "Nome salvo. Registro Conselho e Telefone dependem da criação dessas colunas na tabela perfis.",
-          "success"
-        );
-      } catch (fallbackSaveError) {
-        console.error("Erro no fallback de atualização do perfil:", fallbackSaveError);
-        setFormMessage("Não foi possível atualizar os dados.", "error");
-      }
+      console.error("Erro ao atualizar dados do profissional:", error);
+      setFormMessage("Não foi possível atualizar os dados.", "error");
     } finally {
       if (btnSaveProfile) {
         btnSaveProfile.disabled = false;
