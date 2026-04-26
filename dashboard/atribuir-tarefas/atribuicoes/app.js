@@ -2,6 +2,7 @@ import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  const PDF_BUCKET = "banco-tarefas-pdf";
   const searchParams = new URLSearchParams(window.location.search);
   const initialPatientId = (searchParams.get("patient") || "").trim();
   const initialPatientAlias = (searchParams.get("alias") || "").trim();
@@ -19,6 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
+  const taskPreviewModal = document.getElementById("taskPreviewModal");
+  const btnCloseTaskPreview = document.getElementById("btnCloseTaskPreview");
+  const taskPreviewTaskTitle = document.getElementById("taskPreviewTaskTitle");
+  const taskPreviewTaskDescription = document.getElementById("taskPreviewTaskDescription");
+  const taskPreviewPdfWrapper = document.getElementById("taskPreviewPdfWrapper");
+  const taskPreviewPdfFrame = document.getElementById("taskPreviewPdfFrame");
+  const taskPreviewPdfEmpty = document.getElementById("taskPreviewPdfEmpty");
 
   let currentUser = null;
   let currentProfile = null;
@@ -108,6 +116,84 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return { label: task.status || "Sem status", className: "meta-chip--pending" };
+  }
+
+  function fecharPreviewTarefa() {
+    if (!taskPreviewModal) return;
+    taskPreviewModal.hidden = true;
+
+    if (taskPreviewPdfFrame) {
+      taskPreviewPdfFrame.removeAttribute("src");
+    }
+
+    if (taskPreviewPdfWrapper) {
+      taskPreviewPdfWrapper.hidden = true;
+    }
+
+    if (taskPreviewPdfEmpty) {
+      taskPreviewPdfEmpty.hidden = true;
+    }
+  }
+
+  async function abrirPreviewTarefa(taskId) {
+    const task = tasks.find((item) => String(item.id) === String(taskId));
+
+    if (!task || !taskPreviewModal) {
+      return;
+    }
+
+    if (taskPreviewTaskTitle) {
+      taskPreviewTaskTitle.textContent = task.titulo || "Tarefa sem título";
+    }
+
+    if (taskPreviewTaskDescription) {
+      taskPreviewTaskDescription.textContent = task.descricao || "Sem descrição cadastrada.";
+    }
+
+    if (taskPreviewPdfFrame) {
+      taskPreviewPdfFrame.removeAttribute("src");
+    }
+
+    if (taskPreviewPdfWrapper) {
+      taskPreviewPdfWrapper.hidden = true;
+    }
+
+    if (taskPreviewPdfEmpty) {
+      taskPreviewPdfEmpty.hidden = true;
+    }
+
+    taskPreviewModal.hidden = false;
+
+    if (!task.pdf_path) {
+      if (taskPreviewPdfEmpty) {
+        taskPreviewPdfEmpty.hidden = false;
+      }
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.storage
+        .from(PDF_BUCKET)
+        .createSignedUrl(task.pdf_path, 60);
+
+      if (error || !data?.signedUrl) {
+        throw new Error(error?.message || "Não foi possível carregar a prévia do PDF.");
+      }
+
+      if (taskPreviewPdfFrame) {
+        taskPreviewPdfFrame.src = data.signedUrl;
+      }
+
+      if (taskPreviewPdfWrapper) {
+        taskPreviewPdfWrapper.hidden = false;
+      }
+    } catch (error) {
+      if (taskPreviewPdfEmpty) {
+        taskPreviewPdfEmpty.hidden = false;
+        taskPreviewPdfEmpty.textContent =
+          error.message || "Não foi possível carregar a prévia do PDF.";
+      }
+    }
   }
 
   function updateOptionLinks() {
@@ -306,13 +392,27 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <p class="assignment-card__description">${escapeHtml(task.descricao || "Sem descrição cadastrada.")}</p>
             <div class="assignment-card__meta">
-              <span class="meta-chip meta-chip--type">${escapeHtml(taskType)}</span>
-              <span class="meta-chip meta-chip--type">${escapeHtml(formatDateTime(task.created_at))}</span>
+              <div class="assignment-card__meta-group">
+                <span class="meta-chip meta-chip--type">${escapeHtml(taskType)}</span>
+                <span class="meta-chip meta-chip--type">${escapeHtml(formatDateTime(task.created_at))}</span>
+              </div>
+              <button class="assignment-card__open" type="button" data-task-preview-id="${escapeHtml(task.id)}">
+                Abrir
+              </button>
             </div>
           </article>
         `;
       })
       .join("");
+  }
+
+  if (tasksList) {
+    tasksList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-task-preview-id]");
+      if (!button) return;
+      const taskId = button.getAttribute("data-task-preview-id");
+      abrirPreviewTarefa(taskId);
+    });
   }
 
   if (btnBottomMenu) {
@@ -321,6 +421,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnMenuLogout) {
     btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  if (btnCloseTaskPreview) {
+    btnCloseTaskPreview.addEventListener("click", fecharPreviewTarefa);
   }
 
   document.addEventListener("click", (event) => {
@@ -332,11 +436,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clicouDentroDoMenu && !clicouNoBotao) {
       fecharMenuInferior();
     }
+
+    if (event.target.closest("[data-close-preview='true']")) {
+      fecharPreviewTarefa();
+    }
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       fecharMenuInferior();
+      fecharPreviewTarefa();
     }
   });
 

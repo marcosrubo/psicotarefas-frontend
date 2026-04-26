@@ -88,6 +88,49 @@
       </section>
     </main>
 
+    <div class="task-preview-modal" id="taskPreviewModal" hidden>
+      <div class="task-preview-modal__backdrop" data-close-preview="true"></div>
+      <section
+        class="task-preview-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="taskPreviewTitle"
+      >
+        <div class="task-preview-modal__header">
+          <h2 id="taskPreviewTitle">Visualizar atribuição</h2>
+          <button class="task-preview-modal__close" id="btnCloseTaskPreview" type="button" aria-label="Fechar visualização">
+            ×
+          </button>
+        </div>
+
+        <div class="task-preview-modal__content">
+          <section class="task-preview-section">
+            <p class="task-preview-section__label">Título</p>
+            <strong class="task-preview-section__value" id="taskPreviewTaskTitle">-</strong>
+          </section>
+
+          <section class="task-preview-section">
+            <p class="task-preview-section__label">Descrição</p>
+            <p class="task-preview-section__text" id="taskPreviewTaskDescription">-</p>
+          </section>
+
+          <section class="task-preview-section">
+            <p class="task-preview-section__label">Prévia do PDF</p>
+            <div class="task-preview-pdf" id="taskPreviewPdfWrapper">
+              <iframe
+                class="task-preview-pdf__frame"
+                id="taskPreviewPdfFrame"
+                title="Prévia do PDF da tarefa"
+              ></iframe>
+            </div>
+            <div class="empty-state task-preview-empty" id="taskPreviewPdfEmpty" hidden>
+              Esta tarefa não possui PDF vinculado.
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">
       <a class="bottom-nav__item" href="../../profissional/index.html">
         <span class="bottom-nav__icon" aria-hidden="true">
