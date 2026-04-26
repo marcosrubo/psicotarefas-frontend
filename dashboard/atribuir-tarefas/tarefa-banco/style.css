@@ -533,6 +533,16 @@ a {
   justify-content: flex-start;
 }
 
+@media (max-width: 640px) {
+  .topbar__nav {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .brand__name {
+    font-size: 16px;
+  }
+}
+
 .bottom-nav__menu-item--current {
   background: rgba(109, 94, 252, 0.22);
 }
