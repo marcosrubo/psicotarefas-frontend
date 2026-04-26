@@ -25,13 +25,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskPreviewTaskTitle = document.getElementById("taskPreviewTaskTitle");
   const taskPreviewTaskDescription = document.getElementById("taskPreviewTaskDescription");
   const taskPreviewPdfWrapper = document.getElementById("taskPreviewPdfWrapper");
-  const taskPreviewPdfFrame = document.getElementById("taskPreviewPdfFrame");
+  const taskPreviewPdfToolbar = document.getElementById("taskPreviewPdfToolbar");
+  const taskPreviewPdfViewer = document.getElementById("taskPreviewPdfViewer");
   const taskPreviewPdfEmpty = document.getElementById("taskPreviewPdfEmpty");
+  const btnPdfZoomOut = document.getElementById("btnPdfZoomOut");
+  const btnPdfZoomIn = document.getElementById("btnPdfZoomIn");
+  const taskPreviewPdfZoomLabel = document.getElementById("taskPreviewPdfZoomLabel");
 
   let currentUser = null;
   let currentProfile = null;
   let selectedPatient = null;
   let tasks = [];
+  let pdfJsLib = null;
+  let pdfRenderTaskToken = 0;
+  let currentPdfPreviewUrl = "";
+  let currentPdfDocument = null;
+  let currentPdfZoom = 1;
+  let currentPdfBaseScale = 1;
+
+  async function carregarPdfJs() {
+    if (pdfJsLib) {
+      return pdfJsLib;
+    }
+
+    const module = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs");
+    module.GlobalWorkerOptions.workerSrc =
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs";
+    pdfJsLib = module;
+    return pdfJsLib;
+  }
 
   function esperar(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -121,17 +143,121 @@ document.addEventListener("DOMContentLoaded", () => {
   function fecharPreviewTarefa() {
     if (!taskPreviewModal) return;
     taskPreviewModal.hidden = true;
+    pdfRenderTaskToken += 1;
+    currentPdfPreviewUrl = "";
+    currentPdfDocument = null;
+    currentPdfZoom = 1;
+    currentPdfBaseScale = 1;
 
-    if (taskPreviewPdfFrame) {
-      taskPreviewPdfFrame.removeAttribute("src");
+    if (taskPreviewPdfViewer) {
+      taskPreviewPdfViewer.innerHTML = "";
     }
 
     if (taskPreviewPdfWrapper) {
       taskPreviewPdfWrapper.hidden = true;
     }
 
+    if (taskPreviewPdfToolbar) {
+      taskPreviewPdfToolbar.hidden = true;
+    }
+
     if (taskPreviewPdfEmpty) {
       taskPreviewPdfEmpty.hidden = true;
+      taskPreviewPdfEmpty.textContent = "Esta tarefa não possui PDF vinculado.";
+    }
+
+    if (taskPreviewPdfZoomLabel) {
+      taskPreviewPdfZoomLabel.textContent = "100%";
+    }
+  }
+
+  function atualizarZoomLabel() {
+    if (!taskPreviewPdfZoomLabel) return;
+    taskPreviewPdfZoomLabel.textContent = `${Math.round(currentPdfZoom * 100)}%`;
+  }
+
+  async function renderizarPdfNoPreview() {
+    if (!currentPdfPreviewUrl || !taskPreviewPdfViewer) {
+      return;
+    }
+
+    const renderToken = ++pdfRenderTaskToken;
+    taskPreviewPdfViewer.innerHTML = "";
+    atualizarZoomLabel();
+
+    try {
+      const pdfjs = await carregarPdfJs();
+
+      if (renderToken !== pdfRenderTaskToken) {
+        return;
+      }
+
+      const loadingTask = pdfjs.getDocument(currentPdfPreviewUrl);
+      const pdfDocument = await loadingTask.promise;
+
+      if (renderToken !== pdfRenderTaskToken) {
+        return;
+      }
+
+      currentPdfDocument = pdfDocument;
+
+      for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+        const page = await pdfDocument.getPage(pageNumber);
+
+        if (renderToken !== pdfRenderTaskToken) {
+          return;
+        }
+
+        const unscaledViewport = page.getViewport({ scale: 1 });
+        const availableWidth = Math.max((taskPreviewPdfViewer.clientWidth || 760) - 28, 220);
+        const fitScale = availableWidth / unscaledViewport.width;
+        currentPdfBaseScale = fitScale;
+
+        const viewport = page.getViewport({ scale: fitScale * currentPdfZoom });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        canvas.className = "task-preview-pdf__canvas";
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+
+        await page.render({
+          canvasContext: context,
+          viewport
+        }).promise;
+
+        if (renderToken !== pdfRenderTaskToken) {
+          return;
+        }
+
+        const pageWrapper = document.createElement("div");
+        pageWrapper.className = "task-preview-pdf__page";
+
+        const pageLabel = document.createElement("div");
+        pageLabel.className = "task-preview-pdf__page-label";
+        pageLabel.textContent = `Página ${pageNumber} de ${pdfDocument.numPages}`;
+
+        pageWrapper.append(canvas, pageLabel);
+        taskPreviewPdfViewer.appendChild(pageWrapper);
+      }
+    } catch (error) {
+      if (renderToken !== pdfRenderTaskToken) {
+        return;
+      }
+
+      if (taskPreviewPdfWrapper) {
+        taskPreviewPdfWrapper.hidden = true;
+      }
+
+      if (taskPreviewPdfToolbar) {
+        taskPreviewPdfToolbar.hidden = true;
+      }
+
+      if (taskPreviewPdfEmpty) {
+        taskPreviewPdfEmpty.hidden = false;
+        taskPreviewPdfEmpty.textContent =
+          error.message || "Não foi possível carregar a prévia do PDF.";
+      }
     }
   }
 
@@ -150,16 +276,21 @@ document.addEventListener("DOMContentLoaded", () => {
       taskPreviewTaskDescription.textContent = task.descricao || "Sem descrição cadastrada.";
     }
 
-    if (taskPreviewPdfFrame) {
-      taskPreviewPdfFrame.removeAttribute("src");
+    if (taskPreviewPdfViewer) {
+      taskPreviewPdfViewer.innerHTML = "";
     }
 
     if (taskPreviewPdfWrapper) {
       taskPreviewPdfWrapper.hidden = true;
     }
 
+    if (taskPreviewPdfToolbar) {
+      taskPreviewPdfToolbar.hidden = true;
+    }
+
     if (taskPreviewPdfEmpty) {
       taskPreviewPdfEmpty.hidden = true;
+      taskPreviewPdfEmpty.textContent = "Esta tarefa não possui PDF vinculado.";
     }
 
     taskPreviewModal.hidden = false;
@@ -180,13 +311,18 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(error?.message || "Não foi possível carregar a prévia do PDF.");
       }
 
-      if (taskPreviewPdfFrame) {
-        taskPreviewPdfFrame.src = data.signedUrl;
-      }
-
       if (taskPreviewPdfWrapper) {
         taskPreviewPdfWrapper.hidden = false;
       }
+
+      if (taskPreviewPdfToolbar) {
+        taskPreviewPdfToolbar.hidden = false;
+      }
+
+      currentPdfPreviewUrl = data.signedUrl;
+      currentPdfZoom = 1;
+      atualizarZoomLabel();
+      await renderizarPdfNoPreview();
     } catch (error) {
       if (taskPreviewPdfEmpty) {
         taskPreviewPdfEmpty.hidden = false;
@@ -425,6 +561,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCloseTaskPreview) {
     btnCloseTaskPreview.addEventListener("click", fecharPreviewTarefa);
+  }
+
+  if (btnPdfZoomOut) {
+    btnPdfZoomOut.addEventListener("click", async () => {
+      if (!currentPdfPreviewUrl) return;
+      currentPdfZoom = Math.max(0.6, Number((currentPdfZoom - 0.2).toFixed(2)));
+      await renderizarPdfNoPreview();
+    });
+  }
+
+  if (btnPdfZoomIn) {
+    btnPdfZoomIn.addEventListener("click", async () => {
+      if (!currentPdfPreviewUrl) return;
+      currentPdfZoom = Math.min(2.4, Number((currentPdfZoom + 0.2).toFixed(2)));
+      await renderizarPdfNoPreview();
+    });
   }
 
   document.addEventListener("click", (event) => {

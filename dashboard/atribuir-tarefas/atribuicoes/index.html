@@ -117,11 +117,16 @@
           <section class="task-preview-section">
             <p class="task-preview-section__label">Prévia do PDF</p>
             <div class="task-preview-pdf" id="taskPreviewPdfWrapper">
-              <iframe
-                class="task-preview-pdf__frame"
-                id="taskPreviewPdfFrame"
-                title="Prévia do PDF da tarefa"
-              ></iframe>
+              <div class="task-preview-pdf__toolbar" id="taskPreviewPdfToolbar" hidden>
+                <button class="task-preview-pdf__zoom" id="btnPdfZoomOut" type="button" aria-label="Diminuir zoom">
+                  -
+                </button>
+                <span class="task-preview-pdf__zoom-label" id="taskPreviewPdfZoomLabel">100%</span>
+                <button class="task-preview-pdf__zoom" id="btnPdfZoomIn" type="button" aria-label="Aumentar zoom">
+                  +
+                </button>
+              </div>
+              <div class="task-preview-pdf__viewer" id="taskPreviewPdfViewer"></div>
             </div>
             <div class="empty-state task-preview-empty" id="taskPreviewPdfEmpty" hidden>
               Esta tarefa não possui PDF vinculado.
