@@ -479,6 +479,15 @@ a {
     linear-gradient(180deg, #eef2f8 0%, #f8fafc 100%);
 }
 
+.task-preview-pdf__frame {
+  width: 100%;
+  min-height: 420px;
+  height: 420px;
+  border: 0;
+  display: block;
+  background: #fff;
+}
+
 .task-preview-pdf__page {
   display: grid;
   gap: 8px;
@@ -703,5 +712,10 @@ a {
   .task-preview-pdf__viewer {
     min-height: 340px;
     max-height: 340px;
+  }
+
+  .task-preview-pdf__frame {
+    min-height: 340px;
+    height: 340px;
   }
 }

@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskPreviewPdfWrapper = document.getElementById("taskPreviewPdfWrapper");
   const taskPreviewPdfToolbar = document.getElementById("taskPreviewPdfToolbar");
   const taskPreviewPdfViewer = document.getElementById("taskPreviewPdfViewer");
+  const taskPreviewPdfFrame = document.getElementById("taskPreviewPdfFrame");
   const taskPreviewPdfEmpty = document.getElementById("taskPreviewPdfEmpty");
   const btnPdfZoomOut = document.getElementById("btnPdfZoomOut");
   const btnPdfZoomIn = document.getElementById("btnPdfZoomIn");
@@ -156,6 +157,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskPreviewPdfViewer) {
       taskPreviewPdfViewer.innerHTML = "";
+      taskPreviewPdfViewer.hidden = false;
+    }
+
+    if (taskPreviewPdfFrame) {
+      taskPreviewPdfFrame.hidden = true;
+      taskPreviewPdfFrame.removeAttribute("src");
     }
 
     if (taskPreviewPdfWrapper) {
@@ -188,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const renderToken = ++pdfRenderTaskToken;
     taskPreviewPdfViewer.innerHTML = "";
+    taskPreviewPdfViewer.hidden = false;
     atualizarZoomLabel();
 
     try {
@@ -251,17 +259,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (taskPreviewPdfWrapper) {
-        taskPreviewPdfWrapper.hidden = true;
+        taskPreviewPdfWrapper.hidden = false;
       }
 
       if (taskPreviewPdfToolbar) {
         taskPreviewPdfToolbar.hidden = true;
       }
 
+      if (taskPreviewPdfViewer) {
+        taskPreviewPdfViewer.hidden = true;
+      }
+
+      if (taskPreviewPdfFrame) {
+        taskPreviewPdfFrame.src = currentPdfPreviewUrl;
+        taskPreviewPdfFrame.hidden = false;
+      }
+
       if (taskPreviewPdfEmpty) {
-        taskPreviewPdfEmpty.hidden = false;
-        taskPreviewPdfEmpty.textContent =
-          error.message || "Não foi possível carregar a prévia do PDF.";
+        taskPreviewPdfEmpty.hidden = true;
       }
     }
   }
@@ -283,6 +298,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskPreviewPdfViewer) {
       taskPreviewPdfViewer.innerHTML = "";
+      taskPreviewPdfViewer.hidden = false;
+    }
+
+    if (taskPreviewPdfFrame) {
+      taskPreviewPdfFrame.hidden = true;
+      taskPreviewPdfFrame.removeAttribute("src");
     }
 
     if (taskPreviewPdfWrapper) {
