@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskDescriptionInput = document.getElementById("taskDescriptionInput");
   const formMessage = document.getElementById("formMessage");
   const btnSaveTask = document.getElementById("btnSaveTask");
+  const btnBottomMenu = document.getElementById("btnBottomMenu");
+  const bottomMenuPanel = document.getElementById("bottomMenuPanel");
+  const btnMenuLogout = document.getElementById("btnMenuLogout");
 
   let currentUser = null;
   let currentProfile = null;
@@ -46,6 +49,19 @@ document.addEventListener("DOMContentLoaded", () => {
     formMessage.hidden = false;
     formMessage.textContent = text;
     formMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function fecharMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    bottomMenuPanel.hidden = true;
+    btnBottomMenu.setAttribute("aria-expanded", "false");
+  }
+
+  function alternarMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    const vaiAbrir = bottomMenuPanel.hidden;
+    bottomMenuPanel.hidden = !vaiAbrir;
+    btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
   async function obterUsuarioAutenticado() {
@@ -112,6 +128,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     return true;
+  }
+
+  async function sairDoSistema() {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "tarefa_simples",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null
+    });
+
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+
+    window.location.href = "../../../auth/profissional-login/index.html";
   }
 
   async function carregarPacienteSelecionado() {
@@ -228,6 +262,31 @@ document.addEventListener("DOMContentLoaded", () => {
   if (simpleTaskForm) {
     simpleTaskForm.addEventListener("submit", salvarTarefaSimples);
   }
+
+  if (btnBottomMenu) {
+    btnBottomMenu.addEventListener("click", alternarMenuInferior);
+  }
+
+  if (btnMenuLogout) {
+    btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+
+    const clicouDentroDoMenu = bottomMenuPanel.contains(event.target);
+    const clicouNoBotao = btnBottomMenu.contains(event.target);
+
+    if (!clicouDentroDoMenu && !clicouNoBotao) {
+      fecharMenuInferior();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      fecharMenuInferior();
+    }
+  });
 
   async function iniciar() {
     setScreenMessage();
