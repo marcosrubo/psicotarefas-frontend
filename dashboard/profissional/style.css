@@ -72,7 +72,9 @@ input {
 .brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 14px;
+  width: 100%;
 }
 
 .brand__logo {
@@ -87,6 +89,7 @@ input {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: center;
 }
 
 .brand__text h1 {
