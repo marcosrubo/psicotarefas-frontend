@@ -61,36 +61,26 @@ a {
 }
 
 .topbar__nav {
-  position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  min-height: 44px;
-  gap: 12px;
+  gap: 10px;
 }
 
 .topbar__nav .back-link {
   justify-self: start;
-  position: relative;
-  z-index: 1;
 }
 
 .topbar__nav .support-link {
   justify-self: end;
-  position: relative;
-  z-index: 1;
 }
 
 .brand--centered {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   min-width: 0;
-  max-width: calc(100% - 260px);
 }
 
 .brand__logo {
@@ -407,10 +397,12 @@ a {
 }
 
 @media (max-width: 640px) {
+  .topbar__nav {
+    grid-template-columns: auto 1fr auto;
+  }
+
   .brand__name {
     font-size: 16px;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .title-strip h1 {
