@@ -48,10 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return pdfJsLib;
     }
 
-    const module = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs");
-    module.GlobalWorkerOptions.workerSrc =
-      "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs";
-    pdfJsLib = module;
+    pdfJsLib = window.pdfjsLib || null;
+
+    if (!pdfJsLib) {
+      throw new Error("Não foi possível carregar o visualizador de PDF.");
+    }
+
+    pdfJsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.js";
+
     return pdfJsLib;
   }
 
