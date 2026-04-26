@@ -195,6 +195,14 @@ a {
     #ffffff;
   display: grid;
   gap: 8px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    background 0.18s ease;
 }
 
 .selected-theme-card[hidden],
@@ -222,6 +230,19 @@ a {
   margin: 0;
   color: #667085;
   line-height: 1.5;
+}
+
+.selected-theme-card:hover,
+.selected-theme-card:focus-visible {
+  border-color: rgba(108, 94, 252, 0.28);
+  box-shadow:
+    0 16px 36px rgba(86, 71, 239, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  transform: translateY(-1px);
+}
+
+.selected-theme-card:focus-visible {
+  outline: none;
 }
 
 .selection-button {

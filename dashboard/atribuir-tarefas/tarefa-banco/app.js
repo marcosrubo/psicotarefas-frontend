@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const brandBackLink = document.getElementById("brandBackLink");
   const selectedPatientName = document.getElementById("selectedPatientName");
   const screenMessage = document.getElementById("screenMessage");
-  const btnChangeTheme = document.getElementById("btnChangeTheme");
   const selectedThemeCard = document.getElementById("selectedThemeCard");
   const selectedThemeTitle = document.getElementById("selectedThemeTitle");
   const selectedThemeDescription = document.getElementById("selectedThemeDescription");
@@ -276,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSelectedThemeSummary() {
-    if (!selectedThemeCard || !selectedThemeTitle || !selectedThemeDescription || !btnChangeTheme) {
+    if (!selectedThemeCard || !selectedThemeTitle || !selectedThemeDescription) {
       return;
     }
 
@@ -284,12 +283,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!selectedTheme || !themesCollapsed) {
       selectedThemeCard.hidden = true;
-      btnChangeTheme.hidden = true;
       return;
     }
 
     selectedThemeCard.hidden = false;
-    btnChangeTheme.hidden = false;
     selectedThemeTitle.textContent = selectedTheme.nome || "Tema";
     selectedThemeDescription.textContent =
       selectedTheme.descricao_curta || "Tema disponível no banco de tarefas.";
@@ -569,8 +566,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (btnChangeTheme) {
-    btnChangeTheme.addEventListener("click", () => {
+  if (selectedThemeCard) {
+    selectedThemeCard.addEventListener("click", () => {
       themesCollapsed = false;
       selectedBankTaskId = null;
       setFormMessage();
