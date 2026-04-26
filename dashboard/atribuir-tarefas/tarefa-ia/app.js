@@ -506,7 +506,6 @@ document.addEventListener("DOMContentLoaded", () => {
         status: "aberta",
         interacao_paciente_tipo: "nao_permitir",
         interacao_paciente_limite: null,
-        origem_tipo: "ia",
         pdf_path: linkedPdf?.pdfPath || null,
         pdf_nome: linkedPdf?.pdfName || null
       };
