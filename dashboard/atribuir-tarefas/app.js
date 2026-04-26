@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
   const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
   const btnSimpleTaskOption = document.getElementById("btnSimpleTaskOption");
+  const btnPdfTaskOption = document.getElementById("btnPdfTaskOption");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -87,6 +88,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.location.href = `./tarefa-simples/index.html?${query.toString()}`;
+  }
+
+  function abrirTelaTarefaPdf() {
+    if (!selectedPatient?.patient_user_id) return;
+
+    const query = new URLSearchParams({
+      patient: selectedPatient.patient_user_id,
+      alias: selectedPatient.alias || selectedPatient.nome_real || "Paciente"
+    });
+
+    window.location.href = `./tarefa-pdf/index.html?${query.toString()}`;
   }
 
   async function sairDoSistema() {
@@ -261,6 +273,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnSimpleTaskOption) {
     btnSimpleTaskOption.addEventListener("click", abrirTelaTarefaSimples);
+  }
+
+  if (btnPdfTaskOption) {
+    btnPdfTaskOption.addEventListener("click", abrirTelaTarefaPdf);
   }
 
   if (btnBottomMenu) {

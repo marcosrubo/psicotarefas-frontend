@@ -6,25 +6,25 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Atribuir Tarefas - PsicoTarefas</title>
+  <title>Tarefa com PDF - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Seleção de pacientes para atribuição de tarefas no PsicoTarefas" />
+  <meta name="description" content="Atribuição de tarefa com PDF no PsicoTarefas" />
 
-  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../../assets/icons/icon-192.png" />
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="../../shared/support.css" />
+  <link rel="stylesheet" href="../../../shared/support.css" />
 </head>
 <body>
-  <div class="assign-shell">
+  <div class="task-pdf-shell">
     <header class="topbar">
       <div class="topbar__nav">
-        <a class="back-link" href="../profissional/index.html">← Voltar</a>
+        <a class="back-link" href="../index.html">← Voltar</a>
 
-        <a class="brand brand--centered" href="../profissional/index.html" aria-label="Voltar ao painel do profissional">
+        <a class="brand brand--centered" href="../index.html" aria-label="Voltar para atribuir tarefas">
           <img
-            src="../../assets/icons/icon-192.png"
+            src="../../../assets/icons/icon-192.png"
             alt="Ícone do PsicoTarefas"
             class="brand__logo"
           />
@@ -38,67 +38,77 @@
       </div>
 
       <div class="title-strip">
-        <h1>Atribuir TAREFAS</h1>
+        <h1>TAREFA COM PDF</h1>
       </div>
     </header>
 
-    <main class="assign-main">
+    <main class="task-pdf-main">
       <div class="screen-message screen-message--error" id="screenMessage" hidden></div>
 
-      <section class="patients-panel">
-        <div class="section-header">
-          <div>
-            <h2>Pacientes vinculados</h2>
-          </div>
-        </div>
-
-        <div class="empty-state" id="patientsEmptyState" hidden>
-          Nenhum paciente com vínculo ativo encontrado.
-        </div>
-
-        <div class="patients-grid" id="patientsGrid"></div>
+      <section class="patient-chip-card">
+        <p class="patient-chip-card__label">Paciente selecionado</p>
+        <strong class="patient-chip-card__name" id="selectedPatientName">Carregando...</strong>
       </section>
 
-      <section class="task-choice-modal" id="taskChoiceModal" hidden aria-label="Opções de tarefa">
-        <div class="task-choice-modal__backdrop" id="taskChoiceBackdrop"></div>
-        <div class="task-choice-modal__card" role="dialog" aria-modal="true" aria-labelledby="taskChoiceTitle">
-          <div class="task-choice-modal__header">
-            <div>
-              <p class="task-choice-modal__label">Paciente selecionado</p>
-              <h3 id="taskChoiceTitle">Escolha como deseja atribuir a tarefa</h3>
-              <p class="task-choice-modal__subtitle" id="taskChoicePatientName"></p>
-            </div>
-            <button class="task-choice-modal__close" id="btnCloseTaskChoice" type="button" aria-label="Fechar">
-              ✕
-            </button>
-          </div>
-
-          <div class="task-choice-modal__options">
-            <button class="task-choice-option" id="btnSimpleTaskOption" type="button">
-              Atribuir uma TAREFA SIMPLES
-            </button>
-            <button class="task-choice-option" id="btnPdfTaskOption" type="button">
-              Anexar um PDF
-            </button>
-            <button class="task-choice-option" type="button">
-              Atribuir uma TAREFA do BANCO de TAREFAS
-            </button>
-            <button class="task-choice-option" type="button">
-              Criar uma TAREFA com IA
-            </button>
-          </div>
-
-          <div class="task-choice-modal__actions">
-            <button class="task-choice-cancel" id="btnCancelTaskChoice" type="button">
-              Cancelar
-            </button>
-          </div>
+      <section class="form-card">
+        <div class="section-header">
+          <h2>Nova tarefa</h2>
         </div>
+
+        <form id="pdfTaskForm" class="task-form">
+          <div class="form-group">
+            <label for="taskTitleInput">Título</label>
+            <input
+              type="text"
+              id="taskTitleInput"
+              placeholder="Ex.: Leitura guiada sobre ansiedade"
+              maxlength="160"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="taskDescriptionInput">Descrição da tarefa</label>
+            <textarea
+              id="taskDescriptionInput"
+              rows="7"
+              placeholder="Descreva a tarefa que será realizada pelo paciente..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>PDF da tarefa</label>
+            <input
+              type="file"
+              id="taskPdfUploadInput"
+              accept="application/pdf"
+              hidden
+            />
+
+            <div class="pdf-upload-box">
+              <button class="btn-secondary" id="btnUploadTaskPdf" type="button">
+                Selecionar PDF
+              </button>
+              <div class="pdf-upload-box__file" id="selectedPdfBox" hidden>
+                <strong id="selectedPdfName">PDF selecionado</strong>
+                <button class="btn-secondary btn-secondary--small" id="btnClearSelectedPdf" type="button">
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-message" id="formMessage" hidden></div>
+
+          <div class="task-form__actions">
+            <a class="btn-secondary" href="../index.html">CANCELAR</a>
+            <button class="btn-primary" id="btnSaveTask" type="submit">GRAVAR</button>
+          </div>
+        </form>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">
-      <a class="bottom-nav__item" href="../profissional/index.html">
+      <a class="bottom-nav__item" href="../../profissional/index.html">
         <span class="bottom-nav__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 10.5 12 3l9 7.5" />
@@ -136,13 +146,11 @@
         </button>
 
         <div class="bottom-nav__menu" id="bottomMenuPanel" hidden>
-          <a class="bottom-nav__menu-item" href="../profissional/index.html">Meus DADOS</a>
+          <a class="bottom-nav__menu-item" href="../../profissional/index.html">Meus DADOS</a>
           <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
-          <a class="bottom-nav__menu-item" href="../profissional/index.html">Cadastro de PACIENTES</a>
-          <button class="bottom-nav__menu-item bottom-nav__menu-item--current" type="button" disabled>
-            Atribuir TAREFAS
-          </button>
-          <a class="bottom-nav__menu-item" href="../banco-de-tarefas/index.html">Banco de TAREFAS</a>
+          <a class="bottom-nav__menu-item" href="../../cadastro-pacientes/index.html">Cadastro de PACIENTES</a>
+          <a class="bottom-nav__menu-item bottom-nav__menu-item--current" href="../index.html" aria-current="page">Atribuir TAREFAS</a>
+          <a class="bottom-nav__menu-item" href="../../banco-de-tarefas/index.html">Banco de TAREFAS</a>
           <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
           <button class="bottom-nav__menu-item bottom-nav__menu-item--danger" id="btnMenuLogout" type="button">
             SAIR
