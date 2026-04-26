@@ -197,6 +197,13 @@ a {
   gap: 8px;
 }
 
+.selected-theme-card[hidden],
+.selection-list[hidden],
+.screen-message[hidden],
+.panel[hidden] {
+  display: none !important;
+}
+
 .selected-theme-card__label {
   margin: 0;
   color: var(--primary-dark);
