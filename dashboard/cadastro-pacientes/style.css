@@ -565,17 +565,12 @@ a {
     grid-template-columns: auto 1fr auto;
   }
 
-  .title-strip {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .brand__name {
     font-size: 16px;
   }
 
   .title-strip h1 {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .section-header h2 {
@@ -587,7 +582,9 @@ a {
   }
 
   .section-header__action {
-    padding-inline: 16px;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 12px;
   }
 
   .patient-select-button {
