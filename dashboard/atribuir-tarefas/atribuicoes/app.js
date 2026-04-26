@@ -285,11 +285,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  function handlePlaceholderOption(event, tipo) {
-    event.preventDefault();
-    window.alert(`A tela de ${tipo} será a próxima etapa que vamos construir.`);
-  }
-
   if (btnBottomMenu) {
     btnBottomMenu.addEventListener("click", alternarMenuInferior);
   }
@@ -298,12 +293,11 @@ document.addEventListener("DOMContentLoaded", () => {
     btnMenuLogout.addEventListener("click", sairDoSistema);
   }
 
-  if (btnBankTaskOption) {
-    btnBankTaskOption.addEventListener("click", (event) => handlePlaceholderOption(event, "tarefa do banco"));
-  }
-
   if (btnAiTaskOption) {
-    btnAiTaskOption.addEventListener("click", (event) => handlePlaceholderOption(event, "tarefa com IA"));
+    btnAiTaskOption.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.alert("A tela de tarefa com IA será a próxima etapa que vamos construir.");
+    });
   }
 
   document.addEventListener("click", (event) => {

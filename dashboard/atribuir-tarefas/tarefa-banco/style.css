@@ -1,0 +1,508 @@
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #1f2430;
+  --muted: #667085;
+  --primary: #6d5efc;
+  --primary-dark: #5647ef;
+  --border: #e8eaf2;
+  --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
+  --error-bg: #fef2f2;
+  --error-text: #b42318;
+  --success-bg: #ecfdf3;
+  --success-text: #027a48;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+a,
+button {
+  color: inherit;
+  font: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+.task-bank-shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  padding: 18px 16px 14px;
+  background:
+    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 14px;
+}
+
+.topbar__nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar__nav .back-link {
+  justify-self: start;
+}
+
+.topbar__nav .support-link {
+  justify-self: end;
+}
+
+.brand--centered {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  flex-shrink: 0;
+}
+
+.brand__name {
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.title-strip {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #eceff3;
+  border: 1px solid #dde3eb;
+}
+
+.title-strip h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.task-bank-main {
+  padding: 18px 16px 124px;
+  display: grid;
+  gap: 18px;
+}
+
+.panel,
+.patient-chip-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-soft);
+  padding: 18px;
+}
+
+.patient-chip-card__label,
+.confirmation-card__label {
+  margin: 0 0 8px;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.patient-chip-card__name {
+  display: block;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.screen-message {
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.screen-message--error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid rgba(180, 35, 24, 0.12);
+}
+
+.screen-message--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid rgba(2, 122, 72, 0.12);
+}
+
+.empty-state {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px dashed #d5dbe5;
+  color: var(--muted);
+  text-align: center;
+}
+
+.selection-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.selection-button {
+  appearance: none;
+  width: 100%;
+  border: 1px solid rgba(108, 94, 252, 0.12);
+  border-radius: 20px;
+  min-height: 74px;
+  padding: 18px 56px 18px 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 253, 0.96));
+  color: #1f2430;
+  font-weight: 700;
+  text-align: left;
+  box-shadow:
+    0 10px 24px rgba(31, 36, 48, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.selection-button::after {
+  content: "›";
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(86, 71, 239, 0.72);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.selection-button:hover,
+.selection-button:focus-visible {
+  border-color: rgba(108, 94, 252, 0.3);
+  background:
+    linear-gradient(135deg, rgba(109, 94, 252, 0.1), rgba(86, 71, 239, 0.06)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 248, 253, 0.98));
+  color: #171b26;
+  box-shadow:
+    0 16px 36px rgba(86, 71, 239, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  transform: translateY(-1px);
+}
+
+.selection-button:focus-visible {
+  outline: none;
+}
+
+.selection-button:hover::after,
+.selection-button:focus-visible::after {
+  color: var(--primary-dark);
+}
+
+.selection-button.is-selected {
+  border-color: rgba(108, 94, 252, 0.34);
+  background:
+    linear-gradient(135deg, rgba(109, 94, 252, 0.14), rgba(86, 71, 239, 0.08)),
+    #ffffff;
+  box-shadow:
+    0 16px 36px rgba(86, 71, 239, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.selection-button__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.selection-button__title {
+  display: block;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.selection-button__subtitle {
+  display: block;
+  margin-top: 8px;
+  color: #667085;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.selection-button__meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.confirmation-card {
+  margin-top: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.confirmation-card__block {
+  display: grid;
+  gap: 8px;
+}
+
+.confirmation-card__value {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.confirmation-card__description {
+  margin: 0;
+  color: #475467;
+  line-height: 1.6;
+}
+
+.confirmation-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.confirmation-card__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.meta-chip--type {
+  background: rgba(109, 94, 252, 0.12);
+  color: var(--primary-dark);
+}
+
+.btn-secondary,
+.btn-primary {
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  font-weight: 800;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 14px 22px;
+}
+
+.btn-secondary:active,
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
+}
+
+.btn-secondary {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--primary-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: none;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px 24px 0 0;
+  background: rgba(35, 48, 70, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 -10px 28px rgba(20, 24, 38, 0.18);
+  z-index: 30;
+}
+
+.bottom-nav__item {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  min-height: 58px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.bottom-nav__item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.bottom-nav__icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+}
+
+.bottom-nav__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.bottom-nav__label {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.bottom-nav__menu-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.bottom-nav__menu-wrap .bottom-nav__item {
+  width: 100%;
+}
+
+.bottom-nav__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  min-width: 180px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(35, 48, 70, 0.98);
+  box-shadow: 0 18px 38px rgba(20, 24, 38, 0.22);
+  backdrop-filter: blur(16px);
+}
+
+.bottom-nav__menu-item {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  text-decoration: none;
+  min-height: 48px;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.bottom-nav__menu-item--current {
+  background: rgba(109, 94, 252, 0.22);
+}
+
+.bottom-nav__menu-item--danger {
+  color: #ffc9c5;
+}
+
+.bottom-nav__menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 2px 0;
+}
+
+@media (max-width: 720px) {
+  .brand__name {
+    font-size: 16px;
+  }
+
+  .selection-button {
+    min-height: 68px;
+    padding-right: 48px;
+  }
+
+  .selection-button__title {
+    font-size: 18px;
+  }
+
+  .selection-button__subtitle {
+    font-size: 14px;
+  }
+
+  .confirmation-card__value,
+  .section-header h2,
+  .patient-chip-card__name {
+    font-size: 22px;
+  }
+
+  .confirmation-card__actions {
+    flex-wrap: nowrap;
+  }
+
+  .confirmation-card__actions .btn-secondary,
+  .confirmation-card__actions .btn-primary {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
