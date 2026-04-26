@@ -43,10 +43,14 @@ a {
 }
 
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 24;
   padding: 18px 16px 14px;
   background:
     radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   display: grid;
   gap: 14px;
