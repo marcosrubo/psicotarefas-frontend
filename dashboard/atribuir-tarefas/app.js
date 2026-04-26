@@ -5,13 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientsGrid = document.getElementById("patientsGrid");
   const patientsEmptyState = document.getElementById("patientsEmptyState");
   const screenMessage = document.getElementById("screenMessage");
-  const taskChoiceModal = document.getElementById("taskChoiceModal");
-  const taskChoiceBackdrop = document.getElementById("taskChoiceBackdrop");
-  const taskChoicePatientName = document.getElementById("taskChoicePatientName");
-  const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
-  const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
-  const btnSimpleTaskOption = document.getElementById("btnSimpleTaskOption");
-  const btnPdfTaskOption = document.getElementById("btnPdfTaskOption");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -19,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let currentProfile = null;
   let patients = [];
-  let selectedPatient = null;
 
   function showScreenError(message) {
     if (!screenMessage) return;
@@ -42,18 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/'/g, "&#39;");
   }
 
-  function formatDateTime(value) {
-    if (!value) return "-";
-
-    return new Date(value).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }
-
   function fecharMenuInferior() {
     if (!bottomMenuPanel || !btnBottomMenu) return;
     bottomMenuPanel.hidden = true;
@@ -67,38 +47,15 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
-  function fecharEscolhaDeTarefa() {
-    if (!taskChoiceModal) return;
-    taskChoiceModal.hidden = true;
-  }
-
-  function abrirEscolhaDeTarefa(patient) {
-    if (!taskChoiceModal || !taskChoicePatientName) return;
-    selectedPatient = patient;
-    taskChoicePatientName.textContent = `Paciente: ${patient.alias}`;
-    taskChoiceModal.hidden = false;
-  }
-
-  function abrirTelaTarefaSimples() {
-    if (!selectedPatient?.patient_user_id) return;
+  function abrirTelaAtribuicoes(patient) {
+    if (!patient?.patient_user_id) return;
 
     const query = new URLSearchParams({
-      patient: selectedPatient.patient_user_id,
-      alias: selectedPatient.alias || selectedPatient.nome_real || "Paciente"
+      patient: patient.patient_user_id,
+      alias: patient.alias || patient.nome_real || "Paciente"
     });
 
-    window.location.href = `./tarefa-simples/index.html?${query.toString()}`;
-  }
-
-  function abrirTelaTarefaPdf() {
-    if (!selectedPatient?.patient_user_id) return;
-
-    const query = new URLSearchParams({
-      patient: selectedPatient.patient_user_id,
-      alias: selectedPatient.alias || selectedPatient.nome_real || "Paciente"
-    });
-
-    window.location.href = `./tarefa-pdf/index.html?${query.toString()}`;
+    window.location.href = `./atribuicoes/index.html?${query.toString()}`;
   }
 
   async function sairDoSistema() {
@@ -255,28 +212,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      abrirEscolhaDeTarefa(patient);
+      abrirTelaAtribuicoes(patient);
     });
-  }
-
-  if (taskChoiceBackdrop) {
-    taskChoiceBackdrop.addEventListener("click", fecharEscolhaDeTarefa);
-  }
-
-  if (btnCloseTaskChoice) {
-    btnCloseTaskChoice.addEventListener("click", fecharEscolhaDeTarefa);
-  }
-
-  if (btnCancelTaskChoice) {
-    btnCancelTaskChoice.addEventListener("click", fecharEscolhaDeTarefa);
-  }
-
-  if (btnSimpleTaskOption) {
-    btnSimpleTaskOption.addEventListener("click", abrirTelaTarefaSimples);
-  }
-
-  if (btnPdfTaskOption) {
-    btnPdfTaskOption.addEventListener("click", abrirTelaTarefaPdf);
   }
 
   if (btnBottomMenu) {
@@ -301,7 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       fecharMenuInferior();
-      fecharEscolhaDeTarefa();
     }
   });
 

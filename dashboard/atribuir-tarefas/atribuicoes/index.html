@@ -6,10 +6,10 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Tarefa Simples - PsicoTarefas</title>
+  <title>Atribuições - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Atribuição de tarefa simples no PsicoTarefas" />
+  <meta name="description" content="Atribuições do paciente no PsicoTarefas" />
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../../assets/icons/icon-192.png" />
@@ -17,12 +17,12 @@
   <link rel="stylesheet" href="../../../shared/support.css" />
 </head>
 <body>
-  <div class="task-simple-shell">
+  <div class="assignments-shell">
     <header class="topbar">
       <div class="topbar__nav">
         <a class="back-link" id="btnBackLink" href="../index.html">← Voltar</a>
 
-        <a class="brand brand--centered" id="brandBackLink" href="../index.html" aria-label="Voltar para atribuições">
+        <a class="brand brand--centered" href="../index.html" aria-label="Voltar para atribuir tarefas">
           <img
             src="../../../assets/icons/icon-192.png"
             alt="Ícone do PsicoTarefas"
@@ -38,11 +38,11 @@
       </div>
 
       <div class="title-strip">
-        <h1>TAREFA SIMPLES</h1>
+        <h1>ATRIBUIÇÕES</h1>
       </div>
     </header>
 
-    <main class="task-simple-main">
+    <main class="assignments-main">
       <div class="screen-message screen-message--error" id="screenMessage" hidden></div>
 
       <section class="patient-chip-card">
@@ -50,38 +50,41 @@
         <strong class="patient-chip-card__name" id="selectedPatientName">Carregando...</strong>
       </section>
 
-      <section class="form-card">
+      <section class="panel">
         <div class="section-header">
-          <h2>Nova tarefa</h2>
+          <div>
+            <h2>Nova atribuição</h2>
+          </div>
         </div>
 
-        <form id="simpleTaskForm" class="task-form">
-          <div class="form-group">
-            <label for="taskTitleInput">Título</label>
-            <input
-              type="text"
-              id="taskTitleInput"
-              placeholder="Ex.: Registro de pensamentos automáticos"
-              maxlength="160"
-            />
-          </div>
+        <div class="options-grid">
+          <a class="option-button" id="btnSimpleTaskOption" href="#">
+            Atribuir uma TAREFA SIMPLES
+          </a>
+          <a class="option-button" id="btnPdfTaskOption" href="#">
+            Anexar um PDF
+          </a>
+          <a class="option-button" id="btnBankTaskOption" href="#">
+            Atribuir uma TAREFA do BANCO de TAREFAS
+          </a>
+          <a class="option-button" id="btnAiTaskOption" href="#">
+            Criar uma TAREFA com IA
+          </a>
+        </div>
+      </section>
 
-          <div class="form-group">
-            <label for="taskDescriptionInput">Descrição da tarefa</label>
-            <textarea
-              id="taskDescriptionInput"
-              rows="7"
-              placeholder="Descreva a tarefa que será realizada pelo paciente..."
-            ></textarea>
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Atividades já atribuídas</h2>
           </div>
+        </div>
 
-          <div class="screen-message" id="formMessage" hidden></div>
+        <div class="empty-state" id="tasksEmptyState" hidden>
+          Nenhuma atividade atribuída para este paciente.
+        </div>
 
-          <div class="task-form__actions">
-            <a class="btn-secondary" id="btnCancelLink" href="../index.html">CANCELAR</a>
-            <button class="btn-primary" id="btnSaveTask" type="submit">GRAVAR</button>
-          </div>
-        </form>
+        <div class="tasks-list" id="tasksList"></div>
       </section>
     </main>
 

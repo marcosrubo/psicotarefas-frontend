@@ -7,15 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const initialPatientAlias = (searchParams.get("alias") || "").trim();
 
   const btnBackLink = document.getElementById("btnBackLink");
-  const brandBackLink = document.getElementById("brandBackLink");
-  const btnCancelLink = document.getElementById("btnCancelLink");
   const selectedPatientName = document.getElementById("selectedPatientName");
   const screenMessage = document.getElementById("screenMessage");
-  const simpleTaskForm = document.getElementById("simpleTaskForm");
-  const taskTitleInput = document.getElementById("taskTitleInput");
-  const taskDescriptionInput = document.getElementById("taskDescriptionInput");
-  const formMessage = document.getElementById("formMessage");
-  const btnSaveTask = document.getElementById("btnSaveTask");
+  const tasksEmptyState = document.getElementById("tasksEmptyState");
+  const tasksList = document.getElementById("tasksList");
+  const btnSimpleTaskOption = document.getElementById("btnSimpleTaskOption");
+  const btnPdfTaskOption = document.getElementById("btnPdfTaskOption");
+  const btnBankTaskOption = document.getElementById("btnBankTaskOption");
+  const btnAiTaskOption = document.getElementById("btnAiTaskOption");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -23,15 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let currentProfile = null;
   let selectedPatient = null;
-
-  function buildAssignmentsUrl() {
-    const query = new URLSearchParams({
-      patient: initialPatientId,
-      alias: initialPatientAlias || selectedPatient?.alias || selectedPatient?.nome_real || "Paciente"
-    });
-
-    return `../atribuicoes/index.html?${query.toString()}`;
-  }
+  let tasks = [];
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -48,19 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
     screenMessage.className = `screen-message screen-message--${type}`;
   }
 
-  function setFormMessage(text = "", type = "error") {
-    if (!formMessage) return;
-
-    if (!text) {
-      formMessage.hidden = true;
-      formMessage.textContent = "";
-      formMessage.className = "screen-message";
-      return;
-    }
-
-    formMessage.hidden = false;
-    formMessage.textContent = text;
-    formMessage.className = `screen-message screen-message--${type}`;
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function fecharMenuInferior() {
@@ -74,6 +59,60 @@ document.addEventListener("DOMContentLoaded", () => {
     const vaiAbrir = bottomMenuPanel.hidden;
     bottomMenuPanel.hidden = !vaiAbrir;
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
+  }
+
+  function formatDateTime(value) {
+    if (!value) return "-";
+
+    return new Date(value).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function formatTaskType(task) {
+    if (task.origem_tipo === "banco" || task.origem_banco_tarefa_id) {
+      return "Banco de tarefas";
+    }
+
+    if (task.pdf_path) {
+      return "Tarefa com PDF";
+    }
+
+    if (task.origem_tipo === "ia") {
+      return "Tarefa com IA";
+    }
+
+    return "Tarefa simples";
+  }
+
+  function formatStatus(task) {
+    if (task.status === "encerrada") {
+      return { label: "Encerrada", className: "meta-chip--closed" };
+    }
+
+    if (task.status === "aberta") {
+      return { label: "Aberta", className: "" };
+    }
+
+    return { label: task.status || "Sem status", className: "meta-chip--pending" };
+  }
+
+  function updateOptionLinks() {
+    if (!selectedPatient?.patient_user_id) return;
+
+    const query = new URLSearchParams({
+      patient: selectedPatient.patient_user_id,
+      alias: selectedPatient.alias || selectedPatient.nome_real || initialPatientAlias || "Paciente"
+    }).toString();
+
+    if (btnSimpleTaskOption) btnSimpleTaskOption.href = `../tarefa-simples/index.html?${query}`;
+    if (btnPdfTaskOption) btnPdfTaskOption.href = `../tarefa-pdf/index.html?${query}`;
+    if (btnBankTaskOption) btnBankTaskOption.href = `../tarefa-banco/index.html?${query}`;
+    if (btnAiTaskOption) btnAiTaskOption.href = `../tarefa-ia/index.html?${query}`;
   }
 
   async function obterUsuarioAutenticado() {
@@ -130,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentProfile = perfil;
 
     await registrarAcessoPagina({
-      pagina: "tarefa_simples",
+      pagina: "atribuicoes",
       perfil: "profissional",
       userId: currentUser.id,
       email: currentProfile.email || currentUser.email || "",
@@ -145,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function sairDoSistema() {
     await registrarEvento({
       evento: "logout",
-      pagina: "tarefa_simples",
+      pagina: "atribuicoes",
       perfil: "profissional",
       userId: currentUser?.id || null,
       email: currentProfile?.email || currentUser?.email || null
@@ -162,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function carregarPacienteSelecionado() {
     if (!initialPatientId) {
-      throw new Error("Nenhum paciente foi informado para criar a tarefa.");
+      throw new Error("Nenhum paciente foi informado para abrir as atribuições.");
     }
 
     const { data, error } = await supabase.rpc("listar_pacientes_vinculados_profissional");
@@ -195,84 +234,60 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedPatientName.textContent =
         selectedPatient.alias || initialPatientAlias || selectedPatient.nome_real || "Paciente";
     }
+
+    updateOptionLinks();
   }
 
-  async function salvarTarefaSimples(event) {
+  async function carregarTarefas() {
+    const { data, error } = await supabase
+      .from("tarefas")
+      .select("*")
+      .eq("professional_user_id", currentUser.id)
+      .eq("patient_user_id", initialPatientId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(`Falha ao carregar tarefas: ${error.message}`);
+    }
+
+    tasks = data || [];
+  }
+
+  function renderTasks() {
+    if (!tasksList || !tasksEmptyState) return;
+
+    if (!tasks.length) {
+      tasksList.innerHTML = "";
+      tasksEmptyState.hidden = false;
+      return;
+    }
+
+    tasksEmptyState.hidden = true;
+    tasksList.innerHTML = tasks
+      .map((task) => {
+        const taskType = formatTaskType(task);
+        const taskStatus = formatStatus(task);
+
+        return `
+          <article class="assignment-card">
+            <div class="assignment-card__top">
+              <h3 class="assignment-card__title">${escapeHtml(task.titulo || "Tarefa sem título")}</h3>
+              <span class="meta-chip meta-chip--status ${taskStatus.className}">${escapeHtml(taskStatus.label)}</span>
+            </div>
+            <p class="assignment-card__description">${escapeHtml(task.descricao || "Sem descrição cadastrada.")}</p>
+            <div class="assignment-card__meta">
+              <span class="meta-chip meta-chip--type">${escapeHtml(taskType)}</span>
+              <span class="meta-chip meta-chip--type">${escapeHtml(formatDateTime(task.created_at))}</span>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function handlePlaceholderOption(event, tipo) {
     event.preventDefault();
-
-    const titulo = taskTitleInput?.value.trim() || "";
-    const descricao = taskDescriptionInput?.value.trim() || "";
-
-    if (!selectedPatient) {
-      setFormMessage("Selecione um paciente válido antes de gravar a tarefa.", "error");
-      return;
-    }
-
-    if (!titulo) {
-      setFormMessage("Informe o título da tarefa.", "error");
-      return;
-    }
-
-    if (!descricao) {
-      setFormMessage("Informe a descrição da tarefa.", "error");
-      return;
-    }
-
-    if (btnSaveTask) {
-      btnSaveTask.disabled = true;
-      btnSaveTask.textContent = "GRAVANDO...";
-    }
-    setFormMessage();
-
-    try {
-      const payload = {
-        professional_user_id: currentUser.id,
-        patient_user_id: selectedPatient.patient_user_id,
-        vinculo_id: selectedPatient.vinculo_id,
-        titulo,
-        descricao,
-        status: "aberta",
-        interacao_paciente_tipo: "nao_permitir",
-        interacao_paciente_limite: null
-      };
-
-      const { data: novaTarefa, error } = await supabase
-        .from("tarefas")
-        .insert(payload)
-        .select()
-        .single();
-
-      if (error || !novaTarefa) {
-        throw new Error(error?.message || "Não foi possível criar a tarefa.");
-      }
-
-      await registrarEvento({
-        userId: currentUser?.id,
-        email: currentProfile?.email || currentUser?.email || "",
-        perfil: "profissional",
-        evento: "tarefa_criada",
-        pagina: "tarefa_simples",
-        contexto: {
-          tarefa_id: novaTarefa.id,
-          paciente_id: selectedPatient.patient_user_id,
-          origem_tipo: "manual"
-        }
-      });
-
-      window.location.href = buildAssignmentsUrl();
-    } catch (error) {
-      console.error("Erro ao criar tarefa simples:", error);
-      setFormMessage(error.message || "Erro ao criar tarefa.", "error");
-    } finally {
-      if (btnSaveTask) {
-        btnSaveTask.disabled = false;
-        btnSaveTask.textContent = "GRAVAR";
-      }
-    }
-  }
-
-  if (simpleTaskForm) {
-    simpleTaskForm.addEventListener("submit", salvarTarefaSimples);
+    window.alert(`A tela de ${tipo} será a próxima etapa que vamos construir.`);
   }
 
   if (btnBottomMenu) {
@@ -281,6 +296,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnMenuLogout) {
     btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  if (btnBankTaskOption) {
+    btnBankTaskOption.addEventListener("click", (event) => handlePlaceholderOption(event, "tarefa do banco"));
+  }
+
+  if (btnAiTaskOption) {
+    btnAiTaskOption.addEventListener("click", (event) => handlePlaceholderOption(event, "tarefa com IA"));
   }
 
   document.addEventListener("click", (event) => {
@@ -302,21 +325,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function iniciar() {
     setScreenMessage();
-    setFormMessage();
-
-    const assignmentsUrl = buildAssignmentsUrl();
-    if (btnBackLink) btnBackLink.href = assignmentsUrl;
-    if (brandBackLink) brandBackLink.href = assignmentsUrl;
-    if (btnCancelLink) btnCancelLink.href = assignmentsUrl;
+    if (btnBackLink) {
+      btnBackLink.href = "../index.html";
+    }
 
     const ok = await validarProfissional();
     if (!ok) return;
 
     await carregarPacienteSelecionado();
+    await carregarTarefas();
+    renderTasks();
   }
 
   iniciar().catch((error) => {
-    console.error("Erro na tela tarefa-simples:", error);
-    setScreenMessage(error.message || "Não foi possível carregar a tela da tarefa simples.");
+    console.error("Erro na tela atribuicoes:", error);
+    setScreenMessage(error.message || "Não foi possível carregar as atribuições do paciente.");
   });
 });

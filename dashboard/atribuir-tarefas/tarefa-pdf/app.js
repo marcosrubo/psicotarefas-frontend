@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const initialPatientId = (searchParams.get("patient") || "").trim();
   const initialPatientAlias = (searchParams.get("alias") || "").trim();
 
+  const btnBackLink = document.getElementById("btnBackLink");
+  const brandBackLink = document.getElementById("brandBackLink");
+  const btnCancelLink = document.getElementById("btnCancelLink");
   const selectedPatientName = document.getElementById("selectedPatientName");
   const screenMessage = document.getElementById("screenMessage");
   const pdfTaskForm = document.getElementById("pdfTaskForm");
@@ -28,6 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProfile = null;
   let selectedPatient = null;
   let selectedPdfFile = null;
+
+  function buildAssignmentsUrl() {
+    const query = new URLSearchParams({
+      patient: initialPatientId,
+      alias: initialPatientAlias || selectedPatient?.alias || selectedPatient?.nome_real || "Paciente"
+    });
+
+    return `../atribuicoes/index.html?${query.toString()}`;
+  }
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -325,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      window.location.href = "../index.html";
+      window.location.href = buildAssignmentsUrl();
     } catch (error) {
       console.error("Erro ao criar tarefa com PDF:", error);
       setFormMessage(error.message || "Erro ao criar tarefa.", "error");
@@ -406,6 +418,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setScreenMessage();
     setFormMessage();
     clearSelectedPdf();
+
+    const assignmentsUrl = buildAssignmentsUrl();
+    if (btnBackLink) btnBackLink.href = assignmentsUrl;
+    if (brandBackLink) brandBackLink.href = assignmentsUrl;
+    if (btnCancelLink) btnCancelLink.href = assignmentsUrl;
 
     const ok = await validarProfissional();
     if (!ok) return;
