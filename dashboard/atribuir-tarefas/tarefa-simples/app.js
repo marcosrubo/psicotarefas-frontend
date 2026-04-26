@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
         descricao,
         status: "aberta",
         interacao_paciente_tipo: "nao_permitir",
-        interacao_paciente_limite: 0
+        interacao_paciente_limite: null
       };
 
       const { data: novaTarefa, error } = await supabase
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .single();
 
       if (error || !novaTarefa) {
-        throw new Error("Não foi possível criar a tarefa.");
+        throw new Error(error?.message || "Não foi possível criar a tarefa.");
       }
 
       await registrarEvento({
@@ -215,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       window.location.href = "../index.html";
     } catch (error) {
+      console.error("Erro ao criar tarefa simples:", error);
       setFormMessage(error.message || "Erro ao criar tarefa.", "error");
     } finally {
       if (btnSaveTask) {
