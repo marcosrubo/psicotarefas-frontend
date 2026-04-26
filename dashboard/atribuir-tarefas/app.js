@@ -159,10 +159,41 @@ document.addEventListener("DOMContentLoaded", () => {
           alias: item.patient_alias || nomeCompleto,
           nome_real: nomeCompleto,
           email: item.patient_email || "",
-          created_at: item.created_at
+          created_at: item.created_at,
+          tasks_count: 0
         };
       })
       .sort((a, b) => a.alias.localeCompare(b.alias, "pt-BR", { sensitivity: "base" }));
+
+    const patientIds = patients
+      .map((patient) => patient.patient_user_id)
+      .filter(Boolean);
+
+    if (!patientIds.length || !currentUser?.id) {
+      return;
+    }
+
+    const { data: tarefas, error: tarefasError } = await supabase
+      .from("tarefas")
+      .select("patient_user_id")
+      .eq("professional_user_id", currentUser.id)
+      .in("patient_user_id", patientIds);
+
+    if (tarefasError) {
+      throw new Error(`Falha ao carregar quantidade de tarefas por paciente: ${tarefasError.message}`);
+    }
+
+    const tarefasPorPaciente = (tarefas || []).reduce((acc, tarefa) => {
+      const patientId = tarefa.patient_user_id;
+      if (!patientId) return acc;
+      acc[patientId] = (acc[patientId] || 0) + 1;
+      return acc;
+    }, {});
+
+    patients = patients.map((patient) => ({
+      ...patient,
+      tasks_count: tarefasPorPaciente[patient.patient_user_id] || 0
+    }));
   }
 
   function renderPatients() {
@@ -183,9 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
             class="patient-select-button"
             type="button"
             data-patient-id="${escapeHtml(patient.patient_user_id)}"
-            aria-label="Selecionar ${escapeHtml(patient.alias)}"
+            aria-label="Selecionar ${escapeHtml(patient.alias)} com ${patient.tasks_count} tarefa(s)"
           >
-            ${escapeHtml(patient.alias)}
+            ${escapeHtml(patient.alias)} (${patient.tasks_count})
           </button>
         `;
       })
