@@ -156,6 +156,12 @@ a {
   border: 1px solid rgba(180, 35, 24, 0.12);
 }
 
+.screen-message--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid rgba(2, 122, 72, 0.12);
+}
+
 .empty-state {
   margin-top: 18px;
   padding: 18px;

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchParams = new URLSearchParams(window.location.search);
   const initialPatientId = (searchParams.get("patient") || "").trim();
   const initialPatientAlias = (searchParams.get("alias") || "").trim();
+  const createdTaskId = (searchParams.get("created_task_id") || "").trim();
 
   const btnBackLink = document.getElementById("btnBackLink");
   const selectedPatientName = document.getElementById("selectedPatientName");
@@ -23,6 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProfile = null;
   let selectedPatient = null;
   let tasks = [];
+
+  function esperar(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -253,6 +258,27 @@ document.addEventListener("DOMContentLoaded", () => {
     tasks = data || [];
   }
 
+  async function carregarTarefasAteEncontrarNova() {
+    await carregarTarefas();
+
+    if (!createdTaskId) {
+      return;
+    }
+
+    if (tasks.some((task) => String(task.id) === createdTaskId)) {
+      return;
+    }
+
+    for (let tentativa = 0; tentativa < 2; tentativa += 1) {
+      await esperar(250);
+      await carregarTarefas();
+
+      if (tasks.some((task) => String(task.id) === createdTaskId)) {
+        return;
+      }
+    }
+  }
+
   function renderTasks() {
     if (!tasksList || !tasksEmptyState) return;
 
@@ -320,8 +346,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) return;
 
     await carregarPacienteSelecionado();
-    await carregarTarefas();
+    await carregarTarefasAteEncontrarNova();
     renderTasks();
+
+    if (createdTaskId) {
+      if (tasks.some((task) => String(task.id) === createdTaskId)) {
+        setScreenMessage("Tarefa criada com sucesso.", "success");
+      } else {
+        setScreenMessage(
+          "A tarefa foi enviada, mas ainda não apareceu na listagem. Atualize a tela para confirmar.",
+          "error"
+        );
+      }
+    }
   }
 
   iniciar().catch((error) => {

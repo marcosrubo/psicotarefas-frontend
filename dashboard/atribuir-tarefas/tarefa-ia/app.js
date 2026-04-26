@@ -37,10 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedPatient = null;
   let lastGeneratedAiMaterial = null;
 
-  function buildAssignmentsUrl() {
+  function buildAssignmentsUrl(extraParams = {}) {
     const query = new URLSearchParams({
       patient: initialPatientId,
-      alias: initialPatientAlias || selectedPatient?.alias || selectedPatient?.nome_real || "Paciente"
+      alias: initialPatientAlias || selectedPatient?.alias || selectedPatient?.nome_real || "Paciente",
+      ...extraParams
     });
 
     return `../atribuicoes/index.html?${query.toString()}`;
@@ -534,7 +535,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      window.location.href = buildAssignmentsUrl();
+      window.location.href = buildAssignmentsUrl({
+        created_task_id: String(novaTarefa.id)
+      });
     } catch (error) {
       setPreviewMessage(error.message || "Erro ao criar tarefa com IA.", "error");
     } finally {
