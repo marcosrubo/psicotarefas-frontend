@@ -1037,8 +1037,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnMenuProfile) {
     btnMenuProfile.addEventListener("click", () => {
       fecharMenuInferior();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      abrirEdicaoNome();
+      window.location.href = "../meus-dados/index.html";
     });
   }
 

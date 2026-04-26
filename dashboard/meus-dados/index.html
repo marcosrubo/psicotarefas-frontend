@@ -6,25 +6,25 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Atribuições - PsicoTarefas</title>
+  <title>Meus Dados - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Atribuições do paciente no PsicoTarefas" />
+  <meta name="description" content="Atualização cadastral do profissional no PsicoTarefas" />
 
-  <link rel="icon" type="image/png" sizes="192x192" href="../../../assets/icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="../../../assets/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="../../../shared/support.css" />
+  <link rel="stylesheet" href="../../shared/support.css" />
 </head>
 <body>
-  <div class="assignments-shell">
+  <div class="profile-shell">
     <header class="topbar">
       <div class="topbar__nav">
-        <a class="back-link" id="btnBackLink" href="../index.html">← Voltar</a>
+        <a class="back-link" href="../profissional/index.html">← Voltar</a>
 
-        <a class="brand brand--centered" href="../index.html" aria-label="Voltar para atribuir tarefas">
+        <a class="brand brand--centered" href="../profissional/index.html" aria-label="Voltar ao painel do profissional">
           <img
-            src="../../../assets/icons/icon-192.png"
+            src="../../assets/icons/icon-192.png"
             alt="Ícone do PsicoTarefas"
             class="brand__logo"
           />
@@ -38,106 +38,78 @@
       </div>
 
       <div class="title-strip">
-        <h1>ATRIBUIÇÕES</h1>
+        <h1>Meus DADOS</h1>
       </div>
     </header>
 
-    <main class="assignments-main">
+    <main class="profile-main">
       <div class="screen-message screen-message--error" id="screenMessage" hidden></div>
 
-      <section class="patient-chip-card">
-        <p class="patient-chip-card__label">Paciente selecionado</p>
-        <strong class="patient-chip-card__name" id="selectedPatientName">Carregando...</strong>
-      </section>
-
-      <section class="panel">
+      <section class="profile-card">
         <div class="section-header">
           <div>
-            <h2>Nova atribuição</h2>
+            <h2>Atualização cadastral</h2>
           </div>
         </div>
 
-        <div class="options-grid">
-          <a class="option-button" id="btnSimpleTaskOption" href="#">
-            Atribuir uma TAREFA SIMPLES
-          </a>
-          <a class="option-button" id="btnPdfTaskOption" href="#">
-            Anexar um PDF
-          </a>
-          <a class="option-button" id="btnBankTaskOption" href="#">
-            Atribuir uma TAREFA do BANCO de TAREFAS
-          </a>
-          <a class="option-button" id="btnAiTaskOption" href="#">
-            Criar uma TAREFA com IA
-          </a>
-        </div>
-      </section>
+        <form class="profile-form" id="profileForm">
+          <label class="form-field" for="professionalEmail">
+            <span class="form-field__label">E-mail</span>
+            <input
+              class="form-field__input form-field__input--readonly"
+              id="professionalEmail"
+              type="email"
+              readonly
+            />
+          </label>
 
-      <section class="panel">
-        <div class="section-header">
-          <div>
-            <h2>Atividades já atribuídas</h2>
+          <label class="form-field" for="professionalName">
+            <span class="form-field__label">Nome</span>
+            <input
+              class="form-field__input"
+              id="professionalName"
+              type="text"
+              maxlength="120"
+              autocomplete="name"
+              required
+            />
+          </label>
+
+          <label class="form-field" for="professionalCouncil">
+            <span class="form-field__label">Registro Conselho</span>
+            <input
+              class="form-field__input"
+              id="professionalCouncil"
+              type="text"
+              maxlength="120"
+              autocomplete="off"
+            />
+          </label>
+
+          <label class="form-field" for="professionalPhone">
+            <span class="form-field__label">Telefone</span>
+            <input
+              class="form-field__input"
+              id="professionalPhone"
+              type="tel"
+              maxlength="20"
+              autocomplete="tel"
+              placeholder="(43) 99999-9999"
+            />
+          </label>
+
+          <div class="screen-message" id="formMessage" hidden></div>
+
+          <div class="profile-form__actions">
+            <a class="btn-secondary" href="../profissional/index.html">Cancelar</a>
+            <button class="btn-primary" id="btnSaveProfile" type="submit">Gravar</button>
           </div>
-        </div>
-
-        <div class="empty-state" id="tasksEmptyState" hidden>
-          Nenhuma atividade atribuída para este paciente.
-        </div>
-
-        <div class="tasks-list" id="tasksList"></div>
+        </form>
       </section>
     </main>
 
-    <div class="task-preview-modal" id="taskPreviewModal" hidden>
-      <div class="task-preview-modal__backdrop" data-close-preview="true"></div>
-      <section
-        class="task-preview-modal__dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="taskPreviewTitle"
-      >
-        <div class="task-preview-modal__header">
-          <h2 id="taskPreviewTitle">Visualizar atribuição</h2>
-          <button class="task-preview-modal__close" id="btnCloseTaskPreview" type="button" aria-label="Fechar visualização">
-            ×
-          </button>
-        </div>
-
-        <div class="task-preview-modal__content">
-          <section class="task-preview-section">
-            <p class="task-preview-section__label">Título</p>
-            <strong class="task-preview-section__value" id="taskPreviewTaskTitle">-</strong>
-          </section>
-
-          <section class="task-preview-section">
-            <p class="task-preview-section__label">Descrição</p>
-            <p class="task-preview-section__text" id="taskPreviewTaskDescription">-</p>
-          </section>
-
-          <section class="task-preview-section">
-            <p class="task-preview-section__label">Prévia do PDF</p>
-            <div class="task-preview-pdf" id="taskPreviewPdfWrapper">
-              <div class="task-preview-pdf__toolbar" id="taskPreviewPdfToolbar" hidden>
-                <button class="task-preview-pdf__zoom" id="btnPdfZoomOut" type="button" aria-label="Diminuir zoom">
-                  -
-                </button>
-                <span class="task-preview-pdf__zoom-label" id="taskPreviewPdfZoomLabel">100%</span>
-                <button class="task-preview-pdf__zoom" id="btnPdfZoomIn" type="button" aria-label="Aumentar zoom">
-                  +
-                </button>
-              </div>
-              <div class="task-preview-pdf__viewer" id="taskPreviewPdfViewer"></div>
-            </div>
-            <div class="empty-state task-preview-empty" id="taskPreviewPdfEmpty" hidden>
-              Esta tarefa não possui PDF vinculado.
-            </div>
-          </section>
-        </div>
-      </section>
-    </div>
-
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">
-      <a class="bottom-nav__item" href="../../profissional/index.html">
+      <a class="bottom-nav__item" href="../profissional/index.html">
         <span class="bottom-nav__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 10.5 12 3l9 7.5" />
@@ -175,11 +147,13 @@
         </button>
 
         <div class="bottom-nav__menu" id="bottomMenuPanel" hidden>
-          <a class="bottom-nav__menu-item" href="../../meus-dados/index.html">Meus DADOS</a>
+          <button class="bottom-nav__menu-item bottom-nav__menu-item--current" type="button" disabled>
+            Meus DADOS
+          </button>
           <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
-          <a class="bottom-nav__menu-item" href="../../cadastro-pacientes/index.html">Cadastro de PACIENTES</a>
-          <a class="bottom-nav__menu-item bottom-nav__menu-item--current" href="../index.html" aria-current="page">Atribuir TAREFAS</a>
-          <a class="bottom-nav__menu-item" href="../../banco-de-tarefas/index.html">Banco de TAREFAS</a>
+          <a class="bottom-nav__menu-item" href="../cadastro-pacientes/index.html">Cadastro de PACIENTES</a>
+          <a class="bottom-nav__menu-item" href="../atribuir-tarefas/index.html">Atribuir TAREFAS</a>
+          <a class="bottom-nav__menu-item" href="../banco-de-tarefas/index.html">Banco de TAREFAS</a>
           <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
           <button class="bottom-nav__menu-item bottom-nav__menu-item--danger" id="btnMenuLogout" type="button">
             SAIR
