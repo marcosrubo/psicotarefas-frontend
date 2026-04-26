@@ -293,13 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btnMenuLogout.addEventListener("click", sairDoSistema);
   }
 
-  if (btnAiTaskOption) {
-    btnAiTaskOption.addEventListener("click", (event) => {
-      event.preventDefault();
-      window.alert("A tela de tarefa com IA será a próxima etapa que vamos construir.");
-    });
-  }
-
   document.addEventListener("click", (event) => {
     if (!bottomMenuPanel || !btnBottomMenu) return;
 
