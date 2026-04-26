@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskChoicePatientName = document.getElementById("taskChoicePatientName");
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
   const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
+  const btnSimpleTaskOption = document.getElementById("btnSimpleTaskOption");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -75,6 +76,17 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedPatient = patient;
     taskChoicePatientName.textContent = `Paciente: ${patient.alias}`;
     taskChoiceModal.hidden = false;
+  }
+
+  function abrirTelaTarefaSimples() {
+    if (!selectedPatient?.patient_user_id) return;
+
+    const query = new URLSearchParams({
+      patient: selectedPatient.patient_user_id,
+      alias: selectedPatient.alias || selectedPatient.nome_real || "Paciente"
+    });
+
+    window.location.href = `./tarefa-simples/index.html?${query.toString()}`;
   }
 
   async function sairDoSistema() {
@@ -245,6 +257,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCancelTaskChoice) {
     btnCancelTaskChoice.addEventListener("click", fecharEscolhaDeTarefa);
+  }
+
+  if (btnSimpleTaskOption) {
+    btnSimpleTaskOption.addEventListener("click", abrirTelaTarefaSimples);
   }
 
   if (btnBottomMenu) {
