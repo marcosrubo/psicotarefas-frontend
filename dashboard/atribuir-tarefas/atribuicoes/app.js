@@ -83,6 +83,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return "Banco de tarefas";
     }
 
+    if (task.pdf_path?.includes("/ia/")) {
+      return "Gerado por IA";
+    }
+
     if (task.pdf_path) {
       return "Tarefa com PDF";
     }
