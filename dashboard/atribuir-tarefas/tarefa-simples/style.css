@@ -281,11 +281,8 @@ a {
   }
 
   .task-form__actions {
-    display: grid;
-  }
-
-  .task-form__actions .btn-secondary,
-  .task-form__actions .btn-primary {
-    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
   }
 }
