@@ -53,6 +53,15 @@
       <section class="panel">
         <div class="section-header">
           <h2>Temas disponíveis</h2>
+          <button class="btn-secondary btn-secondary--small" id="btnChangeTheme" type="button" hidden>
+            Alterar tema
+          </button>
+        </div>
+
+        <div class="selected-theme-card" id="selectedThemeCard" hidden>
+          <p class="selected-theme-card__label">Tema selecionado</p>
+          <strong class="selected-theme-card__name" id="selectedThemeTitle">-</strong>
+          <p class="selected-theme-card__description" id="selectedThemeDescription">-</p>
         </div>
 
         <div class="empty-state" id="themesEmptyState" hidden>

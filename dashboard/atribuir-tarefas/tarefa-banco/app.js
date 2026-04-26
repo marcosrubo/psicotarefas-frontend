@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const brandBackLink = document.getElementById("brandBackLink");
   const selectedPatientName = document.getElementById("selectedPatientName");
   const screenMessage = document.getElementById("screenMessage");
+  const btnChangeTheme = document.getElementById("btnChangeTheme");
+  const selectedThemeCard = document.getElementById("selectedThemeCard");
+  const selectedThemeTitle = document.getElementById("selectedThemeTitle");
+  const selectedThemeDescription = document.getElementById("selectedThemeDescription");
   const themesEmptyState = document.getElementById("themesEmptyState");
   const themesList = document.getElementById("themesList");
   const tasksPanelTitle = document.getElementById("tasksPanelTitle");
@@ -37,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let bankTasks = [];
   let selectedThemeId = null;
   let selectedBankTaskId = null;
+  let themesCollapsed = false;
 
   function buildAssignmentsUrl() {
     const query = new URLSearchParams({
@@ -270,6 +275,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return bankTasks.find((task) => task.id === selectedBankTaskId) || null;
   }
 
+  function renderSelectedThemeSummary() {
+    if (!selectedThemeCard || !selectedThemeTitle || !selectedThemeDescription || !btnChangeTheme) {
+      return;
+    }
+
+    const selectedTheme = getSelectedTheme();
+
+    if (!selectedTheme || !themesCollapsed) {
+      selectedThemeCard.hidden = true;
+      btnChangeTheme.hidden = true;
+      return;
+    }
+
+    selectedThemeCard.hidden = false;
+    btnChangeTheme.hidden = false;
+    selectedThemeTitle.textContent = selectedTheme.nome || "Tema";
+    selectedThemeDescription.textContent =
+      selectedTheme.descricao_curta || "Tema disponível no banco de tarefas.";
+  }
+
   function renderThemes() {
     if (!themesList || !themesEmptyState) return;
 
@@ -280,6 +305,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     themesEmptyState.hidden = true;
+    if (themesCollapsed) {
+      themesList.hidden = true;
+      renderSelectedThemeSummary();
+      return;
+    }
+
+    themesList.hidden = false;
     themesList.innerHTML = themes
       .map((theme) => {
         const selectedClass = theme.id === selectedThemeId ? " is-selected" : "";
@@ -297,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       })
       .join("");
+    renderSelectedThemeSummary();
   }
 
   function renderTasks() {
@@ -514,6 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       selectedThemeId = nextThemeId;
       selectedBankTaskId = null;
+      themesCollapsed = true;
       setFormMessage();
       renderThemes();
       renderTasks();
@@ -532,6 +566,17 @@ document.addEventListener("DOMContentLoaded", () => {
           tema: theme?.nome || null
         }
       });
+    });
+  }
+
+  if (btnChangeTheme) {
+    btnChangeTheme.addEventListener("click", () => {
+      themesCollapsed = false;
+      selectedBankTaskId = null;
+      setFormMessage();
+      renderThemes();
+      renderTasks();
+      renderConfirmation();
     });
   }
 
@@ -606,6 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     await carregarPacienteSelecionado();
     await carregarBancoTarefas();
+    themesCollapsed = false;
     renderThemes();
     renderTasks();
     renderConfirmation();
