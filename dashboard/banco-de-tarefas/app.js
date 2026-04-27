@@ -5,10 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
 
   const btnBack = document.getElementById("btnBack");
-  const professionalLine = document.getElementById("professionalLine");
   const screenMessage = document.getElementById("screenMessage");
-  const themesCount = document.getElementById("themesCount");
-  const resourcesCount = document.getElementById("resourcesCount");
   const viewTitle = document.getElementById("viewTitle");
   const viewDescription = document.getElementById("viewDescription");
 
@@ -21,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tasksEmptyState = document.getElementById("tasksEmptyState");
   const tasksList = document.getElementById("tasksList");
   const selectedThemeTitle = document.getElementById("selectedThemeTitle");
-  const selectedThemeSubtitle = document.getElementById("selectedThemeSubtitle");
 
   const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
   const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
@@ -303,20 +299,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function renderHeaderData() {
-    if (professionalLine) {
-      professionalLine.textContent = currentProfile?.nome || currentProfile?.email || "Profissional";
-    }
-
-    if (themesCount) {
-      themesCount.textContent = String(themes.length);
-    }
-
-    if (resourcesCount) {
-      resourcesCount.textContent = String(resources.length);
-    }
-  }
-
   function renderThemes() {
     if (!themesList || !themesEmptyState) return;
 
@@ -354,10 +336,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (selectedThemeTitle) {
       selectedThemeTitle.textContent = selectedTheme?.nome || "Tema";
-    }
-
-    if (selectedThemeSubtitle) {
-      selectedThemeSubtitle.textContent = `${themeTasks.length} tarefa(s) cadastrada(s) para este tema.`;
     }
 
     if (!themeTasks.length) {
@@ -564,7 +542,6 @@ document.addEventListener("DOMContentLoaded", () => {
       await carregarDados();
       renderThemes();
       renderTasks();
-      renderHeaderData();
       window.alert("Tarefa cadastrada com sucesso.");
       abrirTarefasDoTema(selectedTheme.id);
     } catch (error) {
@@ -644,7 +621,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) return;
 
     await carregarDados();
-    renderHeaderData();
     renderThemes();
     renderTasks();
     renderResourceOptions();
