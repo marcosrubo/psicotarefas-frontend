@@ -357,15 +357,6 @@ a {
   color: #667085;
 }
 
-.hint-card {
-  border-radius: 18px;
-  border: 1px dashed rgba(109, 94, 252, 0.26);
-  padding: 16px;
-  background: rgba(109, 94, 252, 0.05);
-  color: #475467;
-  line-height: 1.55;
-}
-
 .task-form__actions {
   display: flex;
   align-items: center;
@@ -548,7 +539,6 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .hint-card,
   .task-form__actions,
   #createTaskMessage {
     grid-column: 1 / -1;
