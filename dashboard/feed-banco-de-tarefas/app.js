@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnBack = document.getElementById("btnBack");
   const screenMessage = document.getElementById("screenMessage");
+  const themeFilterSelect = document.getElementById("themeFilterSelect");
   const feedEmptyState = document.getElementById("feedEmptyState");
   const feedList = document.getElementById("feedList");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let themes = [];
   let resources = [];
   let feedItems = [];
+  let selectedThemeId = null;
   let instagramScriptPromise = null;
 
   function setScreenMessage(text = "", type = "error") {
@@ -80,6 +82,27 @@ document.addEventListener("DOMContentLoaded", () => {
   function getResourceOrder(resourceId) {
     const resource = getResource(resourceId);
     return Number.isFinite(Number(resource?.ordem)) ? Number(resource.ordem) : Number.MAX_SAFE_INTEGER;
+  }
+
+  function renderThemeOptions() {
+    if (!themeFilterSelect) return;
+
+    if (!themes.length) {
+      themeFilterSelect.innerHTML = '<option value="">Nenhum tema encontrado</option>';
+      themeFilterSelect.disabled = true;
+      return;
+    }
+
+    themeFilterSelect.disabled = false;
+    themeFilterSelect.innerHTML = themes
+      .map((theme) => `<option value="${escapeHtml(theme.id)}">${escapeHtml(theme.nome)}</option>`)
+      .join("");
+
+    if (!selectedThemeId) {
+      selectedThemeId = String(themes[0].id);
+    }
+
+    themeFilterSelect.value = String(selectedThemeId);
   }
 
   function resolveEmbeddedVideo(url) {
@@ -327,6 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
     themes = themesResponse.data || [];
     resources = resourcesResponse.data || [];
 
+    if (!selectedThemeId && themes.length) {
+      selectedThemeId = String(themes[0].id);
+    }
+
     const activeTasks = (tasksResponse.data || []).filter((task) => task.ativo !== false);
 
     const tasksWithPreview = await Promise.all(
@@ -444,7 +471,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderFeed() {
     if (!feedList || !feedEmptyState) return;
 
-    if (!feedItems.length) {
+    const visibleItems = selectedThemeId
+      ? feedItems.filter((item) => String(item.tema_id) === String(selectedThemeId))
+      : feedItems;
+
+    if (!visibleItems.length) {
       feedList.innerHTML = "";
       feedEmptyState.hidden = false;
       return;
@@ -452,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     feedEmptyState.hidden = true;
 
-    feedList.innerHTML = feedItems
+    feedList.innerHTML = visibleItems
       .map((item) => `
         <article class="feed-card">
           <div class="feed-card__header">
@@ -481,7 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `)
       .join("");
 
-    if (feedItems.some((item) => getInstagramPermalink(item.video_link))) {
+    if (visibleItems.some((item) => getInstagramPermalink(item.video_link))) {
       ensureInstagramEmbedScript().then((instgrm) => {
         if (instgrm?.Embeds?.process) {
           instgrm.Embeds.process();
@@ -493,6 +524,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnBack) {
     btnBack.addEventListener("click", () => {
       window.location.href = "../profissional/index.html";
+    });
+  }
+
+  if (themeFilterSelect) {
+    themeFilterSelect.addEventListener("change", (event) => {
+      selectedThemeId = event.target.value ? String(event.target.value) : null;
+      renderFeed();
     });
   }
 
@@ -528,6 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) return;
 
     await carregarDados();
+    renderThemeOptions();
     renderFeed();
   }
 

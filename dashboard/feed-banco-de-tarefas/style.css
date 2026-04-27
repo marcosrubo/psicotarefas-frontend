@@ -100,6 +100,50 @@ a { text-decoration: none; }
   line-height: 1.1;
 }
 
+.feed-filter-strip {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.feed-filter-field {
+  display: grid;
+  gap: 10px;
+}
+
+.feed-filter-field__label {
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.feed-filter-field__control {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid #d9dfeb;
+  border-radius: 18px;
+  padding: 0 16px;
+  background: #fff;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  outline: none;
+}
+
+.feed-filter-field__control:focus {
+  border-color: rgba(109, 94, 252, 0.48);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.feed-filter-field__control:disabled {
+  background: #f4f6fb;
+  color: var(--muted);
+}
+
 .feed-main {
   padding: 18px 16px 124px;
   display: grid;
