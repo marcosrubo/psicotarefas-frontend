@@ -492,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
     applyView();
   }
 
-  function abrirDetalheDaTarefa() {
+  async function abrirDetalheDaTarefa() {
     const selectedTheme = getSelectedTheme();
     const selectedTask = getSelectedTask();
 
@@ -516,15 +516,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (selectedTask.pdf_path) {
-      const { data } = supabase.storage.from(PDF_BUCKET).getPublicUrl(selectedTask.pdf_path);
-      if (detailPdfFrame) {
-        detailPdfFrame.src = data?.publicUrl || "";
-      }
-      if (detailPdfWrapper) {
-        detailPdfWrapper.hidden = false;
-      }
-      if (detailPdfEmpty) {
-        detailPdfEmpty.hidden = true;
+      try {
+        const { data, error } = await supabase.storage
+          .from(PDF_BUCKET)
+          .createSignedUrl(selectedTask.pdf_path, 60);
+
+        if (error || !data?.signedUrl) {
+          throw new Error(error?.message || "Não foi possível carregar a prévia do PDF.");
+        }
+
+        if (detailPdfFrame) {
+          detailPdfFrame.src = data.signedUrl;
+        }
+        if (detailPdfWrapper) {
+          detailPdfWrapper.hidden = false;
+        }
+        if (detailPdfEmpty) {
+          detailPdfEmpty.hidden = true;
+        }
+      } catch (error) {
+        if (detailPdfWrapper) {
+          detailPdfWrapper.hidden = true;
+        }
+        if (detailPdfFrame) {
+          detailPdfFrame.removeAttribute("src");
+        }
+        if (detailPdfEmpty) {
+          detailPdfEmpty.hidden = false;
+          detailPdfEmpty.textContent =
+            error.message || "Não foi possível carregar a prévia do PDF.";
+        }
       }
     } else {
       if (detailPdfWrapper) {
@@ -532,6 +553,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (detailPdfEmpty) {
         detailPdfEmpty.hidden = false;
+        detailPdfEmpty.textContent = "Esta tarefa não possui PDF vinculado.";
       }
     }
 
