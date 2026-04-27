@@ -30,6 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskPreviewPdfFrame = document.getElementById("taskPreviewPdfFrame");
   const taskPreviewPdfEmpty = document.getElementById("taskPreviewPdfEmpty");
   const taskPreviewPdfExternalLink = document.getElementById("taskPreviewPdfExternalLink");
+  const taskPreviewVideoWrapper = document.getElementById("taskPreviewVideoWrapper");
+  const taskPreviewVideoToolbar = document.getElementById("taskPreviewVideoToolbar");
+  const taskPreviewVideoFrame = document.getElementById("taskPreviewVideoFrame");
+  const taskPreviewVideoNative = document.getElementById("taskPreviewVideoNative");
+  const taskPreviewVideoEmpty = document.getElementById("taskPreviewVideoEmpty");
+  const taskPreviewVideoExternalLink = document.getElementById("taskPreviewVideoExternalLink");
 
   let currentUser = null;
   let currentProfile = null;
@@ -122,6 +128,64 @@ document.addEventListener("DOMContentLoaded", () => {
     return { label: task.status || "Sem status", className: "meta-chip--pending" };
   }
 
+  function resolveEmbeddedVideo(url) {
+    if (!url) return null;
+
+    try {
+      const parsedUrl = new URL(url);
+      const host = parsedUrl.hostname.replace(/^www\./, "");
+      const pathname = parsedUrl.pathname;
+
+      if (host === "youtube.com" || host === "m.youtube.com") {
+        const videoId = parsedUrl.searchParams.get("v");
+        if (videoId) {
+          return {
+            type: "iframe",
+            src: `https://www.youtube.com/embed/${videoId}`
+          };
+        }
+      }
+
+      if (host === "youtu.be") {
+        const videoId = pathname.replace(/^\/+/, "").split("/")[0];
+        if (videoId) {
+          return {
+            type: "iframe",
+            src: `https://www.youtube.com/embed/${videoId}`
+          };
+        }
+      }
+
+      if (host === "player.vimeo.com") {
+        return {
+          type: "iframe",
+          src: url
+        };
+      }
+
+      if (host === "vimeo.com") {
+        const videoId = pathname.replace(/^\/+/, "").split("/")[0];
+        if (videoId) {
+          return {
+            type: "iframe",
+            src: `https://player.vimeo.com/video/${videoId}`
+          };
+        }
+      }
+
+      if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
+        return {
+          type: "native",
+          src: url
+        };
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
+  }
+
   function fecharPreviewTarefa() {
     if (!taskPreviewModal) return;
     taskPreviewModal.hidden = true;
@@ -152,6 +216,35 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskPreviewPdfEmpty) {
       taskPreviewPdfEmpty.hidden = true;
       taskPreviewPdfEmpty.textContent = "Esta tarefa não possui PDF vinculado.";
+    }
+
+    if (taskPreviewVideoFrame) {
+      taskPreviewVideoFrame.hidden = true;
+      taskPreviewVideoFrame.removeAttribute("src");
+    }
+
+    if (taskPreviewVideoNative) {
+      taskPreviewVideoNative.hidden = true;
+      taskPreviewVideoNative.pause();
+      taskPreviewVideoNative.removeAttribute("src");
+      taskPreviewVideoNative.load();
+    }
+
+    if (taskPreviewVideoWrapper) {
+      taskPreviewVideoWrapper.hidden = true;
+    }
+
+    if (taskPreviewVideoToolbar) {
+      taskPreviewVideoToolbar.hidden = true;
+    }
+
+    if (taskPreviewVideoExternalLink) {
+      taskPreviewVideoExternalLink.setAttribute("href", "#");
+    }
+
+    if (taskPreviewVideoEmpty) {
+      taskPreviewVideoEmpty.hidden = true;
+      taskPreviewVideoEmpty.textContent = "Esta tarefa não possui vídeo vinculado.";
     }
   }
 
@@ -191,6 +284,35 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskPreviewPdfEmpty) {
       taskPreviewPdfEmpty.hidden = true;
       taskPreviewPdfEmpty.textContent = "Esta tarefa não possui PDF vinculado.";
+    }
+
+    if (taskPreviewVideoFrame) {
+      taskPreviewVideoFrame.hidden = true;
+      taskPreviewVideoFrame.removeAttribute("src");
+    }
+
+    if (taskPreviewVideoNative) {
+      taskPreviewVideoNative.hidden = true;
+      taskPreviewVideoNative.pause();
+      taskPreviewVideoNative.removeAttribute("src");
+      taskPreviewVideoNative.load();
+    }
+
+    if (taskPreviewVideoWrapper) {
+      taskPreviewVideoWrapper.hidden = true;
+    }
+
+    if (taskPreviewVideoToolbar) {
+      taskPreviewVideoToolbar.hidden = true;
+    }
+
+    if (taskPreviewVideoExternalLink) {
+      taskPreviewVideoExternalLink.setAttribute("href", "#");
+    }
+
+    if (taskPreviewVideoEmpty) {
+      taskPreviewVideoEmpty.hidden = true;
+      taskPreviewVideoEmpty.textContent = "Esta tarefa não possui vídeo vinculado.";
     }
 
     taskPreviewModal.hidden = false;
@@ -235,6 +357,47 @@ document.addEventListener("DOMContentLoaded", () => {
         taskPreviewPdfEmpty.textContent =
           error.message || "Não foi possível carregar a prévia do PDF.";
       }
+    }
+
+    if (!task.video_url) {
+      if (taskPreviewVideoEmpty) {
+        taskPreviewVideoEmpty.hidden = false;
+      }
+      return;
+    }
+
+    if (taskPreviewVideoWrapper) {
+      taskPreviewVideoWrapper.hidden = false;
+    }
+
+    if (taskPreviewVideoToolbar) {
+      taskPreviewVideoToolbar.hidden = false;
+    }
+
+    if (taskPreviewVideoExternalLink) {
+      taskPreviewVideoExternalLink.href = task.video_url;
+    }
+
+    const embeddedVideo = resolveEmbeddedVideo(task.video_url);
+
+    if (!embeddedVideo) {
+      if (taskPreviewVideoEmpty) {
+        taskPreviewVideoEmpty.hidden = false;
+        taskPreviewVideoEmpty.textContent =
+          "Não foi possível incorporar este vídeo aqui. Use o botão para abrir em tela cheia.";
+      }
+      return;
+    }
+
+    if (embeddedVideo.type === "iframe" && taskPreviewVideoFrame) {
+      taskPreviewVideoFrame.src = embeddedVideo.src;
+      taskPreviewVideoFrame.hidden = false;
+      return;
+    }
+
+    if (embeddedVideo.type === "native" && taskPreviewVideoNative) {
+      taskPreviewVideoNative.src = embeddedVideo.src;
+      taskPreviewVideoNative.hidden = false;
     }
   }
 

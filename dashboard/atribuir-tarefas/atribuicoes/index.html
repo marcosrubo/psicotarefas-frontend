@@ -141,6 +141,42 @@
               Esta tarefa não possui PDF vinculado.
             </div>
           </section>
+
+          <section class="task-preview-section">
+            <p class="task-preview-section__label">Prévia do vídeo</p>
+            <div class="task-preview-video" id="taskPreviewVideoWrapper" hidden>
+              <div class="task-preview-video__toolbar" id="taskPreviewVideoToolbar" hidden>
+                <span class="task-preview-video__hint">Prévia rápida do vídeo vinculado.</span>
+                <a
+                  class="task-preview-video__external-link"
+                  id="taskPreviewVideoExternalLink"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Abrir vídeo em tela cheia
+                </a>
+              </div>
+              <iframe
+                class="task-preview-video__frame"
+                id="taskPreviewVideoFrame"
+                title="Prévia do vídeo da tarefa"
+                allow="autoplay; encrypted-media; picture-in-picture; web-share"
+                allowfullscreen
+                hidden
+              ></iframe>
+              <video
+                class="task-preview-video__native"
+                id="taskPreviewVideoNative"
+                controls
+                playsinline
+                hidden
+              ></video>
+            </div>
+            <div class="empty-state task-preview-empty" id="taskPreviewVideoEmpty" hidden>
+              Esta tarefa não possui vídeo vinculado.
+            </div>
+          </section>
         </div>
       </section>
     </div>

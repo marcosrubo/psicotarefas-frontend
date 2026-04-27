@@ -290,7 +290,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .order("nome", { ascending: true }),
       supabase
         .from("banco_tarefas_recursos")
-        .select("id, nome")
+        .select("id, nome, ordem")
+        .order("ordem", { ascending: true })
         .order("nome", { ascending: true }),
       supabase
         .from("banco_tarefas_itens")
@@ -413,11 +414,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderResourceOptions() {
     if (!taskResourceSelect) return;
 
-    const orderedResources = [...resources].sort((a, b) =>
-      String(a?.nome || "").localeCompare(String(b?.nome || ""), "pt-BR", {
+    const orderedResources = [...resources].sort((a, b) => {
+      const ordemA = Number.isFinite(Number(a?.ordem)) ? Number(a.ordem) : Number.MAX_SAFE_INTEGER;
+      const ordemB = Number.isFinite(Number(b?.ordem)) ? Number(b.ordem) : Number.MAX_SAFE_INTEGER;
+
+      if (ordemA !== ordemB) {
+        return ordemA - ordemB;
+      }
+
+      return String(a?.nome || "").localeCompare(String(b?.nome || ""), "pt-BR", {
         sensitivity: "base"
-      })
-    );
+      });
+    });
 
     if (!resources.length) {
       taskResourceSelect.innerHTML = '<option value="">Cadastre recursos no Supabase primeiro</option>';
