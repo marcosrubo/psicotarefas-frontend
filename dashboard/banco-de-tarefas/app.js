@@ -401,10 +401,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <h4 class="task-row__title">${escapeHtml(resourceName)}</h4>
             </div>
             <div class="task-row__meta">
-              <span class="meta-chip">${escapeHtml(resourceName)}</span>
               ${hasPdf ? '<span class="meta-chip meta-chip--muted">PDF</span>' : ""}
               ${hasVideo ? '<span class="meta-chip meta-chip--muted">Vídeo</span>' : ""}
-              <span class="meta-chip meta-chip--muted">${escapeHtml(formatDateTime(task.created_at))}</span>
             </div>
           </button>
         `;
