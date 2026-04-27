@@ -127,6 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return resource?.nome || "Sem recurso";
   }
 
+  function getResourceOrder(resourceId) {
+    const resource = resources.find((item) => String(item.id) === String(resourceId));
+    return Number.isFinite(Number(resource?.ordem)) ? Number(resource.ordem) : Number.MAX_SAFE_INTEGER;
+  }
+
   function getTasksForSelectedTheme() {
     return tasks.filter((task) => String(task.tema_id) === String(selectedThemeId));
   }
@@ -357,11 +362,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tasksList || !tasksEmptyState) return;
 
     const selectedTheme = getSelectedTheme();
-    const themeTasks = getTasksForSelectedTheme().sort((a, b) =>
-      getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
+    const themeTasks = getTasksForSelectedTheme().sort((a, b) => {
+      const orderDiff = getResourceOrder(a.recurso_id) - getResourceOrder(b.recurso_id);
+
+      if (orderDiff !== 0) {
+        return orderDiff;
+      }
+
+      return getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
         sensitivity: "base"
-      })
-    );
+      });
+    });
 
     if (selectedThemeTitle) {
       selectedThemeTitle.textContent = selectedTheme?.nome || "Tema";
