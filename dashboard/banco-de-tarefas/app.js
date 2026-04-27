@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnBack = document.getElementById("btnBack");
   const screenMessage = document.getElementById("screenMessage");
-  const viewTitle = document.getElementById("viewTitle");
-  const viewDescription = document.getElementById("viewDescription");
 
   const themesView = document.getElementById("themesView");
   const tasksView = document.getElementById("tasksView");
@@ -391,30 +389,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ].join("");
   }
 
-  function updateViewCopy() {
-    const selectedTheme = getSelectedTheme();
-
-    if (currentView === "themes") {
-      viewTitle.textContent = "Temas cadastrados";
-      viewDescription.textContent = "Escolha um tema para visualizar e manter as tarefas cadastradas.";
-      return;
-    }
-
-    if (currentView === "tasks") {
-      viewTitle.textContent = selectedTheme?.nome || "Tarefas do tema";
-      viewDescription.textContent = "Veja as tarefas já cadastradas e abra a criação de novas tarefas para este tema.";
-      return;
-    }
-
-    viewTitle.textContent = "Criar TAREFA";
-    viewDescription.textContent = `Tema selecionado: ${selectedTheme?.nome || "-"}. Escolha um recurso e informe PDF ou vídeo.`;
-  }
-
   function applyView() {
     themesView.hidden = currentView !== "themes";
     tasksView.hidden = currentView !== "tasks";
     createTaskView.hidden = currentView !== "create";
-    updateViewCopy();
   }
 
   function abrirTemas() {
