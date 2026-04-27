@@ -6,10 +6,10 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Dashboard Profissional - PsicoTarefas</title>
+  <title>Feed do Banco de Tarefas - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Dashboard do profissional no PsicoTarefas" />
+  <meta name="description" content="Feed do banco de tarefas do PsicoTarefas" />
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
@@ -17,52 +17,50 @@
   <link rel="stylesheet" href="../../shared/support.css" />
 </head>
 <body>
-  <div class="dashboard-shell">
+  <div class="feed-shell">
     <header class="topbar">
-      <div class="topbar__meta topbar__meta--nav">
-        <button class="back-link" id="btnBack" type="button">← Sair</button>
+      <div class="topbar__nav">
+        <button class="back-link" id="btnBack" type="button">← Voltar</button>
+
+        <a class="brand brand--centered" href="../profissional/index.html" aria-label="Voltar ao painel do profissional">
+          <img
+            src="../../assets/icons/icon-192.png"
+            alt="Ícone do PsicoTarefas"
+            class="brand__logo"
+          />
+          <span class="brand__name">PsicoTarefas</span>
+        </a>
+
         <a class="support-link" href="https://wa.me/5543999525060?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20PsicoTarefas." target="_blank" rel="noopener noreferrer" aria-label="Abrir suporte no WhatsApp">
           <span class="support-link__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.05 4.91A9.82 9.82 0 0 0 12.03 2C6.6 2 2.18 6.42 2.18 11.85c0 1.74.45 3.44 1.31 4.95L2 22l5.34-1.4a9.8 9.8 0 0 0 4.69 1.2h.01c5.43 0 9.85-4.42 9.85-9.85a9.8 9.8 0 0 0-2.84-7.04Zm-7.01 15.23h-.01a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.17.83.85-3.09-.2-.32a8.17 8.17 0 0 1-1.25-4.39c0-4.51 3.67-8.18 8.2-8.18a8.1 8.1 0 0 1 5.81 2.41 8.14 8.14 0 0 1 2.39 5.8c0 4.51-3.67 8.18-8.17 8.18Zm4.49-6.11c-.25-.12-1.47-.73-1.7-.82-.23-.08-.39-.12-.56.12-.16.25-.64.82-.78.99-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.99-1.21-.74-.66-1.25-1.47-1.39-1.72-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.35-.76-1.85-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.07s.89 2.39 1.02 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.06.42 1.42.54.6.19 1.14.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.11-.23-.17-.48-.29Z" /></svg></span>
           <span>Suporte</span>
         </a>
       </div>
-      <div class="brand">
-        <img
-          src="../../assets/icons/icon-192.png"
-          alt="Ícone do PsicoTarefas"
-          class="brand__logo"
-        />
-        <div class="brand__text">
-          <h1>PsicoTarefas</h1>
-        </div>
+
+      <div class="title-strip">
+        <h1>FEED DO BANCO DE TAREFAS</h1>
       </div>
     </header>
 
-    <main class="dashboard-main">
-      <section class="welcome-card">
-        <div class="welcome-card__content">
-          <h2 id="welcomeTitle">Olá</h2>
-        </div>
-      </section>
+    <main class="feed-main">
+      <div class="screen-message screen-message--error" id="screenMessage" hidden></div>
 
-      <section class="primary-shortcuts-card">
-        <button class="btn-primary primary-shortcuts-card__button" id="btnToggleInvite" type="button">
-          Cadastro dos PACIENTES
-        </button>
-        <button class="btn-primary primary-shortcuts-card__button" id="btnTasks" type="button">
-          Atribuir TAREFAS
-        </button>
-        <button class="btn-primary primary-shortcuts-card__button" id="btnAssignedTasks" type="button">
-          Interações com as TAREFAS
-        </button>
-        <button class="btn-primary primary-shortcuts-card__button" id="btnFeedTaskBank" type="button">
-          FEED do Banco de TAREFAS
-        </button>
+      <section class="panel">
+        <div class="section-header">
+          <h2>Feed</h2>
+          <p>Todas as tarefas do banco ordenadas por tema e recurso.</p>
+        </div>
+
+        <div class="empty-state" id="feedEmptyState" hidden>
+          Nenhuma tarefa ativa foi encontrada no banco de tarefas.
+        </div>
+
+        <div class="feed-list" id="feedList"></div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">
-      <button class="bottom-nav__item is-active" id="btnBottomHome" type="button" aria-current="page">
+      <a class="bottom-nav__item" href="../profissional/index.html">
         <span class="bottom-nav__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 10.5 12 3l9 7.5" />
@@ -71,7 +69,7 @@
           </svg>
         </span>
         <span class="bottom-nav__label">Home</span>
-      </button>
+      </a>
 
       <a
         class="bottom-nav__item"
@@ -100,19 +98,12 @@
         </button>
 
         <div class="bottom-nav__menu" id="bottomMenuPanel" hidden>
-          <button class="bottom-nav__menu-item" id="btnMenuProfile" type="button">
-            Meus DADOS
-          </button>
+          <a class="bottom-nav__menu-item" href="../meus-dados/index.html">Meus DADOS</a>
           <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
-          <button class="bottom-nav__menu-item" id="btnMenuPatients" type="button">
-            Cadastro de PACIENTES
-          </button>
-          <button class="bottom-nav__menu-item" id="btnMenuTasks" type="button">
-            Atribuir TAREFAS
-          </button>
-          <button class="bottom-nav__menu-item" id="btnMenuTaskBank" type="button">
-            Banco de TAREFAS
-          </button>
+          <a class="bottom-nav__menu-item" href="../cadastro-pacientes/index.html">Cadastro de PACIENTES</a>
+          <a class="bottom-nav__menu-item" href="../atribuir-tarefas/index.html">Atribuir TAREFAS</a>
+          <a class="bottom-nav__menu-item" href="../banco-de-tarefas/index.html">Banco de TAREFAS</a>
+          <a class="bottom-nav__menu-item bottom-nav__menu-item--current" href="./index.html" aria-current="page">FEED do Banco de TAREFAS</a>
           <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
           <button class="bottom-nav__menu-item bottom-nav__menu-item--danger" id="btnMenuLogout" type="button">
             SAIR

@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBack = document.getElementById("btnBack");
   const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
+  const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
   const btnBottomHome = document.getElementById("btnBottomHome");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -849,6 +850,19 @@ document.addEventListener("DOMContentLoaded", () => {
         email: currentProfile?.email || currentUser?.email || null
       });
       window.location.href = "../cadastro-pacientes/index.html";
+    });
+  }
+
+  if (btnFeedTaskBank) {
+    btnFeedTaskBank.addEventListener("click", () => {
+      registrarEvento({
+        evento: "feed_banco_tarefas_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../feed-banco-de-tarefas/index.html";
     });
   }
 
