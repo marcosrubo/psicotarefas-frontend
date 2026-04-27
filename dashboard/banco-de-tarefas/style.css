@@ -132,32 +132,6 @@ a {
   padding: 18px;
 }
 
-.hero-panel {
-  background:
-    linear-gradient(135deg, rgba(109, 94, 252, 0.08), rgba(255, 255, 255, 0.96)),
-    #fff;
-}
-
-.hero-panel__label {
-  margin: 0 0 8px;
-  color: var(--primary-dark);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.hero-panel h2 {
-  margin: 0 0 10px;
-  font-size: 28px;
-}
-
-.hero-panel__text {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
 .summary-panel {
   display: grid;
   gap: 12px;
