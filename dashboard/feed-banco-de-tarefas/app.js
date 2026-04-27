@@ -377,6 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((item) => `
         <article class="feed-card">
           <div class="feed-card__header">
+            <p class="feed-card__theme">${escapeHtml(getThemeName(item.tema_id))}</p>
             <h2 class="feed-card__title">${escapeHtml(getResourceName(item.recurso_id))}</h2>
           </div>
           <div class="feed-card__media">
