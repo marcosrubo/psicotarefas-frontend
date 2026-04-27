@@ -360,10 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedThemeSubtitle.textContent = `${themeTasks.length} tarefa(s) cadastrada(s) para este tema.`;
     }
 
-    if (btnOpenCreateTask) {
-      btnOpenCreateTask.disabled = !selectedTheme || resources.length === 0;
-    }
-
     if (!themeTasks.length) {
       tasksList.innerHTML = "";
       tasksEmptyState.hidden = false;
@@ -424,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    viewTitle.textContent = "Criar tarefa";
+    viewTitle.textContent = "Criar TAREFA";
     viewDescription.textContent = `Tema selecionado: ${selectedTheme?.nome || "-"}. Escolha um recurso e informe PDF ou vídeo.`;
   }
 
@@ -450,9 +446,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function abrirCriacaoDeTarefa() {
     const selectedTheme = getSelectedTheme();
-    if (!selectedTheme) return;
+
+    if (!selectedTheme) {
+      setScreenMessage("Selecione um tema antes de criar a tarefa.", "error");
+      return;
+    }
+
+    if (!resources.length) {
+      setScreenMessage("Cadastre pelo menos um recurso no Supabase antes de criar a tarefa.", "error");
+      return;
+    }
 
     currentView = "create";
+    setScreenMessage();
     taskThemeName.value = selectedTheme.nome || "";
     taskPdfFile.value = "";
     taskVideoLink.value = "";
