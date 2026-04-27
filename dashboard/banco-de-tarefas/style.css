@@ -423,6 +423,11 @@ a {
   color: var(--primary-dark);
 }
 
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btn-secondary--danger {
   border-color: rgba(185, 28, 28, 0.18);
   color: #b42318;
