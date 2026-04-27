@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tasksEmptyState = document.getElementById("tasksEmptyState");
   const tasksList = document.getElementById("tasksList");
   const selectedThemeTitle = document.getElementById("selectedThemeTitle");
+  const btnDeleteTask = document.getElementById("btnDeleteTask");
 
   const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
   const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
@@ -36,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProfile = null;
   let currentView = "themes";
   let selectedThemeId = null;
+  let selectedTaskId = null;
   let themes = [];
   let resources = [];
   let tasks = [];
@@ -116,6 +118,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getTasksForSelectedTheme() {
     return tasks.filter((task) => String(task.tema_id) === String(selectedThemeId));
+  }
+
+  function updateDeleteButtonState() {
+    if (!btnDeleteTask) return;
+    btnDeleteTask.disabled = !selectedTaskId;
   }
 
   function fecharMenuInferior() {
@@ -340,19 +347,34 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!themeTasks.length) {
       tasksList.innerHTML = "";
       tasksEmptyState.hidden = false;
+      selectedTaskId = null;
+      updateDeleteButtonState();
       return;
     }
 
     tasksEmptyState.hidden = true;
+
+    if (!themeTasks.some((task) => String(task.id) === String(selectedTaskId))) {
+      selectedTaskId = null;
+    }
+
+    updateDeleteButtonState();
 
     tasksList.innerHTML = themeTasks
       .map((task) => {
         const resourceName = getResourceName(task.recurso_id);
         const hasPdf = Boolean(task.pdf_path);
         const hasVideo = Boolean(task.video_link);
+        const selectedClass = String(task.id) === String(selectedTaskId) ? "is-selected" : "";
+        const isSelected = String(task.id) === String(selectedTaskId);
 
         return `
-          <article class="task-row">
+          <button
+            class="task-row ${selectedClass}"
+            type="button"
+            data-task-id="${escapeHtml(task.id)}"
+            aria-pressed="${String(isSelected)}"
+          >
             <div class="task-row__top">
               <h4 class="task-row__title">${escapeHtml(resourceName)}</h4>
             </div>
@@ -362,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ${hasVideo ? '<span class="meta-chip meta-chip--muted">Vídeo</span>' : ""}
               <span class="meta-chip meta-chip--muted">${escapeHtml(formatDateTime(task.created_at))}</span>
             </div>
-          </article>
+          </button>
         `;
       })
       .join("");
@@ -408,12 +430,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function abrirTemas() {
     currentView = "themes";
+    selectedTaskId = null;
+    updateDeleteButtonState();
     applyView();
   }
 
   function abrirTarefasDoTema(themeId) {
     selectedThemeId = themeId;
     currentView = "tasks";
+    selectedTaskId = null;
     renderTasks();
     renderResourceOptions();
     applyView();
@@ -440,6 +465,54 @@ document.addEventListener("DOMContentLoaded", () => {
     taskResourceSelect.value = "";
     setCreateTaskMessage();
     applyView();
+  }
+
+  async function excluirTarefaSelecionada() {
+    if (!selectedTaskId) {
+      return;
+    }
+
+    const confirmar = window.confirm("Deseja excluir esta tarefa do banco?");
+    if (!confirmar) {
+      return;
+    }
+
+    setButtonLoading(btnDeleteTask, true, "Excluindo...", "Excluir");
+
+    try {
+      const { error } = await supabase
+        .from("banco_tarefas_itens")
+        .update({ ativo: false })
+        .eq("id", selectedTaskId);
+
+      if (error) {
+        throw new Error(error.message || "Não foi possível excluir a tarefa.");
+      }
+
+      await registrarEvento({
+        evento: "banco_tarefa_excluida",
+        pagina: "banco_de_tarefas",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          tarefa_id: selectedTaskId,
+          tema_id: selectedThemeId
+        }
+      });
+
+      selectedTaskId = null;
+      await carregarDados();
+      renderThemes();
+      renderTasks();
+      setScreenMessage("Tarefa excluída com sucesso.", "success");
+    } catch (error) {
+      console.error("Erro ao excluir tarefa do banco:", error);
+      setScreenMessage(error.message || "Não foi possível excluir a tarefa.", "error");
+    } finally {
+      setButtonLoading(btnDeleteTask, false, "Excluindo...", "Excluir");
+      updateDeleteButtonState();
+    }
   }
 
   async function uploadPdf(file, themeName, resourceName) {
@@ -549,6 +622,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (tasksList) {
+    tasksList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-task-id]");
+      if (!button) return;
+
+      const clickedTaskId = button.getAttribute("data-task-id");
+      selectedTaskId = String(selectedTaskId) === String(clickedTaskId) ? null : clickedTaskId;
+      renderTasks();
+    });
+  }
+
   if (btnBack) {
     btnBack.addEventListener("click", () => {
       if (currentView === "create") {
@@ -567,6 +651,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnOpenCreateTask) {
     btnOpenCreateTask.addEventListener("click", abrirCriacaoDeTarefa);
+  }
+
+  if (btnDeleteTask) {
+    btnDeleteTask.addEventListener("click", excluirTarefaSelecionada);
   }
 
   if (btnCancelCreateTask) {
@@ -613,6 +701,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderThemes();
     renderTasks();
     renderResourceOptions();
+    updateDeleteButtonState();
     applyView();
   }
 
