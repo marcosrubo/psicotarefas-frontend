@@ -118,13 +118,16 @@
             <p class="task-preview-section__label">Prévia do PDF</p>
             <div class="task-preview-pdf" id="taskPreviewPdfWrapper">
               <div class="task-preview-pdf__toolbar" id="taskPreviewPdfToolbar" hidden>
-                <button class="task-preview-pdf__zoom" id="btnPdfZoomOut" type="button" aria-label="Diminuir zoom">
-                  -
-                </button>
-                <span class="task-preview-pdf__zoom-label" id="taskPreviewPdfZoomLabel">100%</span>
-                <button class="task-preview-pdf__zoom" id="btnPdfZoomIn" type="button" aria-label="Aumentar zoom">
-                  +
-                </button>
+                <span class="task-preview-pdf__hint">Prévia rápida do material em PDF.</span>
+                <a
+                  class="task-preview-pdf__external-link"
+                  id="taskPreviewPdfExternalLink"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Abrir PDF em tela cheia
+                </a>
               </div>
               <div class="task-preview-pdf__viewer" id="taskPreviewPdfViewer"></div>
               <iframe
@@ -196,7 +199,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/build/pdf.min.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
