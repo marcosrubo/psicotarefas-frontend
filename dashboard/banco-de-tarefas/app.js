@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const themesList = document.getElementById("themesList");
   const tasksEmptyState = document.getElementById("tasksEmptyState");
   const tasksList = document.getElementById("tasksList");
-  const selectedThemeTitle = document.getElementById("selectedThemeTitle");
 
   const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
   const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
@@ -331,10 +330,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const selectedTheme = getSelectedTheme();
     const themeTasks = getTasksForSelectedTheme();
-
-    if (selectedThemeTitle) {
-      selectedThemeTitle.textContent = selectedTheme?.nome || "Tema";
-    }
 
     if (!themeTasks.length) {
       tasksList.innerHTML = "";
