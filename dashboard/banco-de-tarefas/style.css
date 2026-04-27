@@ -172,7 +172,12 @@ a {
 }
 
 .section-header--compact {
-  justify-content: flex-end;
+  align-items: center;
+}
+
+.section-header__inline-title {
+  margin: 0;
+  font-size: 28px;
 }
 
 .section-header h3 {
@@ -559,7 +564,8 @@ a {
   }
 
   .hero-panel h2,
-  .section-header h3 {
+  .section-header h3,
+  .section-header__inline-title {
     font-size: 22px;
   }
 

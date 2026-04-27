@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const themesList = document.getElementById("themesList");
   const tasksEmptyState = document.getElementById("tasksEmptyState");
   const tasksList = document.getElementById("tasksList");
+  const selectedThemeTitle = document.getElementById("selectedThemeTitle");
 
   const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
   const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
@@ -332,6 +333,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedTheme = getSelectedTheme();
     const themeTasks = getTasksForSelectedTheme();
 
+    if (selectedThemeTitle) {
+      selectedThemeTitle.textContent = selectedTheme?.nome || "Tema";
+    }
+
     if (!themeTasks.length) {
       tasksList.innerHTML = "";
       tasksEmptyState.hidden = false;
@@ -349,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `
           <article class="task-row">
             <div class="task-row__top">
-              <h4 class="task-row__title">${escapeHtml(selectedTheme?.nome || "Tema")} - ${escapeHtml(resourceName)}</h4>
+              <h4 class="task-row__title">${escapeHtml(resourceName)}</h4>
             </div>
             <div class="task-row__meta">
               <span class="meta-chip">${escapeHtml(resourceName)}</span>
