@@ -2,66 +2,144 @@ import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const professionalLine = document.getElementById("professionalLine");
-  const statThemes = document.getElementById("statThemes");
-  const statTasks = document.getElementById("statTasks");
-  const statPdfs = document.getElementById("statPdfs");
-
-  const btnToggleThemeForm = document.getElementById("btnToggleThemeForm");
-  const btnToggleLibraryTaskForm = document.getElementById("btnToggleLibraryTaskForm");
-  const btnEditSelectedTheme = document.getElementById("btnEditSelectedTheme");
-  const btnCloseThemeForm = document.getElementById("btnCloseThemeForm");
-  const btnCloseLibraryTaskForm = document.getElementById("btnCloseLibraryTaskForm");
-  const btnCloseEditTheme = document.getElementById("btnCloseEditTheme");
-  const btnCloseEditLibraryTask = document.getElementById("btnCloseEditLibraryTask");
-  const btnSaveTheme = document.getElementById("btnSaveTheme");
-  const btnSaveLibraryTask = document.getElementById("btnSaveLibraryTask");
-  const btnUpdateTheme = document.getElementById("btnUpdateTheme");
-  const btnUpdateLibraryTask = document.getElementById("btnUpdateLibraryTask");
-
-  const themeFormPanel = document.getElementById("themeFormPanel");
-  const libraryTaskFormPanel = document.getElementById("libraryTaskFormPanel");
-  const editThemePanel = document.getElementById("editThemePanel");
-  const editLibraryTaskPanel = document.getElementById("editLibraryTaskPanel");
-
-  const themeForm = document.getElementById("themeForm");
-  const libraryTaskForm = document.getElementById("libraryTaskForm");
-  const editThemeForm = document.getElementById("editThemeForm");
-  const editLibraryTaskForm = document.getElementById("editLibraryTaskForm");
-  const themeName = document.getElementById("themeName");
-  const themeDescription = document.getElementById("themeDescription");
-  const themeFormMessage = document.getElementById("themeFormMessage");
-  const editThemeName = document.getElementById("editThemeName");
-  const editThemeDescription = document.getElementById("editThemeDescription");
-  const editThemeFormMessage = document.getElementById("editThemeFormMessage");
-  const editLibraryTaskTitle = document.getElementById("editLibraryTaskTitle");
-  const editLibraryTaskSummary = document.getElementById("editLibraryTaskSummary");
-  const editLibraryTaskFormMessage = document.getElementById("editLibraryTaskFormMessage");
-
-  const themesList = document.getElementById("themesList");
-  const libraryList = document.getElementById("libraryList");
-  const libraryEmptyState = document.getElementById("libraryEmptyState");
-  const libraryPanelTitle = document.getElementById("libraryPanelTitle");
-  const libraryPanelSubtitle = document.getElementById("libraryPanelSubtitle");
-  const libraryTaskTheme = document.getElementById("libraryTaskTheme");
-  const libraryTaskTitle = document.getElementById("libraryTaskTitle");
-  const libraryTaskSummary = document.getElementById("libraryTaskSummary");
-  const libraryTaskPdf = document.getElementById("libraryTaskPdf");
-  const libraryTaskStatus = document.getElementById("libraryTaskStatus");
-  const libraryTaskFormMessage = document.getElementById("libraryTaskFormMessage");
-
   const PDF_BUCKET = "banco-tarefas-pdf";
+
+  const btnBack = document.getElementById("btnBack");
+  const professionalLine = document.getElementById("professionalLine");
+  const screenMessage = document.getElementById("screenMessage");
+  const themesCount = document.getElementById("themesCount");
+  const resourcesCount = document.getElementById("resourcesCount");
+  const viewTitle = document.getElementById("viewTitle");
+  const viewDescription = document.getElementById("viewDescription");
+
+  const themesView = document.getElementById("themesView");
+  const tasksView = document.getElementById("tasksView");
+  const createTaskView = document.getElementById("createTaskView");
+
+  const themesEmptyState = document.getElementById("themesEmptyState");
+  const themesList = document.getElementById("themesList");
+  const tasksEmptyState = document.getElementById("tasksEmptyState");
+  const tasksList = document.getElementById("tasksList");
+  const selectedThemeTitle = document.getElementById("selectedThemeTitle");
+  const selectedThemeSubtitle = document.getElementById("selectedThemeSubtitle");
+
+  const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
+  const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
+  const createTaskForm = document.getElementById("createTaskForm");
+  const taskThemeName = document.getElementById("taskThemeName");
+  const taskResourceSelect = document.getElementById("taskResourceSelect");
+  const taskPdfFile = document.getElementById("taskPdfFile");
+  const taskVideoLink = document.getElementById("taskVideoLink");
+  const createTaskMessage = document.getElementById("createTaskMessage");
+  const btnSaveTask = document.getElementById("btnSaveTask");
+
+  const btnBottomMenu = document.getElementById("btnBottomMenu");
+  const bottomMenuPanel = document.getElementById("bottomMenuPanel");
+  const btnMenuLogout = document.getElementById("btnMenuLogout");
 
   let currentUser = null;
   let currentProfile = null;
+  let currentView = "themes";
   let selectedThemeId = null;
-  let isLoading = false;
   let themes = [];
-  let libraryTasks = [];
-  let selectedLibraryTaskId = null;
+  let resources = [];
+  let tasks = [];
 
   function esperar(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function setScreenMessage(text = "", type = "error") {
+    if (!screenMessage) return;
+
+    if (!text) {
+      screenMessage.hidden = true;
+      screenMessage.textContent = "";
+      screenMessage.className = "screen-message";
+      return;
+    }
+
+    screenMessage.hidden = false;
+    screenMessage.textContent = text;
+    screenMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function setCreateTaskMessage(text = "", type = "error") {
+    if (!createTaskMessage) return;
+
+    if (!text) {
+      createTaskMessage.hidden = true;
+      createTaskMessage.textContent = "";
+      createTaskMessage.className = "screen-message";
+      return;
+    }
+
+    createTaskMessage.hidden = false;
+    createTaskMessage.textContent = text;
+    createTaskMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function slugify(value) {
+    return String(value ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9.-]+/g, "-")
+      .replace(/-{2,}/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+  }
+
+  function formatDateTime(value) {
+    if (!value) return "-";
+
+    return new Date(value).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function getSelectedTheme() {
+    return themes.find((theme) => String(theme.id) === String(selectedThemeId)) || null;
+  }
+
+  function getResourceName(resourceId) {
+    const resource = resources.find((item) => String(item.id) === String(resourceId));
+    return resource?.nome || "Sem recurso";
+  }
+
+  function getTasksForSelectedTheme() {
+    return tasks.filter((task) => String(task.tema_id) === String(selectedThemeId));
+  }
+
+  function fecharMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    bottomMenuPanel.hidden = true;
+    btnBottomMenu.setAttribute("aria-expanded", "false");
+  }
+
+  function alternarMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    const vaiAbrir = bottomMenuPanel.hidden;
+    bottomMenuPanel.hidden = !vaiAbrir;
+    btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
+  }
+
+  function setButtonLoading(button, isBusy, busyLabel, idleLabel) {
+    if (!button) return;
+    button.disabled = isBusy;
+    button.textContent = isBusy ? busyLabel : idleLabel;
   }
 
   async function pacienteTemVinculoAtivo(userId) {
@@ -94,76 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     window.location.href = "../../auth/profissional-login/index.html";
-  }
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function slugify(value) {
-    return String(value ?? "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9.-]+/g, "-")
-      .replace(/-{2,}/g, "-")
-      .replace(/^-|-$/g, "")
-      .toLowerCase();
-  }
-
-  function formatDateTime(value) {
-    if (!value) return "-";
-
-    return new Date(value).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }
-
-  function setButtonLoading(button, isBusy, busyLabel, idleLabel) {
-    if (!button) return;
-    button.disabled = isBusy;
-    button.textContent = isBusy ? busyLabel : idleLabel;
-  }
-
-  function setFormMessage(element, text = "", type = "") {
-    if (!element) return;
-
-    element.textContent = text;
-    element.className = "form-message";
-
-    if (type) {
-      element.classList.add(`form-message--${type}`);
-      element.hidden = false;
-    } else {
-      element.hidden = true;
-    }
-  }
-
-  function getSelectedTheme() {
-    return themes.find((theme) => theme.id === selectedThemeId) || null;
-  }
-
-  function getSelectedLibraryTask() {
-    return libraryTasks.find((task) => task.id === selectedLibraryTaskId) || null;
-  }
-
-  function getStatusLabel(status) {
-    const map = {
-      publicada: "Publicada",
-      oculta: "Oculta",
-      arquivada: "Arquivada",
-      pendente: "Pendente"
-    };
-
-    return map[status] || status || "Sem status";
   }
 
   async function obterUsuarioAutenticado() {
@@ -224,116 +232,162 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
+
     await registrarAcessoPagina({
       pagina: "banco_de_tarefas",
       perfil: "profissional",
       userId: currentUser.id,
       email: perfil.email || currentUser.email || null
     });
+
     return true;
   }
 
-  async function carregarBancoTarefas() {
-    isLoading = true;
+  async function sairDoSistema() {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "banco_de_tarefas",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null
+    });
 
-    const [themesResponse, tasksResponse] = await Promise.all([
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+
+    window.location.href = "../../auth/profissional-login/index.html";
+  }
+
+  async function carregarDados() {
+    const [themesResponse, resourcesResponse, tasksResponse] = await Promise.all([
       supabase
         .from("banco_tarefas_temas")
-        .select("id, nome, descricao_curta, ordem, ativo, autor_user_id, created_at")
+        .select("id, nome, ordem")
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true }),
       supabase
+        .from("banco_tarefas_recursos")
+        .select("id, nome")
+        .order("nome", { ascending: true }),
+      supabase
         .from("banco_tarefas_itens")
-        .select("id, tema_id, titulo, descricao_curta, pdf_path, pdf_nome, autor_user_id, autor_nome, status, numero_usos, ativo, created_at")
+        .select("id, tema_id, recurso_id, titulo, pdf_path, video_link, created_at, ativo, status")
         .order("created_at", { ascending: false })
     ]);
 
     if (themesResponse.error) {
-      throw new Error(`Falha ao carregar temas do banco: ${themesResponse.error.message}`);
+      throw new Error(`Falha ao carregar temas: ${themesResponse.error.message}`);
+    }
+
+    if (resourcesResponse.error) {
+      throw new Error(`Falha ao carregar recursos: ${resourcesResponse.error.message}`);
     }
 
     if (tasksResponse.error) {
-      throw new Error(`Falha ao carregar tarefas do banco: ${tasksResponse.error.message}`);
+      throw new Error(`Falha ao carregar tarefas: ${tasksResponse.error.message}`);
     }
 
-    const loadedThemes = themesResponse.data || [];
-    const loadedTasks = tasksResponse.data || [];
+    themes = themesResponse.data || [];
+    resources = resourcesResponse.data || [];
+    tasks = (tasksResponse.data || []).filter((task) => task.ativo !== false);
 
-    themes = loadedThemes.map((theme) => ({
-      ...theme,
-      total: loadedTasks.filter((task) => task.tema_id === theme.id && task.ativo !== false).length
-    }));
-
-    libraryTasks = loadedTasks;
-
-    if (!themes.length) {
-      selectedThemeId = null;
-    } else if (!themes.some((theme) => theme.id === selectedThemeId)) {
+    if (!selectedThemeId && themes.length) {
       selectedThemeId = themes[0].id;
     }
 
-    isLoading = false;
-  }
-
-  function renderProfessionalName() {
-    if (!professionalLine) return;
-    const nome = currentProfile?.nome || currentProfile?.email || "Profissional";
-    professionalLine.textContent = `PROFISSIONAL: ${nome}`;
-  }
-
-  function renderStats() {
-    if (statThemes) statThemes.textContent = String(themes.length);
-    if (statTasks) statTasks.textContent = String(libraryTasks.length);
-    if (statPdfs) {
-      statPdfs.textContent = String(
-        libraryTasks.filter((task) => task.pdf_path).length
-      );
+    if (selectedThemeId && !themes.some((theme) => String(theme.id) === String(selectedThemeId))) {
+      selectedThemeId = themes[0]?.id || null;
     }
   }
 
-  function renderThemeOptions() {
-    if (!libraryTaskTheme) return;
-
-    if (!themes.length) {
-      libraryTaskTheme.innerHTML = `<option value="">Cadastre um tema primeiro</option>`;
-      return;
+  function renderHeaderData() {
+    if (professionalLine) {
+      professionalLine.textContent = currentProfile?.nome || currentProfile?.email || "Profissional";
     }
 
-    libraryTaskTheme.innerHTML = themes
-      .map(
-        (theme) =>
-          `<option value="${theme.id}" ${theme.id === selectedThemeId ? "selected" : ""}>${escapeHtml(
-            theme.nome
-          )}</option>`
-      )
-      .join("");
+    if (themesCount) {
+      themesCount.textContent = String(themes.length);
+    }
+
+    if (resourcesCount) {
+      resourcesCount.textContent = String(resources.length);
+    }
   }
 
   function renderThemes() {
-    if (!themesList) return;
+    if (!themesList || !themesEmptyState) return;
 
     if (!themes.length) {
-      themesList.innerHTML = `
-        <div class="empty-state">
-          Nenhum tema cadastrado ainda. Use <strong>Novo tema</strong> para começar a biblioteca.
-        </div>
-      `;
+      themesList.innerHTML = "";
+      themesEmptyState.hidden = false;
       return;
     }
 
+    themesEmptyState.hidden = true;
+
     themesList.innerHTML = themes
       .map((theme) => {
-        const activeClass = theme.id === selectedThemeId ? "is-active" : "";
+        const total = tasks.filter((task) => String(task.tema_id) === String(theme.id)).length;
 
         return `
-          <article class="theme-card ${activeClass}" data-theme-id="${theme.id}">
-            <div class="theme-card__top">
-              <h4>${escapeHtml(theme.nome)}</h4>
-              <span class="meta-chip">${theme.total} tarefa(s)</span>
+          <button class="entity-row" type="button" data-theme-id="${escapeHtml(theme.id)}">
+            <div class="entity-row__top">
+              <h4 class="entity-row__title">${escapeHtml(theme.nome || "Tema")}</h4>
             </div>
-            <p>${escapeHtml(theme.descricao_curta || "Tema público colaborativo do banco de tarefas.")}</p>
-            <div class="theme-meta">
-              <span class="meta-chip meta-chip--muted">Tema público</span>
+            <div class="entity-row__meta">
+              <span class="meta-chip">${escapeHtml(total)} tarefa(s)</span>
+            </div>
+          </button>
+        `;
+      })
+      .join("");
+  }
+
+  function renderTasks() {
+    if (!tasksList || !tasksEmptyState) return;
+
+    const selectedTheme = getSelectedTheme();
+    const themeTasks = getTasksForSelectedTheme();
+
+    if (selectedThemeTitle) {
+      selectedThemeTitle.textContent = selectedTheme?.nome || "Tema";
+    }
+
+    if (selectedThemeSubtitle) {
+      selectedThemeSubtitle.textContent = `${themeTasks.length} tarefa(s) cadastrada(s) para este tema.`;
+    }
+
+    if (btnOpenCreateTask) {
+      btnOpenCreateTask.disabled = !selectedTheme || resources.length === 0;
+    }
+
+    if (!themeTasks.length) {
+      tasksList.innerHTML = "";
+      tasksEmptyState.hidden = false;
+      return;
+    }
+
+    tasksEmptyState.hidden = true;
+
+    tasksList.innerHTML = themeTasks
+      .map((task) => {
+        const resourceName = getResourceName(task.recurso_id);
+        const hasPdf = Boolean(task.pdf_path);
+        const hasVideo = Boolean(task.video_link);
+
+        return `
+          <article class="task-row">
+            <div class="task-row__top">
+              <h4 class="task-row__title">${escapeHtml(selectedTheme?.nome || "Tema")} - ${escapeHtml(resourceName)}</h4>
+            </div>
+            <div class="task-row__meta">
+              <span class="meta-chip">${escapeHtml(resourceName)}</span>
+              ${hasPdf ? '<span class="meta-chip meta-chip--muted">PDF</span>' : ""}
+              ${hasVideo ? '<span class="meta-chip meta-chip--muted">Vídeo</span>' : ""}
+              <span class="meta-chip meta-chip--muted">${escapeHtml(formatDateTime(task.created_at))}</span>
             </div>
           </article>
         `;
@@ -341,597 +395,250 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  function renderLibraryList() {
-    if (!libraryList || !libraryPanelTitle || !libraryPanelSubtitle || !libraryEmptyState) return;
+  function renderResourceOptions() {
+    if (!taskResourceSelect) return;
 
-    const selectedTheme = getSelectedTheme();
-    const filteredTasks = libraryTasks.filter((task) => task.tema_id === selectedThemeId);
-
-    if (btnEditSelectedTheme) {
-      btnEditSelectedTheme.hidden = !selectedTheme;
-      btnEditSelectedTheme.disabled = !selectedTheme;
-    }
-
-    if (selectedTheme) {
-      libraryPanelTitle.textContent = `Tarefas do tema: ${selectedTheme.nome}`;
-      libraryPanelSubtitle.textContent =
-        selectedTheme.descricao_curta ||
-        "Visualize atividades públicas em PDF organizadas por tema.";
-    } else {
-      libraryPanelTitle.textContent = "Tarefas da biblioteca";
-      libraryPanelSubtitle.textContent =
-        "Cadastre temas e atividades públicas para começar a construir o banco.";
-    }
-
-    if (!filteredTasks.length) {
-      libraryList.innerHTML = "";
-      libraryEmptyState.hidden = false;
+    if (!resources.length) {
+      taskResourceSelect.innerHTML = '<option value="">Cadastre recursos no Supabase primeiro</option>';
       return;
     }
 
-    libraryEmptyState.hidden = true;
-
-    libraryList.innerHTML = filteredTasks
-      .map(
-        (task) => `
-          <article class="library-card">
-            <div class="library-card__top">
-              <h4>${escapeHtml(task.titulo)}</h4>
-              <span class="meta-chip">${escapeHtml(getStatusLabel(task.status))}</span>
-            </div>
-            <p>${escapeHtml(task.descricao_curta || "Sem descrição curta informada.")}</p>
-            <div class="library-meta">
-              <span class="meta-chip meta-chip--muted">${escapeHtml(task.pdf_nome || "PDF sem nome")}</span>
-              <span class="meta-chip meta-chip--muted">Autor: ${escapeHtml(task.autor_nome || "Profissional")}</span>
-              <span class="meta-chip meta-chip--muted">${escapeHtml(formatDateTime(task.created_at))}</span>
-            </div>
-            <div class="form-actions form-actions--inline">
-              <button
-                class="btn-secondary"
-                type="button"
-                data-action="edit-task"
-                data-task-id="${task.id}"
-              >
-                Alterar tarefa
-              </button>
-              <button
-                class="btn-secondary"
-                type="button"
-                data-action="open-pdf"
-                data-pdf-path="${escapeHtml(task.pdf_path)}"
-              >
-                Abrir PDF
-              </button>
-            </div>
-          </article>
-        `
-      )
-      .join("");
+    taskResourceSelect.innerHTML = [
+      '<option value="">Selecione um recurso</option>',
+      ...resources.map((resource) => `<option value="${resource.id}">${escapeHtml(resource.nome)}</option>`)
+    ].join("");
   }
 
-  function renderAll() {
-    renderProfessionalName();
-    renderStats();
-    renderThemeOptions();
-    renderThemes();
-    renderLibraryList();
-  }
+  function updateViewCopy() {
+    const selectedTheme = getSelectedTheme();
 
-  function resetThemeForm() {
-    if (themeForm) themeForm.reset();
-    setFormMessage(themeFormMessage);
-  }
-
-  function resetEditThemeForm() {
-    if (editThemeForm) editThemeForm.reset();
-    setFormMessage(editThemeFormMessage);
-  }
-
-  function resetLibraryTaskForm() {
-    if (libraryTaskForm) libraryTaskForm.reset();
-    if (libraryTaskTheme && selectedThemeId) {
-      libraryTaskTheme.value = String(selectedThemeId);
+    if (currentView === "themes") {
+      viewTitle.textContent = "Temas cadastrados";
+      viewDescription.textContent = "Escolha um tema para visualizar e manter as tarefas cadastradas.";
+      return;
     }
-    setFormMessage(libraryTaskFormMessage);
+
+    if (currentView === "tasks") {
+      viewTitle.textContent = selectedTheme?.nome || "Tarefas do tema";
+      viewDescription.textContent = "Veja as tarefas já cadastradas e abra a criação de novas tarefas para este tema.";
+      return;
+    }
+
+    viewTitle.textContent = "Criar tarefa";
+    viewDescription.textContent = `Tema selecionado: ${selectedTheme?.nome || "-"}. Escolha um recurso e informe PDF ou vídeo.`;
   }
 
-  function resetEditLibraryTaskForm() {
-    if (editLibraryTaskForm) editLibraryTaskForm.reset();
-    setFormMessage(editLibraryTaskFormMessage);
+  function applyView() {
+    themesView.hidden = currentView !== "themes";
+    tasksView.hidden = currentView !== "tasks";
+    createTaskView.hidden = currentView !== "create";
+    updateViewCopy();
   }
 
-  function openThemeForm() {
-    if (themeFormPanel) themeFormPanel.hidden = false;
-    resetThemeForm();
-    themeName?.focus();
+  function abrirTemas() {
+    currentView = "themes";
+    applyView();
   }
 
-  function closeThemeForm() {
-    if (themeFormPanel) themeFormPanel.hidden = true;
-    resetThemeForm();
+  function abrirTarefasDoTema(themeId) {
+    selectedThemeId = themeId;
+    currentView = "tasks";
+    renderTasks();
+    renderResourceOptions();
+    applyView();
   }
 
-  function openEditThemeForm() {
+  function abrirCriacaoDeTarefa() {
     const selectedTheme = getSelectedTheme();
     if (!selectedTheme) return;
 
-    if (editThemePanel) editThemePanel.hidden = false;
-    if (editThemeName) editThemeName.value = selectedTheme.nome || "";
-    if (editThemeDescription) editThemeDescription.value = selectedTheme.descricao_curta || "";
-    setFormMessage(editThemeFormMessage);
-    editThemeName?.focus();
+    currentView = "create";
+    taskThemeName.value = selectedTheme.nome || "";
+    taskPdfFile.value = "";
+    taskVideoLink.value = "";
+    taskResourceSelect.value = "";
+    setCreateTaskMessage();
+    applyView();
   }
 
-  function closeEditThemeForm() {
-    if (editThemePanel) editThemePanel.hidden = true;
-    resetEditThemeForm();
-  }
-
-  function openLibraryTaskForm() {
-    if (libraryTaskFormPanel) libraryTaskFormPanel.hidden = false;
-    renderThemeOptions();
-    resetLibraryTaskForm();
-    libraryTaskTitle?.focus();
-  }
-
-  function closeLibraryTaskForm() {
-    if (libraryTaskFormPanel) libraryTaskFormPanel.hidden = true;
-    resetLibraryTaskForm();
-  }
-
-  function openEditLibraryTaskForm(taskId) {
-    const task = libraryTasks.find((item) => item.id === taskId) || null;
-    if (!task) return;
-
-    selectedLibraryTaskId = task.id;
-    if (editLibraryTaskPanel) editLibraryTaskPanel.hidden = false;
-    if (editLibraryTaskTitle) editLibraryTaskTitle.value = task.titulo || "";
-    if (editLibraryTaskSummary) editLibraryTaskSummary.value = task.descricao_curta || "";
-    setFormMessage(editLibraryTaskFormMessage);
-    editLibraryTaskTitle?.focus();
-  }
-
-  function closeEditLibraryTaskForm() {
-    if (editLibraryTaskPanel) editLibraryTaskPanel.hidden = true;
-    resetEditLibraryTaskForm();
-    selectedLibraryTaskId = null;
-  }
-
-  async function salvarEdicaoTema(event) {
-    event.preventDefault();
-
-    const selectedTheme = getSelectedTheme();
-    const selectedThemeIdAtual = selectedTheme?.id || null;
-    const nome = editThemeName?.value.trim() || "";
-    const descricaoCurta = editThemeDescription?.value.trim() || "";
-
-    if (!selectedTheme) {
-      setFormMessage(editThemeFormMessage, "Selecione um tema para alterar.", "error");
-      return;
-    }
-
-    if (!nome) {
-      setFormMessage(editThemeFormMessage, "Informe o nome do tema.", "error");
-      return;
-    }
-
-    setButtonLoading(btnUpdateTheme, true, "Salvando...", "Salvar alterações");
-    setFormMessage(editThemeFormMessage);
-
-    try {
-      const { data: updatedTheme, error } = await supabase
-        .from("banco_tarefas_temas")
-        .update({
-          nome,
-          descricao_curta: descricaoCurta || null
-        })
-        .eq("id", selectedTheme.id)
-        .select("id, nome, descricao_curta")
-        .maybeSingle();
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!updatedTheme) {
-        throw new Error("Não foi possível salvar este tema. Ele pode não estar editável para este usuário.");
-      }
-
-      themes = themes.map((theme) =>
-        theme.id === selectedThemeIdAtual
-          ? {
-              ...theme,
-              nome: updatedTheme.nome,
-              descricao_curta: updatedTheme.descricao_curta || null
-            }
-          : theme
-      );
-      renderAll();
-
-      await carregarBancoTarefas();
-      renderAll();
-      await registrarEvento({
-        evento: "tema_banco_editado",
-        pagina: "banco_de_tarefas",
-        perfil: "profissional",
-        userId: currentUser.id,
-        email: currentProfile?.email || currentUser.email || null,
-        contexto: {
-          tema_id: selectedThemeIdAtual,
-          tema: nome
-        }
-      });
-      closeEditThemeForm();
-    } catch (error) {
-      setFormMessage(
-        editThemeFormMessage,
-        error.message || "Não foi possível atualizar o tema neste momento.",
-        "error"
-      );
-    } finally {
-      setButtonLoading(btnUpdateTheme, false, "Salvando...", "Salvar alterações");
-    }
-  }
-
-  async function salvarTema(event) {
-    event.preventDefault();
-
-    const nome = themeName?.value.trim() || "";
-    const descricaoCurta = themeDescription?.value.trim() || "";
-
-    if (!nome) {
-      setFormMessage(themeFormMessage, "Informe o nome do tema.", "error");
-      return;
-    }
-
-    setButtonLoading(btnSaveTheme, true, "Salvando...", "Salvar tema");
-    setFormMessage(themeFormMessage);
-
-    try {
-      const maiorOrdem = themes.reduce((max, item) => Math.max(max, Number(item.ordem) || 0), 0);
-
-      const { error } = await supabase.from("banco_tarefas_temas").insert({
-        nome,
-        descricao_curta: descricaoCurta || null,
-        ordem: maiorOrdem + 1,
-        autor_user_id: currentUser.id
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      await carregarBancoTarefas();
-      selectedThemeId =
-        themes.find((theme) => theme.nome.toLowerCase() === nome.toLowerCase())?.id || selectedThemeId;
-      renderAll();
-      await registrarEvento({
-        evento: "tema_banco_criado",
-        pagina: "banco_de_tarefas",
-        perfil: "profissional",
-        userId: currentUser.id,
-        email: currentProfile?.email || currentUser.email || null,
-        contexto: {
-          tema: nome
-        }
-      });
-      closeThemeForm();
-    } catch (error) {
-      setFormMessage(
-        themeFormMessage,
-        error.message || "Não foi possível salvar o tema neste momento.",
-        "error"
-      );
-    } finally {
-      setButtonLoading(btnSaveTheme, false, "Salvando...", "Salvar tema");
-    }
-  }
-
-  async function uploadPdf(file) {
-    const sanitizedName = slugify(file.name.replace(/\.pdf$/i, "")) || "arquivo";
-    const filePath = `${currentUser.id}/${Date.now()}-${sanitizedName}.pdf`;
+  async function uploadPdf(file, themeName, resourceName) {
+    const extension = (file.name.split(".").pop() || "pdf").toLowerCase();
+    const fileName = `${Date.now()}-${slugify(themeName)}-${slugify(resourceName || "recurso")}.${extension}`;
+    const filePath = `banco-tarefas/${slugify(themeName)}/${fileName}`;
 
     const { error } = await supabase.storage
       .from(PDF_BUCKET)
       .upload(filePath, file, {
-        cacheControl: "3600",
         upsert: false,
-        contentType: "application/pdf"
+        contentType: file.type || "application/pdf"
       });
 
     if (error) {
-      throw new Error(`Falha ao enviar PDF: ${error.message}`);
+      throw new Error(`Não foi possível enviar o PDF: ${error.message}`);
     }
 
-    return {
-      filePath,
-      fileName: file.name
-    };
+    return filePath;
   }
 
-  async function salvarTarefaBiblioteca(event) {
+  async function salvarTarefa(event) {
     event.preventDefault();
+    setCreateTaskMessage();
 
-    const temaId = Number.parseInt(libraryTaskTheme?.value || "", 10);
-    const titulo = libraryTaskTitle?.value.trim() || "";
-    const descricaoCurta = libraryTaskSummary?.value.trim() || "";
-    const status = libraryTaskStatus?.value || "publicada";
-    const arquivo = libraryTaskPdf?.files?.[0] || null;
+    const selectedTheme = getSelectedTheme();
+    const recursoId = (taskResourceSelect?.value || "").trim();
+    const videoLink = (taskVideoLink?.value || "").trim();
+    const pdfFile = taskPdfFile?.files?.[0] || null;
 
-    if (!temaId) {
-      setFormMessage(libraryTaskFormMessage, "Selecione um tema para a tarefa.", "error");
+    if (!selectedTheme) {
+      setCreateTaskMessage("Selecione um tema antes de criar a tarefa.", "error");
       return;
     }
 
-    if (!titulo) {
-      setFormMessage(libraryTaskFormMessage, "Informe o título da tarefa da biblioteca.", "error");
+    if (!recursoId) {
+      setCreateTaskMessage("Selecione um recurso.", "error");
       return;
     }
 
-    if (!arquivo) {
-      setFormMessage(libraryTaskFormMessage, "Selecione um PDF para publicar no banco.", "error");
+    if (!pdfFile && !videoLink) {
+      setCreateTaskMessage("Informe um PDF ou um link de vídeo.", "error");
       return;
     }
 
-    if (arquivo.type !== "application/pdf") {
-      setFormMessage(libraryTaskFormMessage, "O arquivo precisa ser um PDF válido.", "error");
-      return;
-    }
+    const resourceName = getResourceName(recursoId);
+    const generatedTitle = `${selectedTheme.nome} - ${resourceName}`;
 
-    setButtonLoading(btnSaveLibraryTask, true, "Publicando...", "Publicar no banco");
-    setFormMessage(libraryTaskFormMessage);
+    setButtonLoading(btnSaveTask, true, "Gravando...", "Gravar tarefa");
 
     try {
-      const uploaded = await uploadPdf(arquivo);
-      const autorNome = currentProfile?.nome || currentProfile?.email || "Profissional";
+      let pdfPath = null;
 
-      const { error } = await supabase.from("banco_tarefas_itens").insert({
-        tema_id: temaId,
-        titulo,
-        descricao_curta: descricaoCurta || null,
-        pdf_path: uploaded.filePath,
-        pdf_nome: uploaded.fileName,
+      if (pdfFile) {
+        pdfPath = await uploadPdf(pdfFile, selectedTheme.nome || "tema", resourceName || "recurso");
+      }
+
+      const payload = {
+        tema_id: selectedTheme.id,
+        recurso_id: Number(recursoId),
+        titulo: generatedTitle,
+        pdf_path: pdfPath,
+        pdf_nome: pdfFile?.name || null,
+        video_link: videoLink || null,
+        status: "publicada",
+        ativo: true,
         autor_user_id: currentUser.id,
-        autor_nome: autorNome,
-        status,
-        ativo: true
-      });
+        autor_nome: currentProfile?.nome || currentProfile?.email || currentUser.email || "Profissional"
+      };
+
+      const { error } = await supabase.from("banco_tarefas_itens").insert(payload);
 
       if (error) {
-        throw new Error(error.message);
+        throw new Error(error.message || "Não foi possível gravar a tarefa.");
       }
 
-      await carregarBancoTarefas();
-      selectedThemeId = temaId;
-      renderAll();
       await registrarEvento({
-        evento: "tarefa_banco_publicada",
+        evento: "banco_tarefa_criada",
         pagina: "banco_de_tarefas",
         perfil: "profissional",
         userId: currentUser.id,
         email: currentProfile?.email || currentUser.email || null,
         contexto: {
-          tema_id: temaId,
-          titulo
+          tema_id: selectedTheme.id,
+          recurso_id: Number(recursoId)
         }
       });
-      closeLibraryTaskForm();
+
+      await carregarDados();
+      renderThemes();
+      renderTasks();
+      renderHeaderData();
+      window.alert("Tarefa cadastrada com sucesso.");
+      abrirTarefasDoTema(selectedTheme.id);
     } catch (error) {
-      setFormMessage(
-        libraryTaskFormMessage,
-        error.message || "Não foi possível publicar a tarefa no banco neste momento.",
-        "error"
-      );
+      console.error("Erro ao salvar tarefa do banco:", error);
+      setCreateTaskMessage(error.message || "Não foi possível gravar a tarefa.", "error");
     } finally {
-      setButtonLoading(btnSaveLibraryTask, false, "Publicando...", "Publicar no banco");
+      setButtonLoading(btnSaveTask, false, "Gravando...", "Gravar tarefa");
     }
-  }
-
-  async function salvarEdicaoTarefaBiblioteca(event) {
-    event.preventDefault();
-
-    const selectedTask = getSelectedLibraryTask();
-    const selectedTaskIdAtual = selectedTask?.id || null;
-    const titulo = editLibraryTaskTitle?.value.trim() || "";
-    const descricaoCurta = editLibraryTaskSummary?.value.trim() || "";
-
-    if (!selectedTask) {
-      setFormMessage(editLibraryTaskFormMessage, "Selecione uma tarefa para alterar.", "error");
-      return;
-    }
-
-    if (!titulo) {
-      setFormMessage(editLibraryTaskFormMessage, "Informe o título da tarefa.", "error");
-      return;
-    }
-
-    setButtonLoading(btnUpdateLibraryTask, true, "Salvando...", "Salvar alterações");
-    setFormMessage(editLibraryTaskFormMessage);
-
-    try {
-      const { data: updatedTask, error } = await supabase
-        .from("banco_tarefas_itens")
-        .update({
-          titulo,
-          descricao_curta: descricaoCurta || null
-        })
-        .eq("id", selectedTask.id)
-        .select("id, titulo, descricao_curta")
-        .maybeSingle();
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!updatedTask) {
-        throw new Error("Não foi possível salvar esta tarefa. Ela pode não estar editável para este usuário.");
-      }
-
-      libraryTasks = libraryTasks.map((task) =>
-        task.id === selectedTaskIdAtual
-          ? {
-              ...task,
-              titulo: updatedTask.titulo,
-              descricao_curta: updatedTask.descricao_curta || null
-            }
-          : task
-      );
-
-      renderAll();
-
-      await carregarBancoTarefas();
-      renderAll();
-      await registrarEvento({
-        evento: "tarefa_banco_editada",
-        pagina: "banco_de_tarefas",
-        perfil: "profissional",
-        userId: currentUser.id,
-        email: currentProfile?.email || currentUser.email || null,
-        contexto: {
-          tarefa_id: selectedTaskIdAtual,
-          tema_id: selectedTask.tema_id,
-          titulo
-        }
-      });
-      closeEditLibraryTaskForm();
-    } catch (error) {
-      setFormMessage(
-        editLibraryTaskFormMessage,
-        error.message || "Não foi possível atualizar a tarefa neste momento.",
-        "error"
-      );
-    } finally {
-      setButtonLoading(btnUpdateLibraryTask, false, "Salvando...", "Salvar alterações");
-    }
-  }
-
-  async function abrirPdf(pdfPath) {
-    if (!pdfPath) return;
-
-    try {
-      await registrarEvento({
-        evento: "pdf_banco_aberto",
-        pagina: "banco_de_tarefas",
-        perfil: "profissional",
-        userId: currentUser?.id || null,
-        email: currentProfile?.email || currentUser?.email || null,
-        contexto: {
-          pdf_path: pdfPath
-        }
-      });
-      const { data, error } = await supabase.storage
-        .from(PDF_BUCKET)
-        .createSignedUrl(pdfPath, 60);
-
-      if (error || !data?.signedUrl) {
-        throw new Error(error?.message || "Não foi possível abrir o PDF.");
-      }
-
-      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
-    } catch (error) {
-      window.alert(error.message || "Não foi possível abrir o PDF.");
-    }
-  }
-
-  if (btnToggleThemeForm) {
-    btnToggleThemeForm.addEventListener("click", openThemeForm);
-  }
-
-  if (btnToggleLibraryTaskForm) {
-    btnToggleLibraryTaskForm.addEventListener("click", () => {
-      if (!themes.length) {
-        window.alert("Cadastre um tema antes de publicar uma tarefa no banco.");
-        return;
-      }
-      openLibraryTaskForm();
-    });
-  }
-
-  if (btnCloseThemeForm) {
-    btnCloseThemeForm.addEventListener("click", closeThemeForm);
-  }
-
-  if (btnCloseLibraryTaskForm) {
-    btnCloseLibraryTaskForm.addEventListener("click", closeLibraryTaskForm);
-  }
-
-  if (btnEditSelectedTheme) {
-    btnEditSelectedTheme.addEventListener("click", openEditThemeForm);
-  }
-
-  if (btnCloseEditTheme) {
-    btnCloseEditTheme.addEventListener("click", closeEditThemeForm);
-  }
-
-  if (btnCloseEditLibraryTask) {
-    btnCloseEditLibraryTask.addEventListener("click", closeEditLibraryTaskForm);
-  }
-
-  if (themeForm) {
-    themeForm.addEventListener("submit", salvarTema);
-  }
-
-  if (libraryTaskForm) {
-    libraryTaskForm.addEventListener("submit", salvarTarefaBiblioteca);
-  }
-
-  if (editThemeForm) {
-    editThemeForm.addEventListener("submit", salvarEdicaoTema);
-  }
-
-  if (editLibraryTaskForm) {
-    editLibraryTaskForm.addEventListener("submit", salvarEdicaoTarefaBiblioteca);
   }
 
   if (themesList) {
     themesList.addEventListener("click", (event) => {
-      const card = event.target.closest("[data-theme-id]");
-      if (!card) return;
-
-      selectedThemeId = Number.parseInt(card.getAttribute("data-theme-id") || "", 10);
-      renderAll();
-      const tema = themes.find((item) => item.id === selectedThemeId);
-      registrarEvento({
-        evento: "tema_banco_selecionado",
-        pagina: "banco_de_tarefas",
-        perfil: "profissional",
-        userId: currentUser?.id || null,
-        email: currentProfile?.email || currentUser?.email || null,
-        contexto: {
-          tema_id: selectedThemeId,
-          tema: tema?.nome || null
-        }
-      });
+      const button = event.target.closest("[data-theme-id]");
+      if (!button) return;
+      abrirTarefasDoTema(button.getAttribute("data-theme-id"));
     });
   }
 
-  if (libraryList) {
-    libraryList.addEventListener("click", (event) => {
-      const editButton = event.target.closest("[data-action='edit-task']");
-      if (editButton) {
-        const taskId = Number.parseInt(editButton.getAttribute("data-task-id") || "", 10);
-        if (taskId) {
-          openEditLibraryTaskForm(taskId);
-        }
+  if (btnBack) {
+    btnBack.addEventListener("click", () => {
+      if (currentView === "create") {
+        abrirTarefasDoTema(selectedThemeId);
         return;
       }
 
-      const button = event.target.closest("[data-action='open-pdf']");
-      if (!button) return;
+      if (currentView === "tasks") {
+        abrirTemas();
+        return;
+      }
 
-      const pdfPath = button.getAttribute("data-pdf-path");
-      abrirPdf(pdfPath);
+      window.location.href = "../profissional/index.html";
     });
   }
 
-  validarProfissional()
-    .then(async (ok) => {
-      if (!ok) return;
-      await carregarBancoTarefas();
-      renderAll();
-    })
-    .catch((error) => {
-      console.error(error);
-      window.alert(error.message || "Não foi possível carregar o Banco de Tarefas.");
+  if (btnOpenCreateTask) {
+    btnOpenCreateTask.addEventListener("click", abrirCriacaoDeTarefa);
+  }
+
+  if (btnCancelCreateTask) {
+    btnCancelCreateTask.addEventListener("click", () => {
+      abrirTarefasDoTema(selectedThemeId);
     });
+  }
+
+  if (createTaskForm) {
+    createTaskForm.addEventListener("submit", salvarTarefa);
+  }
+
+  if (btnBottomMenu) {
+    btnBottomMenu.addEventListener("click", alternarMenuInferior);
+  }
+
+  if (btnMenuLogout) {
+    btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+
+    const clicouDentroDoMenu = bottomMenuPanel.contains(event.target);
+    const clicouNoBotao = btnBottomMenu.contains(event.target);
+
+    if (!clicouDentroDoMenu && !clicouNoBotao) {
+      fecharMenuInferior();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      fecharMenuInferior();
+    }
+  });
+
+  async function iniciar() {
+    setScreenMessage();
+    const ok = await validarProfissional();
+    if (!ok) return;
+
+    await carregarDados();
+    renderHeaderData();
+    renderThemes();
+    renderTasks();
+    renderResourceOptions();
+    applyView();
+  }
+
+  iniciar().catch((error) => {
+    console.error("Erro na tela banco de tarefas:", error);
+    setScreenMessage(error.message || "Não foi possível carregar o banco de tarefas.");
+  });
 });

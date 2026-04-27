@@ -9,7 +9,7 @@
   <title>Banco de Tarefas - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Biblioteca pública colaborativa de tarefas do PsicoTarefas" />
+  <meta name="description" content="Manutenção do banco de tarefas do PsicoTarefas" />
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
@@ -17,228 +17,183 @@
   <link rel="stylesheet" href="../../shared/support.css" />
 </head>
 <body>
-  <div class="library-shell">
+  <div class="task-bank-shell">
     <header class="topbar">
-      <div class="topbar__meta topbar__meta--nav">
-        <a class="back-link" href="../profissional-tarefas/index.html">← Sair</a>
+      <div class="topbar__nav">
+        <button class="back-link" id="btnBack" type="button">← Voltar</button>
+
+        <a class="brand brand--centered" href="../profissional/index.html" aria-label="Voltar ao painel do profissional">
+          <img
+            src="../../assets/icons/icon-192.png"
+            alt="Ícone do PsicoTarefas"
+            class="brand__logo"
+          />
+          <span class="brand__name">PsicoTarefas</span>
+        </a>
+
         <a class="support-link" href="https://wa.me/5543999525060?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20PsicoTarefas." target="_blank" rel="noopener noreferrer" aria-label="Abrir suporte no WhatsApp">
           <span class="support-link__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.05 4.91A9.82 9.82 0 0 0 12.03 2C6.6 2 2.18 6.42 2.18 11.85c0 1.74.45 3.44 1.31 4.95L2 22l5.34-1.4a9.8 9.8 0 0 0 4.69 1.2h.01c5.43 0 9.85-4.42 9.85-9.85a9.8 9.8 0 0 0-2.84-7.04Zm-7.01 15.23h-.01a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.17.83.85-3.09-.2-.32a8.17 8.17 0 0 1-1.25-4.39c0-4.51 3.67-8.18 8.2-8.18a8.1 8.1 0 0 1 5.81 2.41 8.14 8.14 0 0 1 2.39 5.8c0 4.51-3.67 8.18-8.17 8.18Zm4.49-6.11c-.25-.12-1.47-.73-1.7-.82-.23-.08-.39-.12-.56.12-.16.25-.64.82-.78.99-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.99-1.21-.74-.66-1.25-1.47-1.39-1.72-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.35-.76-1.85-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.07s.89 2.39 1.02 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.06.42 1.42.54.6.19 1.14.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.11-.23-.17-.48-.29Z" /></svg></span>
           <span>Suporte</span>
         </a>
       </div>
-      <div class="brand">
-        <img
-          src="../../assets/icons/icon-192.png"
-          alt="Ícone do PsicoTarefas"
-          class="brand__logo"
-        />
-        <div class="brand__text">
-          <p class="brand__badge">Painel do PROFISSIONAL</p>
-          <h1>Banco de tarefas</h1>
-        </div>
-      </div>
 
-      <p class="professional-line" id="professionalLine">
-        PROFISSIONAL: Carregando...
-      </p>
+      <div class="title-strip">
+        <h1>BANCO DE TAREFAS</h1>
+      </div>
     </header>
 
-    <main class="library-main">
-      <section class="hero-card">
-        <div>
-          <p class="hero-card__label">Biblioteca pública colaborativa</p>
-          <h2>Organize temas, publique PDFs e amplie o acervo do sistema</h2>
-          <p>
-            Aqui o profissional pode alimentar o banco de tarefas com materiais públicos por tema.
-            Essas tarefas não são tarefas do paciente: elas entram como biblioteca para uso posterior.
-          </p>
-        </div>
+    <main class="task-bank-main">
+      <div class="screen-message screen-message--error" id="screenMessage" hidden></div>
 
-        <div class="hero-card__stats">
-          <div class="hero-chip">
-            <span class="hero-chip__label">Temas</span>
-            <strong id="statThemes">0</strong>
-          </div>
-          <div class="hero-chip">
-            <span class="hero-chip__label">Tarefas públicas</span>
-            <strong id="statTasks">0</strong>
-          </div>
-          <div class="hero-chip">
-            <span class="hero-chip__label">PDFs vinculados</span>
-            <strong id="statPdfs">0</strong>
-          </div>
+      <section class="panel hero-panel">
+        <p class="hero-panel__label">Manutenção</p>
+        <h2 id="viewTitle">Temas cadastrados</h2>
+        <p class="hero-panel__text" id="viewDescription">
+          Escolha um tema para visualizar e manter as tarefas cadastradas.
+        </p>
+      </section>
+
+      <section class="panel summary-panel">
+        <div class="summary-chip">
+          <span class="summary-chip__label">Profissional</span>
+          <strong class="summary-chip__value" id="professionalLine">Carregando...</strong>
+        </div>
+        <div class="summary-chip">
+          <span class="summary-chip__label">Temas</span>
+          <strong class="summary-chip__value" id="themesCount">0</strong>
+        </div>
+        <div class="summary-chip">
+          <span class="summary-chip__label">Recursos</span>
+          <strong class="summary-chip__value" id="resourcesCount">0</strong>
         </div>
       </section>
 
-      <section class="toolbar-card">
-        <div>
-          <h3>Construção inicial</h3>
-          <p>
-            Esta é a primeira base do Banco de Tarefas. Vamos usá-la para organizar temas,
-            cadastrar atividades públicas e preparar o fluxo de uso pela Gestão de TAREFAS.
-          </p>
+      <section class="panel panel--list" id="themesView">
+        <div class="section-header">
+          <div>
+            <h3>Temas</h3>
+          </div>
         </div>
-        <div class="toolbar-card__actions">
-          <button class="btn-secondary" id="btnToggleThemeForm" type="button">Novo tema</button>
-          <button class="btn-primary" id="btnToggleLibraryTaskForm" type="button">Nova tarefa da biblioteca</button>
+
+        <div class="empty-state" id="themesEmptyState" hidden>
+          Nenhum tema cadastrado no banco de tarefas.
         </div>
+
+        <div class="entity-list" id="themesList"></div>
       </section>
 
-      <section class="panel" id="themeFormPanel" hidden>
-        <div class="panel__header">
-          <h3>Cadastrar tema</h3>
-          <p>Crie os grandes agrupadores da biblioteca, como ansiedade, medo, depressão e outros.</p>
+      <section class="panel panel--list" id="tasksView" hidden>
+        <div class="section-header section-header--actions">
+          <div>
+            <h3 id="selectedThemeTitle">Tema</h3>
+            <p id="selectedThemeSubtitle">Tarefas cadastradas para este tema.</p>
+          </div>
+          <button class="btn-primary" id="btnOpenCreateTask" type="button">
+            Criar tarefa
+          </button>
         </div>
 
-        <form class="form-grid" id="themeForm">
-          <div class="form-group">
-            <label for="themeName">Nome do tema</label>
-            <input id="themeName" type="text" placeholder="Ex.: Ansiedade" />
-          </div>
+        <div class="empty-state" id="tasksEmptyState" hidden>
+          Nenhuma tarefa cadastrada para este tema.
+        </div>
 
-            <div class="form-group form-group--wide">
-              <label for="themeDescription">Descrição curta</label>
-              <textarea id="themeDescription" rows="3" placeholder="Explique rapidamente o foco desse tema."></textarea>
-            </div>
-
-            <div class="form-message form-group--wide" id="themeFormMessage" hidden></div>
-
-            <div class="form-actions form-actions--inline">
-              <button class="btn-secondary" id="btnCloseThemeForm" type="button">Cancelar</button>
-              <button class="btn-primary" id="btnSaveTheme" type="submit">Salvar tema</button>
-            </div>
-          </form>
+        <div class="entity-list" id="tasksList"></div>
       </section>
 
-      <section class="workspace">
-        <section class="panel themes-panel">
-          <div class="panel__header">
-            <h3>Temas da biblioteca</h3>
-            <p>Escolha um tema para navegar nas tarefas públicas já cadastradas.</p>
+      <section class="panel" id="createTaskView" hidden>
+        <div class="section-header">
+          <div>
+            <h3>Criar tarefa</h3>
+            <p>Informe o recurso e pelo menos um complemento: PDF ou link de vídeo.</p>
+          </div>
+        </div>
+
+        <form class="task-form" id="createTaskForm">
+          <label class="form-field" for="taskThemeName">
+            <span class="form-field__label">Tema</span>
+            <input class="form-field__input form-field__input--readonly" id="taskThemeName" type="text" readonly />
+          </label>
+
+          <label class="form-field" for="taskResourceSelect">
+            <span class="form-field__label">Recurso</span>
+            <select class="form-field__input" id="taskResourceSelect" required></select>
+          </label>
+
+          <label class="form-field" for="taskPdfFile">
+            <span class="form-field__label">PDF da tarefa</span>
+            <input class="form-field__input" id="taskPdfFile" type="file" accept="application/pdf" />
+          </label>
+
+          <label class="form-field" for="taskVideoLink">
+            <span class="form-field__label">Link de vídeo</span>
+            <input class="form-field__input" id="taskVideoLink" type="url" placeholder="https://..." />
+          </label>
+
+          <div class="hint-card">
+            A tarefa pode ter apenas PDF, apenas vídeo, ou os dois. Pelo menos um deles precisa ser informado.
           </div>
 
-          <div class="themes-list" id="themesList"></div>
-        </section>
+          <div class="screen-message" id="createTaskMessage" hidden></div>
 
-        <section class="library-column">
-          <section class="panel form-panel" id="editThemePanel" hidden>
-            <div class="panel__header">
-              <h3>Alterar tema</h3>
-              <p>Atualize o nome e a descrição curta do tema selecionado.</p>
-            </div>
-
-            <form class="form-grid" id="editThemeForm">
-              <div class="form-group">
-                <label for="editThemeName">Nome do tema</label>
-                <input id="editThemeName" type="text" placeholder="Ex.: Ansiedade" />
-              </div>
-
-              <div class="form-group form-group--wide">
-                <label for="editThemeDescription">Descrição curta</label>
-                <textarea id="editThemeDescription" rows="3" placeholder="Explique rapidamente o foco desse tema."></textarea>
-              </div>
-
-              <div class="form-message form-group--wide" id="editThemeFormMessage" hidden></div>
-
-              <div class="form-actions form-actions--inline">
-                <button class="btn-secondary" id="btnCloseEditTheme" type="button">Cancelar</button>
-                <button class="btn-primary" id="btnUpdateTheme" type="submit">Salvar alterações</button>
-              </div>
-            </form>
-          </section>
-
-          <section class="panel form-panel" id="libraryTaskFormPanel" hidden>
-            <div class="panel__header">
-              <h3>Nova tarefa da biblioteca</h3>
-              <p>Cadastre uma tarefa pública, por tema, com PDF pronto para uso posterior.</p>
-            </div>
-
-            <form class="form-grid" id="libraryTaskForm">
-              <div class="form-group">
-                <label for="libraryTaskTheme">Tema</label>
-                <select id="libraryTaskTheme"></select>
-              </div>
-
-              <div class="form-group">
-                <label for="libraryTaskTitle">Título</label>
-                <input id="libraryTaskTitle" type="text" placeholder="Ex.: Atividade 1 - Observando os gatilhos" />
-              </div>
-
-              <div class="form-group form-group--wide">
-                <label for="libraryTaskSummary">Descrição curta</label>
-                <textarea id="libraryTaskSummary" rows="3" placeholder="Resumo para ajudar outros profissionais a entender o foco da tarefa."></textarea>
-              </div>
-
-              <div class="form-group">
-                <label for="libraryTaskPdf">PDF da tarefa</label>
-                <input id="libraryTaskPdf" type="file" accept="application/pdf" />
-              </div>
-
-              <div class="form-group">
-                <label for="libraryTaskStatus">Status inicial</label>
-                <select id="libraryTaskStatus">
-                  <option value="publicada">Publicada</option>
-                  <option value="oculta">Oculta</option>
-                  <option value="arquivada">Arquivada</option>
-                  <option value="pendente">Pendente</option>
-                </select>
-              </div>
-
-              <div class="form-message form-group--wide" id="libraryTaskFormMessage" hidden></div>
-
-              <div class="form-actions form-actions--inline">
-                <button class="btn-secondary" id="btnCloseLibraryTaskForm" type="button">Cancelar</button>
-                <button class="btn-primary" id="btnSaveLibraryTask" type="submit">Publicar no banco</button>
-              </div>
-            </form>
-          </section>
-
-          <section class="panel form-panel" id="editLibraryTaskPanel" hidden>
-            <div class="panel__header">
-              <h3>Alterar tarefa</h3>
-              <p>Atualize o título e a descrição curta da tarefa pública selecionada.</p>
-            </div>
-
-            <form class="form-grid" id="editLibraryTaskForm">
-              <div class="form-group">
-                <label for="editLibraryTaskTitle">Título</label>
-                <input id="editLibraryTaskTitle" type="text" placeholder="Ex.: Atividade 1 - Observando os gatilhos" />
-              </div>
-
-              <div class="form-group form-group--wide">
-                <label for="editLibraryTaskSummary">Descrição curta</label>
-                <textarea id="editLibraryTaskSummary" rows="3" placeholder="Resumo para ajudar outros profissionais a entender o foco da tarefa."></textarea>
-              </div>
-
-              <div class="form-message form-group--wide" id="editLibraryTaskFormMessage" hidden></div>
-
-              <div class="form-actions form-actions--inline">
-                <button class="btn-secondary" id="btnCloseEditLibraryTask" type="button">Cancelar</button>
-                <button class="btn-primary" id="btnUpdateLibraryTask" type="submit">Salvar alterações</button>
-              </div>
-            </form>
-          </section>
-
-          <section class="panel library-panel">
-            <div class="panel__header panel__header--actions">
-              <div>
-                <h3 id="libraryPanelTitle">Tarefas do tema: Ansiedade</h3>
-                <p id="libraryPanelSubtitle">Visualize atividades públicas em PDF organizadas por tema.</p>
-              </div>
-              <button class="btn-secondary btn-secondary--sm" id="btnEditSelectedTheme" type="button" hidden>
-                Alterar tema
-              </button>
-            </div>
-
-            <div class="empty-state" id="libraryEmptyState" hidden>
-              Nenhuma tarefa cadastrada para este tema ainda.
-            </div>
-
-            <div class="library-list" id="libraryList"></div>
-          </section>
-        </section>
+          <div class="task-form__actions">
+            <button class="btn-secondary" id="btnCancelCreateTask" type="button">Cancelar</button>
+            <button class="btn-primary" id="btnSaveTask" type="submit">Gravar tarefa</button>
+          </div>
+        </form>
       </section>
     </main>
+
+    <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">
+      <a class="bottom-nav__item" href="../profissional/index.html">
+        <span class="bottom-nav__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5 9.5V21h14V9.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+        </span>
+        <span class="bottom-nav__label">Home</span>
+      </a>
+
+      <a
+        class="bottom-nav__item"
+        href="https://wa.me/5543999525060?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20PsicoTarefas."
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="bottom-nav__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19.05 4.91A9.82 9.82 0 0 0 12.03 2C6.6 2 2.18 6.42 2.18 11.85c0 1.74.45 3.44 1.31 4.95L2 22l5.34-1.4a9.8 9.8 0 0 0 4.69 1.2h.01c5.43 0 9.85-4.42 9.85-9.85a9.8 9.8 0 0 0-2.84-7.04Zm-7.01 15.23h-.01a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.17.83.85-3.09-.2-.32a8.17 8.17 0 0 1-1.25-4.39c0-4.51 3.67-8.18 8.2-8.18a8.1 8.1 0 0 1 5.81 2.41 8.14 8.14 0 0 1 2.39 5.8c0 4.51-3.67 8.18-8.17 8.18Zm4.49-6.11c-.25-.12-1.47-.73-1.7-.82-.23-.08-.39-.12-.56.12-.16.25-.64.82-.78.99-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.99-1.21-.74-.66-1.25-1.47-1.39-1.72-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.35-.76-1.85-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.07s.89 2.39 1.02 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.06.42 1.42.54.6.19 1.14.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.11-.23-.17-.48-.29Z" />
+          </svg>
+        </span>
+        <span class="bottom-nav__label">Suporte</span>
+      </a>
+
+      <div class="bottom-nav__menu-wrap">
+        <button class="bottom-nav__item" id="btnBottomMenu" type="button" aria-expanded="false" aria-controls="bottomMenuPanel">
+          <span class="bottom-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M4 7h16" />
+              <path d="M4 12h16" />
+              <path d="M4 17h16" />
+            </svg>
+          </span>
+          <span class="bottom-nav__label">Menu</span>
+        </button>
+
+        <div class="bottom-nav__menu" id="bottomMenuPanel" hidden>
+          <a class="bottom-nav__menu-item" href="../meus-dados/index.html">Meus DADOS</a>
+          <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
+          <a class="bottom-nav__menu-item" href="../cadastro-pacientes/index.html">Cadastro de PACIENTES</a>
+          <a class="bottom-nav__menu-item" href="../atribuir-tarefas/index.html">Atribuir TAREFAS</a>
+          <a class="bottom-nav__menu-item bottom-nav__menu-item--current" href="./index.html" aria-current="page">Banco de TAREFAS</a>
+          <div class="bottom-nav__menu-divider" aria-hidden="true"></div>
+          <button class="bottom-nav__menu-item bottom-nav__menu-item--danger" id="btnMenuLogout" type="button">
+            SAIR
+          </button>
+        </div>
+      </div>
+    </nav>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
