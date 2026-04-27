@@ -90,8 +90,8 @@
               </button>
               <div class="pdf-upload-box__file" id="selectedPdfBox" hidden>
                 <strong id="selectedPdfName">PDF selecionado</strong>
-                <button class="btn-secondary btn-secondary--small" id="btnClearSelectedPdf" type="button">
-                  Remover
+                <button class="btn-secondary btn-secondary--small" id="btnPreviewSelectedPdf" type="button">
+                  Visualizar
                 </button>
               </div>
             </div>
@@ -158,6 +158,22 @@
         </div>
       </div>
     </nav>
+  </div>
+
+  <div class="pdf-preview-modal" id="pdfPreviewModal" hidden>
+    <div class="pdf-preview-modal__backdrop" data-close-pdf-preview="true"></div>
+    <section class="pdf-preview-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
+      <div class="pdf-preview-modal__header">
+        <h2 id="pdfPreviewTitle">Prévia do PDF</h2>
+        <button class="pdf-preview-modal__close" id="btnClosePdfPreview" type="button" aria-label="Fechar prévia do PDF">
+          ×
+        </button>
+      </div>
+
+      <div class="pdf-preview-modal__content">
+        <iframe class="pdf-preview-modal__frame" id="pdfPreviewFrame" title="Prévia do PDF selecionado"></iframe>
+      </div>
+    </section>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

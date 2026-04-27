@@ -18,12 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnUploadTaskPdf = document.getElementById("btnUploadTaskPdf");
   const selectedPdfBox = document.getElementById("selectedPdfBox");
   const selectedPdfName = document.getElementById("selectedPdfName");
-  const btnClearSelectedPdf = document.getElementById("btnClearSelectedPdf");
+  const btnPreviewSelectedPdf = document.getElementById("btnPreviewSelectedPdf");
   const formMessage = document.getElementById("formMessage");
   const btnSaveTask = document.getElementById("btnSaveTask");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
+  const pdfPreviewModal = document.getElementById("pdfPreviewModal");
+  const btnClosePdfPreview = document.getElementById("btnClosePdfPreview");
+  const pdfPreviewFrame = document.getElementById("pdfPreviewFrame");
 
   const PDF_BUCKET = "banco-tarefas-pdf";
 
@@ -31,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProfile = null;
   let selectedPatient = null;
   let selectedPdfFile = null;
+  let currentPdfPreviewUrl = "";
 
   function buildAssignmentsUrl() {
     const query = new URLSearchParams({
@@ -116,6 +120,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedPdfName) {
       selectedPdfName.textContent = "PDF selecionado";
     }
+  }
+
+  function fecharPreviewPdf() {
+    if (!pdfPreviewModal) return;
+    pdfPreviewModal.hidden = true;
+
+    if (pdfPreviewFrame) {
+      pdfPreviewFrame.removeAttribute("src");
+    }
+
+    if (currentPdfPreviewUrl) {
+      URL.revokeObjectURL(currentPdfPreviewUrl);
+      currentPdfPreviewUrl = "";
+    }
+  }
+
+  function abrirPreviewPdfSelecionado() {
+    if (!selectedPdfFile || !pdfPreviewModal || !pdfPreviewFrame) {
+      setFormMessage("Selecione um PDF para visualizar.", "error");
+      return;
+    }
+
+    fecharPreviewPdf();
+    currentPdfPreviewUrl = URL.createObjectURL(selectedPdfFile);
+    pdfPreviewFrame.src = currentPdfPreviewUrl;
+    pdfPreviewModal.hidden = false;
   }
 
   async function obterUsuarioAutenticado() {
@@ -381,8 +411,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (btnClearSelectedPdf) {
-    btnClearSelectedPdf.addEventListener("click", clearSelectedPdf);
+  if (btnPreviewSelectedPdf) {
+    btnPreviewSelectedPdf.addEventListener("click", abrirPreviewPdfSelecionado);
   }
 
   if (pdfTaskForm) {
@@ -406,11 +436,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clicouDentroDoMenu && !clicouNoBotao) {
       fecharMenuInferior();
     }
+
+    if (event.target.closest("[data-close-pdf-preview='true']")) {
+      fecharPreviewPdf();
+    }
   });
+
+  if (btnClosePdfPreview) {
+    btnClosePdfPreview.addEventListener("click", fecharPreviewPdf);
+  }
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       fecharMenuInferior();
+      fecharPreviewPdf();
     }
   });
 
