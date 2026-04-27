@@ -99,8 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return "Gerado por IA";
     }
 
-    if (task.pdf_path) {
-      return "Tarefa com PDF";
+    if (task.pdf_path || task.video_url) {
+      return "Tarefa com PDF/Vídeo";
     }
 
     if (task.origem_tipo === "ia") {

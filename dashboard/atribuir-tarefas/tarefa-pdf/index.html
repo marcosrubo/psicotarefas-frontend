@@ -6,10 +6,10 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Tarefa com PDF - PsicoTarefas</title>
+  <title>Tarefa com PDF/Video - PsicoTarefas</title>
 
   <meta name="theme-color" content="#6d5efc" />
-  <meta name="description" content="Atribuição de tarefa com PDF no PsicoTarefas" />
+  <meta name="description" content="Atribuição de tarefa com PDF ou video no PsicoTarefas" />
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../../assets/icons/icon-192.png" />
@@ -38,7 +38,7 @@
       </div>
 
       <div class="title-strip">
-        <h1>TAREFA COM PDF</h1>
+        <h1>TAREFA COM PDF/VIDEO</h1>
       </div>
     </header>
 
@@ -95,6 +95,17 @@
                 </button>
               </div>
             </div>
+          </div>
+
+          <div class="form-group">
+            <label for="taskVideoUrlInput">URL do vídeo</label>
+            <input
+              type="url"
+              id="taskVideoUrlInput"
+              placeholder="https://..."
+              inputmode="url"
+              autocomplete="off"
+            />
           </div>
 
           <div class="screen-message" id="formMessage" hidden></div>

@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskTitleInput = document.getElementById("taskTitleInput");
   const taskDescriptionInput = document.getElementById("taskDescriptionInput");
   const taskPdfUploadInput = document.getElementById("taskPdfUploadInput");
+  const taskVideoUrlInput = document.getElementById("taskVideoUrlInput");
   const btnUploadTaskPdf = document.getElementById("btnUploadTaskPdf");
   const selectedPdfBox = document.getElementById("selectedPdfBox");
   const selectedPdfName = document.getElementById("selectedPdfName");
@@ -133,6 +134,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentPdfPreviewUrl) {
       URL.revokeObjectURL(currentPdfPreviewUrl);
       currentPdfPreviewUrl = "";
+    }
+  }
+
+  function isValidHttpUrl(value) {
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
     }
   }
 
@@ -300,6 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const titulo = taskTitleInput?.value.trim() || "";
     const descricao = taskDescriptionInput?.value.trim() || "";
+    const videoUrl = taskVideoUrlInput?.value.trim() || "";
 
     if (!selectedPatient) {
       setFormMessage("Selecione um paciente válido antes de gravar a tarefa.", "error");
@@ -316,8 +327,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!selectedPdfFile) {
-      setFormMessage("Selecione um PDF para continuar.", "error");
+    if (!selectedPdfFile && !videoUrl) {
+      setFormMessage("Selecione um PDF, informe um vídeo, ou os dois.", "error");
+      return;
+    }
+
+    if (videoUrl && !isValidHttpUrl(videoUrl)) {
+      setFormMessage("Informe uma URL de vídeo válida.", "error");
       return;
     }
 
@@ -328,7 +344,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setFormMessage();
 
     try {
-      const linkedPdf = await uploadCustomTaskPdf(selectedPdfFile);
+      const linkedPdf = selectedPdfFile
+        ? await uploadCustomTaskPdf(selectedPdfFile)
+        : { pdfPath: null, pdfName: null };
 
       const payload = {
         professional_user_id: currentUser.id,
@@ -340,7 +358,8 @@ document.addEventListener("DOMContentLoaded", () => {
         interacao_paciente_tipo: "nao_permitir",
         interacao_paciente_limite: null,
         pdf_path: linkedPdf.pdfPath,
-        pdf_nome: linkedPdf.pdfName || null
+        pdf_nome: linkedPdf.pdfName || null,
+        video_url: videoUrl || null
       };
 
       const { data: novaTarefa, error } = await supabase
@@ -363,7 +382,8 @@ document.addEventListener("DOMContentLoaded", () => {
           tarefa_id: novaTarefa.id,
           paciente_id: selectedPatient.patient_user_id,
           origem_tipo: "manual_pdf",
-          pdf_nome: linkedPdf.pdfName || ""
+          pdf_nome: linkedPdf.pdfName || "",
+          possui_video: Boolean(videoUrl)
         }
       });
 
@@ -471,6 +491,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   iniciar().catch((error) => {
     console.error("Erro na tela tarefa-pdf:", error);
-    setScreenMessage(error.message || "Não foi possível carregar a tela da tarefa com PDF.");
+    setScreenMessage(error.message || "Não foi possível carregar a tela da tarefa com PDF/Video.");
   });
 });
