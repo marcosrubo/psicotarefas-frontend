@@ -120,6 +120,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return tasks.filter((task) => String(task.tema_id) === String(selectedThemeId));
   }
 
+  function getSelectedTask() {
+    return tasks.find((task) => String(task.id) === String(selectedTaskId)) || null;
+  }
+
   function updateDeleteButtonState() {
     if (!btnDeleteTask) return;
     btnDeleteTask.disabled = !selectedTaskId;
@@ -476,7 +480,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const confirmar = window.confirm("Deseja excluir esta tarefa do banco?");
+    const selectedTheme = getSelectedTheme();
+    const selectedTask = getSelectedTask();
+    const resourceName = getResourceName(selectedTask?.recurso_id);
+
+    const confirmar = window.confirm(
+      `Deseja excluir esta tarefa do banco?\n\nTema: ${selectedTheme?.nome || "-"}\nRecurso: ${resourceName || "-"}`
+    );
     if (!confirmar) {
       return;
     }
