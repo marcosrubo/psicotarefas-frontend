@@ -125,6 +125,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
+  function buildPdfPreviewUrl(url) {
+    if (!url) return "";
+    return `${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+  }
+
   function getInstagramPermalink(url) {
     if (!url) return "";
 
@@ -465,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <iframe
                   class="feed-media-block__frame"
-                  src="${escapeHtml(item.pdfSignedUrl)}"
+                  src="${escapeHtml(buildPdfPreviewUrl(item.pdfSignedUrl))}"
                   title="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
                 ></iframe>
               </section>
