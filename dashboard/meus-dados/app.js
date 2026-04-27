@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const profileForm = document.getElementById("profileForm");
   const screenMessage = document.getElementById("screenMessage");
   const formMessage = document.getElementById("formMessage");
+  const btnCancelProfile = document.getElementById("btnCancelProfile");
   const btnSaveProfile = document.getElementById("btnSaveProfile");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -263,6 +264,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (profileForm) {
     profileForm.addEventListener("submit", salvarPerfil);
+  }
+
+  if (btnCancelProfile) {
+    btnCancelProfile.addEventListener("click", (event) => {
+      event.preventDefault();
+      fecharTelaMeusDados();
+    });
   }
 
   if (btnBottomMenu) {
