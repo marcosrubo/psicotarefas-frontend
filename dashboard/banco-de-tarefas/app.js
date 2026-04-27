@@ -403,20 +403,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const isSelected = String(task.id) === String(selectedTaskId);
 
         return `
-          <button
+          <article
             class="task-row ${selectedClass}"
-            type="button"
             data-task-id="${escapeHtml(task.id)}"
+            role="button"
+            tabindex="0"
             aria-pressed="${String(isSelected)}"
           >
             <div class="task-row__top">
               <h4 class="task-row__title">${escapeHtml(resourceName)}</h4>
             </div>
             <div class="task-row__meta">
-              ${hasPdf ? '<span class="meta-chip meta-chip--muted">PDF</span>' : ""}
-              ${hasVideo ? '<span class="meta-chip meta-chip--muted">Vídeo</span>' : ""}
+              <div class="task-row__meta-group">
+                ${hasPdf ? '<span class="meta-chip meta-chip--muted">PDF</span>' : ""}
+                ${hasVideo ? '<span class="meta-chip meta-chip--muted">Vídeo</span>' : ""}
+              </div>
+              <button
+                class="task-row__detail"
+                type="button"
+                data-task-detail-id="${escapeHtml(task.id)}"
+              >
+                Detalhar
+              </button>
             </div>
-          </button>
+          </article>
         `;
       })
       .join("");
@@ -760,10 +770,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (tasksList) {
     tasksList.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-task-id]");
-      if (!button) return;
+      const detailButton = event.target.closest("[data-task-detail-id]");
+      if (detailButton) {
+        selectedTaskId = detailButton.getAttribute("data-task-detail-id");
+        renderTasks();
+        abrirDetalheDaTarefa();
+        return;
+      }
 
-      const clickedTaskId = button.getAttribute("data-task-id");
+      const row = event.target.closest("[data-task-id]");
+      if (!row) return;
+
+      const clickedTaskId = row.getAttribute("data-task-id");
+      selectedTaskId = String(selectedTaskId) === String(clickedTaskId) ? null : clickedTaskId;
+      renderTasks();
+    });
+
+    tasksList.addEventListener("keydown", (event) => {
+      const row = event.target.closest("[data-task-id]");
+      if (!row) return;
+
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      const clickedTaskId = row.getAttribute("data-task-id");
       selectedTaskId = String(selectedTaskId) === String(clickedTaskId) ? null : clickedTaskId;
       renderTasks();
     });
