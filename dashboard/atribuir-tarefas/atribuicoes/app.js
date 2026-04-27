@@ -587,19 +587,16 @@ document.addEventListener("DOMContentLoaded", () => {
     tasksList.innerHTML = tasks
       .map((task) => {
         const taskType = formatTaskType(task);
-        const taskStatus = formatStatus(task);
 
         return `
           <article class="assignment-card">
             <div class="assignment-card__top">
               <h3 class="assignment-card__title">${escapeHtml(task.titulo || "Tarefa sem título")}</h3>
-              <span class="meta-chip meta-chip--status ${taskStatus.className}">${escapeHtml(taskStatus.label)}</span>
             </div>
             <p class="assignment-card__description">${escapeHtml(task.descricao || "Sem descrição cadastrada.")}</p>
             <div class="assignment-card__meta">
               <div class="assignment-card__meta-group">
                 <span class="meta-chip meta-chip--type">${escapeHtml(taskType)}</span>
-                <span class="meta-chip meta-chip--type">${escapeHtml(formatDateTime(task.created_at))}</span>
               </div>
               <button class="assignment-card__open" type="button" data-task-preview-id="${escapeHtml(task.id)}">
                 Abrir
