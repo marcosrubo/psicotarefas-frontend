@@ -717,15 +717,21 @@ a {
   }
 
   .assignment-card__meta {
-    align-items: stretch;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
   }
 
   .assignment-card__meta-group {
-    width: 100%;
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
   }
 
   .assignment-card__open {
-    width: 100%;
+    width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
   .task-preview-modal {
