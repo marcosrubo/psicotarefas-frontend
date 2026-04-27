@@ -37,7 +37,7 @@ a { text-decoration: none; }
   position: sticky;
   top: 0;
   z-index: 24;
-  padding: 18px 16px 14px;
+  padding: 18px 16px 10px;
   background:
     radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
@@ -101,35 +101,22 @@ a { text-decoration: none; }
 }
 
 .feed-filter-strip {
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
+  margin-top: -4px;
 }
 
 .feed-filter-field {
-  display: grid;
-  gap: 10px;
-}
-
-.feed-filter-field__label {
-  color: var(--primary-dark);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  display: block;
 }
 
 .feed-filter-field__control {
   width: 100%;
-  min-height: 54px;
+  min-height: 44px;
   border: 1px solid #d9dfeb;
-  border-radius: 18px;
-  padding: 0 16px;
+  border-radius: 14px;
+  padding: 0 14px;
   background: #fff;
   color: var(--text);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   outline: none;
 }
