@@ -74,9 +74,70 @@
         <div class="entity-list" id="tasksList"></div>
 
         <div class="tasks-view__actions">
+          <button class="btn-secondary" id="btnDetailTask" type="button" disabled>
+            Detalhar
+          </button>
           <button class="btn-secondary btn-secondary--danger" id="btnDeleteTask" type="button" disabled>
             Excluir
           </button>
+        </div>
+      </section>
+
+      <section class="panel" id="detailTaskView" hidden>
+        <div class="detail-grid">
+          <section class="detail-card">
+            <p class="detail-card__label">Tema</p>
+            <strong class="detail-card__value" id="detailThemeName">-</strong>
+          </section>
+
+          <section class="detail-card">
+            <p class="detail-card__label">Recurso</p>
+            <strong class="detail-card__value" id="detailResourceName">-</strong>
+          </section>
+        </div>
+
+        <section class="detail-section">
+          <div class="detail-section__header">
+            <h3>Prévia do PDF</h3>
+          </div>
+
+          <div class="empty-state" id="detailPdfEmpty" hidden>
+            Esta tarefa não possui PDF vinculado.
+          </div>
+
+          <div class="detail-pdf" id="detailPdfWrapper" hidden>
+            <iframe
+              class="detail-pdf__frame"
+              id="detailPdfFrame"
+              title="Prévia do PDF da tarefa"
+            ></iframe>
+          </div>
+        </section>
+
+        <section class="detail-section">
+          <div class="detail-section__header">
+            <h3>Link de vídeo</h3>
+          </div>
+
+          <div class="empty-state" id="detailVideoEmpty" hidden>
+            Esta tarefa não possui link de vídeo vinculado.
+          </div>
+
+          <div class="detail-video" id="detailVideoWrapper" hidden>
+            <a
+              class="detail-video__link"
+              id="detailVideoLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir vídeo
+            </a>
+          </div>
+        </section>
+
+        <div class="task-form__actions">
+          <button class="btn-secondary" id="btnBackFromDetail" type="button">Voltar</button>
         </div>
       </section>
 

@@ -11,16 +11,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const themesView = document.getElementById("themesView");
   const tasksView = document.getElementById("tasksView");
   const createTaskView = document.getElementById("createTaskView");
+  const detailTaskView = document.getElementById("detailTaskView");
 
   const themesEmptyState = document.getElementById("themesEmptyState");
   const themesList = document.getElementById("themesList");
   const tasksEmptyState = document.getElementById("tasksEmptyState");
   const tasksList = document.getElementById("tasksList");
   const selectedThemeTitle = document.getElementById("selectedThemeTitle");
+  const btnDetailTask = document.getElementById("btnDetailTask");
   const btnDeleteTask = document.getElementById("btnDeleteTask");
 
   const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
   const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
+  const btnBackFromDetail = document.getElementById("btnBackFromDetail");
   const createTaskForm = document.getElementById("createTaskForm");
   const taskThemeName = document.getElementById("taskThemeName");
   const taskResourceSelect = document.getElementById("taskResourceSelect");
@@ -28,6 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskVideoLink = document.getElementById("taskVideoLink");
   const createTaskMessage = document.getElementById("createTaskMessage");
   const btnSaveTask = document.getElementById("btnSaveTask");
+  const detailThemeName = document.getElementById("detailThemeName");
+  const detailResourceName = document.getElementById("detailResourceName");
+  const detailPdfWrapper = document.getElementById("detailPdfWrapper");
+  const detailPdfFrame = document.getElementById("detailPdfFrame");
+  const detailPdfEmpty = document.getElementById("detailPdfEmpty");
+  const detailVideoWrapper = document.getElementById("detailVideoWrapper");
+  const detailVideoLink = document.getElementById("detailVideoLink");
+  const detailVideoEmpty = document.getElementById("detailVideoEmpty");
 
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -127,6 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateDeleteButtonState() {
     if (!btnDeleteTask) return;
     btnDeleteTask.disabled = !selectedTaskId;
+    if (btnDetailTask) {
+      btnDetailTask.disabled = !selectedTaskId;
+    }
   }
 
   function fecharMenuInferior() {
@@ -424,12 +438,15 @@ document.addEventListener("DOMContentLoaded", () => {
     themesView.hidden = currentView !== "themes";
     tasksView.hidden = currentView !== "tasks";
     createTaskView.hidden = currentView !== "create";
+    detailTaskView.hidden = currentView !== "detail";
 
     if (pageTitle) {
       if (currentView === "themes") {
         pageTitle.textContent = "BANCO DE TAREFAS 1/3";
       } else if (currentView === "tasks") {
         pageTitle.textContent = "BANCO DE TAREFAS 2/3";
+      } else if (currentView === "create") {
+        pageTitle.textContent = "BANCO DE TAREFAS 3/3";
       } else {
         pageTitle.textContent = "BANCO DE TAREFAS 3/3";
       }
@@ -472,6 +489,72 @@ document.addEventListener("DOMContentLoaded", () => {
     taskVideoLink.value = "";
     taskResourceSelect.value = "";
     setCreateTaskMessage();
+    applyView();
+  }
+
+  function abrirDetalheDaTarefa() {
+    const selectedTheme = getSelectedTheme();
+    const selectedTask = getSelectedTask();
+
+    if (!selectedTask) {
+      return;
+    }
+
+    currentView = "detail";
+    setScreenMessage();
+
+    if (detailThemeName) {
+      detailThemeName.textContent = selectedTheme?.nome || "-";
+    }
+
+    if (detailResourceName) {
+      detailResourceName.textContent = getResourceName(selectedTask.recurso_id);
+    }
+
+    if (detailPdfFrame) {
+      detailPdfFrame.removeAttribute("src");
+    }
+
+    if (selectedTask.pdf_path) {
+      const { data } = supabase.storage.from(PDF_BUCKET).getPublicUrl(selectedTask.pdf_path);
+      if (detailPdfFrame) {
+        detailPdfFrame.src = data?.publicUrl || "";
+      }
+      if (detailPdfWrapper) {
+        detailPdfWrapper.hidden = false;
+      }
+      if (detailPdfEmpty) {
+        detailPdfEmpty.hidden = true;
+      }
+    } else {
+      if (detailPdfWrapper) {
+        detailPdfWrapper.hidden = true;
+      }
+      if (detailPdfEmpty) {
+        detailPdfEmpty.hidden = false;
+      }
+    }
+
+    if (selectedTask.video_link) {
+      if (detailVideoLink) {
+        detailVideoLink.href = selectedTask.video_link;
+        detailVideoLink.textContent = selectedTask.video_link;
+      }
+      if (detailVideoWrapper) {
+        detailVideoWrapper.hidden = false;
+      }
+      if (detailVideoEmpty) {
+        detailVideoEmpty.hidden = true;
+      }
+    } else {
+      if (detailVideoWrapper) {
+        detailVideoWrapper.hidden = true;
+      }
+      if (detailVideoEmpty) {
+        detailVideoEmpty.hidden = false;
+      }
+    }
+
     applyView();
   }
 
@@ -649,7 +732,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnBack) {
     btnBack.addEventListener("click", () => {
-      if (currentView === "create") {
+      if (currentView === "create" || currentView === "detail") {
         abrirTarefasDoTema(selectedThemeId);
         return;
       }
@@ -667,8 +750,19 @@ document.addEventListener("DOMContentLoaded", () => {
     btnOpenCreateTask.addEventListener("click", abrirCriacaoDeTarefa);
   }
 
+  if (btnDetailTask) {
+    btnDetailTask.addEventListener("click", abrirDetalheDaTarefa);
+  }
+
   if (btnDeleteTask) {
     btnDeleteTask.addEventListener("click", excluirTarefaSelecionada);
+  }
+
+  if (btnBackFromDetail) {
+    btnBackFromDetail.addEventListener("click", () => {
+      currentView = "tasks";
+      applyView();
+    });
   }
 
   if (btnCancelCreateTask) {
