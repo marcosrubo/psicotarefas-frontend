@@ -319,9 +319,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="selection-button__title">${escapeHtml(theme.nome)}</span>
               <span class="meta-chip meta-chip--type">${theme.total} tarefa(s)</span>
             </span>
-            <span class="selection-button__subtitle">${escapeHtml(
-              theme.descricao_curta || "Tema disponível no banco de tarefas."
-            )}</span>
           </button>
         `;
       })
