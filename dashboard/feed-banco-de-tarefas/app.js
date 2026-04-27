@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let themes = [];
   let resources = [];
   let feedItems = [];
+  let instagramScriptPromise = null;
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -122,6 +123,58 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return null;
+  }
+
+  function getInstagramPermalink(url) {
+    if (!url) return "";
+
+    try {
+      const parsedUrl = new URL(url);
+      const host = parsedUrl.hostname.replace(/^www\./, "");
+
+      if (host !== "instagram.com" && host !== "m.instagram.com" && host !== "instagr.am") {
+        return "";
+      }
+
+      const cleanPath = parsedUrl.pathname.replace(/\/+$/, "");
+      if (!cleanPath) {
+        return "";
+      }
+
+      return `https://www.instagram.com${cleanPath}/?utm_source=ig_embed&utm_campaign=loading`;
+    } catch {
+      return "";
+    }
+  }
+
+  function ensureInstagramEmbedScript() {
+    if (instagramScriptPromise) {
+      return instagramScriptPromise;
+    }
+
+    instagramScriptPromise = new Promise((resolve) => {
+      if (window.instgrm?.Embeds?.process) {
+        resolve(window.instgrm);
+        return;
+      }
+
+      const existingScript = document.querySelector('script[data-instagram-embed="true"]');
+      if (existingScript) {
+        existingScript.addEventListener("load", () => resolve(window.instgrm || null), { once: true });
+        existingScript.addEventListener("error", () => resolve(null), { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://www.instagram.com/embed.js";
+      script.setAttribute("data-instagram-embed", "true");
+      script.addEventListener("load", () => resolve(window.instgrm || null), { once: true });
+      script.addEventListener("error", () => resolve(null), { once: true });
+      document.body.appendChild(script);
+    });
+
+    return instagramScriptPromise;
   }
 
   async function obterUsuarioAutenticado() {
@@ -314,6 +367,27 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderVideoBlock(item) {
     if (!item.video_link) return "";
 
+    const instagramPermalink = getInstagramPermalink(item.video_link);
+    if (instagramPermalink) {
+      return `
+        <section class="feed-media-block">
+          <div class="feed-media-block__header">
+            <h3>Vídeo</h3>
+            <a class="feed-media-block__link" href="${escapeHtml(item.video_link)}" target="_blank" rel="noopener noreferrer">
+              Abrir vídeo
+            </a>
+          </div>
+          <div class="feed-instagram-wrap">
+            <blockquote
+              class="instagram-media"
+              data-instgrm-permalink="${escapeHtml(instagramPermalink)}"
+              data-instgrm-version="14"
+            ></blockquote>
+          </div>
+        </section>
+      `;
+    }
+
     const embeddedVideo = resolveEmbeddedVideo(item.video_link);
 
     if (embeddedVideo?.type === "iframe") {
@@ -401,6 +475,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </article>
       `)
       .join("");
+
+    if (feedItems.some((item) => getInstagramPermalink(item.video_link))) {
+      ensureInstagramEmbedScript().then((instgrm) => {
+        if (instgrm?.Embeds?.process) {
+          instgrm.Embeds.process();
+        }
+      });
+    }
   }
 
   if (btnBack) {

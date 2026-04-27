@@ -220,6 +220,19 @@ a { text-decoration: none; }
   display: block;
 }
 
+.feed-instagram-wrap {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+}
+
+.feed-instagram-wrap .instagram-media {
+  margin: 0 !important;
+  min-width: 280px !important;
+  width: min(100%, 540px) !important;
+}
+
 .bottom-nav {
   position: fixed;
   left: 0;
