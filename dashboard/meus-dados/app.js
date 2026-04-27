@@ -77,6 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
+  function fecharTelaMeusDados() {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    window.location.href = "../profissional/index.html";
+  }
+
   async function obterUsuarioAutenticado() {
     const {
       data: { session },
@@ -232,7 +241,9 @@ document.addEventListener("DOMContentLoaded", () => {
         pagina: "meus_dados_profissional"
       });
 
-      setFormMessage("Dados atualizados com sucesso.", "success");
+      setFormMessage();
+      window.alert("Dados atualizados com sucesso.");
+      fecharTelaMeusDados();
     } catch (error) {
       console.error("Erro ao atualizar dados do profissional:", error);
       setFormMessage("Não foi possível atualizar os dados.", "error");
