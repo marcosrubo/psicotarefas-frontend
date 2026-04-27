@@ -338,7 +338,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tasksList || !tasksEmptyState) return;
 
     const selectedTheme = getSelectedTheme();
-    const themeTasks = getTasksForSelectedTheme();
+    const themeTasks = getTasksForSelectedTheme().sort((a, b) =>
+      getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
+        sensitivity: "base"
+      })
+    );
 
     if (selectedThemeTitle) {
       selectedThemeTitle.textContent = selectedTheme?.nome || "Tema";
