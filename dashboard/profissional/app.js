@@ -156,15 +156,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentProfessionalName = nomeExibicao;
 
-    userName.textContent = nomeExibicao;
-    userRole.textContent = "Psicólogo(a)";
-    userAvatar.textContent = obterIniciais(nomeExibicao);
-    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
+    if (userName) {
+      userName.textContent = nomeExibicao;
+    }
 
-    editNameInput.value = nomeExibicao;
+    if (userRole) {
+      userRole.textContent = "Psicólogo(a)";
+    }
+
+    if (userAvatar) {
+      userAvatar.textContent = obterIniciais(nomeExibicao);
+    }
+
+    if (welcomeTitle) {
+      welcomeTitle.textContent = `Olá, ${primeiroNome}`;
+    }
+
+    if (editNameInput) {
+      editNameInput.value = nomeExibicao;
+    }
   }
 
   function abrirEdicaoNome() {
+    if (!editNameBox || !btnEditName || !editNameInput) return;
     editNameBox.hidden = false;
     btnEditName.hidden = true;
     editNameInput.focus();
@@ -172,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fecharEdicaoNome() {
+    if (!editNameBox || !btnEditName || !editNameInput) return;
     editNameBox.hidden = true;
     btnEditName.hidden = false;
 
@@ -786,20 +801,30 @@ document.addEventListener("DOMContentLoaded", () => {
     fecharPainelConvite();
   }
 
-  btnEditName.addEventListener("click", abrirEdicaoNome);
-  btnCancelName.addEventListener("click", fecharEdicaoNome);
-  btnSaveName.addEventListener("click", atualizarNomeProfissional);
+  if (btnEditName) {
+    btnEditName.addEventListener("click", abrirEdicaoNome);
+  }
 
-  editNameInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      atualizarNomeProfissional();
-    }
+  if (btnCancelName) {
+    btnCancelName.addEventListener("click", fecharEdicaoNome);
+  }
 
-    if (event.key === "Escape") {
-      fecharEdicaoNome();
-    }
-  });
+  if (btnSaveName) {
+    btnSaveName.addEventListener("click", atualizarNomeProfissional);
+  }
+
+  if (editNameInput) {
+    editNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        atualizarNomeProfissional();
+      }
+
+      if (event.key === "Escape") {
+        fecharEdicaoNome();
+      }
+    });
+  }
 
   if (btnTasks) {
     btnTasks.addEventListener("click", () => {
@@ -1077,7 +1102,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function iniciarDashboard() {
     await carregarUsuario();
-    await carregarConvites();
   }
 
   iniciarDashboard();
