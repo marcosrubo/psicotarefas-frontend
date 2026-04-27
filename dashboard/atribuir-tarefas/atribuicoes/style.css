@@ -454,7 +454,7 @@ a {
 }
 
 .task-preview-pdf__external-link {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   min-height: 40px;
@@ -702,6 +702,10 @@ a {
 
   .task-preview-pdf__toolbar {
     align-items: stretch;
+  }
+
+  .task-preview-pdf__external-link {
+    display: inline-flex;
   }
 
   .task-preview-pdf__external-link {
