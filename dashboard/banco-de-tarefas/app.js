@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
 
   const btnBack = document.getElementById("btnBack");
+  const pageTitle = document.getElementById("pageTitle");
   const screenMessage = document.getElementById("screenMessage");
 
   const themesView = document.getElementById("themesView");
@@ -388,6 +389,16 @@ document.addEventListener("DOMContentLoaded", () => {
     themesView.hidden = currentView !== "themes";
     tasksView.hidden = currentView !== "tasks";
     createTaskView.hidden = currentView !== "create";
+
+    if (pageTitle) {
+      if (currentView === "themes") {
+        pageTitle.textContent = "BANCO DE TAREFAS 1/3";
+      } else if (currentView === "tasks") {
+        pageTitle.textContent = "BANCO DE TAREFAS 2/3";
+      } else {
+        pageTitle.textContent = "BANCO DE TAREFAS 3/3";
+      }
+    }
   }
 
   function abrirTemas() {
