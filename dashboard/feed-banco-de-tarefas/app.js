@@ -377,14 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((item) => `
         <article class="feed-card">
           <div class="feed-card__header">
-            <div class="feed-card__chips">
-              <span class="meta-chip meta-chip--theme">${escapeHtml(getThemeName(item.tema_id))}</span>
-              <span class="meta-chip meta-chip--resource">${escapeHtml(getResourceName(item.recurso_id))}</span>
-              ${item.pdf_path ? '<span class="meta-chip meta-chip--asset">PDF</span>' : ""}
-              ${item.video_link ? '<span class="meta-chip meta-chip--asset">Vídeo</span>' : ""}
-            </div>
             <h2 class="feed-card__title">${escapeHtml(getResourceName(item.recurso_id))}</h2>
-            <p class="feed-card__subtitle">${escapeHtml(getThemeName(item.tema_id))}</p>
           </div>
           <div class="feed-card__media">
             ${item.pdfSignedUrl ? `
