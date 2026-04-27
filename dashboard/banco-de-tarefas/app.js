@@ -394,6 +394,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderResourceOptions() {
     if (!taskResourceSelect) return;
 
+    const orderedResources = [...resources].sort((a, b) =>
+      String(a?.nome || "").localeCompare(String(b?.nome || ""), "pt-BR", {
+        sensitivity: "base"
+      })
+    );
+
     if (!resources.length) {
       taskResourceSelect.innerHTML = '<option value="">Cadastre recursos no Supabase primeiro</option>';
       return;
@@ -401,7 +407,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     taskResourceSelect.innerHTML = [
       '<option value="">Selecione um recurso</option>',
-      ...resources.map((resource) => `<option value="${resource.id}">${escapeHtml(resource.nome)}</option>`)
+      ...orderedResources.map(
+        (resource) => `<option value="${resource.id}">${escapeHtml(resource.nome)}</option>`
+      )
     ].join("");
   }
 
