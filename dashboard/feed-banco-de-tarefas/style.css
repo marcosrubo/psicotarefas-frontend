@@ -435,8 +435,8 @@ a { text-decoration: none; }
   }
 
   .feed-media-block__frame {
-    min-height: 440px;
-    height: 440px;
+    min-height: 300px;
+    height: 300px;
   }
 
   .feed-video-frame,

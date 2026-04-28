@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildPdfPreviewUrl(url) {
     if (!url) return "";
-    return `${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+    return `${url}#toolbar=0&navpanes=0&scrollbar=0&page=1&view=Fit&zoom=page-fit`;
   }
 
   function getInstagramPermalink(url) {
