@@ -337,7 +337,7 @@ a {
 
 .selection-button__preview {
   display: block;
-  margin-top: 14px;
+  margin: 14px auto 0;
   width: min(100%, 320px);
   border-radius: 16px;
   overflow: hidden;
