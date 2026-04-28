@@ -3,6 +3,7 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
+  const PDF_PREVIEW_BUCKET = "banco-tarefas-preview";
 
   const btnBack = document.getElementById("btnBack");
   const screenMessage = document.getElementById("screenMessage");
@@ -406,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (previewPath) {
             try {
               const { data, error } = await supabase.storage
-                .from(PDF_BUCKET)
+                .from(PDF_PREVIEW_BUCKET)
                 .createSignedUrl(previewPath, 3600);
 
               if (!error && data?.signedUrl) {
