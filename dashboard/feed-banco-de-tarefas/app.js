@@ -84,6 +84,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return Number.isFinite(Number(resource?.ordem)) ? Number(resource.ordem) : Number.MAX_SAFE_INTEGER;
   }
 
+  function getPdfPreviewPath(pdfPath) {
+    const safePath = String(pdfPath || "").trim();
+    if (!safePath || !/\.pdf$/i.test(safePath)) {
+      return "";
+    }
+
+    const lastSlashIndex = safePath.lastIndexOf("/");
+    const directory = lastSlashIndex >= 0 ? safePath.slice(0, lastSlashIndex) : "";
+    const fileName = lastSlashIndex >= 0 ? safePath.slice(lastSlashIndex + 1) : safePath;
+    const baseName = fileName.replace(/\.pdf$/i, "");
+
+    return directory
+      ? `${directory}/previews/${baseName}.png`
+      : `previews/${baseName}.png`;
+  }
+
   function renderThemeOptions() {
     if (!themeFilterSelect) return;
 
@@ -371,6 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tasksWithPreview = await Promise.all(
       activeTasks.map(async (task) => {
         let pdfSignedUrl = "";
+        let pdfPreviewSignedUrl = "";
 
         if (task.pdf_path) {
           try {
@@ -384,11 +401,27 @@ document.addEventListener("DOMContentLoaded", () => {
           } catch (error) {
             console.error("Erro ao preparar PDF do feed:", error);
           }
+
+          const previewPath = getPdfPreviewPath(task.pdf_path);
+          if (previewPath) {
+            try {
+              const { data, error } = await supabase.storage
+                .from(PDF_BUCKET)
+                .createSignedUrl(previewPath, 3600);
+
+              if (!error && data?.signedUrl) {
+                pdfPreviewSignedUrl = data.signedUrl;
+              }
+            } catch (error) {
+              console.error("Erro ao preparar preview do PDF do feed:", error);
+            }
+          }
         }
 
         return {
           ...task,
-          pdfSignedUrl
+          pdfSignedUrl,
+          pdfPreviewSignedUrl
         };
       })
     );
@@ -511,7 +544,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     Abrir PDF
                   </a>
                 </div>
-                ${buildPdfIframeMarkup(item.pdfSignedUrl, getResourceName(item.recurso_id))}
+                ${(isMobilePdfPreview() && item.pdfPreviewSignedUrl)
+                  ? `
+                    <div class="feed-media-block__image-wrap">
+                      <img
+                        class="feed-media-block__image"
+                        src="${escapeHtml(item.pdfPreviewSignedUrl)}"
+                        alt="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
+                      />
+                    </div>
+                  `
+                  : buildPdfIframeMarkup(item.pdfSignedUrl, getResourceName(item.recurso_id))}
               </section>
             ` : ""}
             ${renderVideoBlock(item)}

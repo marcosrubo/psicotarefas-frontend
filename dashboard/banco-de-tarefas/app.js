@@ -53,8 +53,32 @@ document.addEventListener("DOMContentLoaded", () => {
   let resources = [];
   let tasks = [];
 
+  function getPdfUploadEndpoint() {
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isLocal) {
+      return "http://localhost:3000/api/storage/upload-task-pdf";
+    }
+
+    return "https://psicotarefas-backend.onrender.com/api/storage/upload-task-pdf";
+  }
+
   function esperar(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        resolve(result.replace(/^data:.*;base64,/, ""));
+      };
+      reader.onerror = () => reject(new Error("Não foi possível ler o arquivo PDF."));
+      reader.readAsDataURL(file);
+    });
   }
 
   function setScreenMessage(text = "", type = "error") {
@@ -662,22 +686,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function uploadPdf(file, themeName, resourceName) {
-    const extension = (file.name.split(".").pop() || "pdf").toLowerCase();
-    const fileName = `${Date.now()}-${slugify(themeName)}-${slugify(resourceName || "recurso")}.${extension}`;
-    const filePath = `banco-tarefas/${slugify(themeName)}/${fileName}`;
+    const fileBase64 = await fileToBase64(file);
+    const response = await fetch(getPdfUploadEndpoint(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: currentUser?.id || "",
+        fileName: file.name || "material.pdf",
+        fileBase64,
+        scope: "banco-tarefas",
+        themeName,
+        resourceName
+      })
+    });
 
-    const { error } = await supabase.storage
-      .from(PDF_BUCKET)
-      .upload(filePath, file, {
-        upsert: false,
-        contentType: file.type || "application/pdf"
-      });
+    const payload = await response.json().catch(() => ({}));
 
-    if (error) {
-      throw new Error(`Não foi possível enviar o PDF: ${error.message}`);
+    if (!response.ok || !payload?.pdfPath) {
+      throw new Error(payload?.error || "Não foi possível enviar o PDF.");
     }
 
-    return filePath;
+    return payload.pdfPath;
   }
 
   async function salvarTarefa(event) {

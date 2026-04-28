@@ -37,6 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedPdfFile = null;
   let currentPdfPreviewUrl = "";
 
+  function getPdfUploadEndpoint() {
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isLocal) {
+      return "http://localhost:3000/api/storage/upload-task-pdf";
+    }
+
+    return "https://psicotarefas-backend.onrender.com/api/storage/upload-task-pdf";
+  }
+
   function buildAssignmentsUrl() {
     const query = new URLSearchParams({
       patient: initialPatientId,
@@ -59,6 +71,18 @@ document.addEventListener("DOMContentLoaded", () => {
     screenMessage.hidden = false;
     screenMessage.textContent = text;
     screenMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        resolve(result.replace(/^data:.*;base64,/, ""));
+      };
+      reader.onerror = () => reject(new Error("Não foi possível ler o arquivo PDF."));
+      reader.readAsDataURL(file);
+    });
   }
 
   function setFormMessage(text = "", type = "error") {
@@ -284,23 +308,28 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error("Sessão inválida para enviar o PDF.");
     }
 
-    const baseName = file.name.replace(/\.pdf$/i, "") || "material";
-    const safeBase = slugifyFileName(baseName) || "material";
-    const fileName = `${Date.now()}-${safeBase}.pdf`;
-    const storagePath = `${currentUser.id}/manual/${fileName}`;
-
-    const { error } = await supabase.storage.from(PDF_BUCKET).upload(storagePath, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: "application/pdf"
+    const fileBase64 = await fileToBase64(file);
+    const response = await fetch(getPdfUploadEndpoint(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: currentUser.id,
+        fileName: file.name || "material.pdf",
+        fileBase64,
+        scope: "manual"
+      })
     });
 
-    if (error) {
-      throw new Error(`Não foi possível enviar o PDF: ${error.message}`);
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok || !payload?.pdfPath) {
+      throw new Error(payload?.error || "Não foi possível enviar o PDF.");
     }
 
     return {
-      pdfPath: storagePath,
+      pdfPath: payload.pdfPath,
       pdfName: file.name
     };
   }

@@ -238,6 +238,18 @@ a { text-decoration: none; }
   background: #fff;
 }
 
+.feed-media-block__image-wrap {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.feed-media-block__image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .feed-media-block__frame {
   width: 100%;
   min-height: 680px;
@@ -445,6 +457,19 @@ a { text-decoration: none; }
     max-width: 100%;
     height: 420px;
     margin: 0;
+  }
+
+  .feed-media-block__image-wrap {
+    width: 100%;
+    height: 420px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .feed-media-block__image {
+    width: 100%;
+    height: auto;
   }
 
   .feed-media-block__frame {
