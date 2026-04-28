@@ -425,7 +425,7 @@ a { text-decoration: none; }
   }
 
   .feed-media-block__image-wrap {
-    max-width: 720px;
+    max-width: 520px;
     margin: 0 auto;
   }
 }
