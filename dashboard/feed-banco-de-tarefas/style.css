@@ -423,6 +423,11 @@ a { text-decoration: none; }
   .feed-main {
     padding-top: 24px;
   }
+
+  .feed-media-block__image-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 640px) {
