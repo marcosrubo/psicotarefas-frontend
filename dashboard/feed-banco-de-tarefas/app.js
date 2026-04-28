@@ -549,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     Abrir PDF
                   </a>
                 </div>
-                ${(isMobilePdfPreview() && item.pdfPreviewSignedUrl)
+                ${item.pdfPreviewSignedUrl
                   ? `
                     <div class="feed-media-block__image-wrap">
                       <img
