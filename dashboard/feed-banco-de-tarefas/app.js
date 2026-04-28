@@ -150,7 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildPdfPreviewUrl(url) {
     if (!url) return "";
-    return `${url}#toolbar=0&navpanes=0&scrollbar=0&page=1&view=Fit&zoom=page-fit`;
+    const mobilePreview = window.matchMedia("(max-width: 640px)").matches;
+    const previewParams = mobilePreview
+      ? "toolbar=0&navpanes=0&scrollbar=0&page=1&view=FitH&zoom=page-width"
+      : "toolbar=0&navpanes=0&scrollbar=0&page=1&view=Fit&zoom=page-fit";
+
+    return `${url}#${previewParams}`;
   }
 
   function getInstagramPermalink(url) {
