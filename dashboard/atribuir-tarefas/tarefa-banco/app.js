@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedPatient = null;
   let themes = [];
   let bankTasks = [];
+  let resources = [];
   let selectedThemeId = null;
   let selectedBankTaskId = null;
   let themesCollapsed = false;
@@ -225,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarBancoTarefas() {
-    const [themesResponse, tasksResponse] = await Promise.all([
+    const [themesResponse, tasksResponse, resourcesResponse] = await Promise.all([
       supabase
         .from("banco_tarefas_temas")
         .select("id, nome, descricao_curta, ordem, ativo")
@@ -234,10 +235,13 @@ document.addEventListener("DOMContentLoaded", () => {
         .order("nome", { ascending: true }),
       supabase
         .from("banco_tarefas_itens")
-        .select("id, tema_id, titulo, descricao_curta, pdf_path, pdf_nome, status, numero_usos, ativo, created_at")
+        .select("id, tema_id, recurso_id, titulo, descricao_curta, pdf_path, pdf_nome, status, numero_usos, ativo, created_at")
         .eq("ativo", true)
         .eq("status", "publicada")
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("banco_tarefas_recursos")
+        .select("id, ordem, nome")
     ]);
 
     if (themesResponse.error) {
@@ -248,7 +252,28 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error(`Falha ao carregar tarefas do banco: ${tasksResponse.error.message}`);
     }
 
-    const loadedTasks = tasksResponse.data || [];
+    if (resourcesResponse.error) {
+      throw new Error(`Falha ao carregar recursos do banco: ${resourcesResponse.error.message}`);
+    }
+
+    resources = resourcesResponse.data || [];
+
+    const resourceOrderMap = new Map(
+      resources.map((resource) => [String(resource.id), Number(resource.ordem) || Number.MAX_SAFE_INTEGER])
+    );
+
+    const loadedTasks = (tasksResponse.data || []).slice().sort((taskA, taskB) => {
+      const resourceOrderA = resourceOrderMap.get(String(taskA.recurso_id)) ?? Number.MAX_SAFE_INTEGER;
+      const resourceOrderB = resourceOrderMap.get(String(taskB.recurso_id)) ?? Number.MAX_SAFE_INTEGER;
+
+      if (resourceOrderA !== resourceOrderB) {
+        return resourceOrderA - resourceOrderB;
+      }
+
+      return String(taskA.titulo || "").localeCompare(String(taskB.titulo || ""), "pt-BR", {
+        sensitivity: "base"
+      });
+    });
 
     themes = (themesResponse.data || []).map((theme) => ({
       ...theme,
