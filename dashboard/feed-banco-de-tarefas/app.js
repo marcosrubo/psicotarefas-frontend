@@ -150,12 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildPdfPreviewUrl(url) {
     if (!url) return "";
-    const mobilePreview = window.matchMedia("(max-width: 640px)").matches;
-    const previewParams = mobilePreview
-      ? "toolbar=0&navpanes=0&scrollbar=0&page=1&view=FitH&zoom=page-width"
-      : "toolbar=0&navpanes=0&scrollbar=0&view=FitH";
-
-    return `${url}#${previewParams}`;
+    return `${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
   }
 
   function getInstagramPermalink(url) {
@@ -504,11 +499,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     Abrir PDF
                   </a>
                 </div>
-                <iframe
-                  class="feed-media-block__frame"
-                  src="${escapeHtml(buildPdfPreviewUrl(item.pdfSignedUrl))}"
-                  title="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
-                ></iframe>
+                <div class="feed-media-block__frame-wrap">
+                  <iframe
+                    class="feed-media-block__frame"
+                    src="${escapeHtml(buildPdfPreviewUrl(item.pdfSignedUrl))}"
+                    title="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
+                  ></iframe>
+                </div>
               </section>
             ` : ""}
             ${renderVideoBlock(item)}

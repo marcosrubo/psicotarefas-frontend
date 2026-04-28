@@ -232,6 +232,12 @@ a { text-decoration: none; }
   font-weight: 800;
 }
 
+.feed-media-block__frame-wrap {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
 .feed-media-block__frame {
   width: 100%;
   min-height: 680px;
@@ -434,9 +440,16 @@ a { text-decoration: none; }
     align-items: flex-start;
   }
 
-  .feed-media-block__frame {
-    min-height: 220px;
+  .feed-media-block__frame-wrap {
     height: 220px;
+  }
+
+  .feed-media-block__frame {
+    width: 160%;
+    min-height: 352px;
+    height: 352px;
+    transform: scale(0.625);
+    transform-origin: top left;
   }
 
   .feed-video-frame,
