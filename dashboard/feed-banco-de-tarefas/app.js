@@ -85,6 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return Number.isFinite(Number(resource?.ordem)) ? Number(resource.ordem) : Number.MAX_SAFE_INTEGER;
   }
 
+  function isMobilePdfPreview() {
+    return window.matchMedia("(max-width: 640px)").matches;
+  }
+
   function getPdfPreviewPath(pdfPath) {
     const safePath = String(pdfPath || "").trim();
     if (!safePath || !/\.pdf$/i.test(safePath)) {
