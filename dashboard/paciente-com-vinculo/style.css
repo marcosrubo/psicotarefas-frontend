@@ -91,6 +91,11 @@ textarea {
   font-size: 28px;
 }
 
+.topbar__legacy-gap {
+  height: 20lh;
+  min-height: 20rem;
+}
+
 .topbar__actions {
   display: flex;
   align-items: center;
