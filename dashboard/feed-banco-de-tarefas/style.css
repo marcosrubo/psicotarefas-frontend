@@ -461,7 +461,6 @@ a { text-decoration: none; }
 
   .feed-media-block__image-wrap {
     width: 100%;
-    height: 420px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
