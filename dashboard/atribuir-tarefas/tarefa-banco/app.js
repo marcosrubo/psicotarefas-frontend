@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const initialPatientAlias = (searchParams.get("alias") || "").trim();
 
   const PDF_BUCKET = "banco-tarefas-pdf";
+  const PDF_PREVIEW_BUCKET = "banco-tarefas-preview";
 
   const btnBackLink = document.getElementById("btnBackLink");
   const brandBackLink = document.getElementById("brandBackLink");
@@ -89,6 +90,22 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  function getPdfPreviewPath(pdfPath) {
+    const safePath = String(pdfPath || "").trim();
+    if (!safePath || !/\.pdf$/i.test(safePath)) {
+      return "";
+    }
+
+    const lastSlashIndex = safePath.lastIndexOf("/");
+    const directory = lastSlashIndex >= 0 ? safePath.slice(0, lastSlashIndex) : "";
+    const fileName = lastSlashIndex >= 0 ? safePath.slice(lastSlashIndex + 1) : safePath;
+    const baseName = fileName.replace(/\.pdf$/i, "");
+
+    return directory
+      ? `${directory}/previews/${baseName}.png`
+      : `previews/${baseName}.png`;
   }
 
   function fecharMenuInferior() {
@@ -262,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resources.map((resource) => [String(resource.id), Number(resource.ordem) || Number.MAX_SAFE_INTEGER])
     );
 
-    const loadedTasks = (tasksResponse.data || []).slice().sort((taskA, taskB) => {
+    const sortedTasks = (tasksResponse.data || []).slice().sort((taskA, taskB) => {
       const resourceOrderA = resourceOrderMap.get(String(taskA.recurso_id)) ?? Number.MAX_SAFE_INTEGER;
       const resourceOrderB = resourceOrderMap.get(String(taskB.recurso_id)) ?? Number.MAX_SAFE_INTEGER;
 
@@ -274,6 +291,34 @@ document.addEventListener("DOMContentLoaded", () => {
         sensitivity: "base"
       });
     });
+
+    const loadedTasks = await Promise.all(
+      sortedTasks.map(async (task) => {
+        let pdfPreviewSignedUrl = "";
+
+        if (task.pdf_path) {
+          const previewPath = getPdfPreviewPath(task.pdf_path);
+          if (previewPath) {
+            try {
+              const { data, error } = await supabase.storage
+                .from(PDF_PREVIEW_BUCKET)
+                .createSignedUrl(previewPath, 3600);
+
+              if (!error && data?.signedUrl) {
+                pdfPreviewSignedUrl = data.signedUrl;
+              }
+            } catch (error) {
+              console.error("Erro ao preparar miniatura do PDF da tarefa do banco:", error);
+            }
+          }
+        }
+
+        return {
+          ...task,
+          pdfPreviewSignedUrl
+        };
+      })
+    );
 
     themes = (themesResponse.data || []).map((theme) => ({
       ...theme,
@@ -388,6 +433,15 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="selection-button__subtitle">${escapeHtml(
               task.descricao_curta || "Sem descrição curta cadastrada."
             )}</span>
+            ${task.pdfPreviewSignedUrl ? `
+              <span class="selection-button__preview">
+                <img
+                  class="selection-button__preview-image"
+                  src="${escapeHtml(task.pdfPreviewSignedUrl)}"
+                  alt="Miniatura do PDF ${escapeHtml(task.titulo || "da tarefa")}"
+                />
+              </span>
+            ` : ""}
             <span class="selection-button__meta">
               <span class="meta-chip meta-chip--type">${escapeHtml(task.pdf_nome || "PDF da tarefa")}</span>
               <span class="meta-chip meta-chip--type">${Number(task.numero_usos) || 0} uso(s)</span>

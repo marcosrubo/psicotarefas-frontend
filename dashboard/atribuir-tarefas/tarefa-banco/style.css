@@ -335,6 +335,22 @@ a {
   line-height: 1.45;
 }
 
+.selection-button__preview {
+  display: block;
+  margin-top: 14px;
+  width: min(100%, 320px);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(108, 94, 252, 0.12);
+  background: #fff;
+}
+
+.selection-button__preview-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .selection-button__meta {
   margin-top: 10px;
   display: flex;
@@ -577,6 +593,10 @@ a {
 
   .selection-button__subtitle {
     font-size: 14px;
+  }
+
+  .selection-button__preview {
+    width: min(100%, 240px);
   }
 
   .confirmation-card__value,
