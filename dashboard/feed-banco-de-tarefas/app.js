@@ -518,8 +518,9 @@ document.addEventListener("DOMContentLoaded", () => {
           const page = await pdfDocument.getPage(1);
 
           const containerWidth = Math.max(node.clientWidth || 320, 240);
+          const targetWidth = Math.max(Math.floor(containerWidth * 0.78), 220);
           const baseViewport = page.getViewport({ scale: 1 });
-          const viewport = page.getViewport({ scale: containerWidth / baseViewport.width });
+          const viewport = page.getViewport({ scale: targetWidth / baseViewport.width });
 
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
@@ -527,6 +528,8 @@ document.addEventListener("DOMContentLoaded", () => {
           canvas.width = Math.floor(viewport.width);
           canvas.height = Math.floor(viewport.height);
           canvas.className = "feed-media-block__canvas";
+          canvas.style.width = `${Math.floor(viewport.width)}px`;
+          canvas.style.height = `${Math.floor(viewport.height)}px`;
 
           await page.render({
             canvasContext: context,

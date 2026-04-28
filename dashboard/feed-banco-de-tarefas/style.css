@@ -243,10 +243,14 @@ a { text-decoration: none; }
   min-height: 220px;
   background: #fff;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .feed-media-block__canvas {
-  width: 100%;
+  width: auto;
+  max-width: none;
   height: auto;
   display: block;
 }
