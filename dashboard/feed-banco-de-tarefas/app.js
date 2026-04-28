@@ -3,6 +3,7 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
+  const PDF_WORKER_SRC = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/build/pdf.worker.min.js";
 
   const btnBack = document.getElementById("btnBack");
   const screenMessage = document.getElementById("screenMessage");
@@ -20,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let feedItems = [];
   let selectedThemeId = null;
   let instagramScriptPromise = null;
+
+  if (window.pdfjsLib?.GlobalWorkerOptions) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+  }
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -150,12 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildPdfPreviewUrl(url) {
     if (!url) return "";
-    const mobilePreview = window.matchMedia("(max-width: 640px)").matches;
-    const previewParams = mobilePreview
-      ? "toolbar=0&navpanes=0&scrollbar=0&page=1&view=FitH&zoom=page-width"
-      : "toolbar=0&navpanes=0&scrollbar=0&page=1&view=Fit&zoom=page-fit";
-
-    return `${url}#${previewParams}`;
+    return `${url}#page=1`;
   }
 
   function getInstagramPermalink(url) {
@@ -473,6 +473,58 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
+  async function renderPdfPreviews() {
+    if (!window.pdfjsLib?.getDocument) {
+      return;
+    }
+
+    const previewNodes = Array.from(document.querySelectorAll("[data-pdf-preview-url]"));
+
+    await Promise.all(
+      previewNodes.map(async (node) => {
+        const pdfUrl = node.getAttribute("data-pdf-preview-url");
+        if (!pdfUrl) return;
+
+        try {
+          node.setAttribute("data-render-state", "loading");
+
+          const loadingTask = window.pdfjsLib.getDocument(pdfUrl);
+          const pdfDocument = await loadingTask.promise;
+          const page = await pdfDocument.getPage(1);
+
+          const baseViewport = page.getViewport({ scale: 1 });
+          const availableWidth = Math.max(node.clientWidth || 320, 220);
+          const scale = availableWidth / baseViewport.width;
+          const viewport = page.getViewport({ scale });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.className = "feed-media-block__canvas";
+
+          await page.render({
+            canvasContext: context,
+            viewport
+          }).promise;
+
+          node.innerHTML = "";
+          node.appendChild(canvas);
+          node.setAttribute("data-render-state", "ready");
+        } catch (error) {
+          console.error("Erro ao renderizar prévia do PDF:", error);
+          node.setAttribute("data-render-state", "error");
+          node.innerHTML = `
+            <div class="feed-media-block__preview-error">
+              Não foi possível gerar a prévia do PDF.
+            </div>
+          `;
+        }
+      })
+    );
+  }
+
   function renderFeed() {
     if (!feedList || !feedEmptyState) return;
 
@@ -504,11 +556,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     Abrir PDF
                   </a>
                 </div>
-                <iframe
-                  class="feed-media-block__frame"
-                  src="${escapeHtml(buildPdfPreviewUrl(item.pdfSignedUrl))}"
-                  title="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
-                ></iframe>
+                <div
+                  class="feed-media-block__pdf-preview"
+                  data-pdf-preview-url="${escapeHtml(buildPdfPreviewUrl(item.pdfSignedUrl))}"
+                  aria-label="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
+                ></div>
               </section>
             ` : ""}
             ${renderVideoBlock(item)}
@@ -524,6 +576,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    renderPdfPreviews();
   }
 
   if (btnBack) {
