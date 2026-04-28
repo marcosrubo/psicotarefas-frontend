@@ -537,7 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!button) return;
 
       const nextThemeId = Number.parseInt(button.getAttribute("data-theme-id") || "", 10);
-      if (!nextThemeId || nextThemeId === selectedThemeId) return;
+      if (!nextThemeId) return;
+      if (nextThemeId === selectedThemeId && themesCollapsed) return;
 
       selectedThemeId = nextThemeId;
       selectedBankTaskId = null;
