@@ -234,8 +234,8 @@ a { text-decoration: none; }
 
 .feed-media-block__frame {
   width: 100%;
-  min-height: 520px;
-  height: 520px;
+  min-height: 680px;
+  height: 680px;
   border: 0;
   background: #fff;
   display: block;
@@ -435,8 +435,8 @@ a { text-decoration: none; }
   }
 
   .feed-media-block__frame {
-    min-height: 340px;
-    height: 340px;
+    min-height: 440px;
+    height: 440px;
   }
 
   .feed-video-frame,
