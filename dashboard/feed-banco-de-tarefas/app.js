@@ -3,6 +3,7 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
+  const PDF_WORKER_SRC = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/build/pdf.worker.min.js";
 
   const btnBack = document.getElementById("btnBack");
   const screenMessage = document.getElementById("screenMessage");
@@ -20,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let feedItems = [];
   let selectedThemeId = null;
   let instagramScriptPromise = null;
+
+  if (window.pdfjsLib?.GlobalWorkerOptions) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+  }
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -82,6 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function getResourceOrder(resourceId) {
     const resource = getResource(resourceId);
     return Number.isFinite(Number(resource?.ordem)) ? Number(resource.ordem) : Number.MAX_SAFE_INTEGER;
+  }
+
+  function isMobilePdfPreview() {
+    return window.matchMedia("(max-width: 640px)").matches;
   }
 
   function renderThemeOptions() {
@@ -151,6 +160,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function buildPdfPreviewUrl(url) {
     if (!url) return "";
     return `${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+  }
+
+  function buildPdfIframeMarkup(pdfUrl, resourceName) {
+    return `
+      <div class="feed-media-block__frame-wrap">
+        <iframe
+          class="feed-media-block__frame"
+          src="${escapeHtml(buildPdfPreviewUrl(pdfUrl))}"
+          title="Prévia do PDF ${escapeHtml(resourceName)}"
+        ></iframe>
+      </div>
+    `;
   }
 
   function getInstagramPermalink(url) {
@@ -468,6 +489,61 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
+  async function renderMobilePdfPreviews() {
+    if (!isMobilePdfPreview()) return;
+
+    const previewNodes = Array.from(document.querySelectorAll("[data-pdf-preview-url]"));
+    if (!previewNodes.length) return;
+
+    if (!window.pdfjsLib?.getDocument) {
+      previewNodes.forEach((node) => {
+        const pdfUrl = node.getAttribute("data-pdf-preview-url");
+        const resourceName = node.getAttribute("data-pdf-resource-name") || "PDF";
+        if (pdfUrl) {
+          node.outerHTML = buildPdfIframeMarkup(pdfUrl, resourceName);
+        }
+      });
+      return;
+    }
+
+    await Promise.all(
+      previewNodes.map(async (node) => {
+        const pdfUrl = node.getAttribute("data-pdf-preview-url");
+        const resourceName = node.getAttribute("data-pdf-resource-name") || "PDF";
+        if (!pdfUrl) return;
+
+        try {
+          const loadingTask = window.pdfjsLib.getDocument(pdfUrl);
+          const pdfDocument = await loadingTask.promise;
+          const page = await pdfDocument.getPage(1);
+
+          const containerWidth = Math.max(node.clientWidth || 320, 240);
+          const baseViewport = page.getViewport({ scale: 1 });
+          const viewport = page.getViewport({ scale: containerWidth / baseViewport.width });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.className = "feed-media-block__canvas";
+
+          await page.render({
+            canvasContext: context,
+            viewport
+          }).promise;
+
+          node.innerHTML = "";
+          node.appendChild(canvas);
+          node.classList.add("feed-media-block__pdf-preview--ready");
+        } catch (error) {
+          console.error("Erro ao renderizar miniatura mobile do PDF:", error);
+          node.outerHTML = buildPdfIframeMarkup(pdfUrl, resourceName);
+        }
+      })
+    );
+  }
+
   function renderFeed() {
     if (!feedList || !feedEmptyState) return;
 
@@ -499,13 +575,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     Abrir PDF
                   </a>
                 </div>
-                <div class="feed-media-block__frame-wrap">
-                  <iframe
-                    class="feed-media-block__frame"
-                    src="${escapeHtml(buildPdfPreviewUrl(item.pdfSignedUrl))}"
-                    title="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
-                  ></iframe>
-                </div>
+                ${isMobilePdfPreview()
+                  ? `
+                    <div
+                      class="feed-media-block__pdf-preview"
+                      data-pdf-preview-url="${escapeHtml(item.pdfSignedUrl)}"
+                      data-pdf-resource-name="${escapeHtml(getResourceName(item.recurso_id))}"
+                      aria-label="Prévia do PDF ${escapeHtml(getResourceName(item.recurso_id))}"
+                    ></div>
+                  `
+                  : buildPdfIframeMarkup(item.pdfSignedUrl, getResourceName(item.recurso_id))}
               </section>
             ` : ""}
             ${renderVideoBlock(item)}
@@ -521,6 +600,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    renderMobilePdfPreviews();
   }
 
   if (btnBack) {
