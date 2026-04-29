@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCancelName = document.getElementById("btnCancelName");
   const btnSaveName = document.getElementById("btnSaveName");
   const welcomeTitle = document.getElementById("welcomeTitle");
-  const welcomeText = document.getElementById("welcomeText");
+  const taskSummaryList = document.getElementById("taskSummaryList");
+  const taskSummaryEmptyState = document.getElementById("taskSummaryEmptyState");
 
   const professionalCard = document.getElementById("professionalCard");
   const professionalEmpty = document.getElementById("professionalEmpty");
@@ -103,8 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
     userAvatar.textContent = obterIniciais(nomeExibicao);
 
     welcomeTitle.textContent = `Olá, ${primeiroNome}`;
-    welcomeText.textContent =
-      "Aqui você acompanha seu profissional e pode visualizar/realizar suas tarefas de forma simples e objetiva.";
   }
 
   function obterIniciais(nome) {
@@ -663,6 +662,28 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
+  function renderTaskSummary() {
+    if (!taskSummaryList || !taskSummaryEmptyState) return;
+
+    if (!tasks.length) {
+      taskSummaryList.innerHTML = "";
+      taskSummaryEmptyState.hidden = false;
+      return;
+    }
+
+    taskSummaryEmptyState.hidden = true;
+    taskSummaryList.innerHTML = tasks
+      .map(
+        (task) => `
+          <article class="task-summary-card">
+            <h4 class="task-summary-card__title">${escapeHtml(task.titulo)}</h4>
+            <p class="task-summary-card__description">${escapeHtml(task.descricao || "")}</p>
+          </article>
+        `
+      )
+      .join("");
+  }
+
   function renderTaskDetail() {
     const task = getSelectedTask();
 
@@ -775,6 +796,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderAll() {
+    renderTaskSummary();
     renderTasks();
     renderTaskDetail();
   }

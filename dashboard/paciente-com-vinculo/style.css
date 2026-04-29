@@ -361,7 +361,7 @@ textarea {
 }
 
 .welcome-card__content h2 {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 28px;
   line-height: 1.1;
 }
@@ -383,6 +383,30 @@ textarea {
 .panel__header h3 {
   margin: 0 0 6px;
   font-size: 20px;
+}
+
+.task-summary-list {
+  display: grid;
+  gap: 12px;
+}
+
+.task-summary-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: #fff;
+}
+
+.task-summary-card__title {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.task-summary-card__description {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 .bottom-nav {

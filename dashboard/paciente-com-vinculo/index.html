@@ -43,6 +43,24 @@
     </header>
 
     <main class="dashboard-main">
+      <section class="welcome-card">
+        <div class="welcome-card__content">
+          <h2 id="welcomeTitle">Olá</h2>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Tarefas do paciente</h3>
+        </div>
+
+        <div class="task-summary-list" id="taskSummaryList"></div>
+
+        <div class="empty-state" id="taskSummaryEmptyState">
+          Nenhuma tarefa disponível no momento.
+        </div>
+      </section>
+
       <div class="topbar__legacy-gap" aria-hidden="true"></div>
 
       <section class="legacy-reference-card" aria-label="Referência visual da tela anterior">
@@ -89,16 +107,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section class="welcome-card">
-        <div class="welcome-card__content">
-          <p class="welcome-card__label">Atividades do paciente</p>
-          <h2 id="welcomeTitle">Olá</h2>
-          <p id="welcomeText">
-            Acompanhe seu profissional e, em breve, visualize suas tarefas por aqui.
-          </p>
         </div>
       </section>
 
