@@ -187,6 +187,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function buildTaskDetailUrl(taskId) {
+    return `../paciente-tarefas/index.html?task=${encodeURIComponent(taskId)}`;
+  }
+
   function obterOrigemMaterialDaTarefa(task) {
     if (!task?.pdf_path) return null;
 
@@ -675,10 +679,15 @@ document.addEventListener("DOMContentLoaded", () => {
     taskSummaryList.innerHTML = tasks
       .map(
         (task) => `
-          <article class="task-summary-card">
+          <a
+            class="task-summary-card task-summary-card--link"
+            href="${buildTaskDetailUrl(task.id)}"
+            data-task-detail-link="${task.id}"
+            aria-label="Abrir atividade ${escapeHtml(task.titulo)}"
+          >
             <h4 class="task-summary-card__title">${escapeHtml(task.titulo)}</h4>
             <p class="task-summary-card__description">${escapeHtml(task.descricao || "")}</p>
-          </article>
+          </a>
         `
       )
       .join("");
