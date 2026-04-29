@@ -47,13 +47,16 @@ textarea {
 }
 
 .topbar {
-  padding: 20px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  padding: 18px 16px 14px;
   background:
     radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  backdrop-filter: blur(12px);
+  display: grid;
+  gap: 14px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -84,9 +87,9 @@ textarea {
 }
 
 .brand__logo {
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
   flex-shrink: 0;
 }
@@ -108,7 +111,7 @@ textarea {
 
 .brand__text h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 18px;
 }
 
 .brand__text h2 {
@@ -148,6 +151,16 @@ textarea {
 .topbar__legacy-gap {
   height: 20lh;
   min-height: 20rem;
+}
+
+.legacy-reference-card .brand__logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+}
+
+.legacy-reference-card .brand__text h2 {
+  font-size: 28px;
 }
 
 .topbar__actions {
@@ -319,7 +332,7 @@ textarea {
 }
 
 .dashboard-main {
-  padding: 18px 16px 124px;
+  padding: 14px 16px 124px;
   display: grid;
   gap: 18px;
 }
@@ -377,15 +390,18 @@ textarea {
   left: 0;
   right: 0;
   bottom: 0;
+  transform: none;
+  width: 100%;
   z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  gap: 8px;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-  background: rgba(35, 48, 70, 0.98);
-  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.16);
-  backdrop-filter: blur(16px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px 24px 0 0;
+  background: rgba(35, 48, 70, 0.96);
+  box-shadow: 0 -10px 28px rgba(20, 24, 38, 0.18);
+  backdrop-filter: blur(14px);
 }
 
 .bottom-nav__item {
@@ -394,15 +410,15 @@ textarea {
   background: transparent;
   color: #f8fafc;
   text-decoration: none;
-  min-width: 84px;
-  min-height: 56px;
-  padding: 8px 10px;
-  border-radius: 18px;
+  min-height: 60px;
+  padding: 8px 6px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  transition: background 0.16s ease, transform 0.16s ease;
 }
 
 .bottom-nav__item--current {
@@ -878,6 +894,10 @@ textarea {
     font-size: 20px;
   }
 
+  .topbar__legacy-gap {
+    min-height: 20lh;
+  }
+
   .interaction-form-card__actions {
     display: grid;
     grid-template-columns: 1fr;
@@ -903,11 +923,11 @@ textarea {
   }
 
   .topbar {
-    padding: 28px 24px 22px;
+    padding: 18px 24px 14px;
   }
 
   .dashboard-main {
-    padding: 24px 24px 124px;
+    padding: 14px 24px 124px;
   }
 
   .tasks-layout {
