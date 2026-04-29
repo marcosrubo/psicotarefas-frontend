@@ -525,6 +525,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function salvarTarefaDoBanco() {
     const selectedTask = getSelectedBankTask();
+    const selectedTheme = getSelectedTheme();
+    const selectedResource =
+      resources.find((resource) => String(resource.id) === String(selectedTask?.recurso_id)) || null;
 
     if (!selectedPatient) {
       setFormMessage("Selecione um paciente válido antes de gravar a tarefa.", "error");
@@ -547,8 +550,8 @@ document.addEventListener("DOMContentLoaded", () => {
         professional_user_id: currentUser.id,
         patient_user_id: selectedPatient.patient_user_id,
         vinculo_id: selectedPatient.vinculo_id,
-        titulo: selectedTask.titulo,
-        descricao: selectedTask.descricao_curta || null,
+        titulo: selectedTheme?.nome || selectedTask.titulo || "Tarefa do banco",
+        descricao: selectedResource?.nome || null,
         status: "aberta",
         interacao_paciente_tipo: "nao_permitir",
         interacao_paciente_limite: null,
