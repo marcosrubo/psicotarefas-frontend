@@ -431,7 +431,7 @@ a {
   border-radius: 16px;
   overflow: hidden;
   background: #f8fafc;
-  min-height: 420px;
+  min-height: 620px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
 }
@@ -483,8 +483,8 @@ a {
 
 .task-preview-pdf__frame {
   width: 100%;
-  min-height: 520px;
-  height: 520px;
+  min-height: 720px;
+  height: 720px;
   border: 0;
   display: block;
   background: #fff;
@@ -760,11 +760,11 @@ a {
 
   .task-preview-pdf,
   .task-preview-pdf__frame {
-    min-height: 340px;
+    min-height: 500px;
   }
 
   .task-preview-pdf {
-    min-height: 340px;
+    min-height: 500px;
   }
 
   .task-preview-pdf__toolbar {
@@ -780,6 +780,6 @@ a {
   }
 
   .task-preview-pdf__frame {
-    height: 340px;
+    height: 500px;
   }
 }
