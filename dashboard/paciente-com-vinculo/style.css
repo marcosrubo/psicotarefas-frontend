@@ -57,10 +57,30 @@ textarea {
   border-bottom: 1px solid var(--border);
 }
 
+.topbar__nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar__nav .back-link {
+  justify-self: start;
+}
+
+.topbar__nav .support-link {
+  justify-self: end;
+}
+
 .brand {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.brand--centered {
+  justify-content: center;
+  min-width: 0;
 }
 
 .brand__logo {
@@ -89,6 +109,40 @@ textarea {
 .brand__text h1 {
   margin: 0;
   font-size: 28px;
+}
+
+.brand__text h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.brand__name {
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.title-strip {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #eceff3;
+  border: 1px solid #dde3eb;
+}
+
+.title-strip h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.legacy-reference-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-soft);
+  padding: 18px;
+  display: grid;
+  gap: 16px;
 }
 
 .topbar__legacy-gap {
@@ -265,7 +319,7 @@ textarea {
 }
 
 .dashboard-main {
-  padding: 18px 16px 28px;
+  padding: 18px 16px 124px;
   display: grid;
   gap: 18px;
 }
@@ -316,6 +370,119 @@ textarea {
 .panel__header h3 {
   margin: 0 0 6px;
   font-size: 20px;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(35, 48, 70, 0.98);
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(16px);
+}
+
+.bottom-nav__item {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #f8fafc;
+  text-decoration: none;
+  min-width: 84px;
+  min-height: 56px;
+  padding: 8px 10px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.bottom-nav__item--current {
+  background: rgba(109, 94, 252, 0.22);
+}
+
+.bottom-nav__icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-nav__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bottom-nav__label {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.bottom-nav__menu-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.bottom-nav__menu-wrap .bottom-nav__item {
+  width: 100%;
+}
+
+.bottom-nav__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  min-width: 180px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(35, 48, 70, 0.98);
+  box-shadow: 0 18px 38px rgba(20, 24, 38, 0.22);
+  backdrop-filter: blur(16px);
+}
+
+.bottom-nav__menu[hidden] {
+  display: none;
+}
+
+.bottom-nav__menu-item {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  text-decoration: none;
+  min-height: 48px;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.bottom-nav__menu-item--current {
+  background: rgba(109, 94, 252, 0.22);
+}
+
+.bottom-nav__menu-item--danger {
+  color: #ffc9c5;
+}
+
+.bottom-nav__menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 2px 0;
 }
 
 .panel__header p {
@@ -699,6 +866,18 @@ textarea {
 }
 
 @media (max-width: 640px) {
+  .topbar__nav {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .brand__name {
+    font-size: 16px;
+  }
+
+  .title-strip h1 {
+    font-size: 20px;
+  }
+
   .interaction-form-card__actions {
     display: grid;
     grid-template-columns: 1fr;
@@ -717,19 +896,18 @@ textarea {
 }
 
 @media (min-width: 768px) {
-  .dashboard-shell {
-    max-width: 1180px;
+  .topbar,
+  .dashboard-main {
+    max-width: 980px;
     margin: 0 auto;
   }
 
   .topbar {
     padding: 28px 24px 22px;
-    border-bottom-left-radius: var(--radius-xl);
-    border-bottom-right-radius: var(--radius-xl);
   }
 
   .dashboard-main {
-    padding: 24px 24px 34px;
+    padding: 24px 24px 124px;
   }
 
   .tasks-layout {

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
+  const professionalHeaderTitle = document.getElementById("professionalHeaderTitle");
   const btnEditName = document.getElementById("btnEditName");
   const editNameBox = document.getElementById("editNameBox");
   const editNameInput = document.getElementById("editNameInput");
@@ -47,6 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCreateInteraction = document.getElementById("btnCreateInteraction");
 
   const btnBack = document.getElementById("btnBack");
+  const btnBottomMenu = document.getElementById("btnBottomMenu");
+  const bottomMenuPanel = document.getElementById("bottomMenuPanel");
+  const btnMenuLogout = document.getElementById("btnMenuLogout");
 
   let currentUser = null;
   let currentPatientProfile = null;
@@ -59,6 +63,35 @@ document.addEventListener("DOMContentLoaded", () => {
   let autoRefreshTimer = null;
   let isRefreshingData = false;
   const PDF_BUCKET = "banco-tarefas-pdf";
+
+  function fecharMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    bottomMenuPanel.hidden = true;
+    btnBottomMenu.setAttribute("aria-expanded", "false");
+  }
+
+  function alternarMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    const vaiAbrir = bottomMenuPanel.hidden;
+    bottomMenuPanel.hidden = !vaiAbrir;
+    btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
+  }
+
+  async function sairDoSistema() {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "dashboard_paciente_com_vinculo",
+      perfil: "paciente",
+      userId: currentUser?.id || null,
+      email: currentPatientProfile?.email || currentUser?.email || null
+    });
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+    window.location.href = "/";
+  }
 
   function aplicarNomePacienteNaTela(nome, email) {
     const nomeBase = limparNome(nome || email || "");
@@ -500,6 +533,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .maybeSingle();
 
     if (vinculoError || !vinculo) {
+      if (professionalHeaderTitle) {
+        professionalHeaderTitle.textContent = "Profissional: não vinculado";
+      }
       professionalCard.hidden = true;
       professionalEmpty.hidden = false;
       return;
@@ -512,6 +548,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .single();
 
     if (profissionalError || !profissional) {
+      if (professionalHeaderTitle) {
+        professionalHeaderTitle.textContent = "Profissional: não localizado";
+      }
       professionalCard.hidden = true;
       professionalEmpty.hidden = false;
       return;
@@ -521,6 +560,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const nomeExibicao = nomeBase || "Profissional";
     currentProfessional = profissional;
     currentVinculo = vinculo;
+
+    if (professionalHeaderTitle) {
+      professionalHeaderTitle.textContent = `Profissional: ${nomeExibicao}`;
+    }
 
     professionalAvatar.textContent = obterIniciais(nomeExibicao);
     professionalName.textContent = nomeExibicao;
@@ -874,24 +917,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (btnBack) {
-    btnBack.addEventListener("click", async () => {
-      await registrarEvento({
-        evento: "logout",
-        pagina: "dashboard_paciente_com_vinculo",
-        perfil: "paciente",
-        userId: currentUser?.id || null,
-        email: currentPatientProfile?.email || currentUser?.email || null
-      });
-      try {
-        await supabase.auth.signOut();
-      } catch (error) {
-        console.error("Erro ao sair:", error);
-      }
-
-      window.location.href = "/";
-    });
+    if (btnBack) {
+    btnBack.addEventListener("click", sairDoSistema);
   }
+
+  if (btnBottomMenu) {
+    btnBottomMenu.addEventListener("click", alternarMenuInferior);
+  }
+
+  if (btnMenuLogout) {
+    btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!bottomMenuPanel || bottomMenuPanel.hidden) return;
+    if (event.target.closest(".bottom-nav__menu-wrap")) return;
+    fecharMenuInferior();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      fecharMenuInferior();
+    }
+  });
 
   if (tasksList) {
     tasksList.addEventListener("click", (event) => {
