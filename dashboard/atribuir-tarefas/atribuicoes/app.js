@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseTaskPreview = document.getElementById("btnCloseTaskPreview");
   const taskPreviewTaskTitle = document.getElementById("taskPreviewTaskTitle");
   const taskPreviewTaskDescription = document.getElementById("taskPreviewTaskDescription");
+  const taskPreviewInteractionConfig = document.getElementById("taskPreviewInteractionConfig");
   const taskPreviewPdfWrapper = document.getElementById("taskPreviewPdfWrapper");
   const taskPreviewPdfToolbar = document.getElementById("taskPreviewPdfToolbar");
   const taskPreviewPdfViewer = document.getElementById("taskPreviewPdfViewer");
@@ -114,6 +115,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return "Tarefa simples";
+  }
+
+  function normalizarTipoInteracao(value) {
+    if (value === "limitado" || value === "ilimitado") return value;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, value) {
+    if (tipo !== "limitado") return null;
+
+    const numero = Number.parseInt(String(value || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function formatInteractionConfig(task) {
+    const tipo = normalizarTipoInteracao(task?.interacao_paciente_tipo);
+    const limite = normalizarLimiteInteracao(tipo, task?.interacao_paciente_limite);
+
+    if (tipo === "ilimitado") {
+      return "Ilimitado";
+    }
+
+    if (tipo === "limitado") {
+      return `Limitado (${limite} interaç${limite === 1 ? "ão" : "ões"})`;
+    }
+
+    return "Não permitir";
   }
 
   function formatStatus(task) {
@@ -261,6 +289,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (taskPreviewTaskDescription) {
       taskPreviewTaskDescription.textContent = task.descricao || "Sem descrição cadastrada.";
+    }
+
+    if (taskPreviewInteractionConfig) {
+      taskPreviewInteractionConfig.textContent = formatInteractionConfig(task);
     }
 
     if (taskPreviewPdfViewer) {
