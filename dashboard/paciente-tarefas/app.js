@@ -11,12 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskEmptyState = document.getElementById("taskEmptyState");
   const taskDetailCard = document.getElementById("taskDetailCard");
   const taskTypeLabel = document.getElementById("taskTypeLabel");
-  const taskOriginBadge = document.getElementById("taskOriginBadge");
+  const btnInteractTask = document.getElementById("btnInteractTask");
   const taskTitle = document.getElementById("taskTitle");
   const taskDescription = document.getElementById("taskDescription");
-  const patientName = document.getElementById("patientName");
-  const professionalName = document.getElementById("professionalName");
-  const taskCreatedAt = document.getElementById("taskCreatedAt");
   const taskPdfSection = document.getElementById("taskPdfSection");
   const taskPdfName = document.getElementById("taskPdfName");
   const taskPdfFrame = document.getElementById("taskPdfFrame");
@@ -409,20 +406,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentTask || !taskDetailCard) return;
 
     const taskKind = getTaskKind(currentTask);
-    const patientDisplayName =
-      limparNome(currentProfile?.nome || currentProfile?.email || currentUser?.email || "") || "Paciente";
-    const professionalDisplayName =
-      limparNome(currentProfessional?.nome || currentProfessional?.email || "") || "Profissional";
 
     if (taskTypeLabel) taskTypeLabel.textContent = taskKind.eyebrow;
-    if (taskOriginBadge) taskOriginBadge.textContent = taskKind.badge;
     if (taskTitle) taskTitle.textContent = currentTask.titulo || "Atividade sem título";
     if (taskDescription) {
       taskDescription.textContent = currentTask.descricao || "Sem descrição cadastrada.";
     }
-    if (patientName) patientName.textContent = patientDisplayName;
-    if (professionalName) professionalName.textContent = professionalDisplayName;
-    if (taskCreatedAt) taskCreatedAt.textContent = formatarDataHora(currentTask.created_at);
 
     if (currentTask.pdf_path) {
       try {
@@ -524,6 +513,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnMenuLogout) {
     btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  if (btnInteractTask) {
+    btnInteractTask.addEventListener("click", () => {
+      window.alert("Vamos interagir com a atividade?");
+    });
   }
 
   document.addEventListener("click", (event) => {

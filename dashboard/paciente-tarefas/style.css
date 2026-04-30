@@ -163,15 +163,20 @@ textarea {
 
 .detail-card {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .detail-card__header {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-card__topline {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .detail-card__eyebrow {
@@ -187,44 +192,6 @@ textarea {
   margin: 0;
   font-size: 30px;
   line-height: 1.15;
-}
-
-.type-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(109, 94, 252, 0.12);
-  color: var(--primary-dark);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.detail-card__meta {
-  display: grid;
-  gap: 12px;
-}
-
-.meta-box {
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px 16px;
-  background: #fff;
-}
-
-.meta-box__label {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--primary-dark);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.meta-box strong {
-  font-size: 16px;
 }
 
 .content-section {
@@ -453,6 +420,10 @@ textarea {
     font-size: 24px;
   }
 
+  .detail-card__topline {
+    align-items: stretch;
+  }
+
   .pdf-preview-box__frame,
   .video-preview-box__frame,
   .video-preview-box__native {
@@ -477,9 +448,5 @@ textarea {
 
   .dashboard-main {
     padding: 14px 24px 124px;
-  }
-
-  .detail-card__meta {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
