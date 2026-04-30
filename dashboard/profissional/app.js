@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBack = document.getElementById("btnBack");
   const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
+  const btnAssignedTasks = document.getElementById("btnAssignedTasks");
   const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
   const btnBottomHome = document.getElementById("btnBottomHome");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
@@ -863,6 +864,19 @@ document.addEventListener("DOMContentLoaded", () => {
         email: currentProfile?.email || currentUser?.email || null
       });
       window.location.href = "../feed-banco-de-tarefas/index.html";
+    });
+  }
+
+  if (btnAssignedTasks) {
+    btnAssignedTasks.addEventListener("click", () => {
+      registrarEvento({
+        evento: "interacoes_profissional_abertas",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../profissional-interacoes/index.html";
     });
   }
 
