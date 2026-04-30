@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalName = document.getElementById("professionalName");
   const professionalCouncil = document.getElementById("professionalCouncil");
   const professionalPhone = document.getElementById("professionalPhone");
+  const defaultInteractionType = document.getElementById("defaultInteractionType");
+  const defaultInteractionLimitField = document.getElementById("defaultInteractionLimitField");
+  const defaultInteractionLimit = document.getElementById("defaultInteractionLimit");
   const profileForm = document.getElementById("profileForm");
   const screenMessage = document.getElementById("screenMessage");
   const formMessage = document.getElementById("formMessage");
@@ -63,6 +66,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+  }
+
+  function normalizarTipoInteracao(value) {
+    if (value === "limitado" || value === "ilimitado") return value;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, value) {
+    if (tipo !== "limitado") return null;
+
+    const numero = Number.parseInt(String(value || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function syncDefaultInteractionVisibility() {
+    if (!defaultInteractionLimitField || !defaultInteractionType || !defaultInteractionLimit) return;
+
+    const mostrarLimite = defaultInteractionType.value === "limitado";
+    defaultInteractionLimitField.hidden = !mostrarLimite;
+    defaultInteractionLimit.disabled = !mostrarLimite;
+
+    if (!mostrarLimite) {
+      defaultInteractionLimit.value = "";
+    }
   }
 
   function fecharMenuInferior() {
@@ -169,6 +196,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (professionalPhone) {
       professionalPhone.value = formatarTelefone(currentProfile.telefone || "");
     }
+
+    const tipoInteracao = normalizarTipoInteracao(currentProfile.tarefa_interacao_padrao_tipo);
+    const limiteInteracao = normalizarLimiteInteracao(
+      tipoInteracao,
+      currentProfile.tarefa_interacao_padrao_limite
+    );
+
+    if (defaultInteractionType) {
+      defaultInteractionType.value = tipoInteracao;
+    }
+
+    if (defaultInteractionLimit) {
+      defaultInteractionLimit.value = limiteInteracao || "";
+    }
+
+    syncDefaultInteractionVisibility();
   }
 
   async function sairDoSistema() {
@@ -201,9 +244,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const registro = professionalCouncil?.value.trim() || null;
     const telefoneFormatado = professionalPhone?.value.trim() || "";
     const telefone = telefoneFormatado ? formatarTelefone(telefoneFormatado) : null;
+    const tipoInteracao = normalizarTipoInteracao(defaultInteractionType?.value);
+    const limiteInteracao = normalizarLimiteInteracao(
+      tipoInteracao,
+      defaultInteractionLimit?.value
+    );
 
     if (!nome) {
       setFormMessage("O nome é obrigatório.", "error");
+      return;
+    }
+
+    if (tipoInteracao === "limitado" && !limiteInteracao) {
+      setFormMessage("Informe o número de interações permitidas.", "error");
       return;
     }
 
@@ -217,7 +270,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const payloadCompleto = {
       nome,
       registro_conselho: registro,
-      telefone
+      telefone,
+      tarefa_interacao_padrao_tipo: tipoInteracao,
+      tarefa_interacao_padrao_limite: limiteInteracao
     };
 
     try {
@@ -233,6 +288,8 @@ document.addEventListener("DOMContentLoaded", () => {
       currentProfile.nome = nome;
       currentProfile.registro_conselho = registro;
       currentProfile.telefone = telefone;
+      currentProfile.tarefa_interacao_padrao_tipo = tipoInteracao;
+      currentProfile.tarefa_interacao_padrao_limite = limiteInteracao;
 
       await registrarEvento({
         userId: currentUser.id,
@@ -260,6 +317,10 @@ document.addEventListener("DOMContentLoaded", () => {
     professionalPhone.addEventListener("input", () => {
       professionalPhone.value = formatarTelefone(professionalPhone.value);
     });
+  }
+
+  if (defaultInteractionType) {
+    defaultInteractionType.addEventListener("change", syncDefaultInteractionVisibility);
   }
 
   if (profileForm) {

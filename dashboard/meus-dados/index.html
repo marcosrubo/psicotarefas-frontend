@@ -98,6 +98,32 @@
             />
           </label>
 
+          <div class="form-section">
+            <div class="form-section__title">Interações padrão nas tarefas</div>
+
+            <label class="form-field" for="defaultInteractionType">
+              <span class="form-field__label">Permissão de interação</span>
+              <select class="form-field__input" id="defaultInteractionType">
+                <option value="nao_permitir">Não permitir</option>
+                <option value="limitado">Limitado</option>
+                <option value="ilimitado">Ilimitado</option>
+              </select>
+            </label>
+
+            <label class="form-field" for="defaultInteractionLimit" id="defaultInteractionLimitField" hidden>
+              <span class="form-field__label">Número de interações permitidas</span>
+              <input
+                class="form-field__input"
+                id="defaultInteractionLimit"
+                type="number"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                placeholder="Informe o limite"
+              />
+            </label>
+          </div>
+
           <div class="screen-message" id="formMessage" hidden></div>
 
           <div class="profile-form__actions">

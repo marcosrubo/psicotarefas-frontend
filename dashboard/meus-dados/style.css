@@ -153,6 +153,23 @@ a {
   gap: 16px;
 }
 
+.form-section {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #fbfcff;
+}
+
+.form-section__title {
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .form-field {
   display: grid;
   gap: 8px;
