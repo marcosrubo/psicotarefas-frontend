@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedTaskDescription = document.getElementById("selectedTaskDescription");
   const selectedTaskPdfName = document.getElementById("selectedTaskPdfName");
   const selectedTaskThemeName = document.getElementById("selectedTaskThemeName");
+  const taskInteractionType = document.getElementById("taskInteractionType");
+  const taskInteractionLimitField = document.getElementById("taskInteractionLimitField");
+  const taskInteractionLimit = document.getElementById("taskInteractionLimit");
   const formMessage = document.getElementById("formMessage");
   const btnOpenSelectedPdf = document.getElementById("btnOpenSelectedPdf");
   const btnCancelSelection = document.getElementById("btnCancelSelection");
@@ -43,6 +46,56 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedThemeId = null;
   let selectedBankTaskId = null;
   let themesCollapsed = false;
+
+  function normalizarTipoInteracao(value) {
+    if (value === "limitado" || value === "ilimitado") return value;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, value) {
+    if (tipo !== "limitado") return null;
+    const numero = Number.parseInt(String(value || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function syncTaskInteractionVisibility() {
+    const tipo = normalizarTipoInteracao(taskInteractionType?.value);
+    const isLimitado = tipo === "limitado";
+
+    if (taskInteractionLimitField) {
+      taskInteractionLimitField.hidden = !isLimitado;
+    }
+
+    if (taskInteractionLimit) {
+      if (isLimitado) {
+        if (!String(taskInteractionLimit.value || "").trim()) {
+          taskInteractionLimit.value = String(
+            normalizarLimiteInteracao(tipo, currentProfile?.tarefa_interacao_padrao_limite)
+          );
+        }
+      } else {
+        taskInteractionLimit.value = "";
+      }
+    }
+  }
+
+  function aplicarPadraoInteracaoDoProfissional() {
+    if (!taskInteractionType) return;
+
+    taskInteractionType.value = normalizarTipoInteracao(
+      currentProfile?.tarefa_interacao_padrao_tipo
+    );
+
+    if (taskInteractionLimit) {
+      const limite = normalizarLimiteInteracao(
+        taskInteractionType.value,
+        currentProfile?.tarefa_interacao_padrao_limite
+      );
+      taskInteractionLimit.value = limite ? String(limite) : "";
+    }
+
+    syncTaskInteractionVisibility();
+  }
 
   function buildAssignmentsUrl() {
     const query = new URLSearchParams({
@@ -159,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { data: perfil, error } = await supabase
       .from("perfis")
-      .select("nome, email, perfil")
+      .select("nome, email, perfil, tarefa_interacao_padrao_tipo, tarefa_interacao_padrao_limite")
       .eq("user_id", currentUser.id)
       .single();
 
@@ -528,6 +581,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedTheme = getSelectedTheme();
     const selectedResource =
       resources.find((resource) => String(resource.id) === String(selectedTask?.recurso_id)) || null;
+    const interactionType = normalizarTipoInteracao(taskInteractionType?.value);
+    const interactionLimit = normalizarLimiteInteracao(
+      interactionType,
+      taskInteractionLimit?.value
+    );
 
     if (!selectedPatient) {
       setFormMessage("Selecione um paciente válido antes de gravar a tarefa.", "error");
@@ -536,6 +594,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!selectedTask) {
       setFormMessage("Selecione uma tarefa do banco para continuar.", "error");
+      return;
+    }
+
+    if (interactionType === "limitado" && !interactionLimit) {
+      setFormMessage("Informe o número máximo de interações permitidas.", "error");
       return;
     }
 
@@ -553,8 +616,8 @@ document.addEventListener("DOMContentLoaded", () => {
         titulo: selectedTheme?.nome || selectedTask.titulo || "Tarefa do banco",
         descricao: selectedResource?.nome || null,
         status: "aberta",
-        interacao_paciente_tipo: "nao_permitir",
-        interacao_paciente_limite: null,
+        interacao_paciente_tipo: interactionType,
+        interacao_paciente_limite: interactionLimit,
         origem_tipo: "banco",
         origem_banco_tarefa_id: selectedTask.id,
         pdf_path: selectedTask.pdf_path || null,
@@ -698,6 +761,10 @@ document.addEventListener("DOMContentLoaded", () => {
     btnSaveSelectedTask.addEventListener("click", salvarTarefaDoBanco);
   }
 
+  if (taskInteractionType) {
+    taskInteractionType.addEventListener("change", syncTaskInteractionVisibility);
+  }
+
   document.addEventListener("click", (event) => {
     if (!bottomMenuPanel || !btnBottomMenu) return;
 
@@ -726,6 +793,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ok = await validarProfissional();
     if (!ok) return;
 
+    aplicarPadraoInteracaoDoProfissional();
     await carregarPacienteSelecionado();
     await carregarBancoTarefas();
     themesCollapsed = false;

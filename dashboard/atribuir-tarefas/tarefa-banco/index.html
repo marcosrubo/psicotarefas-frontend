@@ -101,6 +101,31 @@
             <span class="meta-chip meta-chip--type" id="selectedTaskThemeName">Tema</span>
           </div>
 
+          <div class="interaction-settings">
+            <div class="interaction-settings__row">
+              <div class="form-group">
+                <label for="taskInteractionType">Tipo de interação permitida</label>
+                <select id="taskInteractionType">
+                  <option value="nao_permitir">Não permitir</option>
+                  <option value="limitado">Limitado</option>
+                  <option value="ilimitado">Ilimitado</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="taskInteractionLimitField" hidden>
+                <label for="taskInteractionLimit">Máximo de interações</label>
+                <input
+                  type="number"
+                  id="taskInteractionLimit"
+                  min="1"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="Ex.: 3"
+                />
+              </div>
+            </div>
+          </div>
+
           <div class="screen-message" id="formMessage" hidden></div>
 
           <div class="confirmation-card__actions">

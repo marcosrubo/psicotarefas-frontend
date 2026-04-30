@@ -202,6 +202,16 @@ a {
   line-height: 1.55;
 }
 
+.interaction-settings {
+  margin-top: 16px;
+}
+
+.interaction-settings__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.8fr);
+  gap: 16px;
+}
+
 .preview-content {
   margin-top: 18px;
   display: grid;
@@ -427,6 +437,9 @@ a {
 }
 
 @media (max-width: 720px) {
+  .interaction-settings__row {
+    grid-template-columns: 1fr;
+  }
 
   .form-grid {
     grid-template-columns: 1fr;

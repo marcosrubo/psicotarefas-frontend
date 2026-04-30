@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewSummary = document.getElementById("previewSummary");
   const previewContent = document.getElementById("previewContent");
   const previewMessage = document.getElementById("previewMessage");
+  const taskInteractionType = document.getElementById("taskInteractionType");
+  const taskInteractionLimitField = document.getElementById("taskInteractionLimitField");
+  const taskInteractionLimit = document.getElementById("taskInteractionLimit");
   const btnRegeneratePreview = document.getElementById("btnRegeneratePreview");
   const btnSaveTask = document.getElementById("btnSaveTask");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
@@ -36,6 +39,56 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProfile = null;
   let selectedPatient = null;
   let lastGeneratedAiMaterial = null;
+
+  function normalizarTipoInteracao(value) {
+    if (value === "limitado" || value === "ilimitado") return value;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, value) {
+    if (tipo !== "limitado") return null;
+    const numero = Number.parseInt(String(value || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function syncTaskInteractionVisibility() {
+    const tipo = normalizarTipoInteracao(taskInteractionType?.value);
+    const isLimitado = tipo === "limitado";
+
+    if (taskInteractionLimitField) {
+      taskInteractionLimitField.hidden = !isLimitado;
+    }
+
+    if (taskInteractionLimit) {
+      if (isLimitado) {
+        if (!String(taskInteractionLimit.value || "").trim()) {
+          taskInteractionLimit.value = String(
+            normalizarLimiteInteracao(tipo, currentProfile?.tarefa_interacao_padrao_limite)
+          );
+        }
+      } else {
+        taskInteractionLimit.value = "";
+      }
+    }
+  }
+
+  function aplicarPadraoInteracaoDoProfissional() {
+    if (!taskInteractionType) return;
+
+    taskInteractionType.value = normalizarTipoInteracao(
+      currentProfile?.tarefa_interacao_padrao_tipo
+    );
+
+    if (taskInteractionLimit) {
+      const limite = normalizarLimiteInteracao(
+        taskInteractionType.value,
+        currentProfile?.tarefa_interacao_padrao_limite
+      );
+      taskInteractionLimit.value = limite ? String(limite) : "";
+    }
+
+    syncTaskInteractionVisibility();
+  }
 
   function buildAssignmentsUrl(extraParams = {}) {
     const query = new URLSearchParams({
@@ -283,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { data: perfil, error } = await supabase
       .from("perfis")
-      .select("nome, email, perfil")
+      .select("nome, email, perfil, tarefa_interacao_padrao_tipo, tarefa_interacao_padrao_limite")
       .eq("user_id", currentUser.id)
       .single();
 
@@ -483,6 +536,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const finalTitle = lastGeneratedAiMaterial.title || buildDraftTitle();
     const finalDescription = lastGeneratedAiMaterial.summary || buildDraftDescription();
+    const interactionType = normalizarTipoInteracao(taskInteractionType?.value);
+    const interactionLimit = normalizarLimiteInteracao(
+      interactionType,
+      taskInteractionLimit?.value
+    );
+
+    if (interactionType === "limitado" && !interactionLimit) {
+      setPreviewMessage("Informe o número máximo de interações permitidas.", "error");
+      return;
+    }
 
     if (btnSaveTask) {
       btnSaveTask.disabled = true;
@@ -505,8 +568,8 @@ document.addEventListener("DOMContentLoaded", () => {
         titulo: finalTitle,
         descricao: finalDescription,
         status: "aberta",
-        interacao_paciente_tipo: "nao_permitir",
-        interacao_paciente_limite: null,
+        interacao_paciente_tipo: interactionType,
+        interacao_paciente_limite: interactionLimit,
         pdf_path: linkedPdf?.pdfPath || null,
         pdf_nome: linkedPdf?.pdfName || null
       };
@@ -560,6 +623,10 @@ document.addEventListener("DOMContentLoaded", () => {
     btnSaveTask.addEventListener("click", salvarTarefaComIa);
   }
 
+  if (taskInteractionType) {
+    taskInteractionType.addEventListener("change", syncTaskInteractionVisibility);
+  }
+
   if (btnBottomMenu) {
     btnBottomMenu.addEventListener("click", alternarMenuInferior);
   }
@@ -599,6 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ok = await validarProfissional();
     if (!ok) return;
 
+    aplicarPadraoInteracaoDoProfissional();
     await carregarPacienteSelecionado();
   }
 
