@@ -203,8 +203,13 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="tasks-list">
         ${patientTasks.map((task) => `
           <article class="task-card">
-            <div class="task-card__header">
+            <div class="task-card__topline">
               <p class="task-card__eyebrow">${getTaskKind(task)}</p>
+              <button class="btn-secondary task-card__interact-btn" type="button" data-action="interagir" data-task-id="${task.id}" data-patient-id="${patient.patient_user_id}">
+                Interagir
+              </button>
+            </div>
+            <div class="task-card__header">
               <h3 class="task-card__title">${escapeHtml(task.titulo || "Tarefa sem título")}</h3>
             </div>
             <p class="task-card__description">${escapeHtml(task.descricao || "Sem descrição cadastrada.")}</p>
@@ -212,11 +217,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="task-chip task-chip--neutral">${escapeHtml(task.status || "aberta")}</span>
               ${task.pdf_path ? '<span class="task-chip">PDF</span>' : ""}
               ${task.video_url ? '<span class="task-chip">Vídeo</span>' : ""}
-            </div>
-            <div class="task-card__actions">
-              <button class="btn-secondary" type="button" data-action="interagir" data-task-id="${task.id}" data-patient-id="${patient.patient_user_id}">
-                Interagir
-              </button>
             </div>
           </article>
         `).join("")}
@@ -298,6 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const interactButton = event.target.closest('[data-action="interagir"]');
       if (interactButton) {
+        event.preventDefault();
+        event.stopPropagation();
         handleInteragir(
           interactButton.dataset.taskId || "",
           interactButton.dataset.patientId || ""
