@@ -176,7 +176,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .detail-card__eyebrow {
@@ -421,7 +421,7 @@ textarea {
   }
 
   .detail-card__topline {
-    align-items: stretch;
+    align-items: center;
   }
 
   .pdf-preview-box__frame,
@@ -430,7 +430,7 @@ textarea {
     height: 360px;
   }
 
-  .btn-secondary {
+  .content-section__header .btn-secondary {
     width: 100%;
   }
 }
