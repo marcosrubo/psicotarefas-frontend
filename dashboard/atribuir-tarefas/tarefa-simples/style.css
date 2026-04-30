@@ -195,9 +195,79 @@ a {
 }
 
 .interaction-settings__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.8fr);
-  gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.interaction-inline-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.interaction-inline-field--type {
+  flex: 1 1 auto;
+}
+
+.interaction-inline-field--limit {
+  flex: 0 0 auto;
+}
+
+.interaction-inline-field__label {
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.interaction-inline-field select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.interaction-inline-field--limit input {
+  width: 72px;
+  min-width: 72px;
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .interaction-settings__row {
+    max-width: 560px;
+  }
+}
+
+@media (max-width: 640px) {
+  .interaction-settings__row {
+    gap: 10px;
+  }
+
+  .interaction-inline-field__label {
+    font-size: 11px;
+  }
+
+  .interaction-inline-field--limit input {
+    width: 56px;
+    min-width: 56px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 }
 
 .screen-message {
@@ -397,10 +467,6 @@ a {
 }
 
 @media (max-width: 640px) {
-  .interaction-settings__row {
-    grid-template-columns: 1fr;
-  }
-
   .topbar__nav {
     grid-template-columns: auto 1fr auto;
   }
