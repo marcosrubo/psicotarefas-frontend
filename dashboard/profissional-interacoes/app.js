@@ -270,8 +270,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleInteragir(taskId, patientId) {
-    const task = tasks.find((item) => item.id === taskId);
-    const patient = patients.find((item) => item.patient_user_id === patientId);
+    const task = tasks.find((item) => String(item.id) === String(taskId));
+    const patient = patients.find((item) => String(item.patient_user_id) === String(patientId));
 
     if (!task || !patient) return;
 
