@@ -227,11 +227,13 @@ a {
 .interaction-inline-field select {
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 52px;
 }
 
 .interaction-inline-field--limit input {
-  width: 72px;
-  min-width: 72px;
+  width: 64px;
+  min-width: 64px;
+  min-height: 52px;
   text-align: center;
 }
 
@@ -263,8 +265,9 @@ a {
   }
 
   .interaction-inline-field--limit input {
-    width: 56px;
-    min-width: 56px;
+    width: 60px;
+    min-width: 60px;
+    min-height: 52px;
     padding-left: 10px;
     padding-right: 10px;
   }
