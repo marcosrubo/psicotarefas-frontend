@@ -70,6 +70,49 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function normalizarTipoInteracao(valor) {
+    if (valor === "limitado" || valor === "ilimitado") return valor;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, valor) {
+    if (tipo !== "limitado") return null;
+
+    const numero = Number.parseInt(String(valor || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function obterConfiguracaoInteracaoPaciente(task) {
+    const tipoBruto =
+      task?.interacao_paciente_tipo ||
+      currentProfessional?.tarefa_interacao_padrao_tipo ||
+      "nao_permitir";
+    const tipo = normalizarTipoInteracao(tipoBruto);
+    const limite = normalizarLimiteInteracao(
+      tipo,
+      task?.interacao_paciente_limite ?? currentProfessional?.tarefa_interacao_padrao_limite
+    );
+
+    if (tipo === "ilimitado") {
+      return { tipo, limite, permitido: true, mensagem: "" };
+    }
+
+    if (tipo === "limitado") {
+      return { tipo, limite, permitido: true, mensagem: "" };
+    }
+
+    return {
+      tipo,
+      limite,
+      permitido: false,
+      mensagem: "Essa TAREFA NÃO permite interações!"
+    };
+  }
+
+  function buildTaskInteractionsUrl(taskId) {
+    return `../paciente-interacoes/index.html?task=${encodeURIComponent(taskId)}`;
+  }
+
   function fecharMenuInferior() {
     if (!bottomMenuPanel || !btnBottomMenu) return;
     bottomMenuPanel.hidden = true;
@@ -335,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { data: profissional, error: profissionalError } = await supabase
       .from("perfis")
-      .select("nome, email")
+      .select("nome, email, tarefa_interacao_padrao_tipo, tarefa_interacao_padrao_limite")
       .eq("user_id", vinculo.professional_user_id)
       .single();
 
@@ -517,7 +560,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnInteractTask) {
     btnInteractTask.addEventListener("click", () => {
-      window.alert("Vamos interagir com a atividade?");
+      if (!currentTask) return;
+
+      const configuracaoInteracao = obterConfiguracaoInteracaoPaciente(currentTask);
+      if (!configuracaoInteracao.permitido) {
+        window.alert("Essa TAREFA NÃO permite interações!");
+        return;
+      }
+
+      window.location.href = buildTaskInteractionsUrl(currentTask.id);
     });
   }
 
