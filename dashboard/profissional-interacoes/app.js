@@ -73,6 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return `./interagindo/index.html?${query.toString()}`;
   }
 
+  function buildTaskParecerIaUrl(task, patient) {
+    const query = new URLSearchParams({
+      task: task.id,
+      patient: patient.patient_user_id,
+      alias: patient.alias || patient.nome_real || "Paciente"
+    });
+
+    return `../profissional-tarefas/parecer-ia/index.html?${query.toString()}`;
+  }
+
   async function obterUsuarioAutenticado() {
     const {
       data: { session },
@@ -205,16 +215,28 @@ document.addEventListener("DOMContentLoaded", () => {
           <article class="task-card">
             <div class="task-card__topline">
               <p class="task-card__eyebrow">${getTaskKind(task)}</p>
-              <button
-                class="btn-secondary task-card__interact-btn"
-                type="button"
-                data-action="interagir"
-                data-task-id="${task.id}"
-                data-patient-id="${patient.patient_user_id}"
-                data-href="${escapeHtml(buildTaskInteractionUrl(task, patient))}"
-              >
-                Interagir
-              </button>
+              <div class="task-card__actions">
+                <button
+                  class="btn-secondary task-card__parecer-btn"
+                  type="button"
+                  data-action="parecer-ia"
+                  data-task-id="${task.id}"
+                  data-patient-id="${patient.patient_user_id}"
+                  data-href="${escapeHtml(buildTaskParecerIaUrl(task, patient))}"
+                >
+                  parecer IA
+                </button>
+                <button
+                  class="btn-secondary task-card__interact-btn"
+                  type="button"
+                  data-action="interagir"
+                  data-task-id="${task.id}"
+                  data-patient-id="${patient.patient_user_id}"
+                  data-href="${escapeHtml(buildTaskInteractionUrl(task, patient))}"
+                >
+                  Interagir
+                </button>
+              </div>
             </div>
             <div class="task-card__header">
               <h3 class="task-card__title">${escapeHtml(task.titulo || "Tarefa sem título")}</h3>
@@ -270,17 +292,27 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }).join("");
 
-    bindInteractionButtons();
+    bindTaskActionButtons();
   }
 
-  function bindInteractionButtons() {
-    document.querySelectorAll('[data-action="interagir"]').forEach((button) => {
+  function bindTaskActionButtons() {
+    document.querySelectorAll('[data-action="interagir"], [data-action="parecer-ia"]').forEach((button) => {
       if (button.dataset.bound === "true") return;
 
       button.dataset.bound = "true";
       button.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
+
+        const action = button.dataset.action || "";
+
+        if (action === "parecer-ia") {
+          handleParecerIa(
+            button.dataset.taskId || "",
+            button.dataset.patientId || ""
+          );
+          return;
+        }
 
         handleInteragir(
           button.dataset.taskId || "",
@@ -311,6 +343,15 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = buildTaskInteractionUrl(task, patient);
   }
 
+  function handleParecerIa(taskId, patientId) {
+    const task = tasks.find((item) => String(item.id) === String(taskId));
+    const patient = patients.find((item) => String(item.patient_user_id) === String(patientId));
+
+    if (!task || !patient) return;
+
+    window.location.href = buildTaskParecerIaUrl(task, patient);
+  }
+
   function bindEvents() {
     btnBottomMenu?.addEventListener("click", alternarMenuInferior);
     btnMenuLogout?.addEventListener("click", sairDoSistema);
@@ -324,6 +365,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const interactButton = event.target.closest('[data-action="interagir"]');
       if (interactButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      const parecerButton = event.target.closest('[data-action="parecer-ia"]');
+      if (parecerButton) {
         event.preventDefault();
         event.stopPropagation();
         return;

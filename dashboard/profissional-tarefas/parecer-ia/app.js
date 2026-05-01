@@ -1,0 +1,578 @@
+import supabase from "../../../shared/supabase.js";
+import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const PDF_BUCKET = "banco-tarefas-pdf";
+  const searchParams = new URLSearchParams(window.location.search);
+  const taskId = (searchParams.get("task") || "").trim();
+  const patientAlias = (searchParams.get("alias") || "").trim();
+
+  const patientHeaderTitle = document.getElementById("patientHeaderTitle");
+  const screenMessage = document.getElementById("screenMessage");
+  const emptyState = document.getElementById("emptyState");
+  const taskDetailCard = document.getElementById("taskDetailCard");
+  const taskTypeLabel = document.getElementById("taskTypeLabel");
+  const taskTitle = document.getElementById("taskTitle");
+  const taskSubtitle = document.getElementById("taskSubtitle");
+  const taskOriginValue = document.getElementById("taskOriginValue");
+  const taskInteractionPolicy = document.getElementById("taskInteractionPolicy");
+  const taskHistoryCount = document.getElementById("taskHistoryCount");
+  const taskDescription = document.getElementById("taskDescription");
+  const taskPdfSection = document.getElementById("taskPdfSection");
+  const taskPdfName = document.getElementById("taskPdfName");
+  const taskPdfFrame = document.getElementById("taskPdfFrame");
+  const btnOpenTaskPdf = document.getElementById("btnOpenTaskPdf");
+  const taskVideoSection = document.getElementById("taskVideoSection");
+  const taskVideoHelper = document.getElementById("taskVideoHelper");
+  const taskVideoFrame = document.getElementById("taskVideoFrame");
+  const taskVideoNative = document.getElementById("taskVideoNative");
+  const taskVideoInstagram = document.getElementById("taskVideoInstagram");
+  const taskVideoEmpty = document.getElementById("taskVideoEmpty");
+  const btnOpenTaskVideo = document.getElementById("btnOpenTaskVideo");
+  const snippetsList = document.getElementById("snippetsList");
+  const snippetsEmptyState = document.getElementById("snippetsEmptyState");
+  const timelineSummary = document.getElementById("timelineSummary");
+  const interactionsList = document.getElementById("interactionsList");
+  const interactionsEmptyState = document.getElementById("interactionsEmptyState");
+  const btnBottomMenu = document.getElementById("btnBottomMenu");
+  const bottomMenuPanel = document.getElementById("bottomMenuPanel");
+  const btnMenuLogout = document.getElementById("btnMenuLogout");
+  const btnBack = document.getElementById("btnBack");
+
+  let currentUser = null;
+  let currentProfile = null;
+  let currentTask = null;
+  let currentInteractions = [];
+  let instagramScriptPromise = null;
+
+  function setScreenMessage(text = "", type = "error") {
+    if (!screenMessage) return;
+    if (!text) {
+      screenMessage.hidden = true;
+      screenMessage.textContent = "";
+      screenMessage.className = "screen-message";
+      return;
+    }
+    screenMessage.hidden = false;
+    screenMessage.textContent = text;
+    screenMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function fecharMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    bottomMenuPanel.hidden = true;
+    btnBottomMenu.setAttribute("aria-expanded", "false");
+  }
+
+  function alternarMenuInferior() {
+    if (!bottomMenuPanel || !btnBottomMenu) return;
+    const vaiAbrir = bottomMenuPanel.hidden;
+    bottomMenuPanel.hidden = !vaiAbrir;
+    btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
+  }
+
+  async function sairDoSistema() {
+    await registrarEvento({
+      evento: "logout",
+      pagina: "parecer_ia_profissional",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null
+    });
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+    window.location.href = "../../../auth/profissional-login/index.html";
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function formatarDataHora(dataIso) {
+    if (!dataIso) return "-";
+    return new Date(dataIso).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function formatarData(dataIso) {
+    if (!dataIso) return "-";
+    return new Date(dataIso).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  }
+
+  function truncateText(value, maxLength = 220) {
+    const text = String(value || "").trim().replace(/\s+/g, " ");
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength - 1).trim()}…`;
+  }
+
+  function normalizarTipoInteracao(value) {
+    if (value === "limitado" || value === "ilimitado") return value;
+    return "nao_permitir";
+  }
+
+  function normalizarLimiteInteracao(tipo, value) {
+    if (tipo !== "limitado") return null;
+    const numero = Number.parseInt(String(value || "1"), 10);
+    return Number.isFinite(numero) && numero > 0 ? numero : 1;
+  }
+
+  function getInteractionPolicyLabel(task) {
+    const tipo = normalizarTipoInteracao(task?.interacao_paciente_tipo);
+    const limite = normalizarLimiteInteracao(tipo, task?.interacao_paciente_limite);
+
+    if (tipo === "ilimitado") return "Ilimitado";
+    if (tipo === "limitado") return `Limitado (${limite} interacao(oes))`;
+    return "Nao permitir";
+  }
+
+  function getTaskKind(task) {
+    if (!task) {
+      return { eyebrow: "Atividade", videoHelper: "Video vinculado a esta atividade." };
+    }
+    if (task.origem_tipo === "banco" || task.origem_banco_tarefa_id) {
+      return { eyebrow: "Banco de tarefas", videoHelper: "Video associado ao material do banco de tarefas." };
+    }
+    if (task.origem_tipo === "ia" || task.pdf_path?.includes("/ia/")) {
+      return { eyebrow: "Gerado por IA", videoHelper: "Video complementar vinculado a esta atividade gerada por IA." };
+    }
+    if (task.pdf_path && task.video_url) {
+      return { eyebrow: "PDF e video", videoHelper: "Video complementar enviado junto desta atividade." };
+    }
+    if (task.pdf_path) {
+      return { eyebrow: "PDF anexado", videoHelper: "Video vinculado a esta atividade." };
+    }
+    if (task.video_url) {
+      return { eyebrow: "Video anexado", videoHelper: "Video enviado pelo profissional para esta atividade." };
+    }
+    return { eyebrow: "Atividade simples", videoHelper: "Video vinculado a esta atividade." };
+  }
+
+  function buildPdfPreviewUrl(signedUrl) {
+    return `${signedUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+  }
+
+  function resolveEmbeddedVideo(url) {
+    if (!url) return null;
+    try {
+      const parsedUrl = new URL(url);
+      const host = parsedUrl.hostname.replace(/^www\./, "");
+      const pathname = parsedUrl.pathname;
+      if (host === "youtube.com" || host === "m.youtube.com") {
+        const videoId = parsedUrl.searchParams.get("v");
+        if (videoId) return { type: "iframe", src: `https://www.youtube.com/embed/${videoId}` };
+      }
+      if (host === "youtu.be") {
+        const videoId = pathname.replace(/^\/+/, "").split("/")[0];
+        if (videoId) return { type: "iframe", src: `https://www.youtube.com/embed/${videoId}` };
+      }
+      if (host === "player.vimeo.com") return { type: "iframe", src: url };
+      if (host === "vimeo.com") {
+        const videoId = pathname.replace(/^\/+/, "").split("/")[0];
+        if (videoId) return { type: "iframe", src: `https://player.vimeo.com/video/${videoId}` };
+      }
+      if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) return { type: "native", src: url };
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  function getInstagramPermalink(url) {
+    if (!url) return "";
+    try {
+      const parsedUrl = new URL(url);
+      const host = parsedUrl.hostname.replace(/^www\./, "");
+      if (host !== "instagram.com" && host !== "m.instagram.com" && host !== "instagr.am") return "";
+      const cleanPath = parsedUrl.pathname.replace(/\/+$/, "");
+      if (!cleanPath) return "";
+      return `https://www.instagram.com${cleanPath}/?utm_source=ig_embed&utm_campaign=loading`;
+    } catch {
+      return "";
+    }
+  }
+
+  function ensureInstagramEmbedScript() {
+    if (instagramScriptPromise) return instagramScriptPromise;
+    instagramScriptPromise = new Promise((resolve) => {
+      if (window.instgrm?.Embeds?.process) {
+        resolve(window.instgrm);
+        return;
+      }
+
+      const existing = document.querySelector('script[data-instagram-embed="true"]');
+      if (existing) {
+        existing.addEventListener("load", () => resolve(window.instgrm || null), { once: true });
+        existing.addEventListener("error", () => resolve(null), { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.async = true;
+      script.defer = true;
+      script.src = "https://www.instagram.com/embed.js";
+      script.dataset.instagramEmbed = "true";
+      script.onload = () => resolve(window.instgrm || null);
+      script.onerror = () => resolve(null);
+      document.body.appendChild(script);
+    });
+    return instagramScriptPromise;
+  }
+
+  async function obterUsuarioAutenticado() {
+    const {
+      data: { session },
+      error: sessionError
+    } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      throw new Error(`Falha ao obter sessao autenticada: ${sessionError.message}`);
+    }
+
+    if (session?.user) return session.user;
+
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      throw new Error(`Falha ao obter usuario autenticado: ${userError.message}`);
+    }
+
+    return user || null;
+  }
+
+  async function validarProfissional() {
+    const user = await obterUsuarioAutenticado();
+
+    if (!user) {
+      window.location.href = "../../../auth/profissional-login/index.html";
+      return false;
+    }
+
+    currentUser = user;
+
+    const { data: perfil, error } = await supabase
+      .from("perfis")
+      .select("nome, email, perfil")
+      .eq("user_id", currentUser.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Falha ao carregar perfil do profissional: ${error.message}`);
+    }
+
+    if (!perfil || perfil.perfil !== "profissional") {
+      window.location.href = "../../../auth/profissional-login/index.html";
+      return false;
+    }
+
+    currentProfile = perfil;
+
+    await registrarAcessoPagina({
+      pagina: "parecer_ia_profissional",
+      perfil: "profissional",
+      userId: currentUser.id,
+      email: currentProfile.email || currentUser.email || "",
+      contexto: {
+        tarefa_id: taskId || null
+      }
+    });
+
+    return true;
+  }
+
+  async function carregarTarefa() {
+    if (!taskId) {
+      throw new Error("Nenhuma tarefa foi informada para o parecer IA.");
+    }
+
+    const { data, error } = await supabase
+      .from("tarefas")
+      .select("*")
+      .eq("id", taskId)
+      .eq("professional_user_id", currentUser.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Falha ao carregar a tarefa: ${error.message}`);
+    }
+
+    currentTask = data || null;
+
+    if (!currentTask) {
+      throw new Error("A tarefa selecionada nao foi encontrada.");
+    }
+  }
+
+  async function carregarInteracoes() {
+    if (!currentTask?.id) {
+      currentInteractions = [];
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("tarefa_interacoes")
+      .select("*")
+      .eq("tarefa_id", currentTask.id)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      throw new Error(`Falha ao carregar interacoes: ${error.message}`);
+    }
+
+    currentInteractions = data || [];
+  }
+
+  function buildRelevantSnippets() {
+    const valid = currentInteractions.filter((item) => String(item?.mensagem || "").trim());
+    const selected = [];
+
+    const firstPatient = valid.find((item) => item.autor_tipo === "paciente");
+    const firstProfessional = valid.find((item) => item.autor_tipo === "profissional");
+    const lastPatient = [...valid].reverse().find((item) => item.autor_tipo === "paciente");
+    const lastProfessional = [...valid].reverse().find((item) => item.autor_tipo === "profissional");
+
+    [firstPatient, firstProfessional, lastPatient, lastProfessional].forEach((item) => {
+      if (item && !selected.some((entry) => String(entry.id) === String(item.id))) {
+        selected.push(item);
+      }
+    });
+
+    return selected.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  }
+
+  function renderRelevantSnippets() {
+    if (!snippetsList || !snippetsEmptyState) return;
+    const snippets = buildRelevantSnippets();
+
+    if (!snippets.length) {
+      snippetsList.innerHTML = "";
+      snippetsEmptyState.hidden = false;
+      return;
+    }
+
+    snippetsEmptyState.hidden = true;
+    snippetsList.innerHTML = snippets.map((interaction) => `
+      <article class="snippet-card">
+        <div class="snippet-card__top">
+          <span class="snippet-card__author">${interaction.autor_tipo === "profissional" ? "Profissional" : "Paciente"}</span>
+          <span class="snippet-card__time">${formatarDataHora(interaction.created_at)}</span>
+        </div>
+        <p class="snippet-card__text">${escapeHtml(truncateText(interaction.mensagem, 260))}</p>
+      </article>
+    `).join("");
+  }
+
+  function renderTimelineSummary() {
+    if (!timelineSummary) return;
+
+    const total = currentInteractions.length;
+    const totalPaciente = currentInteractions.filter((item) => item.autor_tipo !== "profissional").length;
+    const totalProfissional = currentInteractions.filter((item) => item.autor_tipo === "profissional").length;
+    const primeira = currentInteractions[0];
+    const ultima = currentInteractions[currentInteractions.length - 1];
+
+    const continuidade = total <= 1
+      ? "Ainda nao existe sequencia suficiente de interacoes para observar mudanca ao longo do tempo."
+      : totalPaciente && totalProfissional
+        ? "Ja existe troca registrada entre paciente e profissional, o que ajuda a sustentar um parecer com base em dialogo e acompanhamento."
+        : totalPaciente
+          ? "A leitura atual depende principalmente das respostas do paciente. Ainda ha pouco retorno do profissional no historico."
+          : "A leitura atual depende principalmente de registros do profissional. Ainda ha poucas respostas do paciente no historico.";
+
+    timelineSummary.innerHTML = `
+      <article class="summary-card">
+        <span class="summary-card__title">Panorama cronologico</span>
+        <ul>
+          <li>Total de interacoes reunidas: ${total}</li>
+          <li>Registros do paciente: ${totalPaciente}</li>
+          <li>Registros do profissional: ${totalProfissional}</li>
+          <li>Primeiro registro: ${primeira ? formatarDataHora(primeira.created_at) : "-"}</li>
+          <li>Ultimo registro: ${ultima ? formatarDataHora(ultima.created_at) : "-"}</li>
+        </ul>
+      </article>
+      <article class="summary-card">
+        <span class="summary-card__title">Mudanca percebida</span>
+        <p>${escapeHtml(continuidade)}</p>
+        <p>${escapeHtml(primeira ? `Primeiro foco registrado: ${truncateText(primeira.mensagem, 180)}` : "Ainda nao ha primeira interacao registrada.")}</p>
+        <p>${escapeHtml(ultima ? `Registro mais recente: ${truncateText(ultima.mensagem, 180)}` : "Ainda nao ha ultimo registro para comparar.")}</p>
+      </article>
+    `;
+  }
+
+  function renderInteractions() {
+    if (!interactionsList || !interactionsEmptyState) return;
+
+    if (!currentInteractions.length) {
+      interactionsList.innerHTML = "";
+      interactionsEmptyState.hidden = false;
+      return;
+    }
+
+    interactionsEmptyState.hidden = true;
+    interactionsList.innerHTML = currentInteractions.map((interaction) => `
+      <article class="interaction-item">
+        <div class="interaction-item__top">
+          <span class="interaction-item__author">${interaction.autor_tipo === "profissional" ? "Profissional" : "Paciente"}</span>
+          <span class="interaction-item__time">${formatarDataHora(interaction.created_at)}</span>
+        </div>
+        <p class="interaction-item__text">${escapeHtml(interaction.mensagem || "")}</p>
+      </article>
+    `).join("");
+  }
+
+  async function renderTask() {
+    if (!currentTask || !taskDetailCard) return;
+
+    if (patientHeaderTitle) {
+      patientHeaderTitle.textContent = `Parecer IA - ${patientAlias || "Paciente"}`;
+    }
+
+    const taskKind = getTaskKind(currentTask);
+    taskTypeLabel.textContent = taskKind.eyebrow;
+    taskTitle.textContent = currentTask.titulo || "Tarefa sem titulo";
+    taskSubtitle.textContent = `Paciente: ${patientAlias || "Paciente"}`;
+    taskOriginValue.textContent = taskKind.eyebrow;
+    taskInteractionPolicy.textContent = getInteractionPolicyLabel(currentTask);
+    taskHistoryCount.textContent = `${currentInteractions.length} registro(s)`;
+    taskDescription.textContent = currentTask.descricao || "Sem descricao cadastrada.";
+
+    taskDetailCard.hidden = false;
+    emptyState.hidden = true;
+
+    if (currentTask.pdf_path) {
+      const { data, error } = await supabase.storage
+        .from(PDF_BUCKET)
+        .createSignedUrl(currentTask.pdf_path, 3600);
+
+      if (!error && data?.signedUrl) {
+        taskPdfSection.hidden = false;
+        taskPdfName.textContent = currentTask.pdf_nome || "PDF da atividade";
+        taskPdfFrame.src = buildPdfPreviewUrl(data.signedUrl);
+        btnOpenTaskPdf.href = data.signedUrl;
+      } else {
+        taskPdfSection.hidden = true;
+      }
+    } else {
+      taskPdfSection.hidden = true;
+    }
+
+    taskVideoSection.hidden = true;
+    taskVideoFrame.hidden = true;
+    taskVideoFrame.removeAttribute("src");
+    taskVideoNative.hidden = true;
+    taskVideoNative.removeAttribute("src");
+    taskVideoNative.load();
+    taskVideoInstagram.hidden = true;
+    taskVideoInstagram.innerHTML = "";
+    taskVideoEmpty.hidden = true;
+
+    if (currentTask.video_url) {
+      taskVideoSection.hidden = false;
+      taskVideoHelper.textContent = taskKind.videoHelper;
+      btnOpenTaskVideo.href = currentTask.video_url;
+
+      const instagramPermalink = getInstagramPermalink(currentTask.video_url);
+      if (instagramPermalink) {
+        taskVideoInstagram.hidden = false;
+        taskVideoInstagram.innerHTML = `
+          <blockquote class="instagram-media" data-instgrm-permalink="${instagramPermalink}" data-instgrm-version="14"></blockquote>
+        `;
+        const instgrm = await ensureInstagramEmbedScript();
+        instgrm?.Embeds?.process?.();
+      } else {
+        const embeddedVideo = resolveEmbeddedVideo(currentTask.video_url);
+        if (embeddedVideo?.type === "iframe") {
+          taskVideoFrame.hidden = false;
+          taskVideoFrame.src = embeddedVideo.src;
+        } else if (embeddedVideo?.type === "native") {
+          taskVideoNative.hidden = false;
+          taskVideoNative.src = embeddedVideo.src;
+          taskVideoNative.load();
+        } else {
+          taskVideoEmpty.hidden = false;
+        }
+      }
+    }
+  }
+
+  function bindEvents() {
+    btnBottomMenu?.addEventListener("click", alternarMenuInferior);
+    btnMenuLogout?.addEventListener("click", sairDoSistema);
+    btnBack?.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.history.back();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (
+        bottomMenuPanel &&
+        btnBottomMenu &&
+        !bottomMenuPanel.hidden &&
+        !bottomMenuPanel.contains(event.target) &&
+        !btnBottomMenu.contains(event.target)
+      ) {
+        fecharMenuInferior();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        fecharMenuInferior();
+      }
+    });
+  }
+
+  async function init() {
+    bindEvents();
+
+    try {
+      const ok = await validarProfissional();
+      if (!ok) return;
+
+      await carregarTarefa();
+      await carregarInteracoes();
+      await renderTask();
+      renderRelevantSnippets();
+      renderTimelineSummary();
+      renderInteractions();
+
+      await registrarEvento({
+        evento: "parecer_ia_visualizado",
+        pagina: "parecer_ia_profissional",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile.email || currentUser.email || null,
+        contexto: {
+          tarefa_id: currentTask.id,
+          paciente_id: currentTask.patient_user_id || null
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      emptyState.hidden = false;
+      setScreenMessage(error.message || "Nao foi possivel abrir a tela de parecer IA.");
+    }
+  }
+
+  init();
+});
