@@ -205,7 +205,14 @@ document.addEventListener("DOMContentLoaded", () => {
           <article class="task-card">
             <div class="task-card__topline">
               <p class="task-card__eyebrow">${getTaskKind(task)}</p>
-              <button class="btn-secondary task-card__interact-btn" type="button" data-action="interagir" data-task-id="${task.id}" data-patient-id="${patient.patient_user_id}">
+              <button
+                class="btn-secondary task-card__interact-btn"
+                type="button"
+                data-action="interagir"
+                data-task-id="${task.id}"
+                data-patient-id="${patient.patient_user_id}"
+                data-href="${escapeHtml(buildTaskInteractionUrl(task, patient))}"
+              >
                 Interagir
               </button>
             </div>
@@ -262,6 +269,25 @@ document.addEventListener("DOMContentLoaded", () => {
         </section>
       `;
     }).join("");
+
+    bindInteractionButtons();
+  }
+
+  function bindInteractionButtons() {
+    document.querySelectorAll('[data-action="interagir"]').forEach((button) => {
+      if (button.dataset.bound === "true") return;
+
+      button.dataset.bound = "true";
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        handleInteragir(
+          button.dataset.taskId || "",
+          button.dataset.patientId || ""
+        );
+      });
+    });
   }
 
   function togglePatient(patientId) {
@@ -300,10 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (interactButton) {
         event.preventDefault();
         event.stopPropagation();
-        handleInteragir(
-          interactButton.dataset.taskId || "",
-          interactButton.dataset.patientId || ""
-        );
         return;
       }
 
