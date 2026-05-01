@@ -3,6 +3,12 @@ import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
+  const isLocalHost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+  const AI_PROGRESS_OPINION_ENDPOINT = isLocalHost
+    ? "http://localhost:3000/api/ai/task-progress-opinion"
+    : "https://psicotarefas-backend.onrender.com/api/ai/task-progress-opinion";
   const searchParams = new URLSearchParams(window.location.search);
   const taskId = (searchParams.get("task") || "").trim();
   const patientAlias = (searchParams.get("alias") || "").trim();
@@ -34,6 +40,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const timelineSummary = document.getElementById("timelineSummary");
   const interactionsList = document.getElementById("interactionsList");
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
+  const btnGenerateParecer = document.getElementById("btnGenerateParecer");
+  const parecerResultPanel = document.getElementById("parecerResultPanel");
+  const parecerLoading = document.getElementById("parecerLoading");
+  const parecerResult = document.getElementById("parecerResult");
+  const parecerResumo = document.getElementById("parecerResumo");
+  const parecerAvancos = document.getElementById("parecerAvancos");
+  const parecerAtencao = document.getElementById("parecerAtencao");
+  const parecerHipoteses = document.getElementById("parecerHipoteses");
+  const parecerSugestoes = document.getElementById("parecerSugestoes");
+  const parecerTrechos = document.getElementById("parecerTrechos");
+  const parecerMudanca = document.getElementById("parecerMudanca");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -163,6 +180,41 @@ document.addEventListener("DOMContentLoaded", () => {
       return { eyebrow: "Video anexado", videoHelper: "Video enviado pelo profissional para esta atividade." };
     }
     return { eyebrow: "Atividade simples", videoHelper: "Video vinculado a esta atividade." };
+  }
+
+  function createListMarkup(items = []) {
+    const validItems = (items || []).filter((item) => String(item || "").trim());
+    if (!validItems.length) {
+      return "<li>Sem observacoes registradas.</li>";
+    }
+
+    return validItems
+      .map((item) => `<li>${escapeHtml(String(item).trim())}</li>`)
+      .join("");
+  }
+
+  function setParecerButtonState(isLoading) {
+    if (!btnGenerateParecer) return;
+    btnGenerateParecer.disabled = isLoading;
+    btnGenerateParecer.textContent = isLoading ? "Gerando parecer..." : "Gerar o parecer com IA";
+  }
+
+  function resetParecerView() {
+    if (parecerLoading) parecerLoading.hidden = true;
+    if (parecerResult) parecerResult.hidden = true;
+  }
+
+  function renderParecerResult(data) {
+    if (!parecerResult) return;
+
+    parecerResumo.textContent = String(data?.resumo_andamento || "Sem resumo disponivel.").trim();
+    parecerMudanca.textContent = String(data?.mudanca_percebida || "Sem mudanca percebida registrada.").trim();
+    parecerAvancos.innerHTML = createListMarkup(data?.sinais_avanco);
+    parecerAtencao.innerHTML = createListMarkup(data?.pontos_atencao);
+    parecerHipoteses.innerHTML = createListMarkup(data?.hipoteses_compreensao);
+    parecerSugestoes.innerHTML = createListMarkup(data?.sugestoes_proxima_conducao);
+    parecerTrechos.innerHTML = createListMarkup(data?.trechos_relevantes);
+    parecerResult.hidden = false;
   }
 
   function buildPdfPreviewUrl(signedUrl) {
@@ -360,6 +412,59 @@ document.addEventListener("DOMContentLoaded", () => {
     return selected.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   }
 
+  function buildTimelineSummaryLines() {
+    const total = currentInteractions.length;
+    const totalPaciente = currentInteractions.filter((item) => item.autor_tipo !== "profissional").length;
+    const totalProfissional = currentInteractions.filter((item) => item.autor_tipo === "profissional").length;
+    const primeira = currentInteractions[0];
+    const ultima = currentInteractions[currentInteractions.length - 1];
+
+    const continuidade = total <= 1
+      ? "Ainda nao existe sequencia suficiente de interacoes para observar mudanca ao longo do tempo."
+      : totalPaciente && totalProfissional
+        ? "Ja existe troca registrada entre paciente e profissional, o que ajuda a sustentar um parecer com base em dialogo e acompanhamento."
+        : totalPaciente
+          ? "A leitura atual depende principalmente das respostas do paciente. Ainda ha pouco retorno do profissional no historico."
+          : "A leitura atual depende principalmente de registros do profissional. Ainda ha poucas respostas do paciente no historico.";
+
+    return [
+      `Total de interacoes reunidas: ${total}`,
+      `Registros do paciente: ${totalPaciente}`,
+      `Registros do profissional: ${totalProfissional}`,
+      `Primeiro registro: ${primeira ? formatarDataHora(primeira.created_at) : "-"}`,
+      `Ultimo registro: ${ultima ? formatarDataHora(ultima.created_at) : "-"}`,
+      continuidade,
+      primeira ? `Primeiro foco registrado: ${truncateText(primeira.mensagem, 180)}` : "Ainda nao ha primeira interacao registrada.",
+      ultima ? `Registro mais recente: ${truncateText(ultima.mensagem, 180)}` : "Ainda nao ha ultimo registro para comparar."
+    ];
+  }
+
+  function buildParecerPayload() {
+    const taskKind = getTaskKind(currentTask);
+    const snippets = buildRelevantSnippets().map((interaction) => ({
+      author: interaction.autor_tipo === "profissional" ? "Profissional" : "Paciente",
+      created_at: formatarDataHora(interaction.created_at),
+      text: truncateText(interaction.mensagem || "", 320)
+    }));
+
+    const interactions = currentInteractions.map((interaction) => ({
+      author: interaction.autor_tipo === "profissional" ? "Profissional" : "Paciente",
+      created_at: formatarDataHora(interaction.created_at),
+      text: String(interaction.mensagem || "").trim()
+    }));
+
+    return {
+      patientName: patientAlias || "Paciente",
+      taskTitle: currentTask?.titulo || "",
+      taskDescription: currentTask?.descricao || "",
+      taskOrigin: taskKind.eyebrow,
+      taskInteractionPolicy: getInteractionPolicyLabel(currentTask),
+      snippets,
+      timelineSummary: buildTimelineSummaryLines(),
+      interactions
+    };
+  }
+
   function renderRelevantSnippets() {
     if (!snippetsList || !snippetsEmptyState) return;
     const snippets = buildRelevantSnippets();
@@ -384,39 +489,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderTimelineSummary() {
     if (!timelineSummary) return;
-
-    const total = currentInteractions.length;
-    const totalPaciente = currentInteractions.filter((item) => item.autor_tipo !== "profissional").length;
-    const totalProfissional = currentInteractions.filter((item) => item.autor_tipo === "profissional").length;
-    const primeira = currentInteractions[0];
-    const ultima = currentInteractions[currentInteractions.length - 1];
-
-    const continuidade = total <= 1
-      ? "Ainda nao existe sequencia suficiente de interacoes para observar mudanca ao longo do tempo."
-      : totalPaciente && totalProfissional
-        ? "Ja existe troca registrada entre paciente e profissional, o que ajuda a sustentar um parecer com base em dialogo e acompanhamento."
-        : totalPaciente
-          ? "A leitura atual depende principalmente das respostas do paciente. Ainda ha pouco retorno do profissional no historico."
-          : "A leitura atual depende principalmente de registros do profissional. Ainda ha poucas respostas do paciente no historico.";
+    const lines = buildTimelineSummaryLines();
 
     timelineSummary.innerHTML = `
       <article class="summary-card">
         <span class="summary-card__title">Panorama cronologico</span>
         <ul>
-          <li>Total de interacoes reunidas: ${total}</li>
-          <li>Registros do paciente: ${totalPaciente}</li>
-          <li>Registros do profissional: ${totalProfissional}</li>
-          <li>Primeiro registro: ${primeira ? formatarDataHora(primeira.created_at) : "-"}</li>
-          <li>Ultimo registro: ${ultima ? formatarDataHora(ultima.created_at) : "-"}</li>
+          ${lines.slice(0, 5).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
         </ul>
       </article>
       <article class="summary-card">
         <span class="summary-card__title">Mudanca percebida</span>
-        <p>${escapeHtml(continuidade)}</p>
-        <p>${escapeHtml(primeira ? `Primeiro foco registrado: ${truncateText(primeira.mensagem, 180)}` : "Ainda nao ha primeira interacao registrada.")}</p>
-        <p>${escapeHtml(ultima ? `Registro mais recente: ${truncateText(ultima.mensagem, 180)}` : "Ainda nao ha ultimo registro para comparar.")}</p>
+        <p>${escapeHtml(lines[5] || "")}</p>
+        <p>${escapeHtml(lines[6] || "")}</p>
+        <p>${escapeHtml(lines[7] || "")}</p>
       </article>
     `;
+  }
+
+  async function gerarParecerIa() {
+    if (!currentTask) {
+      setScreenMessage("Nao foi possivel localizar a tarefa para gerar o parecer.");
+      return;
+    }
+
+    try {
+      setScreenMessage("");
+      parecerResultPanel.hidden = false;
+      resetParecerView();
+      if (parecerLoading) parecerLoading.hidden = false;
+      setParecerButtonState(true);
+
+      const response = await fetch(AI_PROGRESS_OPINION_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(buildParecerPayload())
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload?.error || "Nao foi possivel gerar o parecer com IA.");
+      }
+
+      renderParecerResult(payload?.parecer || {});
+      await registrarEvento({
+        evento: "parecer_ia_gerado",
+        pagina: "parecer_ia_profissional",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile.email || currentUser.email || null,
+        contexto: {
+          tarefa_id: currentTask.id,
+          paciente_id: currentTask.patient_user_id || null
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      setScreenMessage(error.message || "Nao foi possivel gerar o parecer com IA.");
+    } finally {
+      if (parecerLoading) parecerLoading.hidden = true;
+      setParecerButtonState(false);
+    }
   }
 
   function renderInteractions() {
@@ -516,6 +652,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function bindEvents() {
+    btnGenerateParecer?.addEventListener("click", gerarParecerIa);
     btnBottomMenu?.addEventListener("click", alternarMenuInferior);
     btnMenuLogout?.addEventListener("click", sairDoSistema);
     btnBack?.addEventListener("click", (event) => {

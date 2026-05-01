@@ -121,6 +121,12 @@ button { font: inherit; color: inherit; }
   border: 1px solid rgba(180, 35, 24, 0.12);
 }
 
+.screen-message--loading {
+  background: rgba(109, 94, 252, 0.08);
+  color: var(--primary-dark);
+  border: 1px solid rgba(109, 94, 252, 0.18);
+}
+
 .empty-state {
   padding: 18px;
   border-radius: 18px;
@@ -221,6 +227,32 @@ button { font: inherit; color: inherit; }
   gap: 12px;
 }
 
+.ia-action-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.22);
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
 .content-section__header {
   display: flex;
   align-items: flex-start;
@@ -290,6 +322,11 @@ button { font: inherit; color: inherit; }
 
 .summary-card ul {
   padding-left: 18px;
+}
+
+.parecer-result {
+  display: grid;
+  gap: 14px;
 }
 
 .btn-secondary {
@@ -509,5 +546,13 @@ button { font: inherit; color: inherit; }
   .video-preview-box__frame,
   .video-preview-box__native {
     min-height: 280px;
+  }
+
+  .ia-action-row {
+    justify-content: stretch;
+  }
+
+  .btn-primary {
+    width: 100%;
   }
 }

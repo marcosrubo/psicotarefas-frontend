@@ -116,20 +116,6 @@
       <section class="panel">
         <div class="section-header">
           <div>
-            <h3>Combinados para gerar um parecer</h3>
-            <p>Base usada pelo sistema para preparar o material antes da etapa de IA.</p>
-          </div>
-        </div>
-        <ol class="guidelines-list">
-          <li>Trata-se de um apoio ao profissional, nao conclusao clinica automatica ou diagnostico.</li>
-          <li>Vamos evitar linguagem diagnostica fechada.</li>
-          <li>Vamos mostrar as evidencias do proprio historico que sustentam o parecer.</li>
-        </ol>
-      </section>
-
-      <section class="panel">
-        <div class="section-header">
-          <div>
             <h3>Trechos relevantes das interacoes</h3>
             <p>Recortes do historico que podem ser usados como base para o parecer IA.</p>
           </div>
@@ -163,6 +149,67 @@
         <div class="interactions-list" id="interactionsList"></div>
         <div class="empty-state empty-state--compact" id="interactionsEmptyState" hidden>
           Nenhuma interacao encontrada para esta tarefa.
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h3>Combinados para gerar um parecer</h3>
+            <p>Confira os dados reunidos acima e, em seguida, gere o parecer da IA.</p>
+          </div>
+        </div>
+        <ol class="guidelines-list">
+          <li>Trata-se de um apoio ao profissional, nao conclusao clinica automatica ou diagnostico.</li>
+          <li>Vamos evitar linguagem diagnostica fechada.</li>
+          <li>Vamos mostrar as evidencias do proprio historico que sustentam o parecer.</li>
+        </ol>
+        <div class="ia-action-row">
+          <button class="btn-primary" id="btnGenerateParecer" type="button">Gerar o parecer com IA</button>
+        </div>
+      </section>
+
+      <section class="panel" id="parecerResultPanel" hidden>
+        <div class="section-header">
+          <div>
+            <h3>Parecer gerado com IA</h3>
+            <p>Leitura assistida para apoiar a condução profissional.</p>
+          </div>
+        </div>
+
+        <div class="screen-message screen-message--loading" id="parecerLoading" hidden>
+          Gerando parecer com IA...
+        </div>
+
+        <div class="parecer-result" id="parecerResult" hidden>
+          <article class="summary-card">
+            <span class="summary-card__title">Resumo do andamento</span>
+            <p id="parecerResumo"></p>
+          </article>
+          <article class="summary-card">
+            <span class="summary-card__title">Sinais de avanço</span>
+            <ul id="parecerAvancos"></ul>
+          </article>
+          <article class="summary-card">
+            <span class="summary-card__title">Pontos de atenção</span>
+            <ul id="parecerAtencao"></ul>
+          </article>
+          <article class="summary-card">
+            <span class="summary-card__title">Hipóteses de compreensão</span>
+            <ul id="parecerHipoteses"></ul>
+          </article>
+          <article class="summary-card">
+            <span class="summary-card__title">Sugestões para a próxima condução</span>
+            <ul id="parecerSugestoes"></ul>
+          </article>
+          <article class="summary-card">
+            <span class="summary-card__title">Trechos relevantes das interações</span>
+            <ul id="parecerTrechos"></ul>
+          </article>
+          <article class="summary-card">
+            <span class="summary-card__title">Mudança percebida ao longo do tempo</span>
+            <p id="parecerMudanca"></p>
+          </article>
         </div>
       </section>
     </main>
