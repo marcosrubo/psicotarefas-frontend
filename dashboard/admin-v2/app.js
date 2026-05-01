@@ -3,6 +3,8 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 
 document.addEventListener("DOMContentLoaded", () => {
   const ADMIN_EMAIL = "marcos@rubo.com.br";
+  const LOGS_FETCH_LIMIT = 1000;
+  const LOGS_PAGE_SIZE = 50;
 
   const userName = document.getElementById("userName");
   const userRole = document.getElementById("userRole");
@@ -17,12 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientsWithoutLinkEmpty = document.getElementById("patientsWithoutLinkEmpty");
   const logsList = document.getElementById("logsList");
   const logsEmpty = document.getElementById("logsEmpty");
+  const logsToolbar = document.getElementById("logsToolbar");
+  const logsSummary = document.getElementById("logsSummary");
+  const logsPagination = document.getElementById("logsPagination");
   const professionalsList = document.getElementById("professionalsList");
   const professionalsEmpty = document.getElementById("professionalsEmpty");
   let currentUser = null;
   let adminData = null;
   let searchLogTimeout = null;
   let lastLoggedSearch = "";
+  let currentLogsPage = 1;
 
   function mostrarErroTela(texto) {
     if (!screenMessage) return;
@@ -155,7 +161,11 @@ document.addEventListener("DOMContentLoaded", () => {
       supabase.from("convites").select("*").order("created_at", { ascending: false }),
       supabase.from("tarefas").select("*").order("created_at", { ascending: false }),
       supabase.from("tarefa_interacoes").select("*").order("created_at", { ascending: true }),
-      supabase.from("logs_eventos").select("*").order("created_at", { ascending: false }).limit(80)
+      supabase
+        .from("logs_eventos")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(LOGS_FETCH_LIMIT)
     ]);
 
     const falhas = [
@@ -186,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderLogs(logs, termo) {
-    if (!logsList || !logsEmpty) return;
+    if (!logsList || !logsEmpty || !logsToolbar || !logsSummary || !logsPagination) return;
 
     const filtrados = [...logs]
       .filter((log) => {
@@ -206,13 +216,48 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-    if (!filtrados.length) {
+    const total = filtrados.length;
+    const totalPages = Math.max(1, Math.ceil(total / LOGS_PAGE_SIZE));
+    currentLogsPage = Math.min(currentLogsPage, totalPages);
+
+    if (!total) {
+      currentLogsPage = 1;
+      logsToolbar.hidden = true;
+      logsSummary.textContent = "";
+      logsPagination.innerHTML = "";
       logsList.innerHTML = "";
       logsEmpty.hidden = false;
       return;
     }
 
+    const startIndex = (currentLogsPage - 1) * LOGS_PAGE_SIZE;
+    const endIndex = Math.min(startIndex + LOGS_PAGE_SIZE, total);
+    const paginaAtual = filtrados.slice(startIndex, endIndex);
+
+    logsToolbar.hidden = false;
+    logsSummary.textContent =
+      `Exibindo ${startIndex + 1}-${endIndex} de ${total} logs carregados` +
+      (logs.length >= LOGS_FETCH_LIMIT ? ` (máximo de ${LOGS_FETCH_LIMIT})` : "");
     logsEmpty.hidden = true;
+    logsPagination.innerHTML = `
+      <button
+        class="logs-pagination__button"
+        type="button"
+        data-log-page="prev"
+        ${currentLogsPage === 1 ? "disabled" : ""}
+      >
+        Anterior
+      </button>
+      <span class="logs-pagination__status">Página ${currentLogsPage} de ${totalPages}</span>
+      <button
+        class="logs-pagination__button"
+        type="button"
+        data-log-page="next"
+        ${currentLogsPage === totalPages ? "disabled" : ""}
+      >
+        Próxima
+      </button>
+    `;
     logsList.innerHTML = `
       <div class="logs-table-wrap">
         <table class="logs-table">
@@ -226,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </tr>
           </thead>
           <tbody>
-            ${filtrados
+            ${paginaAtual
               .map(
                 (log) => `
                   <tr>
@@ -592,6 +637,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (searchTerm) {
     searchTerm.addEventListener("input", () => {
+      currentLogsPage = 1;
       renderAll();
 
       const termo = normalizarTexto(searchTerm.value || "");
@@ -613,6 +659,16 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       }, 500);
+    });
+  }
+
+  if (logsPagination) {
+    logsPagination.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-log-page]");
+      if (!(button instanceof HTMLButtonElement) || button.disabled) return;
+
+      currentLogsPage += button.dataset.logPage === "next" ? 1 : -1;
+      renderAll();
     });
   }
 
