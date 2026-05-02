@@ -596,20 +596,18 @@ input {
 }
 
 .patient-browser-card {
-  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
   overflow: hidden;
 }
 
-.patient-browser-card__summary {
-  list-style: none;
-  cursor: pointer;
+.patient-browser-card__header {
   padding: 14px;
   display: grid;
   gap: 12px;
-}
-
-.patient-browser-card__summary::-webkit-details-marker {
-  display: none;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
 }
 
 .patient-browser-card__top {
@@ -644,32 +642,15 @@ input {
   font-weight: 700;
 }
 
-.patient-browser-card__toggle {
-  color: var(--primary-dark);
-  font-weight: 700;
-}
-
-.patient-browser-card__toggle::after {
-  content: " detalhes";
-}
-
-.patient-browser-card[open] .patient-browser-card__toggle::after {
-  content: " menos";
-}
-
-.patient-browser-card[open] .patient-browser-card__summary {
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
-}
-
-.patient-browser-card__details {
-  padding: 14px;
-}
-
 .task-browser-card {
   padding: 14px;
   display: grid;
   gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.task-browser-card:last-child {
+  border-bottom: none;
 }
 
 .task-browser-card__top {
@@ -770,8 +751,4 @@ input {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .professional-grid {
-    grid-template-columns: 0.95fr 1.05fr;
-    align-items: start;
-  }
 }
