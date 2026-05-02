@@ -15,8 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskChoiceModal = document.getElementById("taskChoiceModal");
   const taskChoiceBackdrop = document.getElementById("taskChoiceBackdrop");
   const taskChoicePatientName = document.getElementById("taskChoicePatientName");
-  const taskChoicePatientEmail = document.getElementById("taskChoicePatientEmail");
-  const taskChoicePatientWhatsapp = document.getElementById("taskChoicePatientWhatsapp");
   const taskChoicePatientAlias = document.getElementById("taskChoicePatientAlias");
   const taskChoiceSessionValue = document.getElementById("taskChoiceSessionValue");
   const taskChoicePaymentFrequency = document.getElementById("taskChoicePaymentFrequency");
@@ -168,12 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!taskChoiceModal || !taskChoicePatientName || !taskChoicePatientAlias) return;
     selectedPatient = patient;
     taskChoicePatientName.textContent = patient.nome_real || "-";
-    if (taskChoicePatientEmail) {
-      taskChoicePatientEmail.textContent = patient.email || "Não informado";
-    }
-    if (taskChoicePatientWhatsapp) {
-      taskChoicePatientWhatsapp.textContent = patient.whatsapp || "Não informado";
-    }
     taskChoicePatientAlias.value = patient.alias || "";
     setTaskChoiceMessage();
     taskChoiceModal.hidden = false;

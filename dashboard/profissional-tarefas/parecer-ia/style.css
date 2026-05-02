@@ -200,6 +200,29 @@ button { font: inherit; color: inherit; }
   gap: 12px;
 }
 
+.media-disclosure {
+  padding: 0;
+  overflow: hidden;
+}
+
+.media-disclosure__summary {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px;
+  cursor: pointer;
+}
+
+.media-disclosure__summary::-webkit-details-marker {
+  display: none;
+}
+
+.media-disclosure[open] .media-disclosure__summary {
+  padding-bottom: 12px;
+}
+
 .ia-action-row {
   display: flex;
   justify-content: flex-end;
@@ -302,6 +325,7 @@ button { font: inherit; color: inherit; }
 }
 
 .summary-card ul {
+  margin-top: 0;
   padding-left: 18px;
 }
 
@@ -312,9 +336,7 @@ button { font: inherit; color: inherit; }
 }
 
 .timeline-summary .summary-card {
-  border: none;
-  background: transparent;
-  padding: 0;
+  gap: 8px;
 }
 
 .btn-secondary {

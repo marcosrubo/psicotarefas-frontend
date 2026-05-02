@@ -56,8 +56,8 @@
           </div>
         </div>
 
-        <section class="content-section media-section" id="taskPdfSection" hidden>
-          <div class="content-section__header">
+        <details class="content-section media-section media-disclosure" id="taskPdfSection" hidden>
+          <summary class="media-disclosure__summary">
             <div>
               <h3>PDF da tarefa</h3>
               <p id="taskPdfName" hidden></p>
@@ -65,15 +65,15 @@
             <a class="btn-secondary btn-secondary--small" id="btnOpenTaskPdf" href="#" target="_blank" rel="noopener noreferrer">
               Abrir PDF
             </a>
-          </div>
+          </summary>
           <div class="pdf-preview-box" id="taskPdfPreviewBox">
             <iframe class="pdf-preview-box__frame" id="taskPdfFrame" title="Previa do PDF da tarefa"></iframe>
             <div class="empty-inline-state" id="taskPdfEmpty" hidden>Esta tarefa nao possue PDF</div>
           </div>
-        </section>
+        </details>
 
-        <section class="content-section media-section" id="taskVideoSection" hidden>
-          <div class="content-section__header">
+        <details class="content-section media-section media-disclosure" id="taskVideoSection" hidden>
+          <summary class="media-disclosure__summary">
             <div>
               <h3>Vídeo da tarefa</h3>
               <p id="taskVideoHelper" hidden></p>
@@ -81,7 +81,7 @@
             <a class="btn-secondary btn-secondary--small" id="btnOpenTaskVideo" href="#" target="_blank" rel="noopener noreferrer">
               Abrir vídeo
             </a>
-          </div>
+          </summary>
 
           <div class="video-preview-box">
             <iframe class="video-preview-box__frame" id="taskVideoFrame" title="Previa do video da tarefa" hidden></iframe>
@@ -91,7 +91,7 @@
               Nao foi possivel exibir a previa deste video aqui. Use o botao para abrir o conteudo completo.
             </div>
           </div>
-        </section>
+        </details>
       </section>
 
       <section class="panel">

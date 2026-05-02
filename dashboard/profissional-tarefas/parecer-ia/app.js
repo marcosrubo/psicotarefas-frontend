@@ -797,6 +797,7 @@ function normalizeParecerList(value) {
     emptyState.hidden = true;
 
     taskPdfSection.hidden = true;
+    taskPdfSection.open = false;
     taskPdfFrame.hidden = true;
     taskPdfFrame.removeAttribute("src");
     taskPdfEmpty.hidden = false;
@@ -813,6 +814,7 @@ function normalizeParecerList(value) {
 
       if (!error && data?.signedUrl) {
         taskPdfSection.hidden = false;
+        taskPdfSection.open = false;
         btnOpenTaskPdf.hidden = false;
         btnOpenTaskPdf.href = data.signedUrl;
         taskPdfFrame.hidden = false;
@@ -827,6 +829,7 @@ function normalizeParecerList(value) {
     }
 
     taskVideoSection.hidden = true;
+    taskVideoSection.open = false;
     btnOpenTaskVideo.hidden = true;
     btnOpenTaskVideo.removeAttribute("href");
     taskVideoHelper.hidden = true;
@@ -843,6 +846,7 @@ function normalizeParecerList(value) {
 
     if (currentTask.video_url) {
       taskVideoSection.hidden = false;
+      taskVideoSection.open = false;
       btnOpenTaskVideo.hidden = false;
       btnOpenTaskVideo.href = currentTask.video_url;
 
