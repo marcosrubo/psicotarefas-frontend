@@ -336,7 +336,16 @@ button { font: inherit; color: inherit; }
 }
 
 .timeline-summary .summary-card {
-  gap: 8px;
+  padding: 12px 16px;
+  gap: 4px;
+}
+
+.timeline-summary .summary-card__title {
+  line-height: 1.1;
+}
+
+.timeline-summary .summary-card ul {
+  margin: 0;
 }
 
 .btn-secondary {
