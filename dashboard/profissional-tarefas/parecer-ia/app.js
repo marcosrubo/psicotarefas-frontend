@@ -43,6 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnGenerateParecer = document.getElementById("btnGenerateParecer");
   const parecerResultPanel = document.getElementById("parecerResultPanel");
   const parecerLoading = document.getElementById("parecerLoading");
+  const parecerDebugCard = document.getElementById("parecerDebugCard");
+  const parecerDebugRaw = document.getElementById("parecerDebugRaw");
   const parecerResult = document.getElementById("parecerResult");
   const parecerResumo = document.getElementById("parecerResumo");
   const parecerAvancos = document.getElementById("parecerAvancos");
@@ -246,6 +248,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const extracted = extractTextFromUnknownShape(value[key]);
         if (extracted) return extracted;
       }
+
+      const nestedValues = Object.values(value)
+        .map((item) => extractTextFromUnknownShape(item))
+        .filter(Boolean);
+
+      if (nestedValues.length) {
+        return nestedValues.join("\n").trim();
+      }
     }
 
     return "";
@@ -327,6 +337,47 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function hasMeaningfulParecer(normalized) {
+    if (!normalized) return false;
+
+    const listHasContent = (list) =>
+      Array.isArray(list) &&
+      list.some((item) => {
+        const text = String(item || "").trim();
+        return Boolean(text);
+      });
+
+    const textHasContent = (value, fallback) => {
+      const text = String(value || "").trim();
+      return Boolean(text) && text !== fallback;
+    };
+
+    return (
+      textHasContent(normalized.resumo_andamento, "Sem resumo disponivel.") ||
+      textHasContent(normalized.mudanca_percebida, "Sem mudanca percebida registrada.") ||
+      listHasContent(normalized.sinais_avanco) ||
+      listHasContent(normalized.pontos_atencao) ||
+      listHasContent(normalized.hipoteses_compreensao) ||
+      listHasContent(normalized.sugestoes_proxima_conducao) ||
+      listHasContent(normalized.trechos_relevantes)
+    );
+  }
+
+  function renderParecerDebug(rawPayload, normalizedPayload) {
+    if (!parecerDebugCard || !parecerDebugRaw) return;
+
+    parecerDebugRaw.textContent = JSON.stringify(
+      {
+        bruto: rawPayload,
+        normalizado: normalizedPayload
+      },
+      null,
+      2
+    );
+
+    parecerDebugCard.hidden = false;
+  }
+
   function setParecerButtonState(isLoading) {
     if (!btnGenerateParecer) return;
     btnGenerateParecer.disabled = isLoading;
@@ -336,6 +387,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function resetParecerView() {
     if (parecerLoading) parecerLoading.hidden = true;
     if (parecerResult) parecerResult.hidden = true;
+    if (parecerDebugCard) parecerDebugCard.hidden = true;
+    if (parecerDebugRaw) parecerDebugRaw.textContent = "";
   }
 
   function renderParecerResult(data) {
@@ -344,6 +397,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const normalized = normalizeParecerPayload(data);
     console.log("Parecer IA bruto:", data);
     console.log("Parecer IA normalizado:", normalized);
+    renderParecerDebug(data, normalized);
+
+    if (!hasMeaningfulParecer(normalized)) {
+      normalized.resumo_andamento =
+        "O retorno da IA veio vazio ou em formato inesperado. Veja abaixo o bloco 'Debug do retorno' para acompanhar exatamente o que o backend devolveu.";
+      normalized.mudanca_percebida =
+        "Ainda nao foi possivel interpretar automaticamente a mudanca percebida a partir do retorno recebido.";
+    }
 
     parecerResumo.textContent = normalized.resumo_andamento;
     parecerMudanca.textContent = normalized.mudanca_percebida;
@@ -669,6 +730,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok) {
+        renderParecerDebug(payload, {});
         throw new Error(payload?.error || "Nao foi possivel gerar o parecer com IA.");
       }
 
