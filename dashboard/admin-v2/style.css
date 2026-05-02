@@ -441,14 +441,25 @@ input {
 }
 
 .professional-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fff;
   padding: 18px;
   display: grid;
   gap: 16px;
 }
 
 .professional-card__header {
+  list-style: none;
+  cursor: pointer;
   display: grid;
   gap: 12px;
+}
+
+.professional-card__header::-webkit-details-marker,
+.patient-browser-card__header::-webkit-details-marker,
+.task-browser-card__summary::-webkit-details-marker {
+  display: none;
 }
 
 .professional-card__identity {
@@ -489,11 +500,13 @@ input {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .professional-card__body {
   display: grid;
   gap: 16px;
+  padding-top: 4px;
 }
 
 .professional-grid {
@@ -603,6 +616,8 @@ input {
 }
 
 .patient-browser-card__header {
+  list-style: none;
+  cursor: pointer;
   padding: 14px;
   display: grid;
   gap: 12px;
@@ -643,9 +658,7 @@ input {
 }
 
 .task-browser-card {
-  padding: 14px;
   display: grid;
-  gap: 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -653,11 +666,32 @@ input {
   border-bottom: none;
 }
 
+.task-browser-card__summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.task-browser-card__body {
+  padding: 0 14px 14px;
+  display: grid;
+  gap: 10px;
+}
+
 .task-browser-card__top {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.task-browser-card__summary-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -710,6 +744,24 @@ input {
 .interaction-item__time {
   color: var(--muted);
   font-size: 12px;
+}
+
+.collapsible-indicator {
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.professional-card[open] .collapsible-indicator::before,
+.patient-browser-card[open] .collapsible-indicator::before,
+.task-browser-card[open] .collapsible-indicator::before {
+  content: "Fechar";
+}
+
+.professional-card:not([open]) .collapsible-indicator::before,
+.patient-browser-card:not([open]) .collapsible-indicator::before,
+.task-browser-card:not([open]) .collapsible-indicator::before {
+  content: "Abrir";
 }
 
 .empty-state,

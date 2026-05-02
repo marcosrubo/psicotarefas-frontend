@@ -391,13 +391,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderPatientBrowser(patient, tarefas, interacoes) {
     return `
-      <article
+      <details
         class="patient-browser-card"
         data-patient-user-id="${escapeHtml(patient.patient_user_id || "")}"
         data-patient-email="${escapeHtml(patient.email || "")}"
         data-patient-name="${escapeHtml(patient.nome || patient.email || "Paciente")}"
       >
-        <div class="patient-browser-card__header">
+        <summary class="patient-browser-card__header">
           <div class="patient-browser-card__top">
             <div>
               <strong>${escapeHtml(patient.nome || patient.email || "Paciente")}</strong>
@@ -405,13 +405,14 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="patient-browser-card__summary-side">
               ${montarStatusBadge("ativo")}
+              <span class="collapsible-indicator" aria-hidden="true"></span>
             </div>
           </div>
           <div class="patient-browser-card__meta">
             <span>${tarefas.length} tarefa(s)</span>
             <span>${interacoes.length} interação(ões)</span>
           </div>
-        </div>
+        </summary>
         <div class="tasks-browser-list">
           ${
             tarefas.length
@@ -420,17 +421,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     const interacoesDaTarefa = interacoes.filter((item) => item.tarefa_id === tarefa.id);
 
                     return `
-                      <article class="task-browser-card">
-                        <div class="task-browser-card__top">
-                          <strong>${escapeHtml(tarefa.titulo || "Tarefa sem título")}</strong>
-                          ${montarStatusBadge(tarefa.status || "aberta")}
-                        </div>
-                        <p class="task-browser-card__description">${escapeHtml(tarefa.descricao || "")}</p>
-                        <div class="task-browser-card__meta">
-                          <span>Criada em ${escapeHtml(formatarData(tarefa.created_at))}</span>
-                          <span>${interacoesDaTarefa.length} interação(ões)</span>
-                        </div>
-                        <div class="interactions-list">
+                      <details class="task-browser-card">
+                        <summary class="task-browser-card__summary">
+                          <div class="task-browser-card__top">
+                            <strong>${escapeHtml(tarefa.titulo || "Tarefa sem título")}</strong>
+                            <div class="task-browser-card__summary-side">
+                              ${montarStatusBadge(tarefa.status || "aberta")}
+                              <span class="collapsible-indicator" aria-hidden="true"></span>
+                            </div>
+                          </div>
+                          <div class="task-browser-card__meta">
+                            <span>Criada em ${escapeHtml(formatarData(tarefa.created_at))}</span>
+                            <span>${interacoesDaTarefa.length} interação(ões)</span>
+                          </div>
+                        </summary>
+                        <div class="task-browser-card__body">
+                          <p class="task-browser-card__description">${escapeHtml(tarefa.descricao || "")}</p>
+                          <div class="interactions-list">
                           ${
                             interacoesDaTarefa.length
                               ? interacoesDaTarefa
@@ -456,15 +463,16 @@ document.addEventListener("DOMContentLoaded", () => {
                                   .join("")
                               : `<div class="empty-inline">Nenhuma interação nesta tarefa.</div>`
                           }
+                          </div>
                         </div>
-                      </article>
+                      </details>
                     `;
                   })
                   .join("")
               : `<div class="empty-inline">Nenhuma tarefa encontrada para este paciente.</div>`
           }
         </div>
-      </article>
+      </details>
     `;
   }
 
@@ -533,8 +541,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return `
-          <article class="professional-card">
-            <div class="professional-card__header">
+          <details class="professional-card">
+            <summary class="professional-card__header">
               <div class="professional-card__identity">
                 <div class="professional-card__avatar">${escapeHtml(
                   obterIniciais(profissional.nome || profissional.email)
@@ -550,8 +558,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="status-badge status-badge--success">${pacientesEfetivos.length} paciente(s) efetivo(s)</span>
                 <span class="status-badge status-badge--primary">${tarefasDoProf.length} tarefa(s)</span>
                 <span class="status-badge status-badge--warning">${interacoesDoProf.length} interação(ões)</span>
+                <span class="collapsible-indicator" aria-hidden="true"></span>
               </div>
-            </div>
+            </summary>
 
             <div class="professional-card__body">
               <div class="professional-grid">
@@ -606,7 +615,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
               </div>
             </div>
-          </article>
+          </details>
         `;
       })
       .filter(Boolean);
