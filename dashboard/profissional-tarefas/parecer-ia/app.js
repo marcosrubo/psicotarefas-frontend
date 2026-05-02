@@ -363,11 +363,12 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
-  function renderParecerDebug(rawPayload, normalizedPayload) {
+  function renderParecerDebug(rawPayload, normalizedPayload, transportDebug = null) {
     if (!parecerDebugCard || !parecerDebugRaw) return;
 
     parecerDebugRaw.textContent = JSON.stringify(
       {
+        transporte: transportDebug,
         bruto: rawPayload,
         normalizado: normalizedPayload
       },
@@ -391,13 +392,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (parecerDebugRaw) parecerDebugRaw.textContent = "";
   }
 
-  function renderParecerResult(data) {
+  function renderParecerResult(data, transportDebug = null) {
     if (!parecerResult) return;
 
     const normalized = normalizeParecerPayload(data);
     console.log("Parecer IA bruto:", data);
     console.log("Parecer IA normalizado:", normalized);
-    renderParecerDebug(data, normalized);
+    renderParecerDebug(data, normalized, transportDebug);
 
     if (!hasMeaningfulParecer(normalized)) {
       normalized.resumo_andamento =
@@ -727,14 +728,38 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(buildParecerPayload())
       });
 
-      const payload = await response.json().catch(() => ({}));
+      const rawText = await response.text();
+      let parsedPayload = null;
+      let parseError = null;
 
-      if (!response.ok) {
-        renderParecerDebug(payload, {});
-        throw new Error(payload?.error || "Nao foi possivel gerar o parecer com IA.");
+      if (rawText) {
+        try {
+          parsedPayload = JSON.parse(rawText);
+        } catch (error) {
+          parseError = error?.message || String(error);
+        }
       }
 
-      renderParecerResult(payload?.parecer ?? payload ?? {});
+      const transportDebug = {
+        status: response.status,
+        ok: response.ok,
+        contentType: response.headers.get("content-type") || "",
+        parseError,
+        rawText,
+        parsedPayload
+      };
+
+      if (!response.ok) {
+        renderParecerDebug(parsedPayload ?? rawText ?? {}, {}, transportDebug);
+        throw new Error(
+          parsedPayload?.error ||
+          rawText ||
+          "Nao foi possivel gerar o parecer com IA."
+        );
+      }
+
+      const sourceForRender = parsedPayload?.parecer ?? parsedPayload ?? rawText ?? {};
+      renderParecerResult(sourceForRender, transportDebug);
       await registrarEvento({
         evento: "parecer_ia_gerado",
         pagina: "parecer_ia_profissional",
