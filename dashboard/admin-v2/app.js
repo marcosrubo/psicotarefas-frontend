@@ -148,50 +148,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarDados() {
-    const [
-      perfisResult,
-      vinculosResult,
-      convitesResult,
-      tarefasResult,
-      interacoesResult,
-      logsResult
-    ] = await Promise.all([
-      supabase.from("perfis").select("*"),
-      supabase.from("vinculos").select("*"),
-      supabase.from("convites").select("*").order("created_at", { ascending: false }),
-      supabase.from("tarefas").select("*").order("created_at", { ascending: false }),
-      supabase.from("tarefa_interacoes").select("*").order("created_at", { ascending: true }),
-      supabase
-        .from("logs_eventos")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(LOGS_FETCH_LIMIT)
-    ]);
+    const { data, error } = await supabase.rpc("admin_v2_dataset");
 
-    const falhas = [
-      ["perfis", perfisResult.error],
-      ["vinculos", vinculosResult.error],
-      ["convites", convitesResult.error],
-      ["tarefas", tarefasResult.error],
-      ["tarefa_interacoes", interacoesResult.error],
-      ["logs_eventos", logsResult.error]
-    ].filter(([, error]) => error);
-
-    if (falhas.length) {
-      const descricao = falhas
-        .map(([nome, error]) => `${nome}: ${error.message}`)
-        .join(" | ");
-
-      throw new Error(`Falha ao carregar dados do admin-v2. ${descricao}`);
+    if (error) {
+      throw new Error(`Falha ao carregar dados do admin-v2. ${error.message}`);
     }
 
     return {
-      perfis: perfisResult.data || [],
-      vinculos: vinculosResult.data || [],
-      convites: convitesResult.data || [],
-      tarefas: tarefasResult.data || [],
-      interacoes: interacoesResult.data || [],
-      logs: logsResult.data || []
+      perfis: data?.perfis || [],
+      vinculos: data?.vinculos || [],
+      convites: data?.convites || [],
+      tarefas: data?.tarefas || [],
+      interacoes: data?.interacoes || [],
+      logs: Array.isArray(data?.logs) ? data.logs.slice(0, LOGS_FETCH_LIMIT) : []
     };
   }
 
