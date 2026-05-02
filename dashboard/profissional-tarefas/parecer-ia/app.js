@@ -193,6 +193,63 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
+  function getNonEmptyText(value, fallback = "") {
+    const text = String(value ?? "").trim();
+    return text || fallback;
+  }
+
+  function normalizeParecerList(value) {
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => String(item ?? "").trim())
+        .filter(Boolean);
+    }
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) return [];
+
+      return trimmed
+        .split(/\n+/)
+        .map((item) => item.replace(/^[-*•]\s*/, "").trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  }
+
+  function normalizeParecerPayload(data = {}) {
+    const source = typeof data === "object" && data ? data : {};
+
+    return {
+      resumo_andamento:
+        getNonEmptyText(source.resumo_andamento) ||
+        getNonEmptyText(source.resumo) ||
+        getNonEmptyText(source.resumoDoAndamento) ||
+        "Sem resumo disponivel.",
+      sinais_avanco: normalizeParecerList(
+        source.sinais_avanco ?? source.sinaisDeAvanco ?? source.avancos
+      ),
+      pontos_atencao: normalizeParecerList(
+        source.pontos_atencao ?? source.pontosDeAtencao ?? source.atencao
+      ),
+      hipoteses_compreensao: normalizeParecerList(
+        source.hipoteses_compreensao ?? source.hipotesesDeCompreensao ?? source.hipoteses
+      ),
+      sugestoes_proxima_conducao: normalizeParecerList(
+        source.sugestoes_proxima_conducao ?? source.sugestoesParaProximaConducao ?? source.sugestoes
+      ),
+      trechos_relevantes: normalizeParecerList(
+        source.trechos_relevantes ?? source.trechosRelevantes
+      ),
+      mudanca_percebida:
+        getNonEmptyText(source.mudanca_percebida) ||
+        getNonEmptyText(source.mudancaPercebida) ||
+        getNonEmptyText(source.mudanca) ||
+        "Sem mudanca percebida registrada."
+    };
+  }
+
   function setParecerButtonState(isLoading) {
     if (!btnGenerateParecer) return;
     btnGenerateParecer.disabled = isLoading;
@@ -207,13 +264,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderParecerResult(data) {
     if (!parecerResult) return;
 
-    parecerResumo.textContent = String(data?.resumo_andamento || "Sem resumo disponivel.").trim();
-    parecerMudanca.textContent = String(data?.mudanca_percebida || "Sem mudanca percebida registrada.").trim();
-    parecerAvancos.innerHTML = createListMarkup(data?.sinais_avanco);
-    parecerAtencao.innerHTML = createListMarkup(data?.pontos_atencao);
-    parecerHipoteses.innerHTML = createListMarkup(data?.hipoteses_compreensao);
-    parecerSugestoes.innerHTML = createListMarkup(data?.sugestoes_proxima_conducao);
-    parecerTrechos.innerHTML = createListMarkup(data?.trechos_relevantes);
+    const normalized = normalizeParecerPayload(data);
+
+    parecerResumo.textContent = normalized.resumo_andamento;
+    parecerMudanca.textContent = normalized.mudanca_percebida;
+    parecerAvancos.innerHTML = createListMarkup(normalized.sinais_avanco);
+    parecerAtencao.innerHTML = createListMarkup(normalized.pontos_atencao);
+    parecerHipoteses.innerHTML = createListMarkup(normalized.hipoteses_compreensao);
+    parecerSugestoes.innerHTML = createListMarkup(normalized.sugestoes_proxima_conducao);
+    parecerTrechos.innerHTML = createListMarkup(normalized.trechos_relevantes);
     parecerResult.hidden = false;
   }
 
@@ -534,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(payload?.error || "Nao foi possivel gerar o parecer com IA.");
       }
 
-      renderParecerResult(payload?.parecer || {});
+      renderParecerResult(payload?.parecer ?? payload ?? {});
       await registrarEvento({
         evento: "parecer_ia_gerado",
         pagina: "parecer_ia_profissional",
