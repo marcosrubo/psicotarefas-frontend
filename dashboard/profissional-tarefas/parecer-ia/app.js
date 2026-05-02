@@ -184,41 +184,41 @@ document.addEventListener("DOMContentLoaded", () => {
     return { eyebrow: "Atividade simples", videoHelper: "Video vinculado a esta atividade." };
   }
 
-  function createListMarkup(items = []) {
-    const validItems = (items || []).filter((item) => String(item || "").trim());
-    if (!validItems.length) {
-      return "<li>Sem observacoes registradas.</li>";
-    }
-
-    return validItems
-      .map((item) => `<li>${escapeHtml(String(item).trim())}</li>`)
-      .join("");
+function createListMarkup(items = []) {
+  const validItems = (items || [])
+    .map((item) => extractTextFromUnknownShape(item))
+    .map((item) => String(item || "").trim())
+    .filter(Boolean);
+  if (!validItems.length) {
+    return "<li>Sem observacoes registradas.</li>";
   }
+
+  return validItems
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+}
 
   function getNonEmptyText(value, fallback = "") {
     const text = String(value ?? "").trim();
     return text || fallback;
   }
 
-  function normalizeParecerList(value) {
-    if (Array.isArray(value)) {
-      return value
-        .map((item) => String(item ?? "").trim())
-        .filter(Boolean);
-    }
-
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      if (!trimmed) return [];
-
-      return trimmed
-        .split(/\n+/)
-        .map((item) => item.replace(/^[-*•]\s*/, "").trim())
-        .filter(Boolean);
-    }
-
-    return [];
+function normalizeParecerList(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => extractTextFromUnknownShape(item))
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean);
   }
+
+  const extracted = extractTextFromUnknownShape(value);
+  if (!extracted) return [];
+
+  return extracted
+    .split(/\n+/)
+    .map((item) => item.replace(/^[-*•]\s*/, "").trim())
+    .filter(Boolean);
+}
 
   function extractTextFromUnknownShape(value) {
     if (typeof value === "string") {

@@ -320,6 +320,15 @@ button { font: inherit; color: inherit; }
   white-space: pre-line;
 }
 
+.snippet-card__text,
+.interaction-item__text,
+.summary-card p,
+.summary-card li,
+#parecerDebugRaw {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .summary-card ul {
   padding-left: 18px;
 }
@@ -327,6 +336,11 @@ button { font: inherit; color: inherit; }
 .parecer-result {
   display: grid;
   gap: 14px;
+  min-width: 0;
+}
+
+#parecerDebugRaw {
+  white-space: pre-wrap;
 }
 
 .btn-secondary {
