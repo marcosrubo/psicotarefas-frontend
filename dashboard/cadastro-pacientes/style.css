@@ -398,6 +398,30 @@ a {
   outline: none;
 }
 
+.patient-edit-field__input--status[data-status="ativo"] {
+  color: #18794e;
+}
+
+.patient-edit-field__input--status[data-status="em_pausa"] {
+  color: #a15c07;
+}
+
+.patient-edit-field__input--status[data-status="inadimplente"] {
+  color: #c53434;
+}
+
+.patient-edit-field__input--status option[value="ativo"] {
+  color: #18794e;
+}
+
+.patient-edit-field__input--status option[value="em_pausa"] {
+  color: #a15c07;
+}
+
+.patient-edit-field__input--status option[value="inadimplente"] {
+  color: #c53434;
+}
+
 .patient-edit-field__textarea {
   resize: vertical;
   min-height: 112px;
@@ -628,8 +652,18 @@ a {
   }
 
   .patient-edit-field--inline {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    grid-template-columns: minmax(118px, 132px) minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .patient-edit-field__label {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .patient-edit-field__input {
+    padding: 12px 14px;
   }
 
 }

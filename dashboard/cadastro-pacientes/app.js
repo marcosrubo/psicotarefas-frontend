@@ -142,7 +142,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskChoiceDueDay) taskChoiceDueDay.value = "";
     if (taskChoiceContractStatus) taskChoiceContractStatus.value = "";
     if (taskChoiceContractNotes) taskChoiceContractNotes.value = "";
+    atualizarAparenciaStatusContrato();
     setTaskChoiceMessage();
+  }
+
+  function atualizarAparenciaStatusContrato() {
+    if (!taskChoiceContractStatus) return;
+    taskChoiceContractStatus.dataset.status = taskChoiceContractStatus.value || "";
   }
 
   async function carregarDadosContrato(vinculoId) {
@@ -194,6 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (taskChoiceContractNotes) {
         taskChoiceContractNotes.value = contrato.observacoes_contrato || "";
       }
+      atualizarAparenciaStatusContrato();
     } catch (error) {
       setTaskChoiceMessage(error.message || "Erro ao carregar dados do contrato.", "error");
     }
@@ -738,6 +745,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnSaveTaskChoice) {
     btnSaveTaskChoice.addEventListener("click", salvarApelidoPaciente);
+  }
+
+  if (taskChoiceContractStatus) {
+    taskChoiceContractStatus.addEventListener("change", atualizarAparenciaStatusContrato);
+    atualizarAparenciaStatusContrato();
   }
 
   if (inviteModalBackdrop) {
