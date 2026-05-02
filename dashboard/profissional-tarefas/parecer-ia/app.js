@@ -796,7 +796,7 @@ function normalizeParecerList(value) {
     taskDetailCard.hidden = false;
     emptyState.hidden = true;
 
-    taskPdfSection.hidden = false;
+    taskPdfSection.hidden = true;
     taskPdfFrame.hidden = true;
     taskPdfFrame.removeAttribute("src");
     taskPdfEmpty.hidden = false;
@@ -812,6 +812,7 @@ function normalizeParecerList(value) {
         .createSignedUrl(currentTask.pdf_path, 3600);
 
       if (!error && data?.signedUrl) {
+        taskPdfSection.hidden = false;
         btnOpenTaskPdf.hidden = false;
         btnOpenTaskPdf.href = data.signedUrl;
         taskPdfFrame.hidden = false;
@@ -825,7 +826,7 @@ function normalizeParecerList(value) {
       }
     }
 
-    taskVideoSection.hidden = false;
+    taskVideoSection.hidden = true;
     btnOpenTaskVideo.hidden = true;
     btnOpenTaskVideo.removeAttribute("href");
     taskVideoHelper.hidden = true;
@@ -841,6 +842,7 @@ function normalizeParecerList(value) {
     taskVideoEmpty.textContent = "Esta tarefa nao possue VIDEO";
 
     if (currentTask.video_url) {
+      taskVideoSection.hidden = false;
       btnOpenTaskVideo.hidden = false;
       btnOpenTaskVideo.href = currentTask.video_url;
 

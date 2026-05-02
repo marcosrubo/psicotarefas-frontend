@@ -306,8 +306,8 @@ a {
 
 .task-choice-modal__header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-end;
   gap: 12px;
 }
 
@@ -361,6 +361,16 @@ a {
   min-width: 0;
 }
 
+.patient-edit-field--inline {
+  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.patient-edit-field--status {
+  align-items: start;
+}
+
 .patient-edit-field__label {
   color: var(--primary-dark);
   font-size: 12px;
@@ -398,7 +408,8 @@ a {
 }
 
 .contract-status-group {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -417,7 +428,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid #d0d5dd;
   border-radius: 14px;
   background: #ffffff;
@@ -670,5 +681,14 @@ a {
 
   .task-choice-modal__header h3 {
     font-size: 21px;
+  }
+
+  .patient-edit-field--inline {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .contract-status-group {
+    display: grid;
   }
 }

@@ -171,6 +171,13 @@ button { font: inherit; color: inherit; }
   line-height: 1.05;
 }
 
+.detail-card__description {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
 .section-header h3,
 .content-section h3 {
   margin: 0 0 6px;
@@ -191,10 +198,6 @@ button { font: inherit; color: inherit; }
   padding: 18px;
   display: grid;
   gap: 12px;
-}
-
-.content-section--inline {
-  margin-top: 12px;
 }
 
 .ia-action-row {
@@ -306,6 +309,12 @@ button { font: inherit; color: inherit; }
   display: grid;
   gap: 14px;
   min-width: 0;
+}
+
+.timeline-summary .summary-card {
+  border: none;
+  background: transparent;
+  padding: 0;
 }
 
 .btn-secondary {

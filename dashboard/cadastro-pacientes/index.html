@@ -108,11 +108,6 @@
         <div class="task-choice-modal__backdrop" id="taskChoiceBackdrop"></div>
         <div class="task-choice-modal__card" role="dialog" aria-modal="true" aria-labelledby="taskChoiceTitle">
           <div class="task-choice-modal__header">
-            <div>
-              <p class="task-choice-modal__label">Paciente selecionado</p>
-              <h3 id="taskChoiceTitle">Vamos alterar os dados desse paciente</h3>
-              <p class="task-choice-modal__subtitle">Apelido e dados opcionais do contrato terapêutico.</p>
-            </div>
             <button class="task-choice-modal__close" id="btnCloseTaskChoice" type="button" aria-label="Fechar">
               ✕
             </button>
@@ -148,7 +143,7 @@
             <div class="patient-edit-section">
               <p class="patient-edit-section__title">Dados do contrato terapêutico</p>
 
-              <label class="patient-edit-field" for="taskChoiceSessionValue">
+              <label class="patient-edit-field patient-edit-field--inline" for="taskChoiceSessionValue">
                 <span class="patient-edit-field__label">Valor da sessão</span>
                 <input
                   class="patient-edit-field__input"
@@ -161,7 +156,7 @@
                 />
               </label>
 
-              <label class="patient-edit-field" for="taskChoicePaymentFrequency">
+              <label class="patient-edit-field patient-edit-field--inline" for="taskChoicePaymentFrequency">
                 <span class="patient-edit-field__label">Periodicidade</span>
                 <select class="patient-edit-field__input" id="taskChoicePaymentFrequency">
                   <option value="">Não informado</option>
@@ -171,7 +166,7 @@
                 </select>
               </label>
 
-              <label class="patient-edit-field" for="taskChoiceDueDay">
+              <label class="patient-edit-field patient-edit-field--inline" for="taskChoiceDueDay">
                 <span class="patient-edit-field__label">Dia de vencimento</span>
                 <input
                   class="patient-edit-field__input"
@@ -184,7 +179,7 @@
                 />
               </label>
 
-              <fieldset class="patient-edit-field">
+              <fieldset class="patient-edit-field patient-edit-field--inline patient-edit-field--status">
                 <legend class="patient-edit-field__label">Status do vínculo</legend>
                 <div class="contract-status-group">
                   <label class="contract-status-option">
