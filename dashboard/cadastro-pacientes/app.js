@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskChoicePatientEmail = document.getElementById("taskChoicePatientEmail");
   const taskChoicePatientWhatsapp = document.getElementById("taskChoicePatientWhatsapp");
   const taskChoicePatientAlias = document.getElementById("taskChoicePatientAlias");
+  const taskChoiceSessionValue = document.getElementById("taskChoiceSessionValue");
+  const taskChoicePaymentFrequency = document.getElementById("taskChoicePaymentFrequency");
+  const taskChoiceDueDay = document.getElementById("taskChoiceDueDay");
+  const taskChoiceContractNotes = document.getElementById("taskChoiceContractNotes");
   const taskChoiceMessage = document.getElementById("taskChoiceMessage");
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
   const btnCancelTaskChoice = document.getElementById("btnCancelTaskChoice");
@@ -133,10 +137,37 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!taskChoiceModal) return;
     taskChoiceModal.hidden = true;
     selectedPatient = null;
+    if (taskChoicePatientAlias) taskChoicePatientAlias.value = "";
+    if (taskChoiceSessionValue) taskChoiceSessionValue.value = "";
+    if (taskChoicePaymentFrequency) taskChoicePaymentFrequency.value = "";
+    if (taskChoiceDueDay) taskChoiceDueDay.value = "";
+    if (taskChoiceContractNotes) taskChoiceContractNotes.value = "";
+    document
+      .querySelectorAll('input[name="taskChoiceContractStatus"]')
+      .forEach((input) => {
+        input.checked = input.value === "";
+      });
     setTaskChoiceMessage();
   }
 
-  function abrirMensagemPaciente(patient) {
+  async function carregarDadosContrato(vinculoId) {
+    if (!vinculoId) return {};
+
+    const { data, error } = await supabase
+      .from("vinculos")
+      .select("valor_sessao, periodicidade_pagamento, dia_vencimento, status_contrato, observacoes_contrato")
+      .eq("id", vinculoId)
+      .eq("professional_user_id", currentUser.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Não foi possível carregar os dados do contrato: ${error.message}`);
+    }
+
+    return data || {};
+  }
+
+  async function abrirMensagemPaciente(patient) {
     if (!taskChoiceModal || !taskChoicePatientName || !taskChoicePatientAlias) return;
     selectedPatient = patient;
     taskChoicePatientName.textContent = patient.nome_real || "-";
@@ -149,6 +180,38 @@ document.addEventListener("DOMContentLoaded", () => {
     taskChoicePatientAlias.value = patient.alias || "";
     setTaskChoiceMessage();
     taskChoiceModal.hidden = false;
+
+    try {
+      const contrato = await carregarDadosContrato(patient.vinculo_id);
+
+      if (taskChoiceSessionValue) {
+        taskChoiceSessionValue.value =
+          contrato.valor_sessao === null || contrato.valor_sessao === undefined
+            ? ""
+            : Number(contrato.valor_sessao).toFixed(2);
+      }
+      if (taskChoicePaymentFrequency) {
+        taskChoicePaymentFrequency.value = contrato.periodicidade_pagamento || "";
+      }
+      if (taskChoiceDueDay) {
+        taskChoiceDueDay.value =
+          contrato.dia_vencimento === null || contrato.dia_vencimento === undefined
+            ? ""
+            : String(contrato.dia_vencimento);
+      }
+      if (taskChoiceContractNotes) {
+        taskChoiceContractNotes.value = contrato.observacoes_contrato || "";
+      }
+      document
+        .querySelectorAll('input[name="taskChoiceContractStatus"]')
+        .forEach((input) => {
+          input.checked = input.value === (contrato.status_contrato || "");
+        });
+    } catch (error) {
+      setTaskChoiceMessage(error.message || "Erro ao carregar dados do contrato.", "error");
+    }
+
+    setTaskChoiceMessage();
     window.setTimeout(() => {
       taskChoicePatientAlias.focus();
       taskChoicePatientAlias.select();
@@ -192,9 +255,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!selectedPatient || !taskChoicePatientAlias || !btnSaveTaskChoice) return;
 
     const alias = taskChoicePatientAlias.value.trim();
+    const valorSessaoRaw = taskChoiceSessionValue?.value.trim() || "";
+    const periodicidadePagamento = taskChoicePaymentFrequency?.value || "";
+    const diaVencimentoRaw = taskChoiceDueDay?.value.trim() || "";
+    const observacoesContrato = taskChoiceContractNotes?.value.trim() || "";
+    const statusContrato =
+      document.querySelector('input[name="taskChoiceContractStatus"]:checked')?.value || "";
 
     if (!alias) {
       setTaskChoiceMessage("Digite um apelido válido para o paciente.", "error");
+      return;
+    }
+
+    const valorSessao = valorSessaoRaw ? Number(valorSessaoRaw.replace(",", ".")) : null;
+    if (valorSessaoRaw && (!Number.isFinite(valorSessao) || valorSessao < 0)) {
+      setTaskChoiceMessage("Informe um valor de sessão válido.", "error");
+      return;
+    }
+
+    const diaVencimento = diaVencimentoRaw ? Number.parseInt(diaVencimentoRaw, 10) : null;
+    if (diaVencimentoRaw && (!Number.isFinite(diaVencimento) || diaVencimento < 1 || diaVencimento > 31)) {
+      setTaskChoiceMessage("Informe um dia de vencimento entre 1 e 31.", "error");
       return;
     }
 
@@ -206,7 +287,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const { error } = await supabase
         .from("vinculos")
         .update({
-          patient_alias: alias
+          patient_alias: alias,
+          valor_sessao: valorSessao,
+          periodicidade_pagamento: periodicidadePagamento || null,
+          dia_vencimento: diaVencimento,
+          status_contrato: statusContrato || null,
+          observacoes_contrato: observacoesContrato || null
         })
         .eq("id", selectedPatient.vinculo_id)
         .eq("professional_user_id", currentUser.id);
@@ -229,11 +315,15 @@ document.addEventListener("DOMContentLoaded", () => {
         userId: currentUser?.id,
         email: currentProfile?.email || currentUser?.email || "",
         perfil: "profissional",
-        evento: "apelido_paciente_atualizado",
+        evento: "cadastro_paciente_atualizado",
         pagina: "cadastro_pacientes",
         contexto: {
           paciente_id: selectedPatient.patient_user_id,
-          vinculo_id: selectedPatient.vinculo_id
+          vinculo_id: selectedPatient.vinculo_id,
+          possui_valor_sessao: valorSessao !== null,
+          periodicidade_pagamento: periodicidadePagamento || null,
+          dia_vencimento: diaVencimento,
+          status_contrato: statusContrato || null
         }
       });
 
@@ -637,7 +727,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      abrirMensagemPaciente(patient);
+      abrirMensagemPaciente(patient).catch((error) => {
+        console.error("Erro ao abrir edição do paciente:", error);
+        showScreenError(error.message || "Não foi possível abrir os dados do paciente.");
+      });
     });
   }
 

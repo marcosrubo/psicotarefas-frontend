@@ -111,7 +111,7 @@
             <div>
               <p class="task-choice-modal__label">Paciente selecionado</p>
               <h3 id="taskChoiceTitle">Vamos alterar os dados desse paciente</h3>
-              <p class="task-choice-modal__subtitle">Somente o apelido poderá ser alterado nesta etapa.</p>
+              <p class="task-choice-modal__subtitle">Apelido e dados opcionais do contrato terapêutico.</p>
             </div>
             <button class="task-choice-modal__close" id="btnCloseTaskChoice" type="button" aria-label="Fechar">
               ✕
@@ -144,6 +144,91 @@
                 placeholder="Digite o apelido do paciente"
               />
             </label>
+
+            <div class="patient-edit-section">
+              <p class="patient-edit-section__title">Dados do contrato terapêutico</p>
+
+              <label class="patient-edit-field" for="taskChoiceSessionValue">
+                <span class="patient-edit-field__label">Valor da sessão</span>
+                <input
+                  class="patient-edit-field__input"
+                  id="taskChoiceSessionValue"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputmode="decimal"
+                  placeholder="Ex.: 180,00"
+                />
+              </label>
+
+              <label class="patient-edit-field" for="taskChoicePaymentFrequency">
+                <span class="patient-edit-field__label">Periodicidade</span>
+                <select class="patient-edit-field__input" id="taskChoicePaymentFrequency">
+                  <option value="">Não informado</option>
+                  <option value="semanal">Semanal</option>
+                  <option value="quinzenal">Quinzenal</option>
+                  <option value="mensal">Mensal</option>
+                </select>
+              </label>
+
+              <label class="patient-edit-field" for="taskChoiceDueDay">
+                <span class="patient-edit-field__label">Dia de vencimento</span>
+                <input
+                  class="patient-edit-field__input"
+                  id="taskChoiceDueDay"
+                  type="number"
+                  min="1"
+                  max="31"
+                  inputmode="numeric"
+                  placeholder="Ex.: 10"
+                />
+              </label>
+
+              <fieldset class="patient-edit-field">
+                <legend class="patient-edit-field__label">Status do vínculo</legend>
+                <div class="contract-status-group">
+                  <label class="contract-status-option">
+                    <input type="radio" name="taskChoiceContractStatus" value="" checked />
+                    <span class="contract-status-option__content">
+                      <span class="contract-status-dot contract-status-dot--neutral"></span>
+                      <span>Não informado</span>
+                    </span>
+                  </label>
+                  <label class="contract-status-option">
+                    <input type="radio" name="taskChoiceContractStatus" value="ativo" />
+                    <span class="contract-status-option__content">
+                      <span class="contract-status-dot contract-status-dot--active"></span>
+                      <span>Ativo</span>
+                    </span>
+                  </label>
+                  <label class="contract-status-option">
+                    <input type="radio" name="taskChoiceContractStatus" value="em_pausa" />
+                    <span class="contract-status-option__content">
+                      <span class="contract-status-dot contract-status-dot--paused"></span>
+                      <span>Em pausa</span>
+                    </span>
+                  </label>
+                  <label class="contract-status-option">
+                    <input type="radio" name="taskChoiceContractStatus" value="inadimplente" />
+                    <span class="contract-status-option__content">
+                      <span class="contract-status-dot contract-status-dot--late"></span>
+                      <span>Inadimplente</span>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <label class="patient-edit-field" for="taskChoiceContractNotes">
+                <span class="patient-edit-field__label">Observações</span>
+                <textarea
+                  class="patient-edit-field__input patient-edit-field__textarea"
+                  id="taskChoiceContractNotes"
+                  rows="4"
+                  maxlength="1500"
+                  placeholder="Informações adicionais sobre o contrato terapêutico"
+                ></textarea>
+              </label>
+            </div>
           </div>
 
           <div class="screen-message" id="taskChoiceMessage" hidden></div>

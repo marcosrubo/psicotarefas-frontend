@@ -338,9 +338,27 @@ a {
   gap: 14px;
 }
 
+.patient-edit-section {
+  display: grid;
+  gap: 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.patient-edit-section__title {
+  margin: 0;
+  color: #1f2430;
+  font-size: 16px;
+  font-weight: 800;
+}
+
 .patient-edit-field {
   display: grid;
   gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
 }
 
 .patient-edit-field__label {
@@ -369,9 +387,70 @@ a {
   outline: none;
 }
 
+.patient-edit-field__textarea {
+  resize: vertical;
+  min-height: 112px;
+}
+
 .patient-edit-field__input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+}
+
+.contract-status-group {
+  display: grid;
+  gap: 10px;
+}
+
+.contract-status-option {
+  display: block;
+  cursor: pointer;
+}
+
+.contract-status-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contract-status-option__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  background: #ffffff;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.contract-status-option input:checked + .contract-status-option__content {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+  background: #fbfaff;
+}
+
+.contract-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.contract-status-dot--neutral {
+  background: #98a2b3;
+}
+
+.contract-status-dot--active {
+  background: #2f6df6;
+}
+
+.contract-status-dot--paused {
+  background: #f5b400;
+}
+
+.contract-status-dot--late {
+  background: #e5484d;
 }
 
 .task-choice-modal__close {
