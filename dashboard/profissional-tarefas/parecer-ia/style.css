@@ -345,9 +345,21 @@ button { font: inherit; color: inherit; }
   margin: 0;
 }
 
-.timeline-summary .summary-card ul {
+.timeline-bullets {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.timeline-bullets__item {
   margin: 0;
-  padding-top: 0;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.timeline-bullets__item::before {
+  content: "•";
+  margin-right: 12px;
 }
 
 .btn-secondary {

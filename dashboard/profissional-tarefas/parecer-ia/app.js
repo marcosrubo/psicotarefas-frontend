@@ -674,9 +674,9 @@ function normalizeParecerList(value) {
     timelineSummary.innerHTML = `
       <article class="summary-card">
         <span class="summary-card__title">Panorama cronologico</span>
-        <ul>
-          ${lines.slice(0, 5).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-        </ul>
+        <div class="timeline-bullets">
+          ${lines.slice(0, 5).map((item) => `<p class="timeline-bullets__item">${escapeHtml(item)}</p>`).join("")}
+        </div>
       </article>
       <article class="summary-card">
         <span class="summary-card__title">Mudanca percebida</span>
