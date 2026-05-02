@@ -398,6 +398,11 @@ a {
   outline: none;
 }
 
+.patient-edit-field__input--select {
+  min-height: 54px;
+  line-height: 1.35;
+}
+
 .patient-edit-field__input--status[data-status="ativo"] {
   color: #18794e;
 }
@@ -664,6 +669,10 @@ a {
 
   .patient-edit-field__input {
     padding: 12px 14px;
+  }
+
+  .patient-edit-field__input--select {
+    min-height: 52px;
   }
 
 }
