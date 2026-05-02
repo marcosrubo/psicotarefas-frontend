@@ -179,39 +179,15 @@
                 />
               </label>
 
-              <fieldset class="patient-edit-field patient-edit-field--inline patient-edit-field--status">
-                <legend class="patient-edit-field__label">Status do vínculo</legend>
-                <div class="contract-status-group">
-                  <label class="contract-status-option">
-                    <input type="radio" name="taskChoiceContractStatus" value="" checked />
-                    <span class="contract-status-option__content">
-                      <span class="contract-status-dot contract-status-dot--neutral"></span>
-                      <span>Não informado</span>
-                    </span>
-                  </label>
-                  <label class="contract-status-option">
-                    <input type="radio" name="taskChoiceContractStatus" value="ativo" />
-                    <span class="contract-status-option__content">
-                      <span class="contract-status-dot contract-status-dot--active"></span>
-                      <span>Ativo</span>
-                    </span>
-                  </label>
-                  <label class="contract-status-option">
-                    <input type="radio" name="taskChoiceContractStatus" value="em_pausa" />
-                    <span class="contract-status-option__content">
-                      <span class="contract-status-dot contract-status-dot--paused"></span>
-                      <span>Em pausa</span>
-                    </span>
-                  </label>
-                  <label class="contract-status-option">
-                    <input type="radio" name="taskChoiceContractStatus" value="inadimplente" />
-                    <span class="contract-status-option__content">
-                      <span class="contract-status-dot contract-status-dot--late"></span>
-                      <span>Inadimplente</span>
-                    </span>
-                  </label>
-                </div>
-              </fieldset>
+              <label class="patient-edit-field patient-edit-field--inline" for="taskChoiceContractStatus">
+                <span class="patient-edit-field__label">Status do vínculo</span>
+                <select class="patient-edit-field__input" id="taskChoiceContractStatus">
+                  <option value="">Não informado</option>
+                  <option value="ativo">Ativo</option>
+                  <option value="em_pausa">Em pausa</option>
+                  <option value="inadimplente">Inadimplente</option>
+                </select>
+              </label>
 
               <label class="patient-edit-field" for="taskChoiceContractNotes">
                 <span class="patient-edit-field__label">Observações</span>

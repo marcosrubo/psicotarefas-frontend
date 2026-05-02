@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskChoiceSessionValue = document.getElementById("taskChoiceSessionValue");
   const taskChoicePaymentFrequency = document.getElementById("taskChoicePaymentFrequency");
   const taskChoiceDueDay = document.getElementById("taskChoiceDueDay");
+  const taskChoiceContractStatus = document.getElementById("taskChoiceContractStatus");
   const taskChoiceContractNotes = document.getElementById("taskChoiceContractNotes");
   const taskChoiceMessage = document.getElementById("taskChoiceMessage");
   const btnCloseTaskChoice = document.getElementById("btnCloseTaskChoice");
@@ -141,12 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (taskChoiceSessionValue) taskChoiceSessionValue.value = "";
     if (taskChoicePaymentFrequency) taskChoicePaymentFrequency.value = "";
     if (taskChoiceDueDay) taskChoiceDueDay.value = "";
+    if (taskChoiceContractStatus) taskChoiceContractStatus.value = "";
     if (taskChoiceContractNotes) taskChoiceContractNotes.value = "";
-    document
-      .querySelectorAll('input[name="taskChoiceContractStatus"]')
-      .forEach((input) => {
-        input.checked = input.value === "";
-      });
     setTaskChoiceMessage();
   }
 
@@ -199,14 +196,12 @@ document.addEventListener("DOMContentLoaded", () => {
             ? ""
             : String(contrato.dia_vencimento);
       }
+      if (taskChoiceContractStatus) {
+        taskChoiceContractStatus.value = contrato.status_contrato || "";
+      }
       if (taskChoiceContractNotes) {
         taskChoiceContractNotes.value = contrato.observacoes_contrato || "";
       }
-      document
-        .querySelectorAll('input[name="taskChoiceContractStatus"]')
-        .forEach((input) => {
-          input.checked = input.value === (contrato.status_contrato || "");
-        });
     } catch (error) {
       setTaskChoiceMessage(error.message || "Erro ao carregar dados do contrato.", "error");
     }
@@ -259,8 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const periodicidadePagamento = taskChoicePaymentFrequency?.value || "";
     const diaVencimentoRaw = taskChoiceDueDay?.value.trim() || "";
     const observacoesContrato = taskChoiceContractNotes?.value.trim() || "";
-    const statusContrato =
-      document.querySelector('input[name="taskChoiceContractStatus"]:checked')?.value || "";
+    const statusContrato = taskChoiceContractStatus?.value || "";
 
     if (!alias) {
       setTaskChoiceMessage("Digite um apelido válido para o paciente.", "error");
