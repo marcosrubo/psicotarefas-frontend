@@ -218,34 +218,111 @@ document.addEventListener("DOMContentLoaded", () => {
     return [];
   }
 
+  function extractTextFromUnknownShape(value) {
+    if (typeof value === "string") {
+      return value.trim();
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => extractTextFromUnknownShape(item))
+        .filter(Boolean)
+        .join("\n")
+        .trim();
+    }
+
+    if (value && typeof value === "object") {
+      const candidateKeys = [
+        "text",
+        "content",
+        "output_text",
+        "response",
+        "message",
+        "result",
+        "value"
+      ];
+
+      for (const key of candidateKeys) {
+        const extracted = extractTextFromUnknownShape(value[key]);
+        if (extracted) return extracted;
+      }
+    }
+
+    return "";
+  }
+
+  function splitTextIntoList(value) {
+    const text = extractTextFromUnknownShape(value);
+    if (!text) return [];
+
+    const normalized = text
+      .replace(/\r/g, "")
+      .split(/\n+/)
+      .map((item) => item.replace(/^[-*•]\s*/, "").trim())
+      .filter(Boolean);
+
+    return normalized;
+  }
+
+  function unwrapParecerSource(data = {}) {
+    let source = typeof data === "object" && data ? data : {};
+
+    const nestedKeys = ["parecer", "data", "result", "response", "output"];
+    for (const key of nestedKeys) {
+      if (source[key] && typeof source[key] === "object") {
+        source = source[key];
+      }
+    }
+
+    return source;
+  }
+
   function normalizeParecerPayload(data = {}) {
-    const source = typeof data === "object" && data ? data : {};
+    const source = unwrapParecerSource(data);
+    const genericText =
+      extractTextFromUnknownShape(source.raw_text) ||
+      extractTextFromUnknownShape(source.output_text) ||
+      extractTextFromUnknownShape(source.content) ||
+      extractTextFromUnknownShape(source.response) ||
+      extractTextFromUnknownShape(source.message) ||
+      extractTextFromUnknownShape(source.result) ||
+      extractTextFromUnknownShape(source.text) ||
+      extractTextFromUnknownShape(data);
+
+    const genericList = splitTextIntoList(genericText);
+    const sinaisAvanco = normalizeParecerList(
+      source.sinais_avanco ?? source.sinaisDeAvanco ?? source.avancos
+    );
+    const pontosAtencao = normalizeParecerList(
+      source.pontos_atencao ?? source.pontosDeAtencao ?? source.atencao
+    );
+    const hipotesesCompreensao = normalizeParecerList(
+      source.hipoteses_compreensao ?? source.hipotesesDeCompreensao ?? source.hipoteses
+    );
+    const sugestoesConducao = normalizeParecerList(
+      source.sugestoes_proxima_conducao ?? source.sugestoesParaProximaConducao ?? source.sugestoes
+    );
+    const trechosRelevantes = normalizeParecerList(
+      source.trechos_relevantes ?? source.trechosRelevantes
+    );
 
     return {
       resumo_andamento:
         getNonEmptyText(source.resumo_andamento) ||
         getNonEmptyText(source.resumo) ||
         getNonEmptyText(source.resumoDoAndamento) ||
+        genericText ||
         "Sem resumo disponivel.",
-      sinais_avanco: normalizeParecerList(
-        source.sinais_avanco ?? source.sinaisDeAvanco ?? source.avancos
-      ),
-      pontos_atencao: normalizeParecerList(
-        source.pontos_atencao ?? source.pontosDeAtencao ?? source.atencao
-      ),
-      hipoteses_compreensao: normalizeParecerList(
-        source.hipoteses_compreensao ?? source.hipotesesDeCompreensao ?? source.hipoteses
-      ),
-      sugestoes_proxima_conducao: normalizeParecerList(
-        source.sugestoes_proxima_conducao ?? source.sugestoesParaProximaConducao ?? source.sugestoes
-      ),
-      trechos_relevantes: normalizeParecerList(
-        source.trechos_relevantes ?? source.trechosRelevantes
-      ),
+      sinais_avanco: sinaisAvanco.length ? sinaisAvanco : genericList,
+      pontos_atencao: pontosAtencao.length ? pontosAtencao : genericList,
+      hipoteses_compreensao: hipotesesCompreensao.length ? hipotesesCompreensao : genericList,
+      sugestoes_proxima_conducao: sugestoesConducao.length ? sugestoesConducao : genericList,
+      trechos_relevantes: trechosRelevantes.length ? trechosRelevantes : genericList,
       mudanca_percebida:
         getNonEmptyText(source.mudanca_percebida) ||
         getNonEmptyText(source.mudancaPercebida) ||
         getNonEmptyText(source.mudanca) ||
+        genericText ||
         "Sem mudanca percebida registrada."
     };
   }
@@ -265,6 +342,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!parecerResult) return;
 
     const normalized = normalizeParecerPayload(data);
+    console.log("Parecer IA bruto:", data);
+    console.log("Parecer IA normalizado:", normalized);
 
     parecerResumo.textContent = normalized.resumo_andamento;
     parecerMudanca.textContent = normalized.mudanca_percebida;
