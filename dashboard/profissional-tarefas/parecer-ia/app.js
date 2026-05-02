@@ -19,14 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskDetailCard = document.getElementById("taskDetailCard");
   const taskTypeLabel = document.getElementById("taskTypeLabel");
   const taskTitle = document.getElementById("taskTitle");
-  const taskSubtitle = document.getElementById("taskSubtitle");
-  const taskOriginValue = document.getElementById("taskOriginValue");
-  const taskInteractionPolicy = document.getElementById("taskInteractionPolicy");
-  const taskHistoryCount = document.getElementById("taskHistoryCount");
   const taskDescription = document.getElementById("taskDescription");
   const taskPdfSection = document.getElementById("taskPdfSection");
   const taskPdfName = document.getElementById("taskPdfName");
+  const taskPdfPreviewBox = document.getElementById("taskPdfPreviewBox");
   const taskPdfFrame = document.getElementById("taskPdfFrame");
+  const taskPdfEmpty = document.getElementById("taskPdfEmpty");
   const btnOpenTaskPdf = document.getElementById("btnOpenTaskPdf");
   const taskVideoSection = document.getElementById("taskVideoSection");
   const taskVideoHelper = document.getElementById("taskVideoHelper");
@@ -43,8 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnGenerateParecer = document.getElementById("btnGenerateParecer");
   const parecerResultPanel = document.getElementById("parecerResultPanel");
   const parecerLoading = document.getElementById("parecerLoading");
-  const parecerDebugCard = document.getElementById("parecerDebugCard");
-  const parecerDebugRaw = document.getElementById("parecerDebugRaw");
   const parecerResult = document.getElementById("parecerResult");
   const parecerResumo = document.getElementById("parecerResumo");
   const parecerAvancos = document.getElementById("parecerAvancos");
@@ -363,22 +359,6 @@ function normalizeParecerList(value) {
     );
   }
 
-  function renderParecerDebug(rawPayload, normalizedPayload, transportDebug = null) {
-    if (!parecerDebugCard || !parecerDebugRaw) return;
-
-    parecerDebugRaw.textContent = JSON.stringify(
-      {
-        transporte: transportDebug,
-        bruto: rawPayload,
-        normalizado: normalizedPayload
-      },
-      null,
-      2
-    );
-
-    parecerDebugCard.hidden = false;
-  }
-
   function setParecerButtonState(isLoading) {
     if (!btnGenerateParecer) return;
     btnGenerateParecer.disabled = isLoading;
@@ -388,8 +368,6 @@ function normalizeParecerList(value) {
   function resetParecerView() {
     if (parecerLoading) parecerLoading.hidden = true;
     if (parecerResult) parecerResult.hidden = true;
-    if (parecerDebugCard) parecerDebugCard.hidden = true;
-    if (parecerDebugRaw) parecerDebugRaw.textContent = "";
   }
 
   function renderParecerResult(data, transportDebug = null) {
@@ -398,11 +376,13 @@ function normalizeParecerList(value) {
     const normalized = normalizeParecerPayload(data);
     console.log("Parecer IA bruto:", data);
     console.log("Parecer IA normalizado:", normalized);
-    renderParecerDebug(data, normalized, transportDebug);
+    if (transportDebug) {
+      console.log("Parecer IA transporte:", transportDebug);
+    }
 
     if (!hasMeaningfulParecer(normalized)) {
       normalized.resumo_andamento =
-        "O retorno da IA veio vazio ou em formato inesperado. Veja abaixo o bloco 'Debug do retorno' para acompanhar exatamente o que o backend devolveu.";
+        "O retorno da IA veio vazio ou em formato inesperado.";
       normalized.mudanca_percebida =
         "Ainda nao foi possivel interpretar automaticamente a mudanca percebida a partir do retorno recebido.";
     }
@@ -750,7 +730,7 @@ function normalizeParecerList(value) {
       };
 
       if (!response.ok) {
-        renderParecerDebug(parsedPayload ?? rawText ?? {}, {}, transportDebug);
+        console.error("Falha ao gerar parecer IA:", transportDebug);
         throw new Error(
           parsedPayload?.error ||
           rawText ||
@@ -805,20 +785,26 @@ function normalizeParecerList(value) {
     if (!currentTask || !taskDetailCard) return;
 
     if (patientHeaderTitle) {
-      patientHeaderTitle.textContent = `Parecer IA - ${patientAlias || "Paciente"}`;
+      patientHeaderTitle.textContent = "Parecer IA";
     }
 
     const taskKind = getTaskKind(currentTask);
     taskTypeLabel.textContent = taskKind.eyebrow;
     taskTitle.textContent = currentTask.titulo || "Tarefa sem titulo";
-    taskSubtitle.textContent = `Paciente: ${patientAlias || "Paciente"}`;
-    taskOriginValue.textContent = taskKind.eyebrow;
-    taskInteractionPolicy.textContent = getInteractionPolicyLabel(currentTask);
-    taskHistoryCount.textContent = `${currentInteractions.length} registro(s)`;
     taskDescription.textContent = currentTask.descricao || "Sem descricao cadastrada.";
 
     taskDetailCard.hidden = false;
     emptyState.hidden = true;
+
+    taskPdfSection.hidden = false;
+    taskPdfFrame.hidden = true;
+    taskPdfFrame.removeAttribute("src");
+    taskPdfEmpty.hidden = false;
+    btnOpenTaskPdf.hidden = true;
+    btnOpenTaskPdf.removeAttribute("href");
+    taskPdfName.hidden = true;
+    taskPdfName.textContent = "";
+    taskPdfPreviewBox.classList.add("pdf-preview-box--empty");
 
     if (currentTask.pdf_path) {
       const { data, error } = await supabase.storage
@@ -826,18 +812,24 @@ function normalizeParecerList(value) {
         .createSignedUrl(currentTask.pdf_path, 3600);
 
       if (!error && data?.signedUrl) {
-        taskPdfSection.hidden = false;
-        taskPdfName.textContent = currentTask.pdf_nome || "PDF da atividade";
-        taskPdfFrame.src = buildPdfPreviewUrl(data.signedUrl);
+        btnOpenTaskPdf.hidden = false;
         btnOpenTaskPdf.href = data.signedUrl;
-      } else {
-        taskPdfSection.hidden = true;
+        taskPdfFrame.hidden = false;
+        taskPdfFrame.src = buildPdfPreviewUrl(data.signedUrl);
+        taskPdfEmpty.hidden = true;
+        taskPdfPreviewBox.classList.remove("pdf-preview-box--empty");
+        if (currentTask.pdf_nome) {
+          taskPdfName.hidden = false;
+          taskPdfName.textContent = currentTask.pdf_nome;
+        }
       }
-    } else {
-      taskPdfSection.hidden = true;
     }
 
-    taskVideoSection.hidden = true;
+    taskVideoSection.hidden = false;
+    btnOpenTaskVideo.hidden = true;
+    btnOpenTaskVideo.removeAttribute("href");
+    taskVideoHelper.hidden = true;
+    taskVideoHelper.textContent = "";
     taskVideoFrame.hidden = true;
     taskVideoFrame.removeAttribute("src");
     taskVideoNative.hidden = true;
@@ -845,16 +837,17 @@ function normalizeParecerList(value) {
     taskVideoNative.load();
     taskVideoInstagram.hidden = true;
     taskVideoInstagram.innerHTML = "";
-    taskVideoEmpty.hidden = true;
+    taskVideoEmpty.hidden = false;
+    taskVideoEmpty.textContent = "Esta tarefa nao possue VIDEO";
 
     if (currentTask.video_url) {
-      taskVideoSection.hidden = false;
-      taskVideoHelper.textContent = taskKind.videoHelper;
+      btnOpenTaskVideo.hidden = false;
       btnOpenTaskVideo.href = currentTask.video_url;
 
       const instagramPermalink = getInstagramPermalink(currentTask.video_url);
       if (instagramPermalink) {
         taskVideoInstagram.hidden = false;
+        taskVideoEmpty.hidden = true;
         taskVideoInstagram.innerHTML = `
           <blockquote class="instagram-media" data-instgrm-permalink="${instagramPermalink}" data-instgrm-version="14"></blockquote>
         `;
@@ -864,13 +857,17 @@ function normalizeParecerList(value) {
         const embeddedVideo = resolveEmbeddedVideo(currentTask.video_url);
         if (embeddedVideo?.type === "iframe") {
           taskVideoFrame.hidden = false;
+          taskVideoEmpty.hidden = true;
           taskVideoFrame.src = embeddedVideo.src;
         } else if (embeddedVideo?.type === "native") {
           taskVideoNative.hidden = false;
+          taskVideoEmpty.hidden = true;
           taskVideoNative.src = embeddedVideo.src;
           taskVideoNative.load();
         } else {
           taskVideoEmpty.hidden = false;
+          taskVideoEmpty.textContent =
+            "Nao foi possivel exibir a previa deste video aqui. Use o botao para abrir o conteudo completo.";
         }
       }
     }

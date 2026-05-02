@@ -52,58 +52,41 @@
           </div>
           <div>
             <h2 class="detail-card__title" id="taskTitle">Titulo da atividade</h2>
-            <p class="detail-card__subtitle" id="taskSubtitle">Paciente: -</p>
+            <section class="content-section content-section--inline">
+              <p id="taskDescription">Sem descricao cadastrada.</p>
+            </section>
           </div>
         </div>
 
-        <div class="facts-grid">
-          <article class="fact-card">
-            <span class="fact-card__label">Origem</span>
-            <strong class="fact-card__value" id="taskOriginValue">-</strong>
-          </article>
-          <article class="fact-card">
-            <span class="fact-card__label">Interacoes da tarefa</span>
-            <strong class="fact-card__value" id="taskInteractionPolicy">-</strong>
-          </article>
-          <article class="fact-card">
-            <span class="fact-card__label">Historico reunido</span>
-            <strong class="fact-card__value" id="taskHistoryCount">-</strong>
-          </article>
-        </div>
-
-        <section class="content-section">
-          <h3>Descricao da tarefa</h3>
-          <p id="taskDescription">Sem descricao cadastrada.</p>
-        </section>
-
-        <section class="content-section media-section" id="taskPdfSection" hidden>
+        <section class="content-section media-section" id="taskPdfSection">
           <div class="content-section__header">
             <div>
-              <h3>PDF da atividade</h3>
-              <p id="taskPdfName">Material em PDF vinculado a esta atividade.</p>
+              <h3>PDF da tarefa</h3>
+              <p id="taskPdfName" hidden></p>
             </div>
             <a class="btn-secondary btn-secondary--small" id="btnOpenTaskPdf" href="#" target="_blank" rel="noopener noreferrer">
               Abrir PDF
             </a>
           </div>
-          <div class="pdf-preview-box">
-            <iframe class="pdf-preview-box__frame" id="taskPdfFrame" title="Previa do PDF da atividade"></iframe>
+          <div class="pdf-preview-box" id="taskPdfPreviewBox">
+            <iframe class="pdf-preview-box__frame" id="taskPdfFrame" title="Previa do PDF da tarefa"></iframe>
+            <div class="empty-inline-state" id="taskPdfEmpty" hidden>Esta tarefa nao possue PDF</div>
           </div>
         </section>
 
-        <section class="content-section media-section" id="taskVideoSection" hidden>
+        <section class="content-section media-section" id="taskVideoSection">
           <div class="content-section__header">
             <div>
-              <h3>Video da atividade</h3>
-              <p id="taskVideoHelper">Previa do video vinculado a esta atividade.</p>
+              <h3>Vídeo da tarefa</h3>
+              <p id="taskVideoHelper" hidden></p>
             </div>
             <a class="btn-secondary btn-secondary--small" id="btnOpenTaskVideo" href="#" target="_blank" rel="noopener noreferrer">
-              Abrir video
+              Abrir vídeo
             </a>
           </div>
 
           <div class="video-preview-box">
-            <iframe class="video-preview-box__frame" id="taskVideoFrame" title="Previa do video da atividade" hidden></iframe>
+            <iframe class="video-preview-box__frame" id="taskVideoFrame" title="Previa do video da tarefa" hidden></iframe>
             <video class="video-preview-box__native" id="taskVideoNative" controls playsinline hidden></video>
             <div class="video-preview-box__instagram" id="taskVideoInstagram" hidden></div>
             <div class="empty-inline-state" id="taskVideoEmpty" hidden>
@@ -117,7 +100,6 @@
         <div class="section-header">
           <div>
             <h3>Trechos relevantes das interacoes</h3>
-            <p>Recortes do historico que podem ser usados como base para o parecer IA.</p>
           </div>
         </div>
 
@@ -131,7 +113,6 @@
         <div class="section-header">
           <div>
             <h3>Mudanca percebida ao longo do tempo</h3>
-            <p>Leitura cronologica do historico reunido, sem alterar nenhuma informacao original.</p>
           </div>
         </div>
 
@@ -142,7 +123,6 @@
         <div class="section-header">
           <div>
             <h3>Historico completo das interacoes</h3>
-            <p>Dados reunidos para a futura etapa de parecer IA.</p>
           </div>
         </div>
 
@@ -156,7 +136,6 @@
         <div class="section-header">
           <div>
             <h3>Combinados para gerar um parecer</h3>
-            <p>Confira os dados reunidos acima e, em seguida, gere o parecer da IA.</p>
           </div>
         </div>
         <ol class="guidelines-list">
@@ -173,18 +152,12 @@
         <div class="section-header">
           <div>
             <h3>Parecer gerado com IA</h3>
-            <p>Leitura assistida para apoiar a condução profissional.</p>
           </div>
         </div>
 
         <div class="screen-message screen-message--loading" id="parecerLoading" hidden>
           Gerando parecer com IA...
         </div>
-
-        <article class="summary-card" id="parecerDebugCard" hidden>
-          <span class="summary-card__title">Debug do retorno</span>
-          <pre id="parecerDebugRaw"></pre>
-        </article>
 
         <div class="parecer-result" id="parecerResult" hidden>
           <article class="summary-card">
