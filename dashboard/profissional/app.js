@@ -841,7 +841,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (btnToggleInvite && invitePanel) {
+  if (btnToggleInvite) {
     btnToggleInvite.addEventListener("click", () => {
       registrarEvento({
         evento: "cadastro_pacientes_aberto",
