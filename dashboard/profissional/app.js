@@ -17,7 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
   const btnAssignedTasks = document.getElementById("btnAssignedTasks");
+  const btnSuggestion = document.getElementById("btnSuggestion");
   const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
+  const btnFeedVideoBank = document.getElementById("btnFeedVideoBank");
   const btnBottomHome = document.getElementById("btnBottomHome");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -101,6 +103,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+  }
+
+  function abrirWhatsappSugestao() {
+    const mensagem =
+      "Olá! Gostaria de enviar uma SUGESTÃO para o PsicoTarefas.";
+    const url = `https://wa.me/5543999525060?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   function gerarTokenConvite() {
@@ -851,6 +860,19 @@ document.addEventListener("DOMContentLoaded", () => {
         email: currentProfile?.email || currentUser?.email || null
       });
       window.location.href = "../cadastro-pacientes/index.html";
+    });
+  }
+
+  if (btnSuggestion) {
+    btnSuggestion.addEventListener("click", () => {
+      registrarEvento({
+        evento: "sugestao_whatsapp_aberta",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      abrirWhatsappSugestao();
     });
   }
 
