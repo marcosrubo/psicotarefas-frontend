@@ -298,6 +298,15 @@ a {
   line-height: 1.45;
 }
 
+.task-row__description {
+  margin: 6px 0 0;
+  color: #475467;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .task-row__meta {
   display: flex;
   align-items: center;

@@ -376,7 +376,23 @@ document.addEventListener("DOMContentLoaded", () => {
         return orderDiff;
       }
 
-      return getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
+      const resourceNameDiff = getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
+        sensitivity: "base"
+      });
+
+      if (resourceNameDiff !== 0) {
+        return resourceNameDiff;
+      }
+
+      const authorDiff = String(a.video_autor_nome || "").localeCompare(String(b.video_autor_nome || ""), "pt-BR", {
+        sensitivity: "base"
+      });
+
+      if (authorDiff !== 0) {
+        return authorDiff;
+      }
+
+      return String(a.descricao || "").localeCompare(String(b.descricao || ""), "pt-BR", {
         sensitivity: "base"
       });
     });
@@ -419,6 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <h4 class="task-row__title">${escapeHtml(resourceName)}</h4>
             </div>
             <p class="task-row__subtitle">${escapeHtml(video.video_autor_nome || "Autor nao informado")}</p>
+            <p class="task-row__description">${escapeHtml(video.descricao || "Sem descricao cadastrada.")}</p>
             <div class="task-row__meta">
               <div class="task-row__meta-group">
                 <span class="meta-chip meta-chip--muted">Video</span>
