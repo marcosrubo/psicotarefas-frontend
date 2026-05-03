@@ -593,16 +593,6 @@ button { font: inherit; color: inherit; }
 }
 
 @media (max-width: 720px) {
-  .title-strip--with-mode {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .mode-choice {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
   .brand__logo {
     width: 34px;
     height: 34px;
@@ -649,5 +639,17 @@ button { font: inherit; color: inherit; }
 
   .btn-primary {
     width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .title-strip--with-mode {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mode-choice {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
