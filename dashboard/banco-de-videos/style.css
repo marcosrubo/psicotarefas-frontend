@@ -726,6 +726,18 @@ a {
   margin: 2px 4px;
 }
 
+@media (min-width: 768px) {
+  .topbar,
+  .task-bank-main {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .task-bank-main {
+    padding-top: 24px;
+  }
+}
+
 @media (max-width: 720px) {
   .section-header--actions,
   .task-form__actions,
