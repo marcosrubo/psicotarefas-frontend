@@ -88,10 +88,43 @@ button { font: inherit; color: inherit; }
   border: 1px solid #dde3eb;
 }
 
+.title-strip--with-mode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .title-strip h1 {
   margin: 0;
   font-size: 22px;
   line-height: 1.1;
+}
+
+.mode-select {
+  display: grid;
+  gap: 6px;
+  min-width: 190px;
+}
+
+.mode-select__label {
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.mode-select__input {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d7ddeb;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
 }
 
 .dashboard-main {
@@ -176,6 +209,10 @@ button { font: inherit; color: inherit; }
   color: var(--muted);
   font-size: 17px;
   line-height: 1.6;
+}
+
+.is-summary-hidden {
+  display: none !important;
 }
 
 .section-header h3,
@@ -545,6 +582,20 @@ button { font: inherit; color: inherit; }
 }
 
 @media (max-width: 720px) {
+  .title-strip--with-mode {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mode-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .mode-select__label {
+    text-align: left;
+  }
+
   .brand__logo {
     width: 34px;
     height: 34px;

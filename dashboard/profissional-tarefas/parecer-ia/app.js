@@ -14,9 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientAlias = (searchParams.get("alias") || "").trim();
 
   const patientHeaderTitle = document.getElementById("patientHeaderTitle");
+  const viewModeSelect = document.getElementById("viewModeSelect");
   const screenMessage = document.getElementById("screenMessage");
   const emptyState = document.getElementById("emptyState");
   const taskDetailCard = document.getElementById("taskDetailCard");
+  const taskTopline = document.getElementById("taskTopline");
   const taskTypeLabel = document.getElementById("taskTypeLabel");
   const taskTitle = document.getElementById("taskTitle");
   const taskDescription = document.getElementById("taskDescription");
@@ -33,15 +35,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskVideoInstagram = document.getElementById("taskVideoInstagram");
   const taskVideoEmpty = document.getElementById("taskVideoEmpty");
   const btnOpenTaskVideo = document.getElementById("btnOpenTaskVideo");
+  const snippetsPanel = document.getElementById("snippetsPanel");
   const snippetsList = document.getElementById("snippetsList");
   const snippetsEmptyState = document.getElementById("snippetsEmptyState");
+  const timelinePanel = document.getElementById("timelinePanel");
   const timelineSummary = document.getElementById("timelineSummary");
+  const interactionsPanel = document.getElementById("interactionsPanel");
   const interactionsList = document.getElementById("interactionsList");
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
   const btnGenerateParecer = document.getElementById("btnGenerateParecer");
   const parecerResultPanel = document.getElementById("parecerResultPanel");
   const parecerLoading = document.getElementById("parecerLoading");
   const parecerResult = document.getElementById("parecerResult");
+  const parecerResumoCard = document.getElementById("parecerResumoCard");
+  const parecerAvancosCard = document.getElementById("parecerAvancosCard");
+  const parecerAtencaoCard = document.getElementById("parecerAtencaoCard");
+  const parecerHipotesesCard = document.getElementById("parecerHipotesesCard");
+  const parecerSugestoesCard = document.getElementById("parecerSugestoesCard");
+  const parecerTrechosCard = document.getElementById("parecerTrechosCard");
+  const parecerMudancaCard = document.getElementById("parecerMudancaCard");
   const parecerResumo = document.getElementById("parecerResumo");
   const parecerAvancos = document.getElementById("parecerAvancos");
   const parecerAtencao = document.getElementById("parecerAtencao");
@@ -59,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentTask = null;
   let currentInteractions = [];
   let instagramScriptPromise = null;
+  let currentViewMode = "summary";
 
   function setScreenMessage(text = "", type = "error") {
     if (!screenMessage) return;
@@ -71,6 +84,34 @@ document.addEventListener("DOMContentLoaded", () => {
     screenMessage.hidden = false;
     screenMessage.textContent = text;
     screenMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function isSummaryMode() {
+    return currentViewMode === "summary";
+  }
+
+  function toggleSummaryOnly(element, shouldHide) {
+    if (!element) return;
+    element.classList.toggle("is-summary-hidden", shouldHide);
+  }
+
+  function applyViewMode() {
+    const summaryMode = isSummaryMode();
+
+    toggleSummaryOnly(taskTopline, summaryMode);
+    toggleSummaryOnly(taskPdfSection, summaryMode);
+    toggleSummaryOnly(taskVideoSection, summaryMode);
+    toggleSummaryOnly(snippetsPanel, summaryMode);
+    toggleSummaryOnly(timelinePanel, summaryMode);
+    toggleSummaryOnly(interactionsPanel, summaryMode);
+
+    toggleSummaryOnly(parecerAvancosCard, summaryMode);
+    toggleSummaryOnly(parecerAtencaoCard, summaryMode);
+    toggleSummaryOnly(parecerHipotesesCard, summaryMode);
+    toggleSummaryOnly(parecerSugestoesCard, summaryMode);
+    toggleSummaryOnly(parecerTrechosCard, summaryMode);
+    toggleSummaryOnly(parecerMudancaCard, summaryMode);
+    toggleSummaryOnly(parecerResumoCard, false);
   }
 
   function fecharMenuInferior() {
@@ -395,6 +436,7 @@ function normalizeParecerList(value) {
     parecerSugestoes.innerHTML = createListMarkup(normalized.sugestoes_proxima_conducao);
     parecerTrechos.innerHTML = createListMarkup(normalized.trechos_relevantes);
     parecerResult.hidden = false;
+    applyViewMode();
   }
 
   function buildPdfPreviewUrl(signedUrl) {
@@ -877,10 +919,16 @@ function normalizeParecerList(value) {
         }
       }
     }
+
+    applyViewMode();
   }
 
   function bindEvents() {
     btnGenerateParecer?.addEventListener("click", gerarParecerIa);
+    viewModeSelect?.addEventListener("change", () => {
+      currentViewMode = viewModeSelect.value === "detailed" ? "detailed" : "summary";
+      applyViewMode();
+    });
     btnBottomMenu?.addEventListener("click", alternarMenuInferior);
     btnMenuLogout?.addEventListener("click", sairDoSistema);
     btnBack?.addEventListener("click", (event) => {
@@ -911,6 +959,8 @@ function normalizeParecerList(value) {
     bindEvents();
 
     try {
+      currentViewMode = viewModeSelect?.value === "detailed" ? "detailed" : "summary";
+      applyViewMode();
       const ok = await validarProfissional();
       if (!ok) return;
 
