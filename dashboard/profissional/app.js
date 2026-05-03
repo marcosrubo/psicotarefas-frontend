@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnMenuPatients = document.getElementById("btnMenuPatients");
   const btnMenuTasks = document.getElementById("btnMenuTasks");
   const btnMenuTaskBank = document.getElementById("btnMenuTaskBank");
+  const btnMenuVideoBank = document.getElementById("btnMenuVideoBank");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
   const invitePanel = document.getElementById("invitePanel");
   const inviteForm = document.getElementById("inviteForm");
@@ -1134,6 +1135,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btnMenuTaskBank.addEventListener("click", () => {
       fecharMenuInferior();
       window.location.href = "../banco-de-tarefas/index.html";
+    });
+  }
+
+  if (btnMenuVideoBank) {
+    btnMenuVideoBank.addEventListener("click", () => {
+      fecharMenuInferior();
+      window.location.href = "../banco-de-videos/index.html";
     });
   }
 
