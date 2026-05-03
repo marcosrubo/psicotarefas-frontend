@@ -209,17 +209,17 @@ input {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: linear-gradient(135deg, #7c6bff 0%, #6554f6 52%, #4f3fe0 100%);
   color: #fff;
   box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
   padding: 14px 18px;
 }
 
 .btn-primary--support-green {
-  background: #2fd162;
-  border: 1px solid #14532d;
-  color: #0f172a;
-  box-shadow: 0 10px 24px rgba(20, 83, 45, 0.18);
+  background: linear-gradient(135deg, #10b95a 0%, #0e9f4c 52%, #0b8b41 100%);
+  border: 1px solid #7bf0a9;
+  color: #f8fffb;
+  box-shadow: 0 10px 24px rgba(11, 139, 65, 0.24);
 }
 
 .btn-secondary {
