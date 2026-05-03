@@ -890,6 +890,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (btnFeedVideoBank) {
+    btnFeedVideoBank.addEventListener("click", () => {
+      registrarEvento({
+        evento: "feed_banco_videos_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../feed-banco-de-videos/index.html";
+    });
+  }
+
   if (btnAssignedTasks) {
     btnAssignedTasks.addEventListener("click", () => {
       registrarEvento({
