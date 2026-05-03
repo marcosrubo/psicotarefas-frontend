@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoResourceSelect = document.getElementById("videoResourceSelect");
   const videoAuthorName = document.getElementById("videoAuthorName");
   const videoAuthorContact = document.getElementById("videoAuthorContact");
+  const videoDescriptionInput = document.getElementById("videoDescriptionInput");
   const videoLinkInput = document.getElementById("videoLinkInput");
   const createVideoMessage = document.getElementById("createVideoMessage");
   const btnSaveVideo = document.getElementById("btnSaveVideo");
@@ -38,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailResourceName = document.getElementById("detailResourceName");
   const detailVideoAuthor = document.getElementById("detailVideoAuthor");
   const detailVideoAuthorContact = document.getElementById("detailVideoAuthorContact");
+  const detailVideoDescription = document.getElementById("detailVideoDescription");
   const detailVideoWrapper = document.getElementById("detailVideoWrapper");
   const detailVideoLink = document.getElementById("detailVideoLink");
   const detailVideoEmpty = document.getElementById("detailVideoEmpty");
@@ -306,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .order("nome", { ascending: true }),
       supabase
         .from("banco_videos_itens")
-        .select("id, tema_id, recurso_id, titulo, video_link, video_autor_nome, video_autor_endereco, created_at, ativo, status")
+        .select("id, tema_id, recurso_id, titulo, descricao, video_link, video_autor_nome, video_autor_endereco, created_at, ativo, status")
         .order("created_at", { ascending: false })
     ]);
 
@@ -525,6 +527,7 @@ document.addEventListener("DOMContentLoaded", () => {
     videoResourceSelect.value = "";
     videoAuthorName.value = "";
     videoAuthorContact.value = "";
+    videoDescriptionInput.value = "";
     videoLinkInput.value = "";
     setCreateVideoMessage();
     applyView();
@@ -555,6 +558,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (detailVideoAuthorContact) {
       detailVideoAuthorContact.textContent = selectedVideo.video_autor_endereco || "-";
+    }
+
+    if (detailVideoDescription) {
+      detailVideoDescription.textContent = selectedVideo.descricao || "-";
     }
 
     if (selectedVideo.video_link) {
@@ -644,6 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const recursoId = (videoResourceSelect?.value || "").trim();
     const autorNome = (videoAuthorName?.value || "").trim();
     const autorEndereco = (videoAuthorContact?.value || "").trim();
+    const descricao = (videoDescriptionInput?.value || "").trim();
     const videoLink = (videoLinkInput?.value || "").trim();
 
     if (!selectedTheme) {
@@ -676,6 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tema_id: selectedTheme.id,
         recurso_id: Number(recursoId),
         titulo: generatedTitle,
+        descricao: descricao || null,
         video_link: videoLink,
         video_autor_nome: autorNome,
         video_autor_endereco: autorEndereco || null,

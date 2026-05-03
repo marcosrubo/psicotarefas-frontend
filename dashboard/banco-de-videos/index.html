@@ -104,6 +104,13 @@
 
         <section class="detail-section">
           <div class="detail-section__header">
+            <h3>Descricao do video</h3>
+          </div>
+          <p class="detail-section__text" id="detailVideoDescription">-</p>
+        </section>
+
+        <section class="detail-section">
+          <div class="detail-section__header">
             <h3>Link do video</h3>
           </div>
 
@@ -149,6 +156,11 @@
           <label class="form-field" for="videoAuthorContact">
             <span class="form-field__label">Endereco eletronico do autor</span>
             <input class="form-field__input" id="videoAuthorContact" type="text" maxlength="255" placeholder="Site, perfil, e-mail ou outra referencia" />
+          </label>
+
+          <label class="form-field" for="videoDescriptionInput">
+            <span class="form-field__label">Descricao do video</span>
+            <textarea class="form-field__input form-field__textarea" id="videoDescriptionInput" maxlength="1200" placeholder="Descricao opcional do conteudo do video"></textarea>
           </label>
 
           <label class="form-field" for="videoLinkInput">

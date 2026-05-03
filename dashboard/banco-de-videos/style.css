@@ -433,6 +433,11 @@ a {
   color: #667085;
 }
 
+.form-field__textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
 .task-form__actions {
   display: flex;
   align-items: center;
