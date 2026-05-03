@@ -2,6 +2,8 @@ import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  const SUGGESTION_WHATSAPP_URL =
+    "https://wa.me/5543999525060?text=Ol%C3%A1!%20Gostaria%20de%20enviar%20uma%20SUGEST%C3%83O%20para%20o%20PsicoTarefas.";
   const userName = document.getElementById("userName");
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
@@ -106,10 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function abrirWhatsappSugestao() {
-    const mensagem =
-      "Olá! Gostaria de enviar uma SUGESTÃO para o PsicoTarefas.";
-    const url = `https://wa.me/5543999525060?text=${encodeURIComponent(mensagem)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(SUGGESTION_WHATSAPP_URL, "_blank", "noopener,noreferrer");
   }
 
   function gerarTokenConvite() {
