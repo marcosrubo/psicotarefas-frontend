@@ -613,6 +613,10 @@ button { font: inherit; color: inherit; }
   display: none !important;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .bottom-nav__menu-item {
   width: 100%;
   min-height: 44px;
