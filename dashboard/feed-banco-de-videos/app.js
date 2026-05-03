@@ -471,7 +471,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="feed-card__meta">
               <p><strong>Autor:</strong> ${escapeHtml(item.video_autor_nome || "Nao informado")}</p>
               <p><strong>Descricao:</strong> ${escapeHtml(item.descricao || "Nao informada")}</p>
-              <p><strong>Endereco:</strong> ${escapeHtml(item.video_autor_endereco || "Nao informado")}</p>
             </div>
           </div>
           <div class="feed-card__media">
