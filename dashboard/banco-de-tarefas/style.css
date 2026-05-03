@@ -470,10 +470,15 @@ a {
   box-shadow: 0 10px 24px rgba(220, 38, 38, 0.22);
 }
 
-.btn-secondary:disabled,
-.btn-danger:disabled {
+.btn-secondary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.btn-danger:disabled {
+  opacity: 0.82;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .tasks-view__actions {
@@ -481,6 +486,11 @@ a {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 16px;
+}
+
+.tasks-view__actions .btn-danger,
+.tasks-view__actions .btn-secondary {
+  flex: 0 0 auto;
 }
 
 .confirm-overlay {
