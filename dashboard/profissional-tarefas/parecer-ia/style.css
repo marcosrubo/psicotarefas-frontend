@@ -280,6 +280,10 @@ button { font: inherit; color: inherit; }
   justify-content: flex-end;
 }
 
+.ia-action-row + .ia-action-row {
+  margin-top: 12px;
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
