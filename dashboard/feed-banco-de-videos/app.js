@@ -325,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .order("nome", { ascending: true }),
       supabase
         .from("banco_videos_itens")
-        .select("id, tema_id, recurso_id, video_link, video_autor_nome, video_autor_endereco, ativo")
+        .select("id, tema_id, recurso_id, descricao, video_link, video_autor_nome, video_autor_endereco, ativo")
     ]);
 
     if (themesResponse.error) {
@@ -350,15 +350,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeVideos = (videosResponse.data || []).filter((video) => video.ativo !== false);
 
     feedItems = activeVideos.sort((a, b) => {
-      const themeOrderDiff = getThemeOrder(a.tema_id) - getThemeOrder(b.tema_id);
-      if (themeOrderDiff !== 0) return themeOrderDiff;
-
       const resourceOrderDiff = getResourceOrder(a.recurso_id) - getResourceOrder(b.recurso_id);
       if (resourceOrderDiff !== 0) return resourceOrderDiff;
 
-      return getThemeName(a.tema_id).localeCompare(getThemeName(b.tema_id), "pt-BR", {
+      const resourceNameDiff = getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
         sensitivity: "base"
-      }) || getResourceName(a.recurso_id).localeCompare(getResourceName(b.recurso_id), "pt-BR", {
+      });
+
+      if (resourceNameDiff !== 0) {
+        return resourceNameDiff;
+      }
+
+      const authorDiff = String(a.video_autor_nome || "").localeCompare(String(b.video_autor_nome || ""), "pt-BR", {
+        sensitivity: "base"
+      });
+
+      if (authorDiff !== 0) {
+        return authorDiff;
+      }
+
+      return String(a.descricao || "").localeCompare(String(b.descricao || ""), "pt-BR", {
         sensitivity: "base"
       });
     });
@@ -459,6 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <h2 class="feed-card__title">${escapeHtml(getResourceName(item.recurso_id))}</h2>
             <div class="feed-card__meta">
               <p><strong>Autor:</strong> ${escapeHtml(item.video_autor_nome || "Nao informado")}</p>
+              <p><strong>Descricao:</strong> ${escapeHtml(item.descricao || "Nao informada")}</p>
               <p><strong>Endereco:</strong> ${escapeHtml(item.video_autor_endereco || "Nao informado")}</p>
             </div>
           </div>
