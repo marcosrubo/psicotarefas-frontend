@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientAlias = (searchParams.get("alias") || "").trim();
 
   const patientHeaderTitle = document.getElementById("patientHeaderTitle");
-  const viewModeSelect = document.getElementById("viewModeSelect");
+  const viewModeSummary = document.getElementById("viewModeSummary");
+  const viewModeDetailed = document.getElementById("viewModeDetailed");
   const screenMessage = document.getElementById("screenMessage");
   const emptyState = document.getElementById("emptyState");
   const taskDetailCard = document.getElementById("taskDetailCard");
@@ -88,6 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function isSummaryMode() {
     return currentViewMode === "summary";
+  }
+
+  function readCurrentViewMode() {
+    return viewModeDetailed?.checked ? "detailed" : "summary";
   }
 
   function toggleSummaryOnly(element, shouldHide) {
@@ -925,8 +930,12 @@ function normalizeParecerList(value) {
 
   function bindEvents() {
     btnGenerateParecer?.addEventListener("click", gerarParecerIa);
-    viewModeSelect?.addEventListener("change", () => {
-      currentViewMode = viewModeSelect.value === "detailed" ? "detailed" : "summary";
+    viewModeSummary?.addEventListener("change", () => {
+      currentViewMode = readCurrentViewMode();
+      applyViewMode();
+    });
+    viewModeDetailed?.addEventListener("change", () => {
+      currentViewMode = readCurrentViewMode();
       applyViewMode();
     });
     btnBottomMenu?.addEventListener("click", alternarMenuInferior);
@@ -959,7 +968,7 @@ function normalizeParecerList(value) {
     bindEvents();
 
     try {
-      currentViewMode = viewModeSelect?.value === "detailed" ? "detailed" : "summary";
+      currentViewMode = readCurrentViewMode();
       applyViewMode();
       const ok = await validarProfissional();
       if (!ok) return;

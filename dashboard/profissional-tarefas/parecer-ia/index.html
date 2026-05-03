@@ -35,13 +35,17 @@
 
       <div class="title-strip title-strip--with-mode">
         <h1 id="patientHeaderTitle">Parecer IA</h1>
-        <label class="mode-select" for="viewModeSelect">
-          <span class="mode-select__label">Resumido/Detalhado</span>
-          <select class="mode-select__input" id="viewModeSelect">
-            <option value="summary" selected>Resumido</option>
-            <option value="detailed">Detalhado</option>
-          </select>
-        </label>
+        <fieldset class="mode-choice" id="viewModeChoice">
+          <legend class="sr-only">Modo de visualizacao do parecer</legend>
+          <label class="mode-choice__option" for="viewModeSummary">
+            <input type="radio" name="viewMode" id="viewModeSummary" value="summary" checked />
+            <span>Resumido</span>
+          </label>
+          <label class="mode-choice__option" for="viewModeDetailed">
+            <input type="radio" name="viewMode" id="viewModeDetailed" value="detailed" />
+            <span>Detalhado</span>
+          </label>
+        </fieldset>
       </div>
     </header>
 
