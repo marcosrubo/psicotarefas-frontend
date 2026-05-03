@@ -92,6 +92,7 @@ button { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: nowrap;
   gap: 16px;
 }
 
@@ -99,6 +100,8 @@ button { font: inherit; color: inherit; }
   margin: 0;
   font-size: 22px;
   line-height: 1.1;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .sr-only {
@@ -117,6 +120,7 @@ button { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: 18px;
+  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -593,6 +597,10 @@ button { font: inherit; color: inherit; }
 }
 
 @media (max-width: 720px) {
+  .title-strip--with-mode {
+    gap: 10px;
+  }
+
   .brand__logo {
     width: 34px;
     height: 34px;
@@ -605,6 +613,15 @@ button { font: inherit; color: inherit; }
 
   .title-strip h1 {
     font-size: 20px;
+  }
+
+  .mode-choice {
+    gap: 10px;
+  }
+
+  .mode-choice__option {
+    gap: 5px;
+    font-size: 14px;
   }
 
   .detail-card__title {
@@ -642,7 +659,7 @@ button { font: inherit; color: inherit; }
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 380px) {
   .title-strip--with-mode {
     align-items: stretch;
     flex-direction: column;
