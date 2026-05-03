@@ -74,11 +74,11 @@
         <div class="entity-list" id="tasksList"></div>
 
         <div class="tasks-view__actions">
+          <button class="btn-danger" id="btnDeleteTask" type="button" disabled>
+            Excluir
+          </button>
           <button class="btn-secondary" id="btnDetailTask" type="button" disabled>
             Detalhar
-          </button>
-          <button class="btn-secondary btn-secondary--danger" id="btnDeleteTask" type="button" disabled>
-            Excluir
           </button>
         </div>
       </section>
@@ -171,6 +171,27 @@
           </div>
         </form>
       </section>
+
+      <div class="confirm-overlay" id="deleteTaskConfirmOverlay" hidden>
+        <section
+          class="confirm-dialog"
+          id="deleteTaskConfirmDialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="deleteTaskConfirmTitle"
+          aria-describedby="deleteTaskConfirmText"
+        >
+          <h3 class="confirm-dialog__title" id="deleteTaskConfirmTitle">Excluir tarefa</h3>
+          <p class="confirm-dialog__text" id="deleteTaskConfirmText">
+            Tem certeza que deseja excluir esta tarefa do banco?
+          </p>
+          <div class="confirm-dialog__details" id="deleteTaskConfirmDetails"></div>
+          <div class="confirm-dialog__actions">
+            <button class="btn-secondary" id="btnCancelDeleteTask" type="button">Cancelar</button>
+            <button class="btn-danger" id="btnConfirmDeleteTask" type="button">Excluir</button>
+          </div>
+        </section>
+      </div>
     </main>
 
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">

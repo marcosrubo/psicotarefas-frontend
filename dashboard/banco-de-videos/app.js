@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedThemeTitle = document.getElementById("selectedThemeTitle");
   const btnDetailVideo = document.getElementById("btnDetailVideo");
   const btnDeleteVideo = document.getElementById("btnDeleteVideo");
+  const deleteVideoConfirmOverlay = document.getElementById("deleteVideoConfirmOverlay");
+  const deleteVideoConfirmDetails = document.getElementById("deleteVideoConfirmDetails");
+  const btnCancelDeleteVideo = document.getElementById("btnCancelDeleteVideo");
+  const btnConfirmDeleteVideo = document.getElementById("btnConfirmDeleteVideo");
 
   const btnOpenCreateVideo = document.getElementById("btnOpenCreateVideo");
   const btnCancelCreateVideo = document.getElementById("btnCancelCreateVideo");
@@ -47,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentView = "themes";
   let selectedThemeId = null;
   let selectedVideoId = null;
+  let confirmDeleteVideoId = null;
   let themes = [];
   let resources = [];
   let videos = [];
@@ -83,6 +88,31 @@ document.addEventListener("DOMContentLoaded", () => {
     createVideoMessage.hidden = false;
     createVideoMessage.textContent = text;
     createVideoMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function openDeleteVideoConfirmation() {
+    if (!deleteVideoConfirmOverlay || !selectedVideoId) return;
+
+    const selectedTheme = getSelectedTheme();
+    const selectedVideo = getSelectedVideo();
+    const resourceName = getResourceName(selectedVideo?.recurso_id);
+
+    confirmDeleteVideoId = selectedVideoId;
+    if (deleteVideoConfirmDetails) {
+      deleteVideoConfirmDetails.innerHTML = `
+        <div>Tema: ${escapeHtml(selectedTheme?.nome || "-")}</div>
+        <div>Recurso: ${escapeHtml(resourceName || "-")}</div>
+      `;
+    }
+
+    deleteVideoConfirmOverlay.hidden = false;
+    btnConfirmDeleteVideo?.focus();
+  }
+
+  function closeDeleteVideoConfirmation() {
+    if (!deleteVideoConfirmOverlay) return;
+    deleteVideoConfirmOverlay.hidden = true;
+    confirmDeleteVideoId = null;
   }
 
   function escapeHtml(value) {
@@ -546,24 +576,24 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const selectedTheme = getSelectedTheme();
-    const selectedVideo = getSelectedVideo();
-    const resourceName = getResourceName(selectedVideo?.recurso_id);
+    openDeleteVideoConfirmation();
+  }
 
-    const confirmar = window.confirm(
-      `Deseja excluir este video do banco?\n\nTema: ${selectedTheme?.nome || "-"}\nRecurso: ${resourceName || "-"}`
-    );
-    if (!confirmar) {
+  async function confirmarExclusaoDoVideo() {
+    if (!confirmDeleteVideoId) {
       return;
     }
 
+    const videoIdToDelete = confirmDeleteVideoId;
+
     setButtonLoading(btnDeleteVideo, true, "Excluindo...", "Excluir");
+    setButtonLoading(btnConfirmDeleteVideo, true, "Excluindo...", "Excluir");
 
     try {
       const { error } = await supabase
         .from("banco_videos_itens")
         .update({ ativo: false })
-        .eq("id", selectedVideoId);
+        .eq("id", videoIdToDelete);
 
       if (error) {
         throw new Error(error.message || "Nao foi possivel excluir o video.");
@@ -576,11 +606,12 @@ document.addEventListener("DOMContentLoaded", () => {
         userId: currentUser?.id || null,
         email: currentProfile?.email || currentUser?.email || null,
         contexto: {
-          video_id: selectedVideoId,
+          video_id: videoIdToDelete,
           tema_id: selectedThemeId
         }
       });
 
+      closeDeleteVideoConfirmation();
       selectedVideoId = null;
       await carregarDados();
       renderThemes();
@@ -591,6 +622,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setScreenMessage(error.message || "Nao foi possivel excluir o video.", "error");
     } finally {
       setButtonLoading(btnDeleteVideo, false, "Excluindo...", "Excluir");
+      setButtonLoading(btnConfirmDeleteVideo, false, "Excluindo...", "Excluir");
       updateDeleteButtonState();
     }
   }
@@ -744,6 +776,14 @@ document.addEventListener("DOMContentLoaded", () => {
     btnDeleteVideo.addEventListener("click", excluirVideoSelecionado);
   }
 
+  if (btnCancelDeleteVideo) {
+    btnCancelDeleteVideo.addEventListener("click", closeDeleteVideoConfirmation);
+  }
+
+  if (btnConfirmDeleteVideo) {
+    btnConfirmDeleteVideo.addEventListener("click", confirmarExclusaoDoVideo);
+  }
+
   if (btnBackFromDetail) {
     btnBackFromDetail.addEventListener("click", () => {
       currentView = "videos";
@@ -778,10 +818,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clicouDentroDoMenu && !clicouNoBotao) {
       fecharMenuInferior();
     }
+
+    if (
+      deleteVideoConfirmOverlay &&
+      !deleteVideoConfirmOverlay.hidden &&
+      event.target === deleteVideoConfirmOverlay
+    ) {
+      closeDeleteVideoConfirmation();
+    }
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+      if (deleteVideoConfirmOverlay && !deleteVideoConfirmOverlay.hidden) {
+        closeDeleteVideoConfirmation();
+        return;
+      }
       fecharMenuInferior();
     }
   });

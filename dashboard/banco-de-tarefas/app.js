@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedThemeTitle = document.getElementById("selectedThemeTitle");
   const btnDetailTask = document.getElementById("btnDetailTask");
   const btnDeleteTask = document.getElementById("btnDeleteTask");
+  const deleteTaskConfirmOverlay = document.getElementById("deleteTaskConfirmOverlay");
+  const deleteTaskConfirmDetails = document.getElementById("deleteTaskConfirmDetails");
+  const btnCancelDeleteTask = document.getElementById("btnCancelDeleteTask");
+  const btnConfirmDeleteTask = document.getElementById("btnConfirmDeleteTask");
 
   const btnOpenCreateTask = document.getElementById("btnOpenCreateTask");
   const btnCancelCreateTask = document.getElementById("btnCancelCreateTask");
@@ -49,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentView = "themes";
   let selectedThemeId = null;
   let selectedTaskId = null;
+  let confirmDeleteTaskId = null;
   let themes = [];
   let resources = [];
   let tasks = [];
@@ -109,6 +114,31 @@ document.addEventListener("DOMContentLoaded", () => {
     createTaskMessage.hidden = false;
     createTaskMessage.textContent = text;
     createTaskMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function openDeleteTaskConfirmation() {
+    if (!deleteTaskConfirmOverlay || !selectedTaskId) return;
+
+    const selectedTheme = getSelectedTheme();
+    const selectedTask = getSelectedTask();
+    const resourceName = getResourceName(selectedTask?.recurso_id);
+
+    confirmDeleteTaskId = selectedTaskId;
+    if (deleteTaskConfirmDetails) {
+      deleteTaskConfirmDetails.innerHTML = `
+        <div>Tema: ${escapeHtml(selectedTheme?.nome || "-")}</div>
+        <div>Recurso: ${escapeHtml(resourceName || "-")}</div>
+      `;
+    }
+
+    deleteTaskConfirmOverlay.hidden = false;
+    btnConfirmDeleteTask?.focus();
+  }
+
+  function closeDeleteTaskConfirmation() {
+    if (!deleteTaskConfirmOverlay) return;
+    deleteTaskConfirmOverlay.hidden = true;
+    confirmDeleteTaskId = null;
   }
 
   function escapeHtml(value) {
@@ -636,24 +666,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const selectedTheme = getSelectedTheme();
-    const selectedTask = getSelectedTask();
-    const resourceName = getResourceName(selectedTask?.recurso_id);
+    openDeleteTaskConfirmation();
+  }
 
-    const confirmar = window.confirm(
-      `Deseja excluir esta tarefa do banco?\n\nTema: ${selectedTheme?.nome || "-"}\nRecurso: ${resourceName || "-"}`
-    );
-    if (!confirmar) {
+  async function confirmarExclusaoDaTarefa() {
+    if (!confirmDeleteTaskId) {
       return;
     }
 
+    const taskIdToDelete = confirmDeleteTaskId;
+    const selectedTheme = getSelectedTheme();
+
     setButtonLoading(btnDeleteTask, true, "Excluindo...", "Excluir");
+    setButtonLoading(btnConfirmDeleteTask, true, "Excluindo...", "Excluir");
 
     try {
       const { error } = await supabase
         .from("banco_tarefas_itens")
         .update({ ativo: false })
-        .eq("id", selectedTaskId);
+        .eq("id", taskIdToDelete);
 
       if (error) {
         throw new Error(error.message || "Não foi possível excluir a tarefa.");
@@ -666,11 +697,12 @@ document.addEventListener("DOMContentLoaded", () => {
         userId: currentUser?.id || null,
         email: currentProfile?.email || currentUser?.email || null,
         contexto: {
-          tarefa_id: selectedTaskId,
+          tarefa_id: taskIdToDelete,
           tema_id: selectedThemeId
         }
       });
 
+      closeDeleteTaskConfirmation();
       selectedTaskId = null;
       await carregarDados();
       renderThemes();
@@ -681,6 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setScreenMessage(error.message || "Não foi possível excluir a tarefa.", "error");
     } finally {
       setButtonLoading(btnDeleteTask, false, "Excluindo...", "Excluir");
+      setButtonLoading(btnConfirmDeleteTask, false, "Excluindo...", "Excluir");
       updateDeleteButtonState();
     }
   }
@@ -860,6 +893,14 @@ document.addEventListener("DOMContentLoaded", () => {
     btnDeleteTask.addEventListener("click", excluirTarefaSelecionada);
   }
 
+  if (btnCancelDeleteTask) {
+    btnCancelDeleteTask.addEventListener("click", closeDeleteTaskConfirmation);
+  }
+
+  if (btnConfirmDeleteTask) {
+    btnConfirmDeleteTask.addEventListener("click", confirmarExclusaoDaTarefa);
+  }
+
   if (btnBackFromDetail) {
     btnBackFromDetail.addEventListener("click", () => {
       currentView = "tasks";
@@ -894,10 +935,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clicouDentroDoMenu && !clicouNoBotao) {
       fecharMenuInferior();
     }
+
+    if (
+      deleteTaskConfirmOverlay &&
+      !deleteTaskConfirmOverlay.hidden &&
+      event.target === deleteTaskConfirmOverlay
+    ) {
+      closeDeleteTaskConfirmation();
+    }
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+      if (deleteTaskConfirmOverlay && !deleteTaskConfirmOverlay.hidden) {
+        closeDeleteTaskConfirmation();
+        return;
+      }
       fecharMenuInferior();
     }
   });

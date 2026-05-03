@@ -436,7 +436,8 @@ a {
 }
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-danger {
   appearance: none;
   border-radius: 18px;
   min-width: 150px;
@@ -462,17 +463,15 @@ a {
   color: var(--primary-dark);
 }
 
-.btn-secondary:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.btn-danger {
+  border: 1px solid #dc2626;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.22);
 }
 
-.btn-secondary--danger {
-  border-color: rgba(185, 28, 28, 0.18);
-  color: #b42318;
-}
-
-.btn-secondary--danger:disabled {
+.btn-secondary:disabled,
+.btn-danger:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -482,6 +481,59 @@ a {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 16px;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(5px);
+}
+
+.confirm-dialog {
+  width: min(100%, 480px);
+  border: 1px solid rgba(220, 38, 38, 0.14);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+  padding: 24px;
+}
+
+.confirm-dialog__title {
+  margin: 0;
+  color: #991b1b;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.confirm-dialog__text {
+  margin: 12px 0 0;
+  color: #334155;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.confirm-dialog__details {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #fff5f5;
+  border: 1px solid rgba(220, 38, 38, 0.12);
+  color: #7f1d1d;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .detail-grid {
@@ -752,7 +804,20 @@ a {
   }
 
   .btn-primary,
-  .btn-secondary {
+  .btn-secondary,
+  .btn-danger {
     width: 100%;
+  }
+
+  .confirm-overlay {
+    padding: 16px;
+  }
+
+  .confirm-dialog {
+    padding: 20px;
+  }
+
+  .confirm-dialog__actions {
+    flex-direction: column-reverse;
   }
 }
