@@ -421,13 +421,22 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="task-row__meta-group">
                 <span class="meta-chip meta-chip--muted">Video</span>
               </div>
-              <button
-                class="task-row__detail"
-                type="button"
-                data-video-detail-id="${escapeHtml(video.id)}"
-              >
-                Detalhar
-              </button>
+              <div class="task-row__actions">
+                <button
+                  class="task-row__delete"
+                  type="button"
+                  data-video-delete-id="${escapeHtml(video.id)}"
+                >
+                  Excluir
+                </button>
+                <button
+                  class="task-row__detail"
+                  type="button"
+                  data-video-detail-id="${escapeHtml(video.id)}"
+                >
+                  Detalhar
+                </button>
+              </div>
             </div>
           </article>
         `;
@@ -717,6 +726,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (videosList) {
     videosList.addEventListener("click", (event) => {
+      const deleteButton = event.target.closest("[data-video-delete-id]");
+      if (deleteButton) {
+        selectedVideoId = deleteButton.getAttribute("data-video-delete-id");
+        renderVideos();
+        excluirVideoSelecionado();
+        return;
+      }
+
       const detailButton = event.target.closest("[data-video-detail-id]");
       if (detailButton) {
         selectedVideoId = detailButton.getAttribute("data-video-detail-id");

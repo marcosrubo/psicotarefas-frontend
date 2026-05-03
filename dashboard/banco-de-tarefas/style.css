@@ -343,18 +343,30 @@ a {
   min-width: 0;
 }
 
+.task-row__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.task-row__delete,
 .task-row__detail {
   appearance: none;
-  border: 1px solid rgba(109, 94, 252, 0.22);
   border-radius: 999px;
   padding: 8px 14px;
-  background: #fff;
-  color: var(--primary-dark);
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
   flex: 0 0 auto;
+}
+
+.task-row__detail {
+  border: 1px solid rgba(109, 94, 252, 0.22);
+  background: #fff;
+  color: var(--primary-dark);
   transition:
     border-color 0.18s ease,
     background 0.18s ease,
@@ -369,6 +381,28 @@ a {
 }
 
 .task-row__detail:focus-visible {
+  outline: none;
+}
+
+.task-row__delete {
+  border: 1px solid #dc2626;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.16);
+  transition:
+    filter 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.task-row__delete:hover,
+.task-row__delete:focus-visible {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(220, 38, 38, 0.2);
+}
+
+.task-row__delete:focus-visible {
   outline: none;
 }
 
@@ -801,6 +835,10 @@ a {
   .task-row__meta-group {
     flex-wrap: nowrap;
     min-width: 0;
+  }
+
+  .task-row__actions {
+    width: auto;
   }
 
   .task-row__detail {

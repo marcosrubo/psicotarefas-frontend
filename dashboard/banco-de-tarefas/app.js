@@ -472,13 +472,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 ${hasPdf ? '<span class="meta-chip meta-chip--muted">PDF</span>' : ""}
                 ${hasVideo ? '<span class="meta-chip meta-chip--muted">Vídeo</span>' : ""}
               </div>
-              <button
-                class="task-row__detail"
-                type="button"
-                data-task-detail-id="${escapeHtml(task.id)}"
-              >
-                Detalhar
-              </button>
+              <div class="task-row__actions">
+                <button
+                  class="task-row__delete"
+                  type="button"
+                  data-task-delete-id="${escapeHtml(task.id)}"
+                >
+                  Excluir
+                </button>
+                <button
+                  class="task-row__detail"
+                  type="button"
+                  data-task-detail-id="${escapeHtml(task.id)}"
+                >
+                  Detalhar
+                </button>
+              </div>
             </div>
           </article>
         `;
@@ -834,6 +843,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (tasksList) {
     tasksList.addEventListener("click", (event) => {
+      const deleteButton = event.target.closest("[data-task-delete-id]");
+      if (deleteButton) {
+        selectedTaskId = deleteButton.getAttribute("data-task-delete-id");
+        renderTasks();
+        excluirTarefaSelecionada();
+        return;
+      }
+
       const detailButton = event.target.closest("[data-task-detail-id]");
       if (detailButton) {
         selectedTaskId = detailButton.getAttribute("data-task-detail-id");
