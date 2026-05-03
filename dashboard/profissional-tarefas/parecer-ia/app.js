@@ -44,6 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const interactionsPanel = document.getElementById("interactionsPanel");
   const interactionsList = document.getElementById("interactionsList");
   const interactionsEmptyState = document.getElementById("interactionsEmptyState");
+  const btnOpenGuidelines = document.getElementById("btnOpenGuidelines");
+  const guidelinesOverlay = document.getElementById("guidelinesOverlay");
+  const btnCloseGuidelines = document.getElementById("btnCloseGuidelines");
   const btnGenerateParecer = document.getElementById("btnGenerateParecer");
   const parecerResultPanel = document.getElementById("parecerResultPanel");
   const parecerLoading = document.getElementById("parecerLoading");
@@ -117,6 +120,17 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleSummaryOnly(parecerTrechosCard, summaryMode);
     toggleSummaryOnly(parecerMudancaCard, summaryMode);
     toggleSummaryOnly(parecerResumoCard, false);
+  }
+
+  function openGuidelinesModal() {
+    if (!guidelinesOverlay) return;
+    guidelinesOverlay.hidden = false;
+    btnCloseGuidelines?.focus();
+  }
+
+  function closeGuidelinesModal() {
+    if (!guidelinesOverlay) return;
+    guidelinesOverlay.hidden = true;
   }
 
   function fecharMenuInferior() {
@@ -929,6 +943,8 @@ function normalizeParecerList(value) {
   }
 
   function bindEvents() {
+    btnOpenGuidelines?.addEventListener("click", openGuidelinesModal);
+    btnCloseGuidelines?.addEventListener("click", closeGuidelinesModal);
     btnGenerateParecer?.addEventListener("click", gerarParecerIa);
     viewModeSummary?.addEventListener("change", () => {
       currentViewMode = readCurrentViewMode();
@@ -946,6 +962,10 @@ function normalizeParecerList(value) {
     });
 
     document.addEventListener("click", (event) => {
+      if (guidelinesOverlay && !guidelinesOverlay.hidden && event.target === guidelinesOverlay) {
+        closeGuidelinesModal();
+      }
+
       if (
         bottomMenuPanel &&
         btnBottomMenu &&
@@ -959,6 +979,10 @@ function normalizeParecerList(value) {
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
+        if (guidelinesOverlay && !guidelinesOverlay.hidden) {
+          closeGuidelinesModal();
+          return;
+        }
         fecharMenuInferior();
       }
     });

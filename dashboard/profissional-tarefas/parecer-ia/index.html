@@ -142,16 +142,9 @@
       </section>
 
       <section class="panel">
-        <div class="section-header">
-          <div>
-            <h3>Combinados para gerar um parecer</h3>
-          </div>
+        <div class="ia-action-row">
+          <button class="btn-secondary" id="btnOpenGuidelines" type="button">Combinados</button>
         </div>
-        <ol class="guidelines-list">
-          <li>Trata-se de um apoio ao profissional, nao conclusao clinica automatica ou diagnostico.</li>
-          <li>Vamos evitar linguagem diagnostica fechada.</li>
-          <li>Vamos mostrar as evidencias do proprio historico que sustentam o parecer.</li>
-        </ol>
         <div class="ia-action-row">
           <button class="btn-primary" id="btnGenerateParecer" type="button">Gerar o parecer com IA</button>
         </div>
@@ -199,6 +192,26 @@
           </article>
         </div>
       </section>
+
+      <div class="confirm-overlay" id="guidelinesOverlay" hidden>
+        <section
+          class="confirm-dialog confirm-dialog--guidelines"
+          id="guidelinesDialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guidelinesTitle"
+        >
+          <h3 class="confirm-dialog__title" id="guidelinesTitle">Combinados para gerar um parecer</h3>
+          <div class="confirm-dialog__content">
+            <p>1) Trata-se de um apoio ao profissional, nao conclusao clinica automatica ou diagnostico.</p>
+            <p>2) Vamos evitar linguagem diagnostica fechada.</p>
+            <p>3) Vamos mostrar as evidencias do proprio historico que sustentam o parecer.</p>
+          </div>
+          <div class="confirm-dialog__actions">
+            <button class="btn-primary" id="btnCloseGuidelines" type="button">OK</button>
+          </div>
+        </section>
+      </div>
     </main>
 
     <nav class="bottom-nav" aria-label="Atalhos do painel do profissional">
