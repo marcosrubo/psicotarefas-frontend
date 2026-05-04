@@ -51,6 +51,27 @@
   display: block;
 }
 
+.support-link[aria-label="Abrir planos do PsicoTarefas"] .support-link__icon {
+  position: relative;
+}
+
+.support-link[aria-label="Abrir planos do PsicoTarefas"] .support-link__icon svg {
+  display: none;
+}
+
+.support-link[aria-label="Abrir planos do PsicoTarefas"] .support-link__icon::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(currentColor 0 0) left 1px bottom 1px / 100% 2px no-repeat,
+    linear-gradient(currentColor 0 0) left 3px bottom 3px / 3px 7px no-repeat,
+    linear-gradient(currentColor 0 0) center bottom 3px / 3px 12px no-repeat,
+    linear-gradient(currentColor 0 0) right 3px bottom 3px / 3px 9px no-repeat;
+  border-radius: 2px;
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;

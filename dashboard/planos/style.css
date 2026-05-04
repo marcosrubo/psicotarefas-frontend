@@ -1,0 +1,283 @@
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #1f2430;
+  --muted: #667085;
+  --primary: #6d5efc;
+  --primary-dark: #5647ef;
+  --border: #e8eaf2;
+  --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+a,
+button {
+  color: inherit;
+  font: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+.plans-shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  padding: 18px 16px 14px;
+  background:
+    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 14px;
+}
+
+.topbar__nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar__nav .back-link {
+  justify-self: start;
+}
+
+.topbar__nav .support-link {
+  justify-self: end;
+}
+
+.back-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--primary-dark);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.brand--centered {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  flex-shrink: 0;
+}
+
+.brand__name {
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.title-strip {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #eceff3;
+  border: 1px solid #dde3eb;
+}
+
+.title-strip h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.plans-main {
+  padding: 18px 16px 48px;
+  display: grid;
+  gap: 18px;
+}
+
+.intro-panel,
+.plans-table-panel {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-soft);
+  padding: 20px;
+}
+
+.intro-panel {
+  background: linear-gradient(135deg, rgba(109, 94, 252, 0.1), rgba(109, 94, 252, 0.04));
+}
+
+.intro-panel__eyebrow {
+  margin: 0 0 10px;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.intro-panel h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.08;
+}
+
+.intro-panel p:last-child {
+  margin: 12px 0 0;
+  color: #475467;
+  line-height: 1.65;
+}
+
+.plans-table-wrap {
+  overflow-x: auto;
+}
+
+.plans-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+}
+
+.plans-table thead th {
+  padding: 0 0 18px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: bottom;
+}
+
+.plans-table thead th:not(:first-child) {
+  text-align: center;
+}
+
+.plans-table tbody td {
+  padding: 18px 0;
+  border-bottom: 1px solid #eef1f5;
+  font-size: 17px;
+  vertical-align: middle;
+}
+
+.plans-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.plans-table tbody td:first-child {
+  width: 34%;
+  padding-right: 18px;
+  font-weight: 700;
+}
+
+.plans-table tbody td:not(:first-child) {
+  width: 22%;
+  text-align: center;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.plan-badge--initial {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.plan-badge--standard {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.plan-badge--pro {
+  background: #fff4e5;
+  color: #b54708;
+}
+
+.plans-table strong {
+  display: block;
+  font-size: 28px;
+}
+
+.status-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.status-mark--yes {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.status-mark--no {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+@media (min-width: 900px) {
+  .topbar,
+  .plans-main {
+    width: min(100%, 1240px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .brand__name {
+    font-size: 16px;
+  }
+
+  .title-strip h1 {
+    font-size: 20px;
+  }
+
+  .intro-panel h2 {
+    font-size: 24px;
+  }
+
+  .plans-table tbody td {
+    font-size: 15px;
+  }
+
+  .plans-table strong {
+    font-size: 22px;
+  }
+}

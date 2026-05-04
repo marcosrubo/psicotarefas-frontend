@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Planos PsicoTarefas</title>
+
+  <meta name="theme-color" content="#6d5efc" />
+  <meta name="description" content="Detalhamento dos planos do PsicoTarefas" />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="../../shared/support.css" />
+</head>
+<body>
+  <div class="plans-shell">
+    <header class="topbar">
+      <div class="topbar__nav">
+        <button class="back-link" id="btnBack" type="button">← Voltar</button>
+
+        <a class="brand brand--centered" href="../profissional/index.html" aria-label="Painel do profissional">
+          <img src="../../assets/icons/icon-192.png" alt="Ícone do PsicoTarefas" class="brand__logo" />
+          <span class="brand__name">PsicoTarefas</span>
+        </a>
+
+        <a class="support-link" href="./index.html" aria-label="Abrir planos do PsicoTarefas" aria-current="page">
+          <span class="support-link__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19V5" />
+              <path d="M10 19V9" />
+              <path d="M16 19V12" />
+              <path d="M22 19V3" />
+            </svg>
+          </span>
+          <span>Planos</span>
+        </a>
+      </div>
+
+      <div class="title-strip">
+        <h1>Planos PsicoTarefas</h1>
+      </div>
+    </header>
+
+    <main class="plans-main">
+      <section class="intro-panel">
+        <div class="intro-panel__text">
+          <p class="intro-panel__eyebrow">Assinaturas</p>
+          <h2>Escolha o plano que melhor acompanha o ritmo do seu atendimento.</h2>
+          <p>
+            Os planos foram pensados para começar simples e permitir evoluir para notificações
+            e automações conforme a rotina clínica pedir mais agilidade.
+          </p>
+        </div>
+      </section>
+
+      <section class="plans-table-panel">
+        <div class="plans-table-wrap">
+          <table class="plans-table">
+            <thead>
+              <tr>
+                <th>Funcionalidade</th>
+                <th>
+                  <span class="plan-badge plan-badge--initial">Inicial</span>
+                  <strong>R$0</strong>
+                </th>
+                <th>
+                  <span class="plan-badge plan-badge--standard">Standard</span>
+                  <strong>R$30</strong>
+                </th>
+                <th>
+                  <span class="plan-badge plan-badge--pro">Pro</span>
+                  <strong>R$40</strong>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Periodicidade</td>
+                <td>mensal</td>
+                <td>mensal</td>
+                <td>mensal</td>
+              </tr>
+              <tr>
+                <td>Pacientes</td>
+                <td>até 2</td>
+                <td>ilimitado</td>
+                <td>ilimitado</td>
+              </tr>
+              <tr>
+                <td>Tarefas por paciente</td>
+                <td>até 10</td>
+                <td>ilimitado</td>
+                <td>ilimitado</td>
+              </tr>
+              <tr>
+                <td>Interações por tarefa</td>
+                <td>ilimitado</td>
+                <td>ilimitado</td>
+                <td>ilimitado</td>
+              </tr>
+              <tr>
+                <td>Gerar tarefas com IA</td>
+                <td>2 por dia</td>
+                <td>ilimitado</td>
+                <td>ilimitado</td>
+              </tr>
+              <tr>
+                <td>Análise por IA nas interações</td>
+                <td>1 por dia</td>
+                <td>ilimitado</td>
+                <td>ilimitado</td>
+              </tr>
+              <tr>
+                <td>Notificações no app</td>
+                <td><span class="status-mark status-mark--no">Não</span></td>
+                <td><span class="status-mark status-mark--yes">Sim, ilimitado</span></td>
+                <td><span class="status-mark status-mark--yes">Sim, ilimitado</span></td>
+              </tr>
+              <tr>
+                <td>Resumo diário via WhatsApp</td>
+                <td><span class="status-mark status-mark--no">Não</span></td>
+                <td><span class="status-mark status-mark--no">Não</span></td>
+                <td><span class="status-mark status-mark--yes">Sim, 1 envio por dia</span></td>
+              </tr>
+              <tr>
+                <td>Pacote adicional WhatsApp (100)</td>
+                <td><span class="status-mark status-mark--no">Não</span></td>
+                <td><span class="status-mark status-mark--no">Não</span></td>
+                <td>R$ 10,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
