@@ -179,6 +179,8 @@ a {
 
 .plans-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 18px;
 }
 
 .plans-table {
@@ -192,6 +194,7 @@ a {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
   vertical-align: bottom;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .plans-table thead th:not(:first-child) {
@@ -203,6 +206,7 @@ a {
   border-bottom: 1px solid #eef1f5;
   font-size: 17px;
   vertical-align: middle;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .plans-table tbody tr:last-child td {
@@ -280,6 +284,35 @@ a {
     width: min(100%, 1240px);
     margin-left: auto;
     margin-right: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .plans-table {
+    min-width: 760px;
+  }
+
+  .plans-table thead th:first-child,
+  .plans-table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 10px 0 18px rgba(31, 36, 48, 0.06);
+  }
+
+  .plans-table thead th:first-child {
+    z-index: 3;
+  }
+
+  .plans-table thead th:first-child::after,
+  .plans-table tbody td:first-child::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -1px;
+    width: 1px;
+    height: 100%;
+    background: #e5e7eb;
   }
 }
 
