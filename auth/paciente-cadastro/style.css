@@ -37,6 +37,7 @@ body {
 
 body {
   min-height: 100vh;
+  padding-bottom: 92px;
 }
 
 button,
