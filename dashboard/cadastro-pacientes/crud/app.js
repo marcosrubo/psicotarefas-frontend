@@ -340,6 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (
       primeiroAviso !== null &&
       segundoAviso !== null &&
+      !(primeiroAviso === 0 && segundoAviso === 0) &&
       primeiroAviso <= segundoAviso
     ) {
       setFormMessage("O 1o aviso precisa acontecer antes do 2o aviso. Use um número maior de horas no primeiro aviso.");
