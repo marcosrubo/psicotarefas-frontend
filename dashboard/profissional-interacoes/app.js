@@ -242,11 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <h3 class="task-card__title">${escapeHtml(task.titulo || "Tarefa sem título")}</h3>
             </div>
             <p class="task-card__description">${escapeHtml(task.descricao || "Sem descrição cadastrada.")}</p>
-            <div class="task-card__meta">
-              <span class="task-chip task-chip--neutral">${escapeHtml(task.status || "aberta")}</span>
-              ${task.pdf_path ? '<span class="task-chip">PDF</span>' : ""}
-              ${task.video_url ? '<span class="task-chip">Vídeo</span>' : ""}
-            </div>
           </article>
         `).join("")}
       </div>
