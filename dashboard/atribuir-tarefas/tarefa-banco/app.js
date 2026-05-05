@@ -437,7 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedClass = theme.id === selectedThemeId ? " is-selected" : "";
 
         return `
-          <button class="selection-button${selectedClass}" type="button" data-theme-id="${theme.id}">
+          <button class="selection-button selection-button--theme${selectedClass}" type="button" data-theme-id="${theme.id}">
             <span class="selection-button__top">
               <span class="selection-button__title">${escapeHtml(theme.nome)}</span>
               <span class="meta-chip meta-chip--type">${theme.total} tarefa(s)</span>

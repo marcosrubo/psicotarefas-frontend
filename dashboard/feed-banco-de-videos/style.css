@@ -258,13 +258,14 @@ a { text-decoration: none; }
   display: flex;
   justify-content: center;
   background: #fff;
+  overflow-x: auto;
 }
 
 .feed-instagram-wrap .instagram-media {
   margin: 0 !important;
-  width: calc(100% - 2px) !important;
+  width: 100% !important;
   max-width: 540px !important;
-  min-width: 326px !important;
+  min-width: 0 !important;
 }
 
 .feed-instagram-wrap iframe {
