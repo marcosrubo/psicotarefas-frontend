@@ -720,10 +720,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      abrirMensagemPaciente(patient).catch((error) => {
-        console.error("Erro ao abrir edição do paciente:", error);
-        showScreenError(error.message || "Não foi possível abrir os dados do paciente.");
+      const query = new URLSearchParams({
+        patient: patient.patient_user_id || "",
+        vinculo: patient.vinculo_id || ""
       });
+
+      window.location.href = `./crud/index.html?${query.toString()}`;
     });
   }
 
