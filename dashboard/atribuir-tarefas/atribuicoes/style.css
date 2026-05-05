@@ -238,10 +238,10 @@ a {
 }
 
 .assignment-card {
-  border: 1px solid var(--border);
+  border: 1px solid rgba(238, 210, 129, 0.55);
   border-radius: 18px;
   padding: 16px;
-  background: #fbfcff;
+  background: linear-gradient(180deg, rgba(255, 249, 219, 0.98), rgba(255, 244, 196, 0.96));
   display: grid;
   gap: 10px;
 }
