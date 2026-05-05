@@ -357,26 +357,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasSessionFrequency = Boolean(sessionFrequency.value);
     const hasSessionWeekday = Boolean(sessionWeekday.value);
     const hasSessionTime = Boolean(sessionTime.value);
-    const hasAnySessionScheduling =
-      hasSessionFrequency || hasSessionWeekday || hasSessionTime;
     const hasAnyReminderEnabled =
       (primeiroAviso ?? 0) !== 0 ||
       (segundoAviso ?? 0) !== 0 ||
       (avisoProfissional ?? 0) !== 0;
 
-    if ((hasAnySessionScheduling || hasAnyReminderEnabled) && !hasSessionFrequency) {
+    if (hasAnyReminderEnabled && !hasSessionFrequency) {
       setFormMessage("Informe a periodicidade da sessão.");
       sessionFrequency.focus();
       return;
     }
 
-    if ((hasAnySessionScheduling || hasAnyReminderEnabled) && !hasSessionWeekday) {
+    if (hasAnyReminderEnabled && !hasSessionWeekday) {
       setFormMessage("Informe o dia da semana da sessão.");
       sessionWeekday.focus();
       return;
     }
 
-    if ((hasAnySessionScheduling || hasAnyReminderEnabled) && !hasSessionTime) {
+    if (hasAnyReminderEnabled && !hasSessionTime) {
       setFormMessage("Informe o horário da sessão.");
       sessionTime.focus();
       return;
