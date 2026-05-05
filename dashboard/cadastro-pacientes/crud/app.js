@@ -32,6 +32,20 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProfile = null;
   let currentProfessionalPlan = "gratuito";
 
+  function normalizarPlanoProfissional(value) {
+    const normalized = String(value || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    if (normalized === "gratuito" || normalized === "standard" || normalized === "pro") {
+      return normalized;
+    }
+
+    return "gratuito";
+  }
+
   function showScreenError(message) {
     if (!screenMessage) return;
     screenMessage.hidden = false;
@@ -167,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
-    currentProfessionalPlan = (perfil.plano_profissional || "gratuito").toLowerCase();
+    currentProfessionalPlan = normalizarPlanoProfissional(perfil.plano_profissional);
 
     await registrarAcessoPagina({
       pagina: "cadastro_pacientes_crud",
