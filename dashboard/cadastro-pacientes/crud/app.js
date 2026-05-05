@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
   let currentProfile = null;
+  let currentProfessionalPlan = "gratuito";
 
   function showScreenError(message) {
     if (!screenMessage) return;
@@ -84,6 +85,28 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
+  function aplicarRegrasDoPlano() {
+    if (!firstReminder || !secondReminder) return;
+
+    if (currentProfessionalPlan === "pro") {
+      firstReminder.disabled = false;
+      secondReminder.disabled = false;
+      return;
+    }
+
+    if (currentProfessionalPlan === "standard") {
+      firstReminder.disabled = false;
+      secondReminder.value = "0";
+      secondReminder.disabled = true;
+      return;
+    }
+
+    firstReminder.value = "0";
+    secondReminder.value = "0";
+    firstReminder.disabled = true;
+    secondReminder.disabled = true;
+  }
+
   async function sairDoSistema() {
     try {
       await supabase.auth.signOut();
@@ -130,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { data: perfil, error } = await supabase
       .from("perfis")
-      .select("nome, email, perfil")
+      .select("nome, email, perfil, plano_profissional")
       .eq("user_id", currentUser.id)
       .single();
 
@@ -144,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
+    currentProfessionalPlan = (perfil.plano_profissional || "gratuito").toLowerCase();
 
     await registrarAcessoPagina({
       pagina: "cadastro_pacientes_crud",
@@ -215,12 +239,14 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionTime.value = data.horario_sessao ? String(data.horario_sessao).slice(0, 5) : "";
     firstReminder.value =
       data.primeiro_aviso_horas_antes === null || data.primeiro_aviso_horas_antes === undefined
-        ? ""
+        ? "0"
         : String(data.primeiro_aviso_horas_antes);
     secondReminder.value =
       data.segundo_aviso_horas_antes === null || data.segundo_aviso_horas_antes === undefined
-        ? ""
+        ? "0"
         : String(data.segundo_aviso_horas_antes);
+
+    aplicarRegrasDoPlano();
   }
 
   function parseMoney(value) {
@@ -278,6 +304,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (currentProfessionalPlan === "gratuito" && primeiroAviso !== 0) {
+      setFormMessage("Somente clientes Standard ou PRO podem ativar o 1o aviso.");
+      firstReminder.focus();
+      return;
+    }
+
+    if (currentProfessionalPlan !== "pro" && segundoAviso !== 0) {
+      setFormMessage("Somente clientes PRO podem ativar o 2o aviso.");
+      secondReminder.focus();
+      return;
+    }
+
     if (
       (sessionFrequency.value || sessionWeekday.value || sessionTime.value || primeiroAviso !== null || segundoAviso !== null) &&
       !sessionFrequency.value
@@ -323,8 +361,8 @@ document.addEventListener("DOMContentLoaded", () => {
         periodicidade_sessao: sessionFrequency.value || null,
         dia_semana_sessao: sessionWeekday.value || null,
         horario_sessao: sessionTime.value || null,
-        primeiro_aviso_horas_antes: primeiroAviso,
-        segundo_aviso_horas_antes: segundoAviso
+        primeiro_aviso_horas_antes: primeiroAviso ?? 0,
+        segundo_aviso_horas_antes: segundoAviso ?? 0
       };
 
       const { error } = await supabase
