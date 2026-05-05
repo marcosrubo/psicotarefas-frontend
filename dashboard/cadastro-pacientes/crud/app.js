@@ -330,23 +330,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (
-      (sessionFrequency.value || sessionWeekday.value || sessionTime.value || primeiroAviso !== null || segundoAviso !== null) &&
-      !sessionFrequency.value
-    ) {
-      setFormMessage("Informe a periodicidade da sessão para automatizar os avisos.");
+    const hasSessionFrequency = Boolean(sessionFrequency.value);
+    const hasSessionWeekday = Boolean(sessionWeekday.value);
+    const hasSessionTime = Boolean(sessionTime.value);
+    const hasAnySessionScheduling =
+      hasSessionFrequency || hasSessionWeekday || hasSessionTime;
+
+    if (hasAnySessionScheduling && !hasSessionFrequency) {
+      setFormMessage("Se quiser usar agendamento, informe a periodicidade da sessão.");
       sessionFrequency.focus();
       return;
     }
 
-    if (sessionFrequency.value && !sessionWeekday.value) {
-      setFormMessage("Informe o dia da semana da sessão.");
+    if (hasAnySessionScheduling && !hasSessionWeekday) {
+      setFormMessage("Se quiser usar agendamento, informe o dia da semana da sessão.");
       sessionWeekday.focus();
       return;
     }
 
-    if (sessionFrequency.value && !sessionTime.value) {
-      setFormMessage("Informe o horário da sessão.");
+    if (hasAnySessionScheduling && !hasSessionTime) {
+      setFormMessage("Se quiser usar agendamento, informe o horário da sessão.");
       sessionTime.focus();
       return;
     }
