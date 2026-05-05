@@ -209,14 +209,14 @@ input {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #7c6bff 0%, #6554f6 52%, #4f3fe0 100%);
+  background: linear-gradient(135deg, #8979ff 0%, #6957f4 46%, #4d3adc 100%);
   color: #fff;
   box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
   padding: 14px 18px;
 }
 
 .btn-primary--support-green {
-  background: linear-gradient(135deg, #10b95a 0%, #0e9f4c 52%, #0b8b41 100%);
+  background: linear-gradient(135deg, #21c96a 0%, #10a854 46%, #0a8a42 100%);
   border: 1px solid #7bf0a9;
   color: #f8fffb;
   box-shadow: 0 10px 24px rgba(11, 139, 65, 0.24);
@@ -245,6 +245,22 @@ input {
   width: 100%;
   min-height: 58px;
   font-size: 18px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.primary-shortcuts-card__button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.primary-shortcuts-card__button > * {
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-spacer {
