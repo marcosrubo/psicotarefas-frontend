@@ -168,6 +168,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function getInstagramEmbedUrl(url) {
+    if (!url) return "";
+
+    try {
+      const parsedUrl = new URL(url);
+      const host = parsedUrl.hostname.replace(/^www\./, "");
+
+      if (host !== "instagram.com" && host !== "m.instagram.com" && host !== "instagr.am") {
+        return "";
+      }
+
+      const cleanPath = parsedUrl.pathname.replace(/\/+$/, "");
+      if (!cleanPath) {
+        return "";
+      }
+
+      return `https://www.instagram.com${cleanPath}/embed`;
+    } catch {
+      return "";
+    }
+  }
+
   function ensureInstagramEmbedScript() {
     if (instagramScriptPromise) {
       return instagramScriptPromise;
@@ -378,8 +400,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderVideoBlock(item) {
     if (!item.video_link) return "";
 
-    const instagramPermalink = getInstagramPermalink(item.video_link);
-    if (instagramPermalink) {
+    const instagramEmbedUrl = getInstagramEmbedUrl(item.video_link);
+    if (instagramEmbedUrl) {
       return `
         <section class="feed-media-block">
           <div class="feed-media-block__header">
@@ -388,13 +410,13 @@ document.addEventListener("DOMContentLoaded", () => {
               Abrir vídeo
             </a>
           </div>
-          <div class="feed-instagram-wrap">
-            <blockquote
-              class="instagram-media"
-              data-instgrm-permalink="${escapeHtml(instagramPermalink)}"
-              data-instgrm-version="14"
-            ></blockquote>
-          </div>
+          <iframe
+            class="feed-video-frame feed-video-frame--instagram"
+            src="${escapeHtml(instagramEmbedUrl)}"
+            title="Prévia do reel do Instagram"
+            allow="autoplay; encrypted-media; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
         </section>
       `;
     }
@@ -480,13 +502,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `)
       .join("");
 
-    if (visibleItems.some((item) => getInstagramPermalink(item.video_link))) {
-      ensureInstagramEmbedScript().then((instgrm) => {
-        if (instgrm?.Embeds?.process) {
-          instgrm.Embeds.process();
-        }
-      });
-    }
   }
 
   if (btnBack) {
