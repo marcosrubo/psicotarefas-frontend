@@ -41,21 +41,19 @@ a {
 .plans-shell {
   min-height: 100vh;
   overflow-x: hidden;
-  padding-top: 152px;
 }
 
 .topbar {
-  position: fixed !important;
+  position: sticky !important;
   top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
   z-index: 999 !important;
-  padding: 18px 16px 14px;
+  padding: 18px 16px 18px;
   background:
     radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(232, 234, 242, 0.92);
+  box-shadow: 0 14px 28px rgba(41, 47, 76, 0.08);
   display: grid;
   gap: 14px;
 }
