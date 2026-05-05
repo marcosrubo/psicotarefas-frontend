@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const sessionTime = document.getElementById("sessionTime");
   const firstReminder = document.getElementById("firstReminder");
   const secondReminder = document.getElementById("secondReminder");
+  const professionalReminder = document.getElementById("professionalReminder");
   const btnSave = document.getElementById("btnSave");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -100,11 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function aplicarRegrasDoPlano() {
-    if (!firstReminder || !secondReminder) return;
+    if (!firstReminder || !secondReminder || !professionalReminder) return;
 
     if (currentProfessionalPlan === "pro") {
       firstReminder.disabled = false;
       secondReminder.disabled = false;
+      professionalReminder.disabled = false;
       return;
     }
 
@@ -112,13 +114,17 @@ document.addEventListener("DOMContentLoaded", () => {
       firstReminder.disabled = false;
       secondReminder.value = "0";
       secondReminder.disabled = true;
+      professionalReminder.value = "0";
+      professionalReminder.disabled = true;
       return;
     }
 
     firstReminder.value = "0";
     secondReminder.value = "0";
+    professionalReminder.value = "0";
     firstReminder.disabled = true;
     secondReminder.disabled = true;
+    professionalReminder.disabled = true;
   }
 
   async function sairDoSistema() {
@@ -216,7 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
         dia_semana_sessao,
         horario_sessao,
         primeiro_aviso_horas_antes,
-        segundo_aviso_horas_antes
+        segundo_aviso_horas_antes,
+        aviso_profissional_horas_antes
       `)
       .eq("id", vinculoId)
       .eq("professional_user_id", currentUser.id)
@@ -259,6 +266,10 @@ document.addEventListener("DOMContentLoaded", () => {
       data.segundo_aviso_horas_antes === null || data.segundo_aviso_horas_antes === undefined
         ? "0"
         : String(data.segundo_aviso_horas_antes);
+    professionalReminder.value =
+      data.aviso_profissional_horas_antes === null || data.aviso_profissional_horas_antes === undefined
+        ? "0"
+        : String(data.aviso_profissional_horas_antes);
 
     aplicarRegrasDoPlano();
   }
@@ -287,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const diaVencimento = parseNullableInt(dueDay.value);
     const primeiroAviso = parseNullableInt(firstReminder.value);
     const segundoAviso = parseNullableInt(secondReminder.value);
+    const avisoProfissional = parseNullableInt(professionalReminder.value);
 
     if (!alias) {
       setFormMessage("Digite um apelido válido para o paciente.");
@@ -318,6 +330,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (Number.isNaN(avisoProfissional) || (avisoProfissional !== null && (avisoProfissional < 0 || avisoProfissional > 720))) {
+      setFormMessage("Informe o aviso ao profissional entre 0 e 720 horas.");
+      professionalReminder.focus();
+      return;
+    }
+
     if (currentProfessionalPlan === "gratuito" && primeiroAviso !== 0) {
       setFormMessage("Somente clientes Standard ou PRO podem ativar o 1o aviso.");
       firstReminder.focus();
@@ -330,12 +348,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (currentProfessionalPlan !== "pro" && avisoProfissional !== 0) {
+      setFormMessage("Somente clientes PRO podem ativar o aviso ao profissional.");
+      professionalReminder.focus();
+      return;
+    }
+
     const hasSessionFrequency = Boolean(sessionFrequency.value);
     const hasSessionWeekday = Boolean(sessionWeekday.value);
     const hasSessionTime = Boolean(sessionTime.value);
     const hasAnySessionScheduling =
       hasSessionFrequency || hasSessionWeekday || hasSessionTime;
-    const hasAnyReminderEnabled = (primeiroAviso ?? 0) !== 0 || (segundoAviso ?? 0) !== 0;
+    const hasAnyReminderEnabled =
+      (primeiroAviso ?? 0) !== 0 ||
+      (segundoAviso ?? 0) !== 0 ||
+      (avisoProfissional ?? 0) !== 0;
 
     if ((hasAnySessionScheduling || hasAnyReminderEnabled) && !hasSessionFrequency) {
       setFormMessage("Informe a periodicidade da sessão.");
@@ -381,7 +408,8 @@ document.addEventListener("DOMContentLoaded", () => {
         dia_semana_sessao: sessionWeekday.value || null,
         horario_sessao: sessionTime.value || null,
         primeiro_aviso_horas_antes: primeiroAviso ?? 0,
-        segundo_aviso_horas_antes: segundoAviso ?? 0
+        segundo_aviso_horas_antes: segundoAviso ?? 0,
+        aviso_profissional_horas_antes: avisoProfissional ?? 0
       };
 
       const { error } = await supabase
@@ -407,7 +435,8 @@ document.addEventListener("DOMContentLoaded", () => {
           dia_semana_sessao: payload.dia_semana_sessao,
           possui_horario_sessao: Boolean(payload.horario_sessao),
           primeiro_aviso_horas_antes: payload.primeiro_aviso_horas_antes,
-          segundo_aviso_horas_antes: payload.segundo_aviso_horas_antes
+          segundo_aviso_horas_antes: payload.segundo_aviso_horas_antes,
+          aviso_profissional_horas_antes: payload.aviso_profissional_horas_antes
         }
       });
 
