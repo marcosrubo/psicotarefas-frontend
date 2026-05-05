@@ -222,6 +222,14 @@ input {
   box-shadow: 0 10px 24px rgba(11, 139, 65, 0.24);
 }
 
+.btn-primary--classic-blue {
+  background: #5f4df2;
+}
+
+.btn-primary--classic-green {
+  background: #14b85a;
+}
+
 .btn-secondary {
   background: #fff;
   border: 1px solid var(--border);
