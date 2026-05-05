@@ -43,8 +43,10 @@ a {
 }
 
 .topbar {
-  position: sticky !important;
+  position: fixed !important;
   top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
   z-index: 999 !important;
   padding: 18px 16px 18px;
   background:
@@ -55,6 +57,11 @@ a {
   box-shadow: 0 14px 28px rgba(41, 47, 76, 0.08);
   display: grid;
   gap: 14px;
+}
+
+.topbar-spacer {
+  height: var(--plans-topbar-height, 168px);
+  flex: 0 0 auto;
 }
 
 .topbar__nav,
