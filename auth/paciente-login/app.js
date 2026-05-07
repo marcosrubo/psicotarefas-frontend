@@ -37,6 +37,15 @@ registrarAcessoPagina({
   contexto: conviteToken ? { convite: true } : {}
 });
 
+window.addEventListener("load", () => {
+  if (
+    document.activeElement === emailInput ||
+    document.activeElement === senhaInput
+  ) {
+    document.activeElement.blur();
+  }
+});
+
 function mostrarAcaoReenviarConfirmacao() {
   if (!btnResendConfirmation) return;
   btnResendConfirmation.hidden = false;

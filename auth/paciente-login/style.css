@@ -70,14 +70,19 @@ a {
   align-items: center;
   gap: 12px;
   margin-bottom: 14px;
+  position: relative;
 }
 
 .auth-top-brand {
   display: inline-flex;
   align-items: center;
-  justify-self: center;
+  justify-content: center;
   gap: 10px;
   min-width: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 220px);
 }
 
 .auth-top-brand__logo {
@@ -306,14 +311,13 @@ a {
 }
 
 .password-wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  flex-wrap: nowrap;
 }
 
 .password-wrapper input {
-  flex: 1;
   min-width: 0;
 }
 
@@ -431,8 +435,8 @@ a {
   }
 
   .toggle-password {
-    padding: 11px 10px;
-    font-size: 12px;
+    padding: 11px 8px;
+    font-size: 11px;
   }
 }
 
@@ -488,16 +492,6 @@ a {
 @media (max-width: 520px) {
   .auth-hero {
     padding: 26px 20px 10px;
-  }
-
-  .auth-brand__icon {
-    width: 86px;
-    height: 86px;
-  }
-
-  .auth-brand__icon svg {
-    width: 52px;
-    height: 52px;
   }
 
   .auth-brand__text h1 {
