@@ -24,11 +24,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const logsPagination = document.getElementById("logsPagination");
   const professionalsList = document.getElementById("professionalsList");
   const professionalsEmpty = document.getElementById("professionalsEmpty");
+  const planModal = document.getElementById("planModal");
+  const planModalSubtitle = document.getElementById("planModalSubtitle");
+  const planSelect = document.getElementById("planSelect");
+  const planModalMessage = document.getElementById("planModalMessage");
+  const planCancelButton = document.getElementById("planCancelButton");
+  const planSaveButton = document.getElementById("planSaveButton");
   let currentUser = null;
   let adminData = null;
   let searchLogTimeout = null;
   let lastLoggedSearch = "";
   let currentLogsPage = 1;
+  let selectedProfessionalPlan = null;
 
   function mostrarErroTela(texto) {
     if (!screenMessage) return;
@@ -76,6 +83,109 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
       .trim();
+  }
+
+  function normalizarPlanoProfissional(valor) {
+    const plano = normalizarTexto(valor);
+    return plano === "standard" || plano === "pro" ? plano : "gratuito";
+  }
+
+  function montarBadgePlano(plano) {
+    const planoNormalizado = normalizarPlanoProfissional(plano);
+    return `<span class="status-badge status-badge--muted">${escapeHtml(planoNormalizado)}</span>`;
+  }
+
+  function mostrarErroModalPlano(texto) {
+    if (!planModalMessage) return;
+    planModalMessage.hidden = false;
+    planModalMessage.textContent = texto;
+  }
+
+  function esconderErroModalPlano() {
+    if (!planModalMessage) return;
+    planModalMessage.hidden = true;
+    planModalMessage.textContent = "";
+  }
+
+  function fecharModalPlano() {
+    selectedProfessionalPlan = null;
+    esconderErroModalPlano();
+    if (planModal) {
+      planModal.hidden = true;
+    }
+    if (planSaveButton) {
+      planSaveButton.disabled = false;
+      planSaveButton.textContent = "Gravar";
+    }
+    if (planCancelButton) {
+      planCancelButton.disabled = false;
+    }
+  }
+
+  function abrirModalPlano(profissionalId) {
+    const profissional = adminData?.perfis?.find(
+      (item) => item.user_id === profissionalId && item.perfil === "profissional"
+    );
+    if (!profissional || !planModal || !planSelect) return;
+
+    selectedProfessionalPlan = profissional;
+    planSelect.value = normalizarPlanoProfissional(profissional.plano_profissional);
+    if (planModalSubtitle) {
+      planModalSubtitle.textContent =
+        `Escolha para qual plano você quer alterar ${profissional.nome || profissional.email || "este profissional"}.`;
+    }
+    esconderErroModalPlano();
+    planModal.hidden = false;
+  }
+
+  async function salvarPlanoProfissional() {
+    if (!selectedProfessionalPlan || !planSelect) return;
+
+    const planoSelecionado = normalizarPlanoProfissional(planSelect.value);
+    planSaveButton.disabled = true;
+    planCancelButton.disabled = true;
+    planSaveButton.textContent = "Gravando...";
+    esconderErroModalPlano();
+
+    try {
+      const { error } = await supabase
+        .from("perfis")
+        .update({ plano_profissional: planoSelecionado })
+        .eq("user_id", selectedProfessionalPlan.user_id)
+        .eq("perfil", "profissional");
+
+      if (error) throw error;
+
+      const perfilLocal = adminData?.perfis?.find(
+        (item) => item.user_id === selectedProfessionalPlan.user_id && item.perfil === "profissional"
+      );
+
+      if (perfilLocal) {
+        perfilLocal.plano_profissional = planoSelecionado;
+      }
+
+      await registrarEvento({
+        evento: "admin_v2_plano_profissional_alterado",
+        pagina: "admin_v2",
+        perfil: "admin",
+        userId: currentUser?.id || null,
+        email: currentUser?.email || null,
+        contexto: {
+          profissional_user_id: selectedProfessionalPlan.user_id,
+          profissional_email: selectedProfessionalPlan.email || null,
+          novo_plano: planoSelecionado
+        }
+      });
+
+      fecharModalPlano();
+      renderAll();
+    } catch (error) {
+      console.error("Erro ao alterar plano do profissional:", error);
+      mostrarErroModalPlano(error.message || "Não foi possível alterar o plano do profissional.");
+      planSaveButton.disabled = false;
+      planCancelButton.disabled = false;
+      planSaveButton.textContent = "Gravar";
+    }
   }
 
   function montarStatusBadge(status) {
@@ -519,6 +629,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="professional-card__title">
                   <strong>${escapeHtml(profissional.nome || profissional.email || "Profissional")}</strong>
                   <span>${escapeHtml(profissional.email || "")}</span>
+                  <div class="professional-card__plan-row">
+                    <span class="professional-card__plan-label">Plano:</span>
+                    ${montarBadgePlano(profissional.plano_profissional)}
+                    <button class="professional-card__plan-button" type="button" data-change-plan="${escapeHtml(profissional.user_id)}">alterar plano</button>
+                  </div>
                 </div>
               </div>
 
@@ -644,6 +759,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentLogsPage += button.dataset.logPage === "next" ? 1 : -1;
       renderAll();
+    });
+  }
+
+  if (professionalsList) {
+    professionalsList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-change-plan]");
+      if (!(button instanceof HTMLButtonElement)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      abrirModalPlano(button.dataset.changePlan);
+    });
+  }
+
+  if (planCancelButton) {
+    planCancelButton.addEventListener("click", () => {
+      fecharModalPlano();
+    });
+  }
+
+  if (planSaveButton) {
+    planSaveButton.addEventListener("click", async () => {
+      await salvarPlanoProfissional();
+    });
+  }
+
+  if (planModal) {
+    planModal.addEventListener("click", (event) => {
+      if (event.target === planModal) {
+        fecharModalPlano();
+      }
     });
   }
 

@@ -143,6 +143,31 @@
     </main>
   </div>
 
+  <div class="modal-backdrop" id="planModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="planModalTitle">
+      <div class="modal-card__header">
+        <h3 id="planModalTitle">Alterar plano do profissional</h3>
+        <p id="planModalSubtitle">Escolha para qual plano você quer alterar.</p>
+      </div>
+
+      <label class="modal-field" for="planSelect">
+        <span>Plano</span>
+        <select id="planSelect">
+          <option value="gratuito">gratuito</option>
+          <option value="standard">standard</option>
+          <option value="pro">pro</option>
+        </select>
+      </label>
+
+      <div class="modal-message modal-message--error" id="planModalMessage" hidden></div>
+
+      <div class="modal-card__actions">
+        <button class="btn-ghost" type="button" id="planCancelButton">Cancelar</button>
+        <button class="btn-primary" type="button" id="planSaveButton">Gravar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./app.js"></script>
 </body>
