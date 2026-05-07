@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const patientWhatsapp = document.getElementById("patientWhatsapp");
   const patientForm = document.getElementById("patientForm");
   const patientAlias = document.getElementById("patientAlias");
+  const patientWhatsappInput = document.getElementById("patientWhatsappInput");
   const contractStatus = document.getElementById("contractStatus");
   const sessionValue = document.getElementById("sessionValue");
   const paymentFrequency = document.getElementById("paymentFrequency");
@@ -85,6 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+  }
+
+  function normalizarWhatsappParaSalvar(value) {
+    return String(value || "").replace(/\D/g, "").slice(0, 13);
   }
 
   function fecharMenuInferior() {
@@ -244,6 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
     patientWhatsapp.textContent = formatarWhatsapp(data.patient_whatsapp || "");
 
     patientAlias.value = data.patient_alias || nomeCompleto;
+    patientWhatsappInput.value = formatarWhatsapp(data.patient_whatsapp || "");
     contractStatus.value = data.status_contrato || "";
     sessionValue.value =
       data.valor_sessao === null || data.valor_sessao === undefined
@@ -294,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setFormMessage();
 
     const alias = patientAlias.value.trim();
+    const whatsapp = normalizarWhatsappParaSalvar(patientWhatsappInput.value);
     const valorSessao = parseMoney(sessionValue.value);
     const diaVencimento = parseNullableInt(dueDay.value);
     const primeiroAviso = parseNullableInt(firstReminder.value);
@@ -303,6 +310,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!alias) {
       setFormMessage("Digite um apelido válido para o paciente.");
       patientAlias.focus();
+      return;
+    }
+
+    if (!whatsapp) {
+      setFormMessage("Informe um WhatsApp válido para o paciente.");
+      patientWhatsappInput.focus();
       return;
     }
 
@@ -397,6 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = {
         patient_alias: alias,
+        patient_whatsapp: whatsapp,
         valor_sessao: valorSessao,
         periodicidade_pagamento: paymentFrequency.value || null,
         dia_vencimento: diaVencimento,
@@ -429,6 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
         contexto: {
           paciente_id: patientId || null,
           vinculo_id: vinculoId,
+          patient_whatsapp: whatsapp,
           periodicidade_sessao: payload.periodicidade_sessao,
           dia_semana_sessao: payload.dia_semana_sessao,
           possui_horario_sessao: Boolean(payload.horario_sessao),
@@ -439,6 +454,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       setFormMessage("Dados do paciente gravados com sucesso.", "success");
+      patientWhatsapp.textContent = formatarWhatsapp(whatsapp);
+      patientWhatsappInput.value = formatarWhatsapp(whatsapp);
     } catch (error) {
       setFormMessage(error.message || "Não foi possível salvar os dados do paciente.");
     } finally {
