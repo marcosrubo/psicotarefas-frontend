@@ -70,7 +70,11 @@
                   id="email"
                   name="email"
                   placeholder="Digite seu e-mail"
-                  autocomplete="email"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                  readonly
                 />
                 <small class="field-error" id="erroEmail"></small>
               </div>
@@ -85,7 +89,11 @@
                     id="senha"
                     name="senha"
                     placeholder="Digite sua senha"
-                    autocomplete="current-password"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    readonly
                   />
                   <button type="button" class="toggle-password" data-target="senha">
                     Mostrar
@@ -96,11 +104,6 @@
             </div>
 
             <div class="form-options">
-              <label class="checkbox-inline">
-                <input type="checkbox" id="lembrar" />
-                <span>Lembrar meu acesso neste dispositivo</span>
-              </label>
-
               <a href="javascript:void(0)" class="text-link" id="linkEsqueciSenha">
                 Esqueci minha senha
               </a>

@@ -27,6 +27,7 @@ const btnSubmit = document.getElementById("btnSubmit");
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const authForm = document.getElementById("authForm");
 const linkEsqueciSenha = document.getElementById("linkEsqueciSenha");
+const delayedInputs = [emailInput, senhaInput].filter(Boolean);
 
 let conviteInfo = null;
 let conviteBloqueado = false;
@@ -44,7 +45,22 @@ window.addEventListener("load", () => {
   ) {
     document.activeElement.blur();
   }
+  window.scrollTo(0, 0);
 });
+
+function liberarCampoAoInteragir(input) {
+  if (!input) return;
+
+  const unlock = () => {
+    input.removeAttribute("readonly");
+  };
+
+  input.addEventListener("pointerdown", unlock, { passive: true });
+  input.addEventListener("touchstart", unlock, { passive: true });
+  input.addEventListener("focus", unlock);
+}
+
+delayedInputs.forEach(liberarCampoAoInteragir);
 
 function mostrarAcaoReenviarConfirmacao() {
   if (!btnResendConfirmation) return;
