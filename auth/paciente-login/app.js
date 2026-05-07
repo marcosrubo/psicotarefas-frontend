@@ -91,9 +91,8 @@ function configurarTelaBase() {
   pillModo.textContent = "Login";
 
   authBadge.textContent = "Acesso de paciente";
-  authTitle.textContent = "Entrar como paciente";
-  authSubtitle.textContent =
-    "Acesse sua conta para consultar tarefas, responder atividades e acompanhar seu processo no PsicoTarefas.";
+  authTitle.textContent = "Paciente";
+  authSubtitle.textContent = "";
 
   esconderAcaoReenviarConfirmacao();
   aplicarContextoConviteNaTela();
@@ -123,9 +122,8 @@ function aplicarContextoConviteNaTela() {
   }
 
   authBadge.textContent = "Convite de profissional";
-  authTitle.textContent = "Entrar com convite";
-  authSubtitle.textContent =
-    "Entre na sua conta para continuar o vínculo com o profissional e acessar suas tarefas no PsicoTarefas.";
+  authTitle.textContent = "Paciente";
+  authSubtitle.textContent = "";
 
   mostrarAvisoConvite(
     "Convite identificado",

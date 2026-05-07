@@ -48,9 +48,7 @@
         <div class="auth-brand__text auth-brand__text--center">
           <p class="auth-badge" id="authBadge">Acesso de paciente</p>
           <h1 id="authTitle">Paciente</h1>
-          <p id="authSubtitle">
-            Acesse sua conta para consultar tarefas, responder atividades e acompanhar seu processo no PsicoTarefas.
-          </p>
+          <p id="authSubtitle"></p>
         </div>
       </div>
     </header>
@@ -69,74 +67,64 @@
 
         <form id="authForm" novalidate>
           <div class="auth-action-card auth-action-card--enter">
-            <div class="auth-action-card__header">
-              <span class="auth-action-card__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                  <path d="M10 17l5-5-5-5"/>
-                  <path d="M15 12H3"/>
-                </svg>
-              </span>
-              <div>
-                <strong>Entrar</strong>
-                <p>Acesse sua conta e continue sua jornada.</p>
+            <div class="form-group form-group--inline">
+              <label for="email">E-mail</label>
+              <div class="form-group__control">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Digite seu e-mail"
+                  autocomplete="email"
+                />
+                <small class="field-error" id="erroEmail"></small>
               </div>
             </div>
 
-          <div class="form-group">
-            <label for="email">E-mail</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Digite seu e-mail"
-              autocomplete="email"
-            />
-            <small class="field-error" id="erroEmail"></small>
-          </div>
-
-          <div class="form-group">
-            <label for="senha">Senha</label>
-            <div class="password-wrapper">
-              <input
-                type="password"
-                id="senha"
-                name="senha"
-                placeholder="Digite sua senha"
-                autocomplete="current-password"
-              />
-              <button type="button" class="toggle-password" data-target="senha">
-                Mostrar
-              </button>
+            <div class="form-group form-group--inline">
+              <label for="senha">Senha</label>
+              <div class="form-group__control">
+                <div class="password-wrapper">
+                  <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    autocomplete="current-password"
+                  />
+                  <button type="button" class="toggle-password" data-target="senha">
+                    Mostrar
+                  </button>
+                </div>
+                <small class="field-error" id="erroSenha"></small>
+              </div>
             </div>
-            <small class="field-error" id="erroSenha"></small>
-          </div>
 
-          <div class="form-options">
-            <label class="checkbox-inline">
-              <input type="checkbox" id="lembrar" />
-              <span>Lembrar meu acesso neste dispositivo</span>
-            </label>
+            <div class="form-options">
+              <label class="checkbox-inline">
+                <input type="checkbox" id="lembrar" />
+                <span>Lembrar meu acesso neste dispositivo</span>
+              </label>
 
-            <a href="javascript:void(0)" class="text-link" id="linkEsqueciSenha">
-              Esqueci minha senha
-            </a>
-          </div>
+              <a href="javascript:void(0)" class="text-link" id="linkEsqueciSenha">
+                Esqueci minha senha
+              </a>
+            </div>
 
-          <div class="form-message" id="formMessage" hidden></div>
+            <div class="form-message" id="formMessage" hidden></div>
 
-          <button
-            type="button"
-            class="btn-secondary"
-            id="btnResendConfirmation"
-            hidden
-          >
-            Reenviar e-mail de confirmação
-          </button>
+            <button
+              type="button"
+              class="btn-secondary"
+              id="btnResendConfirmation"
+              hidden
+            >
+              Reenviar e-mail de confirmação
+            </button>
 
-          <button type="submit" class="btn-primary" id="btnSubmit">
-            Entrar
-          </button>
+            <button type="submit" class="btn-primary" id="btnSubmit">
+              Entrar
+            </button>
           </div>
         </form>
 
