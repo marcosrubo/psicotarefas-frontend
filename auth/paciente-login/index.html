@@ -16,8 +16,8 @@
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="../../shared/support.css" />
+  <link rel="stylesheet" href="./style.css?v=20260507-1" />
+  <link rel="stylesheet" href="../../shared/support.css?v=20260507-1" />
 </head>
 <body>
   <div class="auth-shell">
@@ -66,14 +66,15 @@
               <label for="email">E-mail</label>
               <div class="form-group__control">
                 <input
-                  type="email"
+                  type="text"
                   id="email"
-                  name="email"
+                  name="patient_login_email"
                   placeholder="Digite seu e-mail"
                   autocomplete="off"
                   autocapitalize="off"
                   autocorrect="off"
                   spellcheck="false"
+                  inputmode="none"
                   readonly
                 />
                 <small class="field-error" id="erroEmail"></small>
@@ -87,12 +88,13 @@
                   <input
                     type="password"
                     id="senha"
-                    name="senha"
+                    name="patient_login_password"
                     placeholder="Digite sua senha"
                     autocomplete="off"
                     autocapitalize="off"
                     autocorrect="off"
                     spellcheck="false"
+                    inputmode="none"
                     readonly
                   />
                   <button type="button" class="toggle-password" data-target="senha">
@@ -160,6 +162,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=20260507-1"></script>
 </body>
 </html>

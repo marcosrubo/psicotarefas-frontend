@@ -46,6 +46,20 @@ window.addEventListener("load", () => {
     document.activeElement.blur();
   }
   window.scrollTo(0, 0);
+  setTimeout(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    window.scrollTo(0, 0);
+  }, 60);
+});
+
+window.addEventListener("pageshow", () => {
+  delayedInputs.forEach((input) => input.blur());
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+  window.scrollTo(0, 0);
 });
 
 function liberarCampoAoInteragir(input) {
@@ -53,6 +67,7 @@ function liberarCampoAoInteragir(input) {
 
   const unlock = () => {
     input.removeAttribute("readonly");
+    input.removeAttribute("inputmode");
   };
 
   input.addEventListener("pointerdown", unlock, { passive: true });
@@ -61,6 +76,17 @@ function liberarCampoAoInteragir(input) {
 }
 
 delayedInputs.forEach(liberarCampoAoInteragir);
+
+document.addEventListener("DOMContentLoaded", () => {
+  delayedInputs.forEach((input) => {
+    input.setAttribute("readonly", "readonly");
+    input.setAttribute("inputmode", "none");
+    input.blur();
+  });
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+});
 
 function mostrarAcaoReenviarConfirmacao() {
   if (!btnResendConfirmation) return;
