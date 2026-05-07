@@ -90,7 +90,7 @@ function configurarTelaBase() {
   pillPerfil.textContent = "Paciente";
   pillModo.textContent = "Login";
 
-  authBadge.textContent = "Acesso de paciente";
+  authBadge.textContent = "";
   authTitle.textContent = "Paciente";
   authSubtitle.textContent = "";
 
@@ -121,7 +121,7 @@ function aplicarContextoConviteNaTela() {
     return;
   }
 
-  authBadge.textContent = "Convite de profissional";
+  authBadge.textContent = "";
   authTitle.textContent = "Paciente";
   authSubtitle.textContent = "";
 
