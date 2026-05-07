@@ -48,6 +48,10 @@ input {
   font: inherit;
 }
 
+form {
+  margin: 0;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -490,10 +494,11 @@ a {
   }
 
   .auth-card--patient-flow {
-    gap: 4px;
+    gap: 8px;
   }
 
   .auth-action-card--register {
+    margin-top: 0;
     padding: 9px 12px;
     grid-template-columns: auto 1fr auto;
     gap: 8px;
