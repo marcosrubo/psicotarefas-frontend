@@ -493,15 +493,25 @@ a {
     padding: 8px 16px 24px;
   }
 
-  .auth-card--patient-flow {
-    gap: 8px;
+  .auth-card.auth-card--patient-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .auth-card--patient-flow > #authForm {
+    margin: 0 0 8px;
   }
 
   .auth-action-card--register {
-    margin-top: 0;
+    margin: 0 0 8px;
     padding: 9px 12px;
     grid-template-columns: auto 1fr auto;
     gap: 8px;
+  }
+
+  .auth-photo {
+    margin-top: 0;
   }
 
   .auth-action-card__icon {
