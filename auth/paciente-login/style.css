@@ -481,6 +481,14 @@ a {
 }
 
 @media (max-width: 520px) {
+  body {
+    padding-bottom: 76px;
+  }
+
+  .auth-shell {
+    min-height: auto;
+  }
+
   .auth-hero {
     padding: 26px 20px 10px;
   }
@@ -490,7 +498,8 @@ a {
   }
 
   .auth-main {
-    padding: 8px 16px 24px;
+    flex: 0 0 auto;
+    padding: 8px 16px 8px;
   }
 
   .auth-card.auth-card--patient-flow {
