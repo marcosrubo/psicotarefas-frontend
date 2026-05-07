@@ -294,6 +294,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return Number.isFinite(parsed) ? parsed : Number.NaN;
   }
 
+  function normalizeSessionSelectValue(value) {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (!normalized || normalized === "nao_informado" || normalized === "não informado") {
+      return "";
+    }
+    return String(value || "").trim();
+  }
+
   async function salvarPaciente(event) {
     event.preventDefault();
     hideScreenError();
@@ -367,13 +375,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const hasSessionFrequency = Boolean(sessionFrequency.value);
-    const hasSessionWeekday = Boolean(sessionWeekday.value);
-    const hasSessionTime = Boolean(sessionTime.value);
-    const hasAnyReminderEnabled =
-      (primeiroAviso ?? 0) !== 0 ||
-      (segundoAviso ?? 0) !== 0 ||
-      (avisoProfissional ?? 0) !== 0;
+    const normalizedSessionFrequency = normalizeSessionSelectValue(sessionFrequency.value);
+    const normalizedSessionWeekday = normalizeSessionSelectValue(sessionWeekday.value);
+    const normalizedSessionTime = String(sessionTime.value || "").trim();
+    const hasSessionFrequency = Boolean(normalizedSessionFrequency);
+    const hasSessionWeekday = Boolean(normalizedSessionWeekday);
+    const hasSessionTime = Boolean(normalizedSessionTime);
+    const hasAnyReminderEnabled = [primeiroAviso, segundoAviso, avisoProfissional].some(
+      (value) => Number(value || 0) > 0
+    );
 
     if (hasAnyReminderEnabled && !hasSessionFrequency) {
       setFormMessage("Informe a periodicidade da sessão.");
@@ -416,9 +426,9 @@ document.addEventListener("DOMContentLoaded", () => {
         dia_vencimento: diaVencimento,
         status_contrato: contractStatus.value || null,
         observacoes_contrato: contractNotes.value.trim() || null,
-        periodicidade_sessao: sessionFrequency.value || null,
-        dia_semana_sessao: sessionWeekday.value || null,
-        horario_sessao: sessionTime.value || null,
+        periodicidade_sessao: normalizedSessionFrequency || null,
+        dia_semana_sessao: normalizedSessionWeekday || null,
+        horario_sessao: normalizedSessionTime || null,
         primeiro_aviso_horas_antes: primeiroAviso ?? 0,
         segundo_aviso_horas_antes: segundoAviso ?? 0,
         aviso_profissional_horas_antes: avisoProfissional ?? 0

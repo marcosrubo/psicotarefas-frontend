@@ -31,15 +31,23 @@
       </div>
 
       <div class="auth-brand">
-        <img
-          src="../../assets/icons/icon-192.png"
-          alt="Ícone do PsicoTarefas"
-          class="auth-brand__logo"
-        />
+        <div class="auth-brand__icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M31 15c-3.4 0-6.2 2.7-6.4 6-3.2.3-5.7 2.9-5.7 6.1 0 1.3.4 2.5 1.1 3.5-2.1 1.1-3.5 3.3-3.5 5.8 0 3.6 2.9 6.6 6.6 6.6.7 0 1.4-.1 2-.3.8 2.8 3 4.9 5.9 5.5V15Z"/>
+            <path d="M33 15c3.4 0 6.2 2.7 6.4 6 3.2.3 5.7 2.9 5.7 6.1 0 1.3-.4 2.5-1.1 3.5 2.1 1.1 3.5 3.3 3.5 5.8 0 3.6-2.9 6.6-6.6 6.6-.7 0-1.4-.1-2-.3-.8 2.8-3 4.9-5.9 5.5V15Z"/>
+            <path d="M32 16v36"/>
+            <path d="M24 23h2.5"/>
+            <path d="M22.5 31h4"/>
+            <path d="M24 39h2.5"/>
+            <path d="M37.5 23H40"/>
+            <path d="M37.5 31h4"/>
+            <path d="M37.5 39H40"/>
+          </svg>
+        </div>
 
-        <div class="auth-brand__text">
+        <div class="auth-brand__text auth-brand__text--center">
           <p class="auth-badge" id="authBadge">Acesso de paciente</p>
-          <h1 id="authTitle">Entrar como paciente</h1>
+          <h1 id="authTitle">Paciente</h1>
           <p id="authSubtitle">
             Acesse sua conta para consultar tarefas, responder atividades e acompanhar seu processo no PsicoTarefas.
           </p>
@@ -48,8 +56,8 @@
     </header>
 
     <main class="auth-main">
-      <section class="auth-card">
-        <div class="auth-mode">
+      <section class="auth-card auth-card--patient-flow">
+        <div class="auth-mode auth-mode--hidden" aria-hidden="true">
           <span class="auth-mode__pill" id="pillPerfil">Paciente</span>
           <span class="auth-mode__pill auth-mode__pill--secondary" id="pillModo">Login</span>
         </div>
@@ -60,6 +68,21 @@
         </div>
 
         <form id="authForm" novalidate>
+          <div class="auth-action-card auth-action-card--enter">
+            <div class="auth-action-card__header">
+              <span class="auth-action-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                  <path d="M10 17l5-5-5-5"/>
+                  <path d="M15 12H3"/>
+                </svg>
+              </span>
+              <div>
+                <strong>Entrar</strong>
+                <p>Acesse sua conta e continue sua jornada.</p>
+              </div>
+            </div>
+
           <div class="form-group">
             <label for="email">E-mail</label>
             <input
@@ -112,15 +135,32 @@
           </button>
 
           <button type="submit" class="btn-primary" id="btnSubmit">
-            Entrar como paciente
+            Entrar
           </button>
+          </div>
         </form>
 
-        <div class="auth-footer">
-          <p>Ainda não tem conta?</p>
-          <a href="../paciente-cadastro/index.html" class="text-link text-link--strong">
-            Criar conta de paciente
-          </a>
+        <a href="../paciente-cadastro/index.html" class="auth-action-card auth-action-card--register">
+          <span class="auth-action-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+              <circle cx="9.5" cy="7" r="4"/>
+              <path d="M19 8v6"/>
+              <path d="M16 11h6"/>
+            </svg>
+          </span>
+          <div>
+            <strong>Se cadastrar</strong>
+            <p>Crie sua conta para começar a usar os recursos.</p>
+          </div>
+          <span class="auth-action-card__arrow" aria-hidden="true">›</span>
+        </a>
+
+        <div class="auth-photo">
+          <img
+            src="../../assets/img/foto-tela-paciente.jpeg"
+            alt="Paciente usando o celular para acompanhar suas tarefas"
+          />
         </div>
       </section>
     </main>
