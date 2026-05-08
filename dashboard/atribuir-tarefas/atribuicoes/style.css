@@ -3,8 +3,8 @@
   --card: #ffffff;
   --text: #1f2430;
   --muted: #667085;
-  --primary: #6d5efc;
-  --primary-dark: #5647ef;
+  --primary: #1250e6;
+  --primary-dark: #0d46d0;
   --border: #e8eaf2;
   --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
   --error-bg: #fef2f2;
@@ -50,7 +50,7 @@ a {
   z-index: 24;
   padding: 18px 16px 14px;
   background:
-    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(18, 80, 230, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -85,7 +85,7 @@ a {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.18);
   flex-shrink: 0;
 }
 
@@ -281,7 +281,7 @@ a {
 
 .assignment-card__open {
   appearance: none;
-  border: 1px solid rgba(109, 94, 252, 0.22);
+  border: 1px solid rgba(18, 80, 230, 0.22);
   border-radius: 999px;
   padding: 8px 14px;
   background: #fff;
@@ -297,8 +297,8 @@ a {
 
 .assignment-card__open:hover,
 .assignment-card__open:focus-visible {
-  border-color: rgba(109, 94, 252, 0.4);
-  background: rgba(109, 94, 252, 0.08);
+  border-color: rgba(18, 80, 230, 0.4);
+  background: rgba(18, 80, 230, 0.08);
   transform: translateY(-1px);
 }
 
@@ -317,7 +317,7 @@ a {
 }
 
 .meta-chip--type {
-  background: rgba(109, 94, 252, 0.12);
+  background: rgba(18, 80, 230, 0.12);
   color: var(--primary-dark);
 }
 
@@ -460,8 +460,8 @@ a {
   min-height: 40px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid rgba(109, 94, 252, 0.2);
-  background: rgba(109, 94, 252, 0.08);
+  border: 1px solid rgba(18, 80, 230, 0.2);
+  background: rgba(18, 80, 230, 0.08);
   color: var(--primary-dark);
   font-size: 13px;
   font-weight: 800;
@@ -469,8 +469,8 @@ a {
 
 .task-preview-pdf__external-link:hover,
 .task-preview-pdf__external-link:focus-visible {
-  background: rgba(109, 94, 252, 0.14);
-  border-color: rgba(109, 94, 252, 0.32);
+  background: rgba(18, 80, 230, 0.14);
+  border-color: rgba(18, 80, 230, 0.32);
 }
 
 .task-preview-pdf__external-link:focus-visible {
@@ -524,8 +524,8 @@ a {
   min-height: 40px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid rgba(109, 94, 252, 0.2);
-  background: rgba(109, 94, 252, 0.08);
+  border: 1px solid rgba(18, 80, 230, 0.2);
+  background: rgba(18, 80, 230, 0.08);
   color: var(--primary-dark);
   font-size: 13px;
   font-weight: 800;
@@ -533,8 +533,8 @@ a {
 
 .task-preview-video__external-link:hover,
 .task-preview-video__external-link:focus-visible {
-  background: rgba(109, 94, 252, 0.14);
-  border-color: rgba(109, 94, 252, 0.32);
+  background: rgba(18, 80, 230, 0.14);
+  border-color: rgba(18, 80, 230, 0.32);
 }
 
 .task-preview-video__external-link:focus-visible {

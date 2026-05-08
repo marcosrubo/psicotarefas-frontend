@@ -3,8 +3,8 @@
   --card: #ffffff;
   --text: #1f2430;
   --muted: #667085;
-  --primary: #6d5efc;
-  --primary-dark: #5647ef;
+  --primary: #1250e6;
+  --primary-dark: #0d46d0;
   --border: #e8eaf2;
   --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
   --error-bg: #fef2f2;
@@ -39,7 +39,7 @@ a { text-decoration: none; }
   z-index: 24;
   padding: 18px 16px 10px;
   background:
-    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(18, 80, 230, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -77,7 +77,7 @@ a { text-decoration: none; }
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.18);
   flex-shrink: 0;
 }
 
@@ -122,8 +122,8 @@ a { text-decoration: none; }
 }
 
 .feed-filter-field__control:focus {
-  border-color: rgba(109, 94, 252, 0.48);
-  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+  border-color: rgba(18, 80, 230, 0.48);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
 }
 
 .feed-filter-field__control:disabled {

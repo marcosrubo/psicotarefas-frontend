@@ -3,9 +3,9 @@
   --card: #ffffff;
   --text: #1f2430;
   --muted: #667085;
-  --primary: #6d5efc;
-  --primary-dark: #5647ef;
-  --primary-soft: rgba(109, 94, 252, 0.1);
+  --primary: #1250e6;
+  --primary-dark: #0d46d0;
+  --primary-soft: rgba(18, 80, 230, 0.1);
   --border: #e8eaf2;
   --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
   --radius-xl: 28px;
@@ -56,7 +56,7 @@ input {
 .topbar {
   padding: 20px 16px;
   background:
-    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(18, 80, 230, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   display: flex;
   flex-direction: column;
@@ -74,7 +74,7 @@ input {
   width: 58px;
   height: 58px;
   border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.18);
   flex-shrink: 0;
 }
 
@@ -128,7 +128,7 @@ input {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  box-shadow: 0 10px 22px rgba(109, 94, 252, 0.24);
+  box-shadow: 0 10px 22px rgba(18, 80, 230, 0.24);
 }
 
 .user-chip__text {
@@ -200,7 +200,7 @@ input {
 
 .hero-panel {
   padding: 20px 16px;
-  background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(109, 94, 252, 0.04));
+  background: linear-gradient(135deg, rgba(18, 80, 230, 0.12), rgba(18, 80, 230, 0.04));
   display: grid;
   gap: 16px;
 }
@@ -282,7 +282,7 @@ input {
 
 .search-box input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
 }
 
 .panel__header {
@@ -351,7 +351,7 @@ input {
 
 .logs-pagination__button:hover:not(:disabled) {
   transform: translateY(-1px);
-  border-color: rgba(109, 94, 252, 0.35);
+  border-color: rgba(18, 80, 230, 0.35);
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
 }
 
@@ -423,7 +423,7 @@ input {
 }
 
 .logs-table tbody tr:nth-child(even) {
-  background: rgba(109, 94, 252, 0.02);
+  background: rgba(18, 80, 230, 0.02);
 }
 
 .simple-item span,
@@ -479,7 +479,7 @@ input {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  box-shadow: 0 10px 22px rgba(109, 94, 252, 0.24);
+  box-shadow: 0 10px 22px rgba(18, 80, 230, 0.24);
 }
 
 .professional-card__title {
@@ -510,7 +510,7 @@ input {
 }
 
 .professional-card__plan-button {
-  border: 1px solid rgba(109, 94, 252, 0.24);
+  border: 1px solid rgba(18, 80, 230, 0.24);
   background: #fff;
   color: var(--primary-dark);
   padding: 8px 12px;
@@ -521,8 +521,8 @@ input {
 }
 
 .professional-card__plan-button:hover {
-  border-color: rgba(109, 94, 252, 0.5);
-  box-shadow: 0 8px 18px rgba(109, 94, 252, 0.12);
+  border-color: rgba(18, 80, 230, 0.5);
+  box-shadow: 0 8px 18px rgba(18, 80, 230, 0.12);
 }
 
 .professional-card__stats {
@@ -839,7 +839,7 @@ input {
 
 .modal-field select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
 }
 
 .modal-message[hidden] {
@@ -875,7 +875,7 @@ input {
   color: #fff;
   padding: 12px 18px;
   border-radius: 14px;
-  box-shadow: 0 10px 22px rgba(109, 94, 252, 0.24);
+  box-shadow: 0 10px 22px rgba(18, 80, 230, 0.24);
   font-weight: 700;
   cursor: pointer;
 }

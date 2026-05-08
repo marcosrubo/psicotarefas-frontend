@@ -3,8 +3,8 @@
   --card: #ffffff;
   --text: #1f2430;
   --muted: #667085;
-  --primary: #6d5efc;
-  --primary-dark: #5647ef;
+  --primary: #1250e6;
+  --primary-dark: #0d46d0;
   --border: #e8eaf2;
   --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
   --error-bg: #fef2f2;
@@ -50,7 +50,7 @@ a {
   z-index: 24;
   padding: 18px 16px 14px;
   background:
-    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(18, 80, 230, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -85,7 +85,7 @@ a {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.18);
   flex-shrink: 0;
 }
 
@@ -191,7 +191,7 @@ a {
   border: 1px solid rgba(108, 94, 252, 0.16);
   border-radius: 20px;
   background:
-    linear-gradient(135deg, rgba(109, 94, 252, 0.08), rgba(86, 71, 239, 0.04)),
+    linear-gradient(135deg, rgba(18, 80, 230, 0.08), rgba(13, 70, 208, 0.04)),
     #ffffff;
   display: grid;
   gap: 8px;
@@ -236,7 +236,7 @@ a {
 .selected-theme-card:focus-visible {
   border-color: rgba(108, 94, 252, 0.28);
   box-shadow:
-    0 16px 36px rgba(86, 71, 239, 0.1),
+    0 16px 36px rgba(13, 70, 208, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.82);
   transform: translateY(-1px);
 }
@@ -276,7 +276,7 @@ a {
   right: 22px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(86, 71, 239, 0.72);
+  color: rgba(13, 70, 208, 0.72);
   font-size: 28px;
   font-weight: 500;
 }
@@ -285,11 +285,11 @@ a {
 .selection-button:focus-visible {
   border-color: rgba(108, 94, 252, 0.3);
   background:
-    linear-gradient(135deg, rgba(109, 94, 252, 0.1), rgba(86, 71, 239, 0.06)),
+    linear-gradient(135deg, rgba(18, 80, 230, 0.1), rgba(13, 70, 208, 0.06)),
     linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 248, 253, 0.98));
   color: #171b26;
   box-shadow:
-    0 16px 36px rgba(86, 71, 239, 0.12),
+    0 16px 36px rgba(13, 70, 208, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.82);
   transform: translateY(-1px);
 }
@@ -347,10 +347,10 @@ a {
 .selection-button.is-selected {
   border-color: rgba(108, 94, 252, 0.34);
   background:
-    linear-gradient(135deg, rgba(109, 94, 252, 0.14), rgba(86, 71, 239, 0.08)),
+    linear-gradient(135deg, rgba(18, 80, 230, 0.14), rgba(13, 70, 208, 0.08)),
     #ffffff;
   box-shadow:
-    0 16px 36px rgba(86, 71, 239, 0.14),
+    0 16px 36px rgba(13, 70, 208, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
@@ -493,7 +493,7 @@ a {
 .interaction-inline-field input:focus,
 .interaction-inline-field select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
 }
 
 .sr-only {
@@ -526,7 +526,7 @@ a {
 }
 
 .meta-chip--type {
-  background: rgba(109, 94, 252, 0.12);
+  background: rgba(18, 80, 230, 0.12);
   color: var(--primary-dark);
 }
 
@@ -552,7 +552,7 @@ a {
 .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.28);
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.28);
 }
 
 .btn-secondary {
@@ -698,7 +698,7 @@ a {
 }
 
 .bottom-nav__menu-item--current {
-  background: rgba(109, 94, 252, 0.22);
+  background: rgba(18, 80, 230, 0.22);
 }
 
 .bottom-nav__menu-item--danger {

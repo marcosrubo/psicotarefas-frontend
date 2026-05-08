@@ -3,8 +3,8 @@
   --card: #ffffff;
   --text: #1f2430;
   --muted: #667085;
-  --primary: #6d5efc;
-  --primary-dark: #5647ef;
+  --primary: #1250e6;
+  --primary-dark: #0d46d0;
   --border: #e8eaf2;
   --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
   --success-bg: #ecfdf3;
@@ -30,7 +30,7 @@ button, input, textarea { font: inherit; }
   z-index: 24;
   padding: 18px 16px 14px;
   background:
-    radial-gradient(circle at top right, rgba(109, 94, 252, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(18, 80, 230, 0.16), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   backdrop-filter: blur(12px);
   display: grid;
@@ -65,7 +65,7 @@ button, input, textarea { font: inherit; }
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.18);
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.18);
   flex-shrink: 0;
 }
 .brand__name {
@@ -207,8 +207,8 @@ button, input, textarea { font: inherit; }
   margin: 8px 0 0;
   padding: 10px 14px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(109, 94, 252, 0.04));
-  border: 1px solid rgba(109, 94, 252, 0.16);
+  background: linear-gradient(135deg, rgba(18, 80, 230, 0.12), rgba(18, 80, 230, 0.04));
+  border: 1px solid rgba(18, 80, 230, 0.16);
   color: var(--primary-dark);
   font-size: 12px;
   font-weight: 700;
@@ -307,7 +307,7 @@ button, input, textarea { font: inherit; }
 }
 
 .bottom-nav__item.is-active {
-  background: rgba(109, 94, 252, 0.12);
+  background: rgba(18, 80, 230, 0.12);
   color: #fff;
 }
 
@@ -382,11 +382,11 @@ button, input, textarea { font: inherit; }
 }
 
 .bottom-nav__menu-item:hover {
-  background: rgba(109, 94, 252, 0.24);
+  background: rgba(18, 80, 230, 0.24);
 }
 
 .bottom-nav__menu-item--current {
-  background: rgba(109, 94, 252, 0.12);
+  background: rgba(18, 80, 230, 0.12);
   color: #fff;
 }
 
@@ -422,7 +422,7 @@ button, input, textarea { font: inherit; }
 }
 .form-group textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(109, 94, 252, 0.12);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
 }
 .form-message {
   border-radius: 14px;
