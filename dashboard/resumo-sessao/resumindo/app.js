@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const summaryModalTitle = document.getElementById("summaryModalTitle");
   const summaryModalText = document.getElementById("summaryModalText");
   const btnKeepSummary = document.getElementById("btnKeepSummary");
+  const btnCopySummary = document.getElementById("btnCopySummary");
   const btnDeleteSummary = document.getElementById("btnDeleteSummary");
   const screenMessage = document.getElementById("screenMessage");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
@@ -294,6 +295,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
     summaryModal.hidden = true;
     selectedSummary = null;
+  }
+
+  function copiarResumoSelecionadoParaEdicao() {
+    if (!selectedSummary) return;
+
+    if (isRecording) {
+      stopDictation();
+    }
+
+    const resumoId = selectedSummary.id;
+    const dataSessao = selectedSummary.data_sessao || "";
+    const textoResumo = obterTextoResumo(selectedSummary);
+    const pacienteId = currentPatient?.patient_user_id || patientId || null;
+    const vinculoId = currentPatient?.vinculo_id || null;
+
+    if (sessionDate && dataSessao) {
+      sessionDate.value = dataSessao;
+    }
+
+    if (transcriptText) {
+      transcriptText.value = textoResumo;
+      finalSegments = textoResumo ? [textoResumo] : [];
+    }
+
+    fecharResumoModal();
+
+    if (transcriptText) {
+      transcriptText.focus();
+    }
+
+    if (dictationStatus) {
+      dictationStatus.textContent =
+        "Data e resumo copiados. Toque no botão para continuar ditando a partir desse texto.";
+    }
+
+    showScreenMessage("Data e resumo copiados para continuar o ditado.", "success");
+
+    registrarEvento({
+      evento: "resumo_sessao_copiado_para_edicao",
+      pagina: "resumo_sessao_resumindo",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null,
+      contexto: {
+        resumo_id: resumoId,
+        paciente_id: pacienteId,
+        vinculo_id: vinculoId,
+        data_sessao: dataSessao || null
+      }
+    }).catch((error) => {
+      console.error("Erro ao registrar cópia do resumo para edição:", error);
+    });
   }
 
   async function gravarResumoAtual() {
@@ -593,6 +646,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnKeepSummary) {
     btnKeepSummary.addEventListener("click", fecharResumoModal);
+  }
+
+  if (btnCopySummary) {
+    btnCopySummary.addEventListener("click", copiarResumoSelecionadoParaEdicao);
   }
 
   if (btnDeleteSummary) {
