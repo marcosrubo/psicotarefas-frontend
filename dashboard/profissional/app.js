@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const userRole = document.getElementById("userRole");
   const userAvatar = document.getElementById("userAvatar");
   const welcomeTitle = document.getElementById("welcomeTitle");
+  const planBadgeLabel = document.getElementById("planBadgeLabel");
 
   const btnEditName = document.getElementById("btnEditName");
   const editNameBox = document.getElementById("editNameBox");
@@ -189,6 +190,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (editNameInput) {
       editNameInput.value = nomeExibicao;
     }
+  }
+
+  function obterRotuloPlanoProfissional(plano) {
+    const planoNormalizado = String(plano || "gratuito").trim().toLowerCase();
+    const rotulos = {
+      gratuito: "Gratuito",
+      standard: "Standard",
+      pro: "PRO"
+    };
+
+    return rotulos[planoNormalizado] || "Gratuito";
+  }
+
+  function aplicarPlanoNaTela(plano) {
+    if (!planBadgeLabel) return;
+    planBadgeLabel.textContent = obterRotuloPlanoProfissional(plano);
   }
 
   function abrirEdicaoNome() {
@@ -478,7 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const { data: perfil, error } = await supabase
         .from("perfis")
-        .select("nome, email, perfil")
+        .select("nome, email, perfil, plano_profissional")
         .eq("user_id", currentUser.id)
         .single();
 
@@ -493,6 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentProfile = perfil;
       aplicarNomeNaTela(perfil.nome, perfil.email);
+      aplicarPlanoNaTela(perfil.plano_profissional);
       await registrarAcessoPagina({
         pagina: "dashboard_profissional",
         perfil: "profissional",
