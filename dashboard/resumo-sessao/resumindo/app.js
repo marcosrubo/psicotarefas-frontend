@@ -12,7 +12,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const dictationStatus = document.getElementById("dictationStatus");
   const transcriptText = document.getElementById("transcriptText");
   const btnClearTranscript = document.getElementById("btnClearTranscript");
-  const btnCopyTranscript = document.getElementById("btnCopyTranscript");
+  const btnSaveTranscript = document.getElementById("btnSaveTranscript");
+  const savedSummariesList = document.getElementById("savedSummariesList");
+  const savedSummariesEmpty = document.getElementById("savedSummariesEmpty");
+  const summaryModal = document.getElementById("summaryModal");
+  const summaryModalTitle = document.getElementById("summaryModalTitle");
+  const summaryModalText = document.getElementById("summaryModalText");
+  const btnKeepSummary = document.getElementById("btnKeepSummary");
+  const btnDeleteSummary = document.getElementById("btnDeleteSummary");
   const screenMessage = document.getElementById("screenMessage");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -27,6 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let recognition = null;
   let isRecording = false;
   let finalSegments = [];
+  let savedSummaries = [];
+  let selectedSummary = null;
 
   function todayIso() {
     const now = new Date();
@@ -34,6 +43,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function formatarDataSessao(dataIso) {
+    const partes = String(dataIso || "").split("-");
+
+    if (partes.length === 3) {
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    return dataIso || "-";
+  }
+
+  function obterTextoResumo(resumo) {
+    return (resumo?.resumo_final || resumo?.texto_transcrito || "").trim();
   }
 
   function showScreenMessage(message, type = "error") {
@@ -180,6 +212,215 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (patientName) {
       patientName.textContent = currentPatient.alias;
+    }
+  }
+
+  function renderSavedSummaries() {
+    if (!savedSummariesList || !savedSummariesEmpty) return;
+
+    if (!savedSummaries.length) {
+      savedSummariesList.innerHTML = "";
+      savedSummariesEmpty.hidden = false;
+      return;
+    }
+
+    savedSummariesEmpty.hidden = true;
+    savedSummariesList.innerHTML = savedSummaries
+      .map((summary) => `
+        <article class="summary-row">
+          <div class="summary-row__date">
+            <span>Data da sessão</span>
+            <strong>${escapeHtml(formatarDataSessao(summary.data_sessao))}</strong>
+          </div>
+          <button
+            class="summary-view-button"
+            type="button"
+            data-summary-id="${escapeHtml(summary.id)}"
+          >
+            Ver
+          </button>
+        </article>
+      `)
+      .join("");
+  }
+
+  async function carregarResumosSalvos() {
+    if (!currentUser || !currentPatient?.vinculo_id) return;
+
+    const { data, error } = await supabase
+      .from("resumos_sessao")
+      .select("id, data_sessao, texto_transcrito, resumo_final, status, created_at, updated_at")
+      .eq("professional_user_id", currentUser.id)
+      .eq("vinculo_id", currentPatient.vinculo_id)
+      .order("data_sessao", { ascending: false });
+
+    if (error) {
+      throw new Error(`Falha ao carregar resumos salvos: ${error.message}`);
+    }
+
+    savedSummaries = data || [];
+    renderSavedSummaries();
+  }
+
+  function abrirResumoModal(resumo) {
+    if (!summaryModal || !summaryModalTitle || !summaryModalText) return;
+
+    selectedSummary = resumo;
+    summaryModalTitle.textContent = `Sessão de ${formatarDataSessao(resumo.data_sessao)}`;
+    summaryModalText.textContent = obterTextoResumo(resumo) || "Resumo sem texto registrado.";
+    summaryModal.hidden = false;
+
+    if (btnKeepSummary) {
+      btnKeepSummary.focus();
+    }
+
+    registrarEvento({
+      evento: "resumo_sessao_visualizado",
+      pagina: "resumo_sessao_resumindo",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null,
+      contexto: {
+        resumo_id: resumo.id,
+        paciente_id: currentPatient?.patient_user_id || patientId || null,
+        vinculo_id: currentPatient?.vinculo_id || null,
+        data_sessao: resumo.data_sessao || null
+      }
+    });
+  }
+
+  function fecharResumoModal() {
+    if (!summaryModal) return;
+
+    summaryModal.hidden = true;
+    selectedSummary = null;
+  }
+
+  async function gravarResumoAtual() {
+    if (!currentUser || !currentPatient) {
+      showScreenMessage("Sessão inválida. Entre novamente.");
+      return;
+    }
+
+    if (isRecording) {
+      stopDictation();
+    }
+
+    const dataSessao = sessionDate?.value || "";
+    const textoResumo = transcriptText?.value.trim() || "";
+
+    if (!dataSessao) {
+      showScreenMessage("Informe a data da sessão antes de gravar.");
+      return;
+    }
+
+    if (!textoResumo) {
+      showScreenMessage("Ainda não há resumo para gravar.");
+      return;
+    }
+
+    if (btnSaveTranscript) {
+      btnSaveTranscript.disabled = true;
+      btnSaveTranscript.textContent = "GRAVANDO...";
+    }
+
+    try {
+      const { error } = await supabase
+        .from("resumos_sessao")
+        .upsert(
+          {
+            vinculo_id: currentPatient.vinculo_id,
+            professional_user_id: currentUser.id,
+            patient_user_id: currentPatient.patient_user_id,
+            data_sessao: dataSessao,
+            texto_transcrito: textoResumo,
+            resumo_final: textoResumo,
+            status: "rascunho",
+            origem_transcricao: "navegador"
+          },
+          { onConflict: "vinculo_id,data_sessao" }
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      await registrarEvento({
+        evento: "resumo_sessao_gravado",
+        pagina: "resumo_sessao_resumindo",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          paciente_id: currentPatient.patient_user_id,
+          vinculo_id: currentPatient.vinculo_id,
+          data_sessao: dataSessao
+        }
+      });
+
+      await carregarResumosSalvos();
+      showScreenMessage("Resumo gravado com sucesso.", "success");
+    } catch (error) {
+      console.error("Erro ao gravar resumo:", error);
+      showScreenMessage("Não foi possível gravar o resumo. Tente novamente.");
+    } finally {
+      if (btnSaveTranscript) {
+        btnSaveTranscript.disabled = false;
+        btnSaveTranscript.textContent = "GRAVAR";
+      }
+    }
+  }
+
+  async function excluirResumoSelecionado() {
+    if (!selectedSummary || !currentUser) return;
+
+    const dataResumo = formatarDataSessao(selectedSummary.data_sessao);
+    const confirmou = window.confirm(`Confirma a exclusão do resumo da sessão de ${dataResumo}?`);
+
+    if (!confirmou) return;
+
+    if (btnDeleteSummary) {
+      btnDeleteSummary.disabled = true;
+      btnDeleteSummary.textContent = "Excluindo...";
+    }
+
+    try {
+      const resumoId = selectedSummary.id;
+      const { error } = await supabase
+        .from("resumos_sessao")
+        .delete()
+        .eq("id", resumoId)
+        .eq("professional_user_id", currentUser.id);
+
+      if (error) {
+        throw error;
+      }
+
+      await registrarEvento({
+        evento: "resumo_sessao_excluido",
+        pagina: "resumo_sessao_resumindo",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          resumo_id: resumoId,
+          paciente_id: currentPatient?.patient_user_id || patientId || null,
+          vinculo_id: currentPatient?.vinculo_id || null,
+          data_sessao: selectedSummary.data_sessao || null
+        }
+      });
+
+      fecharResumoModal();
+      await carregarResumosSalvos();
+      showScreenMessage("Resumo excluído com sucesso.", "success");
+    } catch (error) {
+      console.error("Erro ao excluir resumo:", error);
+      showScreenMessage("Não foi possível excluir o resumo. Tente novamente.");
+    } finally {
+      if (btnDeleteSummary) {
+        btnDeleteSummary.disabled = false;
+        btnDeleteSummary.textContent = "Excluir";
+      }
     }
   }
 
@@ -332,29 +573,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (btnCopyTranscript) {
-    btnCopyTranscript.addEventListener("click", async () => {
-      const value = transcriptText?.value.trim() || "";
+  if (btnSaveTranscript) {
+    btnSaveTranscript.addEventListener("click", gravarResumoAtual);
+  }
 
-      if (!value) {
-        showScreenMessage("Ainda não há texto transcrito para copiar.");
-        return;
+  if (savedSummariesList) {
+    savedSummariesList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-summary-id]");
+      if (!button) return;
+
+      const summaryId = button.getAttribute("data-summary-id");
+      const summary = savedSummaries.find((item) => String(item.id) === summaryId);
+
+      if (summary) {
+        abrirResumoModal(summary);
       }
+    });
+  }
 
-      const header = [
-        `Data da sessão: ${sessionDate?.value || ""}`,
-        `Paciente: ${currentPatient?.alias || patientAliasFromUrl || "Paciente"}`,
-        ""
-      ].join("\n");
+  if (btnKeepSummary) {
+    btnKeepSummary.addEventListener("click", fecharResumoModal);
+  }
 
-      try {
-        await navigator.clipboard.writeText(`${header}${value}`);
-        showScreenMessage("Texto copiado para a área de transferência.", "success");
-      } catch (error) {
-        console.error("Erro ao copiar texto:", error);
-        transcriptText.focus();
-        transcriptText.select();
-        showScreenMessage("Não consegui copiar automaticamente. O texto foi selecionado para copiar manualmente.");
+  if (btnDeleteSummary) {
+    btnDeleteSummary.addEventListener("click", excluirResumoSelecionado);
+  }
+
+  if (summaryModal) {
+    summaryModal.addEventListener("click", (event) => {
+      if (event.target.closest("[data-summary-modal-close]")) {
+        fecharResumoModal();
       }
     });
   }
@@ -380,6 +628,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+      if (summaryModal && !summaryModal.hidden) {
+        fecharResumoModal();
+        return;
+      }
+
       fecharMenuInferior();
       if (isRecording) {
         stopDictation();
@@ -402,6 +655,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) return;
 
     await validarPacienteSelecionado();
+    await carregarResumosSalvos();
     configureSpeechRecognition();
   }
 
