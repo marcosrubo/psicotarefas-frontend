@@ -3,11 +3,11 @@
   --card: #ffffff;
   --text: #1f2430;
   --muted: #667085;
-  --primary: #6d5efc;
-  --primary-dark: #5647ef;
-  --green: #6d5efc;
-  --green-dark: #4738d6;
-  --border: #dedbff;
+  --primary: #1a56e8;
+  --primary-dark: #0d46d0;
+  --green: #0f8d2d;
+  --green-dark: #0b7324;
+  --border: #dfe7f4;
   --shadow: 0 12px 30px rgba(41, 47, 76, 0.1);
   --shadow-soft: 0 8px 20px rgba(41, 47, 76, 0.08);
   --radius-xl: 28px;
@@ -32,8 +32,8 @@ body {
   padding: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(109, 94, 252, 0.14), transparent 28%),
-    linear-gradient(180deg, #f0efff 0%, #f5f7fb 34%, #f5f7fb 100%);
+    radial-gradient(circle at top left, rgba(30, 99, 242, 0.12), transparent 28%),
+    linear-gradient(180deg, #eaf4ff 0%, #f5f7fb 34%, #f5f7fb 100%);
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -93,7 +93,7 @@ a {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  box-shadow: 0 8px 18px rgba(109, 94, 252, 0.16);
+  box-shadow: 0 8px 18px rgba(26, 86, 232, 0.14);
   background: #fff;
   object-fit: cover;
   flex-shrink: 0;
@@ -102,7 +102,7 @@ a {
 .auth-top-brand__name {
   font-size: 16px;
   font-weight: 800;
-  color: #2f2868;
+  color: #1f2c63;
   white-space: nowrap;
 }
 
@@ -224,7 +224,7 @@ a {
 }
 
 .auth-action-card--enter {
-  background: linear-gradient(180deg, #6d5efc 0%, #5647ef 100%);
+  background: linear-gradient(180deg, #14943a 0%, #0c812f 100%);
   color: #ffffff;
 }
 
@@ -463,7 +463,7 @@ a {
   cursor: pointer;
   background: #ffffff;
   color: var(--green-dark);
-  box-shadow: 0 10px 24px rgba(86, 71, 239, 0.22);
+  box-shadow: 0 10px 24px rgba(5, 61, 20, 0.16);
 }
 
 .auth-photo {
