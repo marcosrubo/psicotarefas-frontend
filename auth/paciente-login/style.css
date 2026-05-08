@@ -230,7 +230,7 @@ a {
 
 .auth-action-card--register {
   background: #ffffff;
-  border: 1px solid var(--border);
+  border: 2px solid var(--green);
   color: var(--green-dark);
   display: grid;
   grid-template-columns: auto 1fr auto;
