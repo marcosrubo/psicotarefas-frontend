@@ -110,20 +110,20 @@ a {
   line-height: 1.1;
 }
 
-.title-strip span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  margin-left: 8px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #ecfdf3;
-  color: #027a48;
-  font-size: 11px;
+.session-summary-topics {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--text);
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  line-height: 1.35;
   text-transform: uppercase;
-  vertical-align: middle;
+}
+
+.session-summary-topics li::marker {
+  color: var(--primary-dark);
 }
 
 .dictation-main {
