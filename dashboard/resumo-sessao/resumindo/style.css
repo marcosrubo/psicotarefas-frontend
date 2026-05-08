@@ -110,22 +110,6 @@ a {
   line-height: 1.1;
 }
 
-.session-summary-topics {
-  display: grid;
-  gap: 6px;
-  margin: 12px 0 0;
-  padding-left: 20px;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.35;
-  text-transform: uppercase;
-}
-
-.session-summary-topics li::marker {
-  color: var(--primary-dark);
-}
-
 .dictation-main {
   padding: 18px 16px 124px;
   display: grid;
@@ -162,6 +146,40 @@ a {
 .patient-context strong {
   font-size: 22px;
   line-height: 1.15;
+}
+
+.guiding-script-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: var(--shadow-soft);
+}
+
+.guiding-script-card h2 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.guiding-script-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.guiding-script-list li::marker {
+  color: var(--primary-dark);
 }
 
 .saved-summaries-card {
