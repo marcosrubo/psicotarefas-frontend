@@ -239,9 +239,9 @@ input {
 }
 
 .dashboard-main {
-  padding: 18px 16px 124px;
+  padding: 12px 16px 124px;
   display: grid;
-  gap: 18px;
+  gap: 12px;
 }
 
 .primary-shortcuts-card {
@@ -445,7 +445,7 @@ input {
 }
 
 .welcome-card {
-  padding: 20px 16px;
+  padding: 10px 14px;
   background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(109, 94, 252, 0.04));
   border: 1px solid rgba(109, 94, 252, 0.15);
 }
@@ -460,9 +460,9 @@ input {
 }
 
 .welcome-card__content h2 {
-  margin: 0 0 10px;
-  font-size: 28px;
-  line-height: 1.1;
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.12;
 }
 
 .welcome-card__content p:last-child {
