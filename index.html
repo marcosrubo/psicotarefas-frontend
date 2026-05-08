@@ -20,7 +20,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=20260508-2" />
+  <link rel="stylesheet" href="./style.css?v=20260508-3" />
   <link rel="stylesheet" href="./shared/support.css" />
 </head>
 <body>
@@ -48,31 +48,41 @@
     <main class="main-content">
       <section class="home-showcase">
         <div class="home-selector" aria-label="Escolha entre paciente e profissional">
-          <a class="home-selector__card" href="./auth/paciente-login/index.html">
-            <span class="home-selector__icon" aria-hidden="true">
-              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M31.6 15.2c-3.6-5.4-12.1-2.9-12.1 3.7 0 .8.1 1.5.4 2.2-4.9.8-8 5.9-5.9 10.4-4 3.2-3.1 9.8 1.6 11.8-.4 6 6.7 9.4 11.1 5.3 3.2-3 4.9-7.1 4.9-11.5V15.2Z"/>
-                <path d="M32.4 15.2c3.6-5.4 12.1-2.9 12.1 3.7 0 .8-.1 1.5-.4 2.2 4.9.8 8 5.9 5.9 10.4 4 3.2 3.1 9.8-1.6 11.8.4 6-6.7 9.4-11.1 5.3-3.2-3-4.9-7.1-4.9-11.5V15.2Z"/>
-                <path d="M21.2 29.5c2.4-1.8 5.3-.9 6.5 1.2"/>
-                <path d="M19.8 38.4c2.8 1.2 5.7.2 7.2-2.1"/>
-                <path d="M42.8 29.5c-2.4-1.8-5.3-.9-6.5 1.2"/>
-                <path d="M44.2 38.4c-2.8 1.2-5.7.2-7.2-2.1"/>
-              </svg>
-            </span>
-            <strong>PACIENTE</strong>
-          </a>
+          <div class="home-selector__option">
+            <a class="home-selector__card" href="./auth/paciente-login/index.html">
+              <span class="home-selector__icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M31.6 15.2c-3.6-5.4-12.1-2.9-12.1 3.7 0 .8.1 1.5.4 2.2-4.9.8-8 5.9-5.9 10.4-4 3.2-3.1 9.8 1.6 11.8-.4 6 6.7 9.4 11.1 5.3 3.2-3 4.9-7.1 4.9-11.5V15.2Z"/>
+                  <path d="M32.4 15.2c3.6-5.4 12.1-2.9 12.1 3.7 0 .8-.1 1.5-.4 2.2 4.9.8 8 5.9 5.9 10.4 4 3.2 3.1 9.8-1.6 11.8.4 6-6.7 9.4-11.1 5.3-3.2-3-4.9-7.1-4.9-11.5V15.2Z"/>
+                  <path d="M21.2 29.5c2.4-1.8 5.3-.9 6.5 1.2"/>
+                  <path d="M19.8 38.4c2.8 1.2 5.7.2 7.2-2.1"/>
+                  <path d="M42.8 29.5c-2.4-1.8-5.3-.9-6.5 1.2"/>
+                  <path d="M44.2 38.4c-2.8 1.2-5.7.2-7.2-2.1"/>
+                </svg>
+              </span>
+              <strong>PACIENTE</strong>
+            </a>
+            <button class="home-selector__test-button" id="btnTestPatient" type="button">
+              TESTAR
+            </button>
+          </div>
 
-          <a class="home-selector__card" href="./auth/profissional-login/index.html">
-            <span class="home-selector__icon" aria-hidden="true">
-              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="13" y="20" width="38" height="28" rx="4"/>
-                <path d="M24 20v-4c0-2 2-4 4-4h8c2 0 4 2 4 4v4"/>
-                <path d="M13 31h38"/>
-                <path d="M29 31v6h6v-6"/>
-              </svg>
-            </span>
-            <strong>PROFISSIONAL</strong>
-          </a>
+          <div class="home-selector__option">
+            <a class="home-selector__card" href="./auth/profissional-login/index.html">
+              <span class="home-selector__icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="13" y="20" width="38" height="28" rx="4"/>
+                  <path d="M24 20v-4c0-2 2-4 4-4h8c2 0 4 2 4 4v4"/>
+                  <path d="M13 31h38"/>
+                  <path d="M29 31v6h6v-6"/>
+                </svg>
+              </span>
+              <strong>PROFISSIONAL</strong>
+            </a>
+            <button class="home-selector__test-button" id="btnTestProfessional" type="button">
+              TESTAR
+            </button>
+          </div>
         </div>
 
         <div class="home-hero-image">
@@ -378,6 +388,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=20260508-1"></script>
 </body>
 </html>

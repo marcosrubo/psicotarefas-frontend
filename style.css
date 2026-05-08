@@ -130,6 +130,12 @@ ul {
   gap: 14px;
 }
 
+.home-selector__option {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
 .home-selector__card {
   min-width: 0;
   background: linear-gradient(180deg, #1250e6 0%, #0d46d0 100%);
@@ -164,6 +170,29 @@ ul {
 .home-selector__card strong {
   font-size: clamp(18px, 4vw, 28px);
   letter-spacing: 0.01em;
+}
+
+.home-selector__test-button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(13, 70, 208, 0.2);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #0d46d0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.home-selector__test-button:active {
+  transform: scale(0.98);
+}
+
+.home-selector__test-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .home-hero-image {
