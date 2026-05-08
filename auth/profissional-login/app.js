@@ -14,10 +14,74 @@ const btnSubmit = document.getElementById("btnSubmit");
 
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const linkEsqueciSenha = document.getElementById("linkEsqueciSenha");
+const delayedInputs = [emailInput, senhaInput].filter(Boolean);
+
+let usuarioLiberouCampo = false;
 
 registrarAcessoPagina({
   pagina: "login_profissional",
   perfil: "publico"
+});
+
+function bloquearEntradaInicial({ resetUnlock = true } = {}) {
+  if (!resetUnlock && usuarioLiberouCampo) return;
+
+  usuarioLiberouCampo = false;
+
+  delayedInputs.forEach((input) => {
+    delete input.dataset.userUnlocked;
+    input.setAttribute("readonly", "readonly");
+    input.setAttribute("inputmode", "none");
+    input.blur();
+  });
+
+  if (
+    document.activeElement === emailInput ||
+    document.activeElement === senhaInput
+  ) {
+    document.activeElement.blur();
+  }
+
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener("load", () => {
+  bloquearEntradaInicial({ resetUnlock: false });
+
+  setTimeout(() => {
+    bloquearEntradaInicial({ resetUnlock: false });
+  }, 60);
+});
+
+window.addEventListener("pageshow", () => {
+  bloquearEntradaInicial();
+});
+
+function liberarCampoAoInteragir(input) {
+  if (!input) return;
+
+  const unlock = () => {
+    usuarioLiberouCampo = true;
+    input.dataset.userUnlocked = "true";
+    input.removeAttribute("readonly");
+    input.removeAttribute("inputmode");
+  };
+
+  input.addEventListener("pointerdown", unlock, { passive: true });
+  input.addEventListener("touchstart", unlock, { passive: true });
+  input.addEventListener("mousedown", unlock, { passive: true });
+  input.addEventListener("focus", () => {
+    if (input.dataset.userUnlocked === "true") return;
+
+    input.blur();
+    window.scrollTo(0, 0);
+  });
+}
+
+delayedInputs.forEach(liberarCampoAoInteragir);
+
+document.addEventListener("DOMContentLoaded", () => {
+  bloquearEntradaInicial();
 });
 
 function limparErros() {
@@ -226,7 +290,7 @@ authForm.addEventListener("submit", async (event) => {
     mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
   } finally {
     btnSubmit.disabled = false;
-    btnSubmit.textContent = "Entrar como profissional";
+    btnSubmit.textContent = "Entrar";
   }
 });
 
