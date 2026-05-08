@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnTasks = document.getElementById("btnTasks");
   const btnToggleInvite = document.getElementById("btnToggleInvite");
   const btnAssignedTasks = document.getElementById("btnAssignedTasks");
+  const btnSessionSummary = document.getElementById("btnSessionSummary");
   const btnSuggestion = document.getElementById("btnSuggestion");
   const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
   const btnFeedVideoBank = document.getElementById("btnFeedVideoBank");
@@ -28,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnMenuProfile = document.getElementById("btnMenuProfile");
   const btnMenuPatients = document.getElementById("btnMenuPatients");
   const btnMenuTasks = document.getElementById("btnMenuTasks");
+  const btnMenuSessionSummary = document.getElementById("btnMenuSessionSummary");
   const btnMenuTaskBank = document.getElementById("btnMenuTaskBank");
   const btnMenuVideoBank = document.getElementById("btnMenuVideoBank");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -877,6 +879,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (btnSessionSummary) {
+    btnSessionSummary.addEventListener("click", () => {
+      registrarEvento({
+        evento: "resumo_sessao_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../resumo-sessao/index.html";
+    });
+  }
+
   if (btnFeedTaskBank) {
     btnFeedTaskBank.addEventListener("click", () => {
       registrarEvento({
@@ -1141,6 +1156,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btnMenuTasks.addEventListener("click", () => {
       fecharMenuInferior();
       window.location.href = "../atribuir-tarefas/index.html";
+    });
+  }
+
+  if (btnMenuSessionSummary) {
+    btnMenuSessionSummary.addEventListener("click", () => {
+      fecharMenuInferior();
+      window.location.href = "../resumo-sessao/index.html";
     });
   }
 
