@@ -13,7 +13,7 @@
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=20260509-cadastro-paciente" />
   <link rel="stylesheet" href="../../shared/support.css" />
 </head>
 <body>
@@ -46,6 +46,29 @@
       <section class="welcome-card">
         <div class="welcome-card__content">
           <h2 id="welcomeTitle">Olá</h2>
+          <button class="btn-secondary cadastro-btn" id="btnEditName" type="button">
+            Cadastro
+          </button>
+
+          <div class="patient-register-box" id="editNameBox" hidden>
+            <label for="editNameInput">Nome no cadastro</label>
+            <input
+              type="text"
+              id="editNameInput"
+              placeholder="Digite seu nome"
+              maxlength="120"
+              autocomplete="name"
+            />
+            <div class="patient-register-box__actions">
+              <button class="mini-btn mini-btn--ghost" id="btnCancelName" type="button">
+                Cancelar
+              </button>
+              <button class="mini-btn" id="btnSaveName" type="button">
+                Salvar
+              </button>
+            </div>
+            <div class="form-message" id="cadastroMessage" hidden></div>
+          </div>
         </div>
       </section>
 
@@ -58,180 +81,6 @@
 
         <div class="empty-state" id="taskSummaryEmptyState">
           Nenhuma tarefa disponível no momento.
-        </div>
-      </section>
-
-      <div class="topbar__legacy-gap" aria-hidden="true"></div>
-
-      <section class="legacy-reference-card" aria-label="Referência visual da tela anterior">
-        <div class="brand">
-          <img
-            src="../../assets/icons/icon-192.png"
-            alt="Ícone do PsicoTarefas"
-            class="brand__logo"
-          />
-          <div class="brand__text">
-            <p class="brand__badge">Painel de PACIENTE</p>
-            <h2>PsicoTarefas</h2>
-          </div>
-        </div>
-
-        <div class="topbar__actions">
-          <div class="user-chip">
-            <div class="user-chip__avatar" id="userAvatar">PT</div>
-            <div class="user-chip__text">
-              <div class="user-chip__name-row">
-                <strong id="userName">Paciente</strong>
-                <button class="edit-name-btn" id="btnEditName" type="button">
-                  Alterar nome
-                </button>
-              </div>
-              <span id="userRole">Paciente vinculado</span>
-
-              <div class="user-chip__edit-box" id="editNameBox" hidden>
-                <input
-                  type="text"
-                  id="editNameInput"
-                  placeholder="Digite seu nome"
-                  maxlength="120"
-                  autocomplete="name"
-                />
-                <div class="user-chip__edit-actions">
-                  <button class="mini-btn mini-btn--ghost" id="btnCancelName" type="button">
-                    Cancelar
-                  </button>
-                  <button class="mini-btn" id="btnSaveName" type="button">
-                    Salvar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel__header">
-          <h3>Seu profissional</h3>
-          <p>Este é o profissional atualmente vinculado à sua conta.</p>
-        </div>
-
-        <div class="professional-card" id="professionalCard" hidden>
-          <div class="professional-card__avatar" id="professionalAvatar">PR</div>
-
-          <div class="professional-card__content">
-            <strong id="professionalName">Profissional</strong>
-            <span id="professionalRole">Psicólogo(a)</span>
-            <p id="professionalEmail">email@exemplo.com</p>
-            <small id="vinculoInfo">Vínculo ativo</small>
-          </div>
-        </div>
-
-        <div class="empty-state" id="professionalEmpty">
-          Não foi possível localizar um profissional vinculado.
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel__header">
-          <h3>Suas tarefas</h3>
-          <p>Visualize as tarefas ativas e registre suas respostas diretamente por aqui.</p>
-        </div>
-
-        <div class="tasks-layout">
-          <section class="tasks-column">
-            <div class="tasks-list" id="tasksList"></div>
-
-            <div class="empty-state" id="tasksEmptyState">
-              Nenhuma tarefa disponível no momento.
-            </div>
-          </section>
-
-          <section class="task-detail-column">
-            <div class="task-detail-card" id="taskDetailCard" hidden>
-              <div class="task-detail-card__top">
-                <div>
-                  <h4 id="taskDetailTitle">Título da tarefa</h4>
-                  <p id="taskDetailDescription">Descrição da tarefa</p>
-                </div>
-              </div>
-
-              <div class="task-detail-meta">
-                <span id="taskCreatedAt">Criada em</span>
-                <span id="taskProfessionalName">Profissional</span>
-              </div>
-
-              <div class="task-pdf-box" id="taskPdfBox" hidden>
-                <div class="task-pdf-box__content">
-                  <strong id="taskPdfTitle">Material vinculado</strong>
-                  <p id="taskPdfMeta">Este material está disponível para consulta nesta tarefa.</p>
-                </div>
-                <button class="btn-secondary btn-secondary--small" id="btnOpenTaskPdf" type="button">
-                  Abrir PDF
-                </button>
-              </div>
-            </div>
-
-            <div class="empty-state" id="taskDetailEmptyState">
-              Selecione uma tarefa para visualizar o histórico e responder.
-            </div>
-
-            <div class="interactions-divider" id="interactionsDivider" hidden>
-              INTERAÇÕES
-            </div>
-
-            <div class="interactions-list" id="interactionsList"></div>
-
-            <section class="interaction-form-card" id="interactionEditCard" hidden>
-              <h4>Alterar sua interação</h4>
-
-              <div class="form-group">
-                <label for="interactionEditInput">Mensagem</label>
-                <textarea
-                  id="interactionEditInput"
-                  rows="5"
-                  placeholder="Atualize aqui o conteúdo da sua interação..."
-                ></textarea>
-              </div>
-
-              <div class="form-message" id="interactionEditMessage" hidden></div>
-
-              <div class="interaction-form-card__actions">
-                <button class="btn-secondary" id="btnCancelEditInteraction" type="button">
-                  Cancelar
-                </button>
-                <button class="btn-primary" id="btnSaveEditInteraction" type="button">
-                  Salvar alteração
-                </button>
-              </div>
-            </section>
-
-            <div class="empty-state" id="interactionPermissionState" hidden></div>
-
-            <section class="interaction-form-card" id="interactionFormCard" hidden>
-              <h4>Registrar sua interação</h4>
-
-              <div class="form-group">
-                <label for="interactionTextInput">Mensagem</label>
-                <textarea
-                  id="interactionTextInput"
-                  rows="5"
-                  placeholder="Escreva aqui sua resposta ou atualização para o profissional..."
-                ></textarea>
-              </div>
-
-              <div class="form-message" id="interactionFormMessage" hidden></div>
-
-              <div class="interaction-form-card__actions">
-                <button class="btn-secondary" id="btnClearInteraction" type="button">
-                  Limpar
-                </button>
-                <button class="btn-primary" id="btnCreateInteraction" type="button">
-                  Enviar interação
-                </button>
-              </div>
-            </section>
-          </section>
         </div>
       </section>
     </main>
@@ -287,6 +136,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../../shared/professional-plan-label.js?v=20260508-2"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=20260509-cadastro-paciente"></script>
 </body>
 </html>

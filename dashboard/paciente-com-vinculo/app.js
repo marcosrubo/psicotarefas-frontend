@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const editNameInput = document.getElementById("editNameInput");
   const btnCancelName = document.getElementById("btnCancelName");
   const btnSaveName = document.getElementById("btnSaveName");
+  const cadastroMessage = document.getElementById("cadastroMessage");
   const welcomeTitle = document.getElementById("welcomeTitle");
   const taskSummaryList = document.getElementById("taskSummaryList");
   const taskSummaryEmptyState = document.getElementById("taskSummaryEmptyState");
@@ -99,11 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const nomeExibicao = nomeBase || "Paciente";
     const primeiroNome = obterPrimeiroNome(nome || email || "");
 
-    userName.textContent = nomeExibicao;
-    userRole.textContent = "Paciente vinculado";
-    userAvatar.textContent = obterIniciais(nomeExibicao);
+    if (userName) userName.textContent = nomeExibicao;
+    if (userRole) userRole.textContent = "Paciente vinculado";
+    if (userAvatar) userAvatar.textContent = obterIniciais(nomeExibicao);
 
-    welcomeTitle.textContent = `Olá, ${primeiroNome}`;
+    if (welcomeTitle) welcomeTitle.textContent = `Olá, ${primeiroNome}`;
   }
 
   function obterIniciais(nome) {
@@ -263,11 +264,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function setCadastroMessage(text = "", type = "") {
+    if (!cadastroMessage) return;
+
+    cadastroMessage.textContent = text;
+    cadastroMessage.className = "form-message";
+
+    if (type) {
+      cadastroMessage.classList.add(`form-message--${type}`);
+      cadastroMessage.hidden = false;
+    } else {
+      cadastroMessage.hidden = true;
+    }
+  }
+
   function abrirEdicaoNome() {
     if (!editNameBox || !editNameInput || !currentPatientProfile) return;
 
     editNameInput.value = currentPatientProfile.nome || "";
     editNameBox.hidden = false;
+    setCadastroMessage();
     editNameInput.focus();
     editNameInput.select();
   }
@@ -277,6 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     editNameBox.hidden = true;
     editNameInput.value = "";
+    setCadastroMessage();
   }
 
   function getSelectedTask() {
@@ -479,14 +496,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function atualizarNomePaciente() {
     if (!currentUser || !currentPatientProfile) {
-      setInteractionFormMessage("Sessão inválida. Entre novamente.", "error");
+      setCadastroMessage("Sessão inválida. Entre novamente.", "error");
       return;
     }
 
     const novoNome = editNameInput?.value.trim() || "";
 
     if (!novoNome) {
-      setInteractionFormMessage("Informe um nome válido.", "error");
+      setCadastroMessage("Informe um nome válido.", "error");
       return;
     }
 
@@ -511,10 +528,9 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       aplicarNomePacienteNaTela(novoNome, currentPatientProfile.email);
-      fecharEdicaoNome();
-      setInteractionFormMessage("Nome atualizado com sucesso.", "success");
+      setCadastroMessage("Nome atualizado com sucesso.", "success");
     } catch (error) {
-      setInteractionFormMessage(error.message || "Erro ao atualizar nome.", "error");
+      setCadastroMessage(error.message || "Erro ao atualizar nome.", "error");
     } finally {
       if (btnSaveName) {
         btnSaveName.disabled = false;
@@ -539,8 +555,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (professionalHeaderTitle) {
         professionalHeaderTitle.textContent = "Profissional: não vinculado";
       }
-      professionalCard.hidden = true;
-      professionalEmpty.hidden = false;
+      if (professionalCard) professionalCard.hidden = true;
+      if (professionalEmpty) professionalEmpty.hidden = false;
       return;
     }
 
@@ -554,8 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (professionalHeaderTitle) {
         professionalHeaderTitle.textContent = "Profissional: não localizado";
       }
-      professionalCard.hidden = true;
-      professionalEmpty.hidden = false;
+      if (professionalCard) professionalCard.hidden = true;
+      if (professionalEmpty) professionalEmpty.hidden = false;
       return;
     }
 
@@ -568,14 +584,14 @@ document.addEventListener("DOMContentLoaded", () => {
       professionalHeaderTitle.textContent = `Profissional: ${nomeExibicao}`;
     }
 
-    professionalAvatar.textContent = obterIniciais(nomeExibicao);
-    professionalName.textContent = nomeExibicao;
-    professionalRole.textContent = "Psicólogo(a)";
-    professionalEmail.textContent = profissional.email || "";
-    vinculoInfo.textContent = `Vínculo ativo desde ${formatarData(vinculo.created_at)}`;
+    if (professionalAvatar) professionalAvatar.textContent = obterIniciais(nomeExibicao);
+    if (professionalName) professionalName.textContent = nomeExibicao;
+    if (professionalRole) professionalRole.textContent = "Psicólogo(a)";
+    if (professionalEmail) professionalEmail.textContent = profissional.email || "";
+    if (vinculoInfo) vinculoInfo.textContent = `Vínculo ativo desde ${formatarData(vinculo.created_at)}`;
 
-    professionalEmpty.hidden = true;
-    professionalCard.hidden = false;
+    if (professionalEmpty) professionalEmpty.hidden = true;
+    if (professionalCard) professionalCard.hidden = false;
   }
 
   async function carregarTarefas() {

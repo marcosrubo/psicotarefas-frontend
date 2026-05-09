@@ -138,31 +138,6 @@ textarea {
   line-height: 1.1;
 }
 
-.legacy-reference-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: var(--shadow-soft);
-  padding: 18px;
-  display: grid;
-  gap: 16px;
-}
-
-.topbar__legacy-gap {
-  height: 20lh;
-  min-height: 20rem;
-}
-
-.legacy-reference-card .brand__logo {
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
-}
-
-.legacy-reference-card .brand__text h2 {
-  font-size: 28px;
-}
-
 .topbar__actions {
   display: flex;
   align-items: center;
@@ -361,7 +336,7 @@ textarea {
 }
 
 .welcome-card__content h2 {
-  margin: 0;
+  margin: 0 0 14px;
   font-size: 28px;
   line-height: 1.1;
 }
@@ -370,6 +345,47 @@ textarea {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.cadastro-btn {
+  min-width: 132px;
+}
+
+.patient-register-box {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  max-width: 420px;
+}
+
+.patient-register-box[hidden] {
+  display: none !important;
+}
+
+.patient-register-box label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.patient-register-box input {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: #fff;
+  outline: none;
+}
+
+.patient-register-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
+}
+
+.patient-register-box__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .panel {
@@ -933,10 +949,6 @@ textarea {
 
   .title-strip h1 {
     font-size: 20px;
-  }
-
-  .topbar__legacy-gap {
-    min-height: 20lh;
   }
 
   .interaction-form-card__actions {
