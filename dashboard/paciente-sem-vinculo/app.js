@@ -39,18 +39,42 @@ document.addEventListener("DOMContentLoaded", () => {
       "Você ainda não possui vínculo ativo. Escolha um profissional abaixo para pedir vínculo.";
   }
 
-  function mostrarMensagem(texto, tipo = "success") {
+  function mostrarMensagem(texto, tipo = "success", destacar = false) {
     if (!requestMessage) return;
+
     requestMessage.hidden = false;
-    requestMessage.textContent = texto;
-    requestMessage.className = `form-message form-message--${tipo}`;
+    requestMessage.className = `form-message form-message--${tipo}${destacar ? " form-message--floating" : ""}`;
+    requestMessage.setAttribute("role", tipo === "error" ? "alert" : "status");
+    requestMessage.setAttribute("aria-live", tipo === "error" ? "assertive" : "polite");
+    requestMessage.innerHTML = "";
+
+    const messageText = document.createElement("span");
+    messageText.className = "form-message__text";
+    messageText.textContent = texto;
+    requestMessage.appendChild(messageText);
+
+    if (destacar) {
+      const closeButton = document.createElement("button");
+      closeButton.className = "form-message__close";
+      closeButton.type = "button";
+      closeButton.setAttribute("aria-label", "Fechar mensagem");
+      closeButton.textContent = "×";
+      closeButton.addEventListener("click", esconderMensagem);
+      requestMessage.appendChild(closeButton);
+
+      requestAnimationFrame(() => {
+        requestMessage.focus({ preventScroll: true });
+      });
+    }
   }
 
   function esconderMensagem() {
     if (!requestMessage) return;
     requestMessage.hidden = true;
-    requestMessage.textContent = "";
+    requestMessage.innerHTML = "";
     requestMessage.className = "form-message";
+    requestMessage.removeAttribute("role");
+    requestMessage.removeAttribute("aria-live");
   }
 
   function abrirEdicaoNome() {
@@ -430,7 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
           professional_user_id: professionalUserId
         }
       });
-      mostrarMensagem(montarMensagemSolicitacaoVinculo(professionalUserId), "success");
+      mostrarMensagem(montarMensagemSolicitacaoVinculo(professionalUserId), "success", true);
       renderProfessionals();
     } catch (error) {
       console.error("Erro ao solicitar vínculo:", error);
