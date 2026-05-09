@@ -20,7 +20,7 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="/style.css?v=20260509-confirmation-paths" />
+  <link rel="stylesheet" href="/style.css?v=20260509-autologin-status" />
   <link rel="stylesheet" href="/shared/support.css?v=20260509-confirmation-paths" />
 </head>
 <body>
@@ -260,6 +260,29 @@
   </div>
 
   <div
+    id="sessionStatus"
+    class="session-status"
+    role="status"
+    aria-live="polite"
+    aria-label="Verificando acesso salvo"
+    hidden
+  >
+    <div class="session-status__panel">
+      <img
+        class="session-status__logo"
+        src="/assets/icons/icon-192.png"
+        alt=""
+        aria-hidden="true"
+      />
+      <span class="session-status__spinner" aria-hidden="true"></span>
+      <div class="session-status__copy">
+        <strong id="sessionStatusTitle">Conectando...</strong>
+        <span id="sessionStatusText">Verificando seu acesso salvo.</span>
+      </div>
+    </div>
+  </div>
+
+  <div
     id="adminModal"
     class="modal"
     aria-hidden="true"
@@ -409,6 +432,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="/app.js?v=20260509-confirmation-paths"></script>
+  <script type="module" src="/app.js?v=20260509-autologin-status"></script>
 </body>
 </html>

@@ -28,6 +28,9 @@ const iosInstallModal = document.getElementById("iosInstallModal");
 const iosInstallModalBackdrop = document.getElementById("iosInstallModalBackdrop");
 const btnCloseIosInstallModal = document.getElementById("btnCloseIosInstallModal");
 const btnConfirmIosInstallModal = document.getElementById("btnConfirmIosInstallModal");
+const sessionStatus = document.getElementById("sessionStatus");
+const sessionStatusTitle = document.getElementById("sessionStatusTitle");
+const sessionStatusText = document.getElementById("sessionStatusText");
 
 registrarAcessoPagina({
   pagina: "home",
@@ -94,6 +97,25 @@ function obterLoginUrlPorPerfil(perfil, token = "") {
   }
 
   return montarUrlComConvite(criarUrlDoApp("auth/paciente-login/index.html"), token);
+}
+
+function mostrarStatusSessao(titulo, texto) {
+  if (!sessionStatus) return;
+
+  if (sessionStatusTitle) {
+    sessionStatusTitle.textContent = titulo;
+  }
+
+  if (sessionStatusText) {
+    sessionStatusText.textContent = texto;
+  }
+
+  sessionStatus.hidden = false;
+}
+
+function esconderStatusSessao() {
+  if (!sessionStatus) return;
+  sessionStatus.hidden = true;
 }
 
 async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
@@ -658,10 +680,16 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function checkExistingAdminSession() {
+  mostrarStatusSessao(
+    "Verificando acesso...",
+    "Estamos procurando uma sessão salva neste aparelho."
+  );
+
   supabaseClient = createSupabaseClient();
 
   if (!supabaseClient) {
     adminSessionActive = false;
+    esconderStatusSessao();
     return;
   }
 
@@ -672,20 +700,32 @@ async function checkExistingAdminSession() {
 
     if (!session?.user) {
       adminSessionActive = false;
+      esconderStatusSessao();
       return;
     }
+
+    mostrarStatusSessao(
+      "Conectando...",
+      "Encontramos seu acesso salvo. Abrindo sua área."
+    );
 
     const destino = await obterDestinoDashboardPorSessao(session.user);
 
     if (destino) {
+      mostrarStatusSessao(
+        "Tudo certo.",
+        "Redirecionando para sua área no PsicoTarefas."
+      );
       window.location.href = destino;
       return;
     }
 
     adminSessionActive = false;
+    esconderStatusSessao();
   } catch (error) {
     console.error("Erro ao verificar sessão existente na tela principal:", error);
     adminSessionActive = false;
+    esconderStatusSessao();
   }
 }
 
