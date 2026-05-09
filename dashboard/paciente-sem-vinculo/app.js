@@ -94,6 +94,31 @@ document.addEventListener("DOMContentLoaded", () => {
     return texto;
   }
 
+  function obterNomePacienteAtual() {
+    return (
+      limparNome(currentPatientProfile?.nome || currentPatientProfile?.email || currentUser?.email || "") ||
+      "Paciente"
+    );
+  }
+
+  function obterNomeProfissionalPorId(professionalUserId) {
+    const profissional = professionals.find((item) => item.user_id === professionalUserId);
+    return limparNome(profissional?.nome || profissional?.email || "") || "profissional selecionado";
+  }
+
+  function montarMensagemSolicitacaoVinculo(professionalUserId) {
+    const nomePaciente = obterNomePacienteAtual();
+    const nomeProfissional = obterNomeProfissionalPorId(professionalUserId);
+
+    return (
+      `Oi ${nomePaciente},\n\n` +
+      `Você acaba de pedir um VÍNCULO para o profissional ${nomeProfissional} através do PsicoTarefas.\n` +
+      "Aguarde o contato em breve.\n\n" +
+      "Qualquer dúvida, chame-nos pelo botão SUPORTE no rodapé da tela.\n\n" +
+      "Obrigado"
+    );
+  }
+
   function obterPrimeiroNome(nomeCompleto) {
     const nomeLimpo = limparNome(nomeCompleto);
     if (!nomeLimpo) return "Paciente";
@@ -405,7 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
           professional_user_id: professionalUserId
         }
       });
-      mostrarMensagem("Solicitação de vínculo enviada com sucesso.", "success");
+      mostrarMensagem(montarMensagemSolicitacaoVinculo(professionalUserId), "success");
       renderProfessionals();
     } catch (error) {
       console.error("Erro ao solicitar vínculo:", error);
