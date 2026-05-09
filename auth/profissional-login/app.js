@@ -15,6 +15,10 @@ const btnSubmit = document.getElementById("btnSubmit");
 const toggleButtons = document.querySelectorAll(".toggle-password");
 const linkEsqueciSenha = document.getElementById("linkEsqueciSenha");
 const delayedInputs = [emailInput, senhaInput].filter(Boolean);
+const DASHBOARD_PROFISSIONAL_URL = "../../dashboard/profissional/index.html";
+const LOGIN_TIMEOUT_MS = 15000;
+const PERFIL_TIMEOUT_MS = 7000;
+const TAREFA_POS_LOGIN_TIMEOUT_MS = 4500;
 
 let usuarioLiberouCampo = false;
 
@@ -102,6 +106,20 @@ function esconderMensagem() {
   formMessage.className = "form-message";
 }
 
+function comTempoLimite(promise, timeoutMs, mensagemErro) {
+  let timeoutId;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      reject(new Error(mensagemErro));
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    window.clearTimeout(timeoutId);
+  });
+}
+
 function validarFormulario() {
   limparErros();
 
@@ -126,10 +144,14 @@ function validarFormulario() {
 }
 
 async function fazerLogin(email, senha) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password: senha
-  });
+  const { data, error } = await comTempoLimite(
+    supabase.auth.signInWithPassword({
+      email,
+      password: senha
+    }),
+    LOGIN_TIMEOUT_MS,
+    "O login demorou mais que o esperado. Verifique sua conexão e tente novamente."
+  );
 
   if (error) {
     const msg = (error.message || "").toLowerCase();
@@ -158,17 +180,40 @@ async function fazerLogin(email, senha) {
 }
 
 async function buscarPerfilUsuario(userId) {
-  const { data, error } = await supabase
-    .from("perfis")
-    .select("perfil, nome, email")
-    .eq("user_id", userId)
-    .single();
+  const { data, error } = await comTempoLimite(
+    supabase
+      .from("perfis")
+      .select("perfil, nome, email")
+      .eq("user_id", userId)
+      .single(),
+    PERFIL_TIMEOUT_MS,
+    "A consulta do perfil demorou mais que o esperado."
+  );
 
   if (error || !data) {
     throw new Error("Não foi possível localizar o perfil do usuário.");
   }
 
   return data;
+}
+
+async function buscarPerfilUsuarioComFallback(user) {
+  try {
+    return await buscarPerfilUsuario(user.id);
+  } catch (error) {
+    const perfilMetadata = user.user_metadata?.perfil;
+
+    if (!perfilMetadata) {
+      throw error;
+    }
+
+    console.warn("Usando perfil do metadata após falha ao consultar tabela perfis:", error);
+    return {
+      perfil: perfilMetadata,
+      nome: user.user_metadata?.nome || "",
+      email: user.email || ""
+    };
+  }
 }
 
 async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
@@ -201,13 +246,51 @@ async function pacienteTemVinculoAtivo(userId) {
 
 async function obterDestinoPorPerfil(userId, perfil) {
   if (perfil === "profissional") {
-    return "../../dashboard/profissional/index.html";
+    return DASHBOARD_PROFISSIONAL_URL;
   }
 
   const temVinculo = await pacienteTemVinculoAtivo(userId);
   return temVinculo
     ? "../../dashboard/paciente-com-vinculo/index.html"
     : "../../dashboard/paciente-sem-vinculo/index.html";
+}
+
+async function executarTarefaPosLogin(nome, tarefa) {
+  try {
+    await comTempoLimite(
+      tarefa(),
+      TAREFA_POS_LOGIN_TIMEOUT_MS,
+      `${nome} demorou mais que o esperado.`
+    );
+  } catch (error) {
+    console.warn(`Login continuará sem concluir a tarefa: ${nome}`, error);
+  }
+}
+
+async function executarTarefasPosLogin({ user, email }) {
+  const confirmedAtIso = user.email_confirmed_at || new Date().toISOString();
+
+  await Promise.all([
+    executarTarefaPosLogin("atualizar confirmação do e-mail", () =>
+      atualizarConfirmacaoEmailNoPerfil(user.id, confirmedAtIso)
+    ),
+    executarTarefaPosLogin("registrar aceites pendentes", () =>
+      processarAceitesPendentesNoLogin(supabase, {
+        perfil: "profissional",
+        email,
+        userId: user.id
+      })
+    ),
+    executarTarefaPosLogin("registrar log de login", () =>
+      registrarEvento({
+        evento: "login_profissional_sucesso",
+        pagina: "login_profissional",
+        perfil: "profissional",
+        userId: user.id,
+        email
+      })
+    )
+  ]);
 }
 
 toggleButtons.forEach((button) => {
@@ -249,10 +332,11 @@ authForm.addEventListener("submit", async (event) => {
 
   btnSubmit.disabled = true;
   btnSubmit.textContent = "Entrando...";
+  let loginConcluido = false;
 
   try {
     const user = await fazerLogin(email, senha);
-    const perfilUsuario = await buscarPerfilUsuario(user.id);
+    const perfilUsuario = await buscarPerfilUsuarioComFallback(user);
 
     if (perfilUsuario.perfil !== "profissional") {
       const destino = await obterDestinoPorPerfil(user.id, perfilUsuario.perfil);
@@ -263,34 +347,26 @@ authForm.addEventListener("submit", async (event) => {
       window.setTimeout(() => {
         window.location.href = destino;
       }, 800);
+      loginConcluido = true;
       return;
     }
 
-    const confirmedAtIso = user.email_confirmed_at || new Date().toISOString();
-    await atualizarConfirmacaoEmailNoPerfil(user.id, confirmedAtIso);
-    await processarAceitesPendentesNoLogin(supabase, {
-      perfil: "profissional",
-      email,
-      userId: user.id
-    });
-    await registrarEvento({
-      evento: "login_profissional_sucesso",
-      pagina: "login_profissional",
-      perfil: "profissional",
-      userId: user.id,
-      email
-    });
+    await executarTarefasPosLogin({ user, email });
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
+    btnSubmit.textContent = "Redirecionando...";
+    loginConcluido = true;
 
     window.setTimeout(() => {
-      window.location.href = "../../dashboard/profissional/index.html";
-    }, 1000);
+      window.location.href = DASHBOARD_PROFISSIONAL_URL;
+    }, 250);
   } catch (erro) {
     mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
   } finally {
-    btnSubmit.disabled = false;
-    btnSubmit.textContent = "Entrar";
+    if (!loginConcluido) {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Entrar";
+    }
   }
 });
 
@@ -301,7 +377,7 @@ async function inicializarLogin() {
     } = await supabase.auth.getSession();
 
     if (session?.user) {
-      const perfilUsuario = await buscarPerfilUsuario(session.user.id);
+      const perfilUsuario = await buscarPerfilUsuarioComFallback(session.user);
       const destino = await obterDestinoPorPerfil(session.user.id, perfilUsuario.perfil);
       window.location.href = destino;
     }
