@@ -3,7 +3,7 @@ import { registrarAcessoPagina, registrarEvento } from "./shared/activity-log.js
 const SUPABASE_URL = "https://haawjoesqdlccertgpqi.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsWcsI7pnPuUdW5Wz15YRQ_NbtgGABm";
 const ADMIN_EMAIL = "marcos@rubo.com.br";
-const ADMIN_DASHBOARD_URL = "./dashboard/admin/index.html";
+const ADMIN_DASHBOARD_URL = criarUrlDoApp("dashboard/admin/index.html");
 
 let deferredPrompt = null;
 let supabaseClient = null;
@@ -73,19 +73,27 @@ function obterTokenConviteAtual() {
   return (params.get("token") || params.get("convite") || "").trim();
 }
 
-function montarUrlComConvite(baseUrl, token) {
-  if (!token) return baseUrl;
+function criarUrlDoApp(path = "") {
+  const cleanPath = String(path).replace(/^\.?\//, "");
+  return new URL(`/${cleanPath}`, window.location.origin).href;
+}
 
-  const separador = baseUrl.includes("?") ? "&" : "?";
-  return `${baseUrl}${separador}convite=${encodeURIComponent(token)}`;
+function montarUrlComConvite(baseUrl, token) {
+  const url = new URL(baseUrl, window.location.origin);
+
+  if (token) {
+    url.searchParams.set("convite", token);
+  }
+
+  return url.href;
 }
 
 function obterLoginUrlPorPerfil(perfil, token = "") {
   if (perfil === "profissional") {
-    return "./auth/profissional-login/index.html";
+    return criarUrlDoApp("auth/profissional-login/index.html");
   }
 
-  return montarUrlComConvite("./auth/paciente-login/index.html", token);
+  return montarUrlComConvite(criarUrlDoApp("auth/paciente-login/index.html"), token);
 }
 
 async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
@@ -254,14 +262,14 @@ async function obterDestinoDashboardPorSessao(user) {
   }
 
   if (perfil.perfil === "profissional") {
-    return "./dashboard/profissional/index.html";
+    return criarUrlDoApp("dashboard/profissional/index.html");
   }
 
   if (perfil.perfil === "paciente") {
     const temVinculo = await pacienteTemVinculoAtivo(user.id);
     return temVinculo
-      ? "./dashboard/paciente-com-vinculo/index.html"
-      : "./dashboard/paciente-sem-vinculo/index.html";
+      ? criarUrlDoApp("dashboard/paciente-com-vinculo/index.html")
+      : criarUrlDoApp("dashboard/paciente-sem-vinculo/index.html");
   }
 
   return "";
@@ -295,7 +303,10 @@ async function tratarEntradaPorLinkEmail() {
       );
 
       if (confirmar) {
-        const destino = `./auth/paciente-cadastro/index.html?convite=${encodeURIComponent(token)}`;
+        const destino = montarUrlComConvite(
+          criarUrlDoApp("auth/paciente-cadastro/index.html"),
+          token
+        );
         window.location.href = destino;
       }
 
@@ -309,7 +320,7 @@ async function tratarEntradaPorLinkEmail() {
 
       if (confirmar) {
         window.location.href = montarUrlComConvite(
-          "./auth/paciente-login/index.html",
+          criarUrlDoApp("auth/paciente-login/index.html"),
           token
         );
       }
@@ -324,7 +335,7 @@ async function tratarEntradaPorLinkEmail() {
 
       if (confirmar) {
         window.location.href = montarUrlComConvite(
-          "./auth/paciente-login/index.html",
+          criarUrlDoApp("auth/paciente-login/index.html"),
           token
         );
       }
@@ -351,7 +362,10 @@ async function tratarEntradaPorLinkEmail() {
     );
 
     if (confirmar) {
-      const destino = `./auth/paciente-cadastro/index.html?convite=${encodeURIComponent(token)}`;
+      const destino = montarUrlComConvite(
+        criarUrlDoApp("auth/paciente-cadastro/index.html"),
+        token
+      );
       window.location.href = destino;
     }
 
@@ -456,7 +470,7 @@ async function tratarConfirmacaoDeEmail() {
 
         if (confirmou) {
           window.location.href = montarUrlComConvite(
-            "./auth/paciente-login/index.html",
+            criarUrlDoApp("auth/paciente-login/index.html"),
             tokenConvite
           );
         }
