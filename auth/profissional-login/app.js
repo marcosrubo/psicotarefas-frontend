@@ -143,6 +143,22 @@ function validarFormulario() {
   return valido;
 }
 
+function montarRedirectUrlRecuperacaoSenha() {
+  const url = new URL("../redefinir-senha/index.html", window.location.href);
+  url.searchParams.set("perfil", "profissional");
+  return url.href;
+}
+
+async function enviarRecuperacaoSenha(email) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: montarRedirectUrlRecuperacaoSenha()
+  });
+
+  if (error) {
+    throw new Error(error.message || "Não foi possível enviar o e-mail de recuperação.");
+  }
+}
+
 async function fazerLogin(email, senha) {
   const { data, error } = await comTempoLimite(
     supabase.auth.signInWithPassword({
@@ -311,11 +327,44 @@ toggleButtons.forEach((button) => {
 });
 
 if (linkEsqueciSenha) {
-  linkEsqueciSenha.addEventListener("click", () => {
-    mostrarMensagem(
-      "A recuperação de senha ainda será implementada. Por enquanto, use um e-mail já confirmado e sua senha atual.",
-      "error"
-    );
+  linkEsqueciSenha.addEventListener("click", async () => {
+    limparErros();
+
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!email) {
+      erroEmail.textContent = "Informe seu e-mail para recuperar a senha.";
+      mostrarMensagem("Preencha o e-mail e toque novamente em Esqueci minha senha.", "error");
+      return;
+    }
+
+    if (!email.includes("@") || !email.includes(".")) {
+      erroEmail.textContent = "Informe um e-mail válido.";
+      mostrarMensagem("Revise o e-mail antes de pedir a recuperação de senha.", "error");
+      return;
+    }
+
+    linkEsqueciSenha.textContent = "Enviando...";
+    linkEsqueciSenha.style.pointerEvents = "none";
+
+    try {
+      await enviarRecuperacaoSenha(email);
+      await registrarEvento({
+        evento: "recuperacao_senha_solicitada",
+        pagina: "login_profissional",
+        perfil: "profissional",
+        email
+      });
+      mostrarMensagem(
+        "Enviamos um e-mail para redefinir sua senha. Abra o link recebido e cadastre uma nova senha.",
+        "success"
+      );
+    } catch (erro) {
+      mostrarMensagem(erro.message || "Não foi possível enviar a recuperação de senha.", "error");
+    } finally {
+      linkEsqueciSenha.textContent = "Esqueci minha senha";
+      linkEsqueciSenha.style.pointerEvents = "";
+    }
   });
 }
 

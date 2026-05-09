@@ -6,24 +6,21 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
-  <title>Login de Profissional - PsicoTarefas</title>
+  <title>Redefinir senha - PsicoTarefas</title>
 
   <meta name="theme-color" content="#1250e6" />
-  <meta
-    name="description"
-    content="Login de profissional no PsicoTarefas"
-  />
+  <meta name="description" content="Redefinição de senha no PsicoTarefas" />
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=20260508-colors" />
+  <link rel="stylesheet" href="./style.css?v=20260509-reset-senha" />
   <link rel="stylesheet" href="../../shared/support.css?v=20260507-1" />
 </head>
 <body>
   <div class="auth-shell">
     <header class="auth-hero">
       <div class="auth-hero__topbar">
-        <a class="back-link" href="../../index.html">← Voltar</a>
+        <a class="back-link" id="loginLinkTop" href="../paciente-login/index.html">← Voltar</a>
         <div class="auth-top-brand" aria-label="PsicoTarefas">
           <img
             class="auth-top-brand__logo"
@@ -41,103 +38,77 @@
 
       <div class="auth-brand">
         <div class="auth-brand__text auth-brand__text--center">
-          <p class="auth-badge">Acesso de profissional</p>
-          <h1>Profissional</h1>
-          <p></p>
+          <p class="auth-badge" id="authBadge">Recuperação de acesso</p>
+          <h1>Redefinir senha</h1>
+          <p id="authSubtitle">Digite uma nova senha para voltar a acessar sua conta.</p>
         </div>
       </div>
     </header>
 
     <main class="auth-main">
-      <section class="auth-card auth-card--professional-flow">
-        <div class="auth-mode auth-mode--hidden" aria-hidden="true">
-          <span class="auth-mode__pill">Profissional</span>
-          <span class="auth-mode__pill auth-mode__pill--secondary">Login</span>
-        </div>
-
-        <form id="authForm" novalidate autocomplete="off">
+      <section class="auth-card">
+        <form id="resetForm" novalidate>
           <div class="auth-action-card auth-action-card--enter">
             <div class="form-group form-group--inline">
-              <label for="email">E-mail</label>
-              <div class="form-group__control">
-                <input
-                  type="text"
-                  id="email"
-                  name="professional_login_email"
-                  placeholder="Digite seu e-mail"
-                  autocomplete="off"
-                  autocapitalize="off"
-                  autocorrect="off"
-                  spellcheck="false"
-                  inputmode="none"
-                  readonly
-                />
-                <small class="field-error" id="erroEmail"></small>
-              </div>
-            </div>
-
-            <div class="form-group form-group--inline">
-              <label for="senha">Senha</label>
+              <label for="novaSenha">Nova senha</label>
               <div class="form-group__control">
                 <div class="password-wrapper">
                   <input
                     type="password"
-                    id="senha"
-                    name="professional_login_password"
-                    placeholder="Digite sua senha"
-                    autocomplete="off"
-                    autocapitalize="off"
-                    autocorrect="off"
-                    spellcheck="false"
-                    inputmode="none"
-                    readonly
+                    id="novaSenha"
+                    name="nova_senha"
+                    placeholder="Digite a nova senha"
+                    autocomplete="new-password"
                   />
-                  <button type="button" class="toggle-password" data-target="senha">
+                  <button type="button" class="toggle-password" data-target="novaSenha">
                     Mostrar
                   </button>
                 </div>
-                <small class="field-error" id="erroSenha"></small>
+                <small class="field-error" id="erroNovaSenha"></small>
               </div>
             </div>
 
-            <div class="form-options">
-              <a href="javascript:void(0)" class="text-link" id="linkEsqueciSenha">
-                Esqueci minha senha
-              </a>
+            <div class="form-group form-group--inline">
+              <label for="confirmarSenha">Confirmar senha</label>
+              <div class="form-group__control">
+                <div class="password-wrapper">
+                  <input
+                    type="password"
+                    id="confirmarSenha"
+                    name="confirmar_senha"
+                    placeholder="Confirme a nova senha"
+                    autocomplete="new-password"
+                  />
+                  <button type="button" class="toggle-password" data-target="confirmarSenha">
+                    Mostrar
+                  </button>
+                </div>
+                <small class="field-error" id="erroConfirmarSenha"></small>
+              </div>
             </div>
 
             <div class="form-message" id="formMessage" hidden></div>
 
             <button type="submit" class="btn-primary" id="btnSubmit">
-              Entrar
+              Salvar nova senha
             </button>
           </div>
         </form>
 
-        <a href="../profissional-cadastro/index.html" class="auth-action-card auth-action-card--register">
+        <a class="auth-action-card auth-action-card--register" id="loginLinkCard" href="../paciente-login/index.html">
           <span class="auth-action-card__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="7" width="18" height="13" rx="2"/>
-              <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              <path d="M3 12h18"/>
-              <path d="M10 12v3h4v-3"/>
-              <path d="M19 3v4"/>
-              <path d="M17 5h4"/>
+              <path d="M15 18l6-6-6-6"/>
+              <path d="M21 12H9"/>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             </svg>
           </span>
           <div>
-            <strong>PRIMEIRA VEZ POR AQUI?</strong>
-            <p>CRIE SUA CONTA para começar a usar os recursos.</p>
+            <strong>VOLTAR AO LOGIN</strong>
+            <p id="loginLinkText">Acesse novamente depois de salvar a nova senha.</p>
           </div>
           <span class="auth-action-card__arrow" aria-hidden="true">›</span>
         </a>
-
-        <div class="auth-photo">
-          <img
-            src="../../assets/img/foto-tela-profissional.jpeg"
-            alt="Profissional usando tablet para organizar tarefas terapêuticas"
-          />
-        </div>
       </section>
     </main>
   </div>
