@@ -99,6 +99,35 @@ function obterLoginUrlPorPerfil(perfil, token = "") {
   return montarUrlComConvite(criarUrlDoApp("auth/paciente-login/index.html"), token);
 }
 
+function obterTipoLinkAutenticacao() {
+  const hashParams = obterHashParams();
+  const searchParams = obterSearchParams();
+  return hashParams.get("type") || searchParams.get("type") || "";
+}
+
+function montarUrlRedefinicaoSenha() {
+  const hashParams = obterHashParams();
+  const searchParams = obterSearchParams();
+  const perfil = searchParams.get("perfil") === "profissional" ? "profissional" : "paciente";
+  const destino = new URL(criarUrlDoApp("auth/redefinir-senha/index.html"));
+
+  destino.searchParams.set("perfil", perfil);
+
+  searchParams.forEach((value, key) => {
+    if (key !== "perfil") {
+      destino.searchParams.set(key, value);
+    }
+  });
+
+  const hash = hashParams.toString();
+
+  if (hash) {
+    destino.hash = hash;
+  }
+
+  return destino.href;
+}
+
 function mostrarStatusSessao(titulo, texto) {
   if (!sessionStatus) return;
 
@@ -404,6 +433,51 @@ async function tratarEntradaPorLinkEmail() {
 // ============================
 // CONFIRMAÇÃO DE E-MAIL
 // ============================
+
+function tratarRecuperacaoDeSenha() {
+  const tipo = obterTipoLinkAutenticacao();
+  const hashParams = obterHashParams();
+  const searchParams = obterSearchParams();
+  const errorCode = hashParams.get("error_code") || searchParams.get("error_code") || "";
+  const errorDescription =
+    hashParams.get("error_description") ||
+    searchParams.get("error_description") ||
+    "";
+  const temTokenRecuperacao =
+    Boolean(hashParams.get("access_token")) ||
+    Boolean(hashParams.get("refresh_token")) ||
+    Boolean(searchParams.get("token_hash")) ||
+    Boolean(searchParams.get("token"));
+
+  if (tipo !== "recovery") {
+    return false;
+  }
+
+  if (errorCode || errorDescription) {
+    const textoErro = `${errorCode} ${errorDescription}`.toLowerCase();
+
+    if (
+      textoErro.includes("otp_expired") ||
+      textoErro.includes("expired") ||
+      textoErro.includes("invalid")
+    ) {
+      window.confirm(
+        "Este link de redefinição de senha é inválido ou expirou.\nPeça um novo link em Esqueci minha senha."
+      );
+      return true;
+    }
+  }
+
+  if (temTokenRecuperacao) {
+    window.location.href = montarUrlRedefinicaoSenha();
+    return true;
+  }
+
+  window.confirm(
+    "Não foi possível validar este link de redefinição de senha.\nPeça um novo link em Esqueci minha senha."
+  );
+  return true;
+}
 
 async function tratarConfirmacaoDeEmail() {
   const hashParams = obterHashParams();
@@ -858,6 +932,9 @@ if (btnTestProfessional) {
 }
 
 async function inicializarTelaPrincipal() {
+  const tratouRecuperacaoSenha = tratarRecuperacaoDeSenha();
+  if (tratouRecuperacaoSenha) return;
+
   const tratouConfirmacao = await tratarConfirmacaoDeEmail();
   if (tratouConfirmacao) return;
 
