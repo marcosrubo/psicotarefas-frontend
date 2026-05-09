@@ -332,7 +332,9 @@ ul {
 }
 
 .story-block__media {
-  min-height: 280px;
+  aspect-ratio: 4 / 3;
+  min-height: 0;
+  overflow: hidden;
   background: linear-gradient(135deg, rgba(18, 80, 230, 0.12), rgba(255, 255, 255, 0.5));
 }
 
@@ -379,7 +381,7 @@ ul {
 }
 
 .story-block--search .story-block__media {
-  min-height: 220px;
+  min-height: 0;
 }
 
 .story-block__copy--wide {
@@ -865,6 +867,11 @@ ul {
     align-items: stretch;
   }
 
+  .story-block__media {
+    aspect-ratio: auto;
+    min-height: 280px;
+  }
+
   .story-block--hero-soft {
     grid-template-columns: 0.9fr 1.1fr;
   }
@@ -879,6 +886,10 @@ ul {
 
   .story-block--image-right .story-block__media {
     order: 2;
+  }
+
+  .story-block--search .story-block__media {
+    min-height: 220px;
   }
 
   .story-block--feature {
