@@ -10,6 +10,9 @@ const loginUrl =
 
 const authBadge = document.getElementById("authBadge");
 const authSubtitle = document.getElementById("authSubtitle");
+const accountSummary = document.getElementById("accountSummary");
+const accountName = document.getElementById("accountName");
+const accountEmail = document.getElementById("accountEmail");
 const loginLinkTop = document.getElementById("loginLinkTop");
 const loginLinkCard = document.getElementById("loginLinkCard");
 const loginLinkText = document.getElementById("loginLinkText");
@@ -67,6 +70,53 @@ function limparErros() {
   esconderMensagem();
 }
 
+function obterHashParams() {
+  return new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+}
+
+function limparNome(valor) {
+  const texto = (valor || "").trim();
+
+  if (!texto) return "";
+
+  if (texto.includes("@")) {
+    return texto.split("@")[0].trim();
+  }
+
+  return texto;
+}
+
+async function buscarPerfilDaSessao(user) {
+  if (!user?.id) return null;
+
+  const { data, error } = await supabase
+    .from("perfis")
+    .select("nome, email")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("Não foi possível carregar o perfil para a redefinição de senha:", error.message);
+    return null;
+  }
+
+  return data || null;
+}
+
+async function mostrarContaDaSessao(session) {
+  if (!accountSummary || !session?.user) return;
+
+  const perfilUsuario = await buscarPerfilDaSessao(session.user);
+  const nome =
+    limparNome(perfilUsuario?.nome || session.user.user_metadata?.nome || session.user.email || "") ||
+    (perfil === "profissional" ? "Profissional" : "Paciente");
+  const email = perfilUsuario?.email || session.user.email || "";
+
+  if (accountName) accountName.textContent = nome;
+  if (accountEmail) accountEmail.textContent = email;
+  accountSummary.hidden = false;
+}
+
 function validarFormulario() {
   limparErros();
 
@@ -99,13 +149,62 @@ function habilitarFormulario() {
   if (confirmarSenhaInput) confirmarSenhaInput.disabled = false;
 }
 
-function bloquearFormulario() {
+function bloquearEnvio() {
   if (btnSubmit) btnSubmit.disabled = true;
-  if (novaSenhaInput) novaSenhaInput.disabled = true;
-  if (confirmarSenhaInput) confirmarSenhaInput.disabled = true;
+}
+
+function obterTokensDaUrl() {
+  const hashParams = obterHashParams();
+  return {
+    accessToken: hashParams.get("access_token") || "",
+    refreshToken: hashParams.get("refresh_token") || "",
+    tokenHash: params.get("token_hash") || params.get("token") || "",
+    tipo: hashParams.get("type") || params.get("type") || ""
+  };
+}
+
+async function restaurarSessaoPorTokenDaUrl() {
+  const { accessToken, refreshToken, tokenHash, tipo } = obterTokensDaUrl();
+
+  if (accessToken && refreshToken) {
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data?.session || null;
+  }
+
+  if (tokenHash && tipo === "recovery") {
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: "recovery"
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data?.session || null;
+  }
+
+  return null;
 }
 
 async function carregarSessaoRecuperacao() {
+  const sessionFromUrl = await restaurarSessaoPorTokenDaUrl();
+
+  if (sessionFromUrl) {
+    recoverySession = sessionFromUrl;
+    habilitarFormulario();
+    await mostrarContaDaSessao(sessionFromUrl);
+    return;
+  }
+
   const {
     data: { session }
   } = await supabase.auth.getSession();
@@ -113,6 +212,7 @@ async function carregarSessaoRecuperacao() {
   if (session) {
     recoverySession = session;
     habilitarFormulario();
+    await mostrarContaDaSessao(session);
     return;
   }
 
@@ -120,7 +220,7 @@ async function carregarSessaoRecuperacao() {
     "Este link de redefinição expirou ou já foi usado. Peça um novo link em Esqueci minha senha.",
     "error"
   );
-  bloquearFormulario();
+  bloquearEnvio();
 }
 
 toggleButtons.forEach((button) => {
@@ -145,6 +245,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     recoverySession = session;
     habilitarFormulario();
     esconderMensagem();
+    mostrarContaDaSessao(session);
   }
 });
 
@@ -185,7 +286,7 @@ resetForm.addEventListener("submit", async (event) => {
     });
 
     mostrarMensagem("Senha redefinida com sucesso. Volte ao login e acesse com a nova senha.", "success");
-    bloquearFormulario();
+    bloquearEnvio();
     await supabase.auth.signOut();
   } catch (erro) {
     mostrarMensagem(erro.message || "Erro ao redefinir a senha.", "error");
@@ -195,12 +296,12 @@ resetForm.addEventListener("submit", async (event) => {
 });
 
 configurarTela();
-bloquearFormulario();
+habilitarFormulario();
 carregarSessaoRecuperacao().catch((error) => {
   console.error("Erro ao carregar sessão de recuperação:", error);
   mostrarMensagem(
     "Não foi possível validar o link de redefinição. Peça um novo link em Esqueci minha senha.",
     "error"
   );
-  bloquearFormulario();
+  bloquearEnvio();
 });

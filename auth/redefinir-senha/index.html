@@ -13,7 +13,7 @@
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=20260509-reset-senha" />
+  <link rel="stylesheet" href="./style.css?v=20260509-reset-senha-ajuste" />
   <link rel="stylesheet" href="../../shared/support.css?v=20260507-1" />
 </head>
 <body>
@@ -41,6 +41,11 @@
           <p class="auth-badge" id="authBadge">Recuperação de acesso</p>
           <h1>Redefinir senha</h1>
           <p id="authSubtitle">Digite uma nova senha para voltar a acessar sua conta.</p>
+          <div class="account-summary" id="accountSummary" hidden>
+            <span>Senha de</span>
+            <strong id="accountName">Carregando...</strong>
+            <small id="accountEmail"></small>
+          </div>
         </div>
       </div>
     </header>
@@ -121,6 +126,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./app.js?v=20260509-reset-senha"></script>
+  <script type="module" src="./app.js?v=20260509-reset-senha-ajuste"></script>
 </body>
 </html>
