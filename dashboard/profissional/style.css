@@ -265,11 +265,13 @@ input {
 
 .feed-shortcuts {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 14px;
 }
 
 .feed-shortcuts__themes {
-  min-height: 58px;
+  min-height: calc((58px * 2) + 14px);
   border: 1px solid #0f8d2d;
   border-radius: 14px;
   background: #0f8d2d;
@@ -775,13 +777,7 @@ input {
 }
 
 @media (max-width: 640px) {
-  .feed-shortcuts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: stretch;
-  }
-
   .feed-shortcuts__themes {
-    min-height: calc((58px * 2) + 14px);
     height: 100%;
   }
 
