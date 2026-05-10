@@ -200,6 +200,12 @@ document.addEventListener("DOMContentLoaded", () => {
   async function confirmarIndicacao() {
     if (!selectedProfessional || !currentUser) return;
 
+    if (selectedProfessional.user_id === currentUser.id) {
+      setScreenMessage("O profissional não pode indicar a si mesmo.");
+      fecharConfirmacao();
+      return;
+    }
+
     if (btnConfirmSelection) {
       btnConfirmSelection.disabled = true;
       btnConfirmSelection.textContent = "Gravando...";
