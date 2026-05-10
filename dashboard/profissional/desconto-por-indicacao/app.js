@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .from("perfis")
       .select("user_id, nome, email")
       .eq("perfil", "profissional")
+      .not("email_confirmed_at", "is", null)
       .neq("user_id", currentUser.id)
       .order("nome", { ascending: true });
 
