@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnAssignedTasks = document.getElementById("btnAssignedTasks");
   const btnSessionSummary = document.getElementById("btnSessionSummary");
   const btnSuggestion = document.getElementById("btnSuggestion");
+  const btnReferralDiscount = document.getElementById("btnReferralDiscount");
   const btnAvailableThemes = document.getElementById("btnAvailableThemes");
   const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
   const btnFeedVideoBank = document.getElementById("btnFeedVideoBank");
@@ -908,6 +909,19 @@ document.addEventListener("DOMContentLoaded", () => {
         email: currentProfile?.email || currentUser?.email || null
       });
       window.location.href = "../resumo-sessao/index.html";
+    });
+  }
+
+  if (btnReferralDiscount) {
+    btnReferralDiscount.addEventListener("click", () => {
+      registrarEvento({
+        evento: "desconto_indicacao_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "./desconto-por-indicacao/index.html";
     });
   }
 

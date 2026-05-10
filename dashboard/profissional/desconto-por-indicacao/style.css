@@ -1,0 +1,342 @@
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #1f2430;
+  --muted: #667085;
+  --primary: #1250e6;
+  --primary-dark: #0d46d0;
+  --border: #e8eaf2;
+  --shadow-soft: 0 6px 18px rgba(41, 47, 76, 0.06);
+  --theme-bg: rgba(37, 211, 102, 0.08);
+  --theme-border: rgba(37, 211, 102, 0.24);
+  --theme-text: #166534;
+  --error-bg: #fef2f2;
+  --error-text: #b42318;
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body { min-height: 100vh; }
+
+a,
+button,
+input {
+  color: inherit;
+  font: inherit;
+}
+
+a { text-decoration: none; }
+
+.referral-shell { min-height: 100vh; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  padding: 18px 16px 14px;
+  background:
+    radial-gradient(circle at top right, rgba(18, 80, 230, 0.16), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 14px;
+}
+
+.topbar__nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar__nav .back-link { justify-self: start; }
+.topbar__nav .support-link { justify-self: end; }
+
+.back-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.brand--centered {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(18, 80, 230, 0.18);
+  flex-shrink: 0;
+}
+
+.brand__name {
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.title-strip {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #eceff3;
+  border: 1px solid #dde3eb;
+}
+
+.title-strip h1 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.referral-main {
+  padding: 18px 16px 42px;
+  display: grid;
+  gap: 18px;
+}
+
+.rules-card,
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-soft);
+  padding: 18px;
+}
+
+.rules-card h2 {
+  margin: 0 0 14px;
+  color: var(--primary-dark);
+  font-size: 24px;
+  line-height: 1.12;
+}
+
+.rules-card ol {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.rules-card li {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.screen-message {
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.screen-message--error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid rgba(180, 35, 24, 0.12);
+}
+
+.search-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-field span {
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.search-field input {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid #ccd5e3;
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: #fff;
+  outline: none;
+}
+
+.search-field input:focus {
+  border-color: rgba(18, 80, 230, 0.5);
+  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.08);
+}
+
+.professionals-list {
+  display: grid;
+  gap: 12px;
+}
+
+.professional-card {
+  width: 100%;
+  border: 1px solid var(--theme-border);
+  border-radius: 20px;
+  background: var(--theme-bg);
+  color: var(--theme-text);
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  text-align: left;
+}
+
+.professional-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: #0f8d2d;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.professional-card__text {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.professional-card__text strong {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.professional-card__text small {
+  color: rgba(22, 101, 52, 0.78);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.empty-state {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px dashed #d5dbe5;
+  color: var(--muted);
+  text-align: center;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.confirm-overlay[hidden] {
+  display: none !important;
+}
+
+.confirm-dialog {
+  width: min(100%, 420px);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+  padding: 22px 18px;
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 10px;
+  color: var(--primary-dark);
+  font-size: 22px;
+}
+
+.confirm-dialog p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.confirm-dialog strong {
+  display: block;
+  margin-bottom: 18px;
+  font-size: 20px;
+}
+
+.confirm-dialog__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-primary,
+.btn-secondary {
+  border: none;
+  border-radius: 16px;
+  min-height: 52px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+}
+
+.btn-secondary {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--primary-dark);
+}
+
+.btn-primary:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .topbar__nav {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .brand__name {
+    display: none;
+  }
+
+  .confirm-dialog__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .referral-shell {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .topbar {
+    padding: 18px 24px 14px;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 28px;
+  }
+
+  .referral-main {
+    padding: 24px 24px 52px;
+  }
+}
