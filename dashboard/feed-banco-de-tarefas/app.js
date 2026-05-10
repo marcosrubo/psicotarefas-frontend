@@ -37,6 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
     screenMessage.className = `screen-message screen-message--${type}`;
   }
 
+  function obterTemaInicialDaUrl() {
+    const params = new URLSearchParams(window.location.search || "");
+    return (params.get("tema") || params.get("theme") || "").trim();
+  }
+
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -382,6 +387,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     themes = themesResponse.data || [];
     resources = resourcesResponse.data || [];
+
+    const initialThemeId = obterTemaInicialDaUrl();
+
+    if (initialThemeId && themes.some((theme) => String(theme.id) === String(initialThemeId))) {
+      selectedThemeId = String(initialThemeId);
+    }
 
     if (!selectedThemeId && themes.length) {
       selectedThemeId = String(themes[0].id);

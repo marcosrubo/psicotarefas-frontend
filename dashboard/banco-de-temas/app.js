@@ -206,6 +206,14 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
+  function abrirFeedDeTarefasComTema(themeId) {
+    if (!themeId) return;
+
+    const url = new URL("../feed-banco-de-tarefas/index.html", window.location.href);
+    url.searchParams.set("tema", String(themeId));
+    window.location.href = url.href;
+  }
+
   if (btnBack) {
     btnBack.addEventListener("click", () => {
       window.location.href = "../profissional/index.html";
@@ -218,6 +226,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnMenuLogout) {
     btnMenuLogout.addEventListener("click", sairDoSistema);
+  }
+
+  if (themesList) {
+    themesList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-theme-action]");
+      if (!button) return;
+
+      const themeId = button.getAttribute("data-theme-id");
+      const action = button.getAttribute("data-theme-action");
+
+      registrarEvento({
+        evento: action === "videos" ? "tema_feed_videos_aberto" : "tema_feed_tarefas_aberto",
+        pagina: "banco_de_temas",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null,
+        contexto: {
+          tema_id: themeId,
+          destino: "feed_banco_de_tarefas"
+        }
+      });
+
+      abrirFeedDeTarefasComTema(themeId);
+    });
   }
 
   document.addEventListener("click", (event) => {
