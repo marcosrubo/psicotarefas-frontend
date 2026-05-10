@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalSearch = document.getElementById("professionalSearch");
   const professionalsList = document.getElementById("professionalsList");
   const professionalsEmptyState = document.getElementById("professionalsEmptyState");
+  const currentReferralName = document.getElementById("currentReferralName");
   const confirmOverlay = document.getElementById("confirmOverlay");
   const selectedProfessionalName = document.getElementById("selectedProfessionalName");
   const btnCancelSelection = document.getElementById("btnCancelSelection");
@@ -168,6 +169,21 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
+  function renderIndicacaoAtual() {
+    if (!currentReferralName) return;
+
+    const professionalId = currentProfile?.indicado_por_profissional_user_id;
+
+    if (!professionalId) {
+      currentReferralName.textContent = "Nenhum profissional selecionado.";
+      return;
+    }
+
+    const professional = professionals.find((item) => item.user_id === professionalId);
+    const nome = limparNome(professional?.nome || professional?.email || "");
+    currentReferralName.textContent = nome || "Profissional não encontrado.";
+  }
+
   function abrirConfirmacao(professional) {
     selectedProfessional = professional;
     const nome = limparNome(professional?.nome || professional?.email || "") || "Profissional";
@@ -201,6 +217,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (error) {
         throw new Error(`Não foi possível gravar a indicação: ${error.message}`);
       }
+
+      currentProfile = {
+        ...currentProfile,
+        indicado_por_profissional_user_id: selectedProfessional.user_id
+      };
+      renderIndicacaoAtual();
 
       await registrarEvento({
         evento: "desconto_indicacao_confirmado",
@@ -271,6 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) return;
 
     await carregarProfissionais();
+    renderIndicacaoAtual();
     renderProfissionais();
   }
 

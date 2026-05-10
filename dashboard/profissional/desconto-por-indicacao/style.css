@@ -113,6 +113,7 @@ a { text-decoration: none; }
 }
 
 .rules-card,
+.current-referral-card,
 .panel {
   border: 1px solid var(--border);
   border-radius: 24px;
@@ -138,6 +139,31 @@ a { text-decoration: none; }
 .rules-card li {
   color: var(--muted);
   line-height: 1.55;
+}
+
+.current-referral-card {
+  display: grid;
+  gap: 6px;
+}
+
+.current-referral-card span {
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.current-referral-card strong {
+  color: var(--theme-text);
+  font-size: 22px;
+  line-height: 1.18;
+}
+
+.current-referral-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .screen-message {
