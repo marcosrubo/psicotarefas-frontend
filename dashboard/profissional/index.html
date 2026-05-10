@@ -13,7 +13,7 @@
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=20260508-colors" />
+  <link rel="stylesheet" href="./style.css?v=20260510-temas-feed" />
   <link rel="stylesheet" href="../../shared/support.css" />
 </head>
 <body>
@@ -64,13 +64,21 @@
         <button class="btn-primary primary-shortcuts-card__button" id="btnSuggestion" type="button">
           Enviar SUGESTÃO
         </button>
-        <button class="btn-primary btn-primary--support-green primary-shortcuts-card__button" id="btnFeedTaskBank" type="button">
-          FEED Banco de TAREFAS
-          <span class="button-ai-badge">com IA</span>
-        </button>
-        <button class="btn-primary btn-primary--support-green primary-shortcuts-card__button" id="btnFeedVideoBank" type="button">
-          FEED Banco de VÍDEOS
-        </button>
+        <div class="feed-shortcuts">
+          <button class="feed-shortcuts__themes" id="btnAvailableThemes" type="button">
+            <span>TEMAS</span>
+            <strong>Disponíveis</strong>
+          </button>
+
+          <div class="feed-shortcuts__links">
+            <button class="btn-primary btn-primary--support-green primary-shortcuts-card__button feed-shortcuts__link" id="btnFeedTaskBank" type="button">
+              FEED de TAREFAS
+            </button>
+            <button class="btn-primary btn-primary--support-green primary-shortcuts-card__button feed-shortcuts__link" id="btnFeedVideoBank" type="button">
+              FEED de VÍDEOS
+            </button>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -143,6 +151,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../../shared/professional-plan-label.js?v=20260508-2"></script>
-  <script type="module" src="./app.js?v=20260508-1"></script>
+  <script type="module" src="./app.js?v=20260510-temas-feed"></script>
 </body>
 </html>

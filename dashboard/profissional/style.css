@@ -263,6 +263,43 @@ input {
   z-index: 1;
 }
 
+.feed-shortcuts {
+  display: grid;
+  gap: 14px;
+}
+
+.feed-shortcuts__themes {
+  min-height: 58px;
+  border: 1px solid rgba(15, 141, 45, 0.22);
+  border-radius: 14px;
+  background: #ffffff;
+  color: var(--green-dark);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.feed-shortcuts__themes span {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.feed-shortcuts__themes strong {
+  font-size: 18px;
+  line-height: 1.05;
+}
+
+.feed-shortcuts__links {
+  display: grid;
+  gap: 14px;
+}
+
 .button-ai-badge {
   position: absolute;
   top: 10px;
@@ -738,6 +775,29 @@ input {
 }
 
 @media (max-width: 640px) {
+  .feed-shortcuts {
+    grid-template-columns: minmax(0, 1fr) 3.7cm;
+    align-items: stretch;
+  }
+
+  .feed-shortcuts__themes {
+    min-height: calc((58px * 2) + 14px);
+    height: 100%;
+  }
+
+  .feed-shortcuts__links {
+    width: 3.7cm;
+    justify-self: end;
+  }
+
+  .feed-shortcuts__link {
+    width: 3.7cm;
+    min-height: 58px;
+    padding: 10px 8px;
+    font-size: 14px;
+    line-height: 1.12;
+  }
+
   .invite-item__actions {
     display: grid;
     grid-template-columns: 1fr;
