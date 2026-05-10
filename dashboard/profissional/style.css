@@ -270,11 +270,11 @@ input {
 
 .feed-shortcuts__themes {
   min-height: 58px;
-  border: 1px solid rgba(15, 141, 45, 0.22);
+  border: 1px solid #0f8d2d;
   border-radius: 14px;
-  background: #ffffff;
-  color: var(--green-dark);
-  box-shadow: var(--shadow-soft);
+  background: #0f8d2d;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 141, 45, 0.22);
   cursor: pointer;
   display: grid;
   align-content: center;
@@ -776,7 +776,7 @@ input {
 
 @media (max-width: 640px) {
   .feed-shortcuts {
-    grid-template-columns: minmax(0, 1fr) 3.7cm;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
   }
 
@@ -786,12 +786,12 @@ input {
   }
 
   .feed-shortcuts__links {
-    width: 3.7cm;
+    width: 100%;
     justify-self: end;
   }
 
   .feed-shortcuts__link {
-    width: 3.7cm;
+    width: 100%;
     min-height: 58px;
     padding: 10px 8px;
     font-size: 14px;
