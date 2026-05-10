@@ -146,6 +146,15 @@ a {
 
 .plans-table-panel {
   overflow: hidden;
+  display: grid;
+  gap: 16px;
+}
+
+.plans-table-panel h2 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 24px;
+  line-height: 1.15;
 }
 
 .plans-summary-panel {
