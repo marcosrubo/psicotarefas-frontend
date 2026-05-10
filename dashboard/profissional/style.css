@@ -69,6 +69,31 @@ input {
   border-bottom: 1px solid var(--border);
 }
 
+.topbar__right-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.referral-discount-btn {
+  border: 1px solid rgba(18, 80, 230, 0.18);
+  border-radius: 999px;
+  background: rgba(18, 80, 230, 0.08);
+  color: var(--primary-dark);
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.referral-discount-btn:active {
+  transform: scale(0.98);
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -777,6 +802,18 @@ input {
 }
 
 @media (max-width: 640px) {
+  .topbar__right-actions {
+    gap: 6px;
+  }
+
+  .referral-discount-btn {
+    max-width: 112px;
+    padding: 9px 10px;
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: normal;
+  }
+
   .feed-shortcuts__themes {
     height: 100%;
   }
