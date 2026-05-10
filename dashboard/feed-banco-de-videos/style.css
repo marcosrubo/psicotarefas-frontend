@@ -105,30 +105,40 @@ a { text-decoration: none; }
 }
 
 .feed-filter-field {
-  display: block;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.feed-filter-field__label {
+  color: #166534;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .feed-filter-field__control {
   width: 100%;
   min-height: 44px;
-  border: 1px solid #d9dfeb;
+  border: 1px solid #0f8d2d;
   border-radius: 14px;
   padding: 0 14px;
-  background: #fff;
-  color: var(--text);
+  background: #0f8d2d;
+  color: #ffffff;
   font-size: 16px;
   font-weight: 700;
   outline: none;
 }
 
 .feed-filter-field__control:focus {
-  border-color: rgba(18, 80, 230, 0.48);
-  box-shadow: 0 0 0 4px rgba(18, 80, 230, 0.12);
+  border-color: #0f8d2d;
+  box-shadow: 0 0 0 4px rgba(15, 141, 45, 0.16);
 }
 
 .feed-filter-field__control:disabled {
-  background: #f4f6fb;
-  color: var(--muted);
+  background: rgba(15, 141, 45, 0.58);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .feed-main {
