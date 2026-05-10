@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnAssignedTasks = document.getElementById("btnAssignedTasks");
   const btnSessionSummary = document.getElementById("btnSessionSummary");
   const btnSuggestion = document.getElementById("btnSuggestion");
+  const btnAvailableThemes = document.getElementById("btnAvailableThemes");
   const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
   const btnFeedVideoBank = document.getElementById("btnFeedVideoBank");
   const btnBottomHome = document.getElementById("btnBottomHome");
@@ -907,6 +908,19 @@ document.addEventListener("DOMContentLoaded", () => {
         email: currentProfile?.email || currentUser?.email || null
       });
       window.location.href = "../resumo-sessao/index.html";
+    });
+  }
+
+  if (btnAvailableThemes) {
+    btnAvailableThemes.addEventListener("click", () => {
+      registrarEvento({
+        evento: "banco_temas_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../banco-de-temas/index.html";
     });
   }
 
