@@ -32,7 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnMenuProfile = document.getElementById("btnMenuProfile");
   const btnMenuPatients = document.getElementById("btnMenuPatients");
   const btnMenuTasks = document.getElementById("btnMenuTasks");
+  const btnMenuAssignedTasks = document.getElementById("btnMenuAssignedTasks");
   const btnMenuSessionSummary = document.getElementById("btnMenuSessionSummary");
+  const btnMenuSuggestion = document.getElementById("btnMenuSuggestion");
+  const btnMenuAvailableThemes = document.getElementById("btnMenuAvailableThemes");
   const btnMenuTaskBank = document.getElementById("btnMenuTaskBank");
   const btnMenuVideoBank = document.getElementById("btnMenuVideoBank");
   const btnMenuLogout = document.getElementById("btnMenuLogout");
@@ -116,6 +119,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function abrirWhatsappSugestao() {
     const url = `https://wa.me/5543999525060?text=${encodeURIComponent(SUGGESTION_WHATSAPP_MESSAGE)}`;
     window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  function registrarNavegacaoMenu(evento, destino) {
+    registrarEvento({
+      evento,
+      pagina: "dashboard_profissional",
+      perfil: "profissional",
+      userId: currentUser?.id || null,
+      email: currentProfile?.email || currentUser?.email || null
+    });
+    window.location.href = destino;
   }
 
   function gerarTokenConvite() {
@@ -1187,42 +1201,70 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnMenuProfile) {
     btnMenuProfile.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../meus-dados/index.html";
+      registrarNavegacaoMenu("meus_dados_aberto", "../meus-dados/index.html");
     });
   }
 
   if (btnMenuPatients) {
     btnMenuPatients.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../cadastro-pacientes/index.html";
+      registrarNavegacaoMenu("cadastro_pacientes_aberto", "../cadastro-pacientes/index.html");
     });
   }
 
   if (btnMenuTasks) {
     btnMenuTasks.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../atribuir-tarefas/index.html";
+      registrarNavegacaoMenu("gestao_tarefas_aberta", "../atribuir-tarefas/index.html");
+    });
+  }
+
+  if (btnMenuAssignedTasks) {
+    btnMenuAssignedTasks.addEventListener("click", () => {
+      fecharMenuInferior();
+      registrarNavegacaoMenu("interacoes_profissional_abertas", "../profissional-interacoes/index.html");
     });
   }
 
   if (btnMenuSessionSummary) {
     btnMenuSessionSummary.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../resumo-sessao/index.html";
+      registrarNavegacaoMenu("resumo_sessao_aberto", "../resumo-sessao/index.html");
+    });
+  }
+
+  if (btnMenuSuggestion) {
+    btnMenuSuggestion.addEventListener("click", () => {
+      fecharMenuInferior();
+      registrarEvento({
+        evento: "sugestao_whatsapp_aberta",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      abrirWhatsappSugestao();
+    });
+  }
+
+  if (btnMenuAvailableThemes) {
+    btnMenuAvailableThemes.addEventListener("click", () => {
+      fecharMenuInferior();
+      registrarNavegacaoMenu("banco_temas_aberto", "../banco-de-temas/index.html");
     });
   }
 
   if (btnMenuTaskBank) {
     btnMenuTaskBank.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../banco-de-tarefas/index.html";
+      registrarNavegacaoMenu("feed_banco_tarefas_aberto", "../feed-banco-de-tarefas/index.html");
     });
   }
 
   if (btnMenuVideoBank) {
     btnMenuVideoBank.addEventListener("click", () => {
       fecharMenuInferior();
-      window.location.href = "../banco-de-videos/index.html";
+      registrarNavegacaoMenu("feed_banco_videos_aberto", "../feed-banco-de-videos/index.html");
     });
   }
 
