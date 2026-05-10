@@ -448,6 +448,20 @@ ul {
     linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
+.story-block--topics {
+  background:
+    radial-gradient(circle at top right, rgba(15, 141, 45, 0.12), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, #f8fdf9 100%);
+}
+
+.story-block--topics .story-block__media {
+  background: #101828;
+}
+
+.story-block--topics .story-block__media img {
+  object-position: center;
+}
+
 .story-block--search .story-block__media {
   min-height: 0;
 }
@@ -942,6 +956,10 @@ ul {
 
   .story-block--hero-soft {
     grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .story-block--topics {
+    grid-template-columns: 1.08fr 0.92fr;
   }
 
   .story-block--image-right {
