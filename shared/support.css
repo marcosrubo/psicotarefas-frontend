@@ -154,6 +154,12 @@
   transform: translateY(-1px);
 }
 
+.bottom-nav__menu {
+  min-width: 220px;
+  max-height: min(72vh, 560px);
+  overflow-y: auto;
+}
+
 @media (max-width: 640px) {
   .hero__topbar,
   .auth-hero__topbar {
@@ -187,5 +193,9 @@
     max-width: 320px;
     min-width: 0;
     font-size: 13px;
+  }
+
+  .bottom-nav__menu {
+    min-width: min(260px, calc(100vw - 24px));
   }
 }
