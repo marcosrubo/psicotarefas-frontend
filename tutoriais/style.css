@@ -29,6 +29,10 @@ body {
   min-height: 100vh;
 }
 
+body.has-video-modal {
+  overflow: hidden;
+}
+
 a,
 button {
   color: inherit;
@@ -147,13 +151,11 @@ a {
 
 .tutorials-layout {
   padding: 16px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 16px;
 }
 
 .tutorial-list {
-  order: 2;
   display: grid;
   gap: 12px;
 }
@@ -196,11 +198,9 @@ a {
 }
 
 .video-panel {
-  order: 1;
   padding: 16px;
   display: grid;
   gap: 14px;
-  scroll-margin-top: 142px;
 }
 
 .video-panel h2 {
@@ -228,6 +228,10 @@ a {
   display: block;
 }
 
+.video-panel__close {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .brand__name {
     display: none;
@@ -235,6 +239,56 @@ a {
 
   .intro-card h2 {
     font-size: 22px;
+  }
+}
+
+@media (max-width: 767px) {
+  .video-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 0;
+    background: #ffffff;
+    display: none;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-content: stretch;
+    gap: 16px;
+    overflow: auto;
+  }
+
+  .video-panel.is-open {
+    display: grid;
+  }
+
+  .video-panel h2 {
+    font-size: 22px;
+  }
+
+  .video-frame {
+    align-self: center;
+    width: min(100%, 430px);
+    max-width: none;
+    max-height: calc(100vh - 150px);
+  }
+
+  .video-panel__close {
+    appearance: none;
+    border: none;
+    border-radius: 16px;
+    background: var(--primary);
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    padding: 14px 18px;
+    font-weight: 800;
+    font-size: 17px;
+    position: sticky;
+    bottom: 0;
   }
 }
 
@@ -255,13 +309,7 @@ a {
   }
 
   .tutorials-layout {
-    display: grid;
     grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.1fr);
     align-items: start;
-  }
-
-  .tutorial-list,
-  .video-panel {
-    order: initial;
   }
 }
