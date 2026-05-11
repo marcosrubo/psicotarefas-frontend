@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Tutoriais - PsicoTarefas</title>
+
+  <meta name="theme-color" content="#1250e6" />
+  <meta name="description" content="Tutoriais em vídeo do PsicoTarefas" />
+
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css?v=20260510-1" />
+  <link rel="stylesheet" href="../shared/support.css" />
+</head>
+<body>
+  <div class="tutorials-shell">
+    <header class="topbar">
+      <div class="topbar__nav">
+        <button class="back-link" id="btnBack" type="button">← Voltar</button>
+
+        <a class="brand brand--centered" href="../index.html" aria-label="Ir para o início do PsicoTarefas">
+          <img
+            src="../assets/icons/icon-192.png"
+            alt="Ícone do PsicoTarefas"
+            class="brand__logo"
+          />
+          <span class="brand__name">PsicoTarefas</span>
+        </a>
+
+        <span aria-hidden="true"></span>
+      </div>
+
+      <div class="title-strip">
+        <h1>Tutoriais</h1>
+      </div>
+    </header>
+
+    <main class="tutorials-main">
+      <section class="intro-card">
+        <p class="intro-card__eyebrow">Como usar</p>
+        <h2>Vídeos rápidos para conhecer as funcionalidades do PsicoTarefas.</h2>
+      </section>
+
+      <section class="tutorials-layout">
+        <div class="tutorial-list" aria-label="Lista de tutoriais disponíveis">
+          <button
+            class="tutorial-card is-active"
+            type="button"
+            data-video-id="Y3m3IrCcANE"
+            data-video-title="1o acesso/instalação"
+          >
+            <span>01</span>
+            <strong>1o acesso/instalação</strong>
+          </button>
+
+          <button
+            class="tutorial-card"
+            type="button"
+            data-video-id="NxWWc9Mc68s"
+            data-video-title="Testando como profissional"
+          >
+            <span>02</span>
+            <strong>Testando como profissional</strong>
+          </button>
+        </div>
+
+        <section class="video-panel" aria-live="polite">
+          <h2 id="selectedVideoTitle">1o acesso/instalação</h2>
+          <div class="video-frame">
+            <iframe
+              id="tutorialVideo"
+              src="https://www.youtube.com/embed/Y3m3IrCcANE"
+              title="1o acesso/instalação"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./app.js?v=20260510-1"></script>
+</body>
+</html>
