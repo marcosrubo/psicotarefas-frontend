@@ -2,7 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBack = document.getElementById("btnBack");
   const tutorialVideo = document.getElementById("tutorialVideo");
   const selectedVideoTitle = document.getElementById("selectedVideoTitle");
+  const videoPanel = document.querySelector(".video-panel");
   const tutorialCards = Array.from(document.querySelectorAll("[data-video-id]"));
+  const mobileTutorialsQuery = window.matchMedia("(max-width: 767px)");
 
   function selecionarVideo(card) {
     const videoId = card.dataset.videoId;
@@ -14,6 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedVideoTitle.textContent = videoTitle;
     tutorialVideo.title = videoTitle;
     tutorialVideo.src = `https://www.youtube.com/embed/${encodeURIComponent(videoId)}`;
+
+    if (videoPanel && mobileTutorialsQuery.matches) {
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      videoPanel.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start"
+      });
+    }
   }
 
   if (btnBack) {

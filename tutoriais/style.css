@@ -147,11 +147,13 @@ a {
 
 .tutorials-layout {
   padding: 16px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
 .tutorial-list {
+  order: 2;
   display: grid;
   gap: 12px;
 }
@@ -194,9 +196,11 @@ a {
 }
 
 .video-panel {
+  order: 1;
   padding: 16px;
   display: grid;
   gap: 14px;
+  scroll-margin-top: 142px;
 }
 
 .video-panel h2 {
@@ -251,7 +255,13 @@ a {
   }
 
   .tutorials-layout {
+    display: grid;
     grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.1fr);
     align-items: start;
+  }
+
+  .tutorial-list,
+  .video-panel {
+    order: initial;
   }
 }
