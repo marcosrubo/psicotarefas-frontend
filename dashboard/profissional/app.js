@@ -1281,6 +1281,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fecharMenuInferior();
   });
 
+  window.addEventListener("pagehide", fecharMenuInferior);
+  window.addEventListener("pageshow", fecharMenuInferior);
+
   async function iniciarDashboard() {
     await carregarUsuario();
   }
