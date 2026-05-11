@@ -28,8 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function abrirVideoMobile() {
-    if (!videoPanel) return;
+    if (!videoPanel || !tutorialVideo) return;
 
+    tutorialVideo.src = currentVideoSrc;
     videoPanel.classList.add("is-open");
     document.body.classList.add("has-video-modal");
   }
@@ -40,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
     videoPanel.classList.remove("is-open");
     document.body.classList.remove("has-video-modal");
     tutorialVideo.src = "";
-    tutorialVideo.src = currentVideoSrc;
   }
 
   async function sairDoSistema() {
@@ -78,12 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnBack) {
     btnBack.addEventListener("click", () => {
-      if (window.history.length > 1) {
-        window.history.back();
-        return;
-      }
-
-      window.location.href = "../index.html";
+      fecharVideoMobile();
+      fecharMenuInferior();
+      window.location.href = "../dashboard/profissional/index.html";
     });
   }
 

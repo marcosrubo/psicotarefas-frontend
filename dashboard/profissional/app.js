@@ -1281,6 +1281,10 @@ document.addEventListener("DOMContentLoaded", () => {
     fecharMenuInferior();
   });
 
+  bottomMenuPanel?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", fecharMenuInferior);
+  });
+
   window.addEventListener("pagehide", fecharMenuInferior);
   window.addEventListener("pageshow", fecharMenuInferior);
 
