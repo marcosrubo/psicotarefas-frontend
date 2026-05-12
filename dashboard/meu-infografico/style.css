@@ -258,7 +258,7 @@ a {
   background: #fff;
   border: 12px solid #151515;
   box-shadow: 0 22px 48px rgba(31, 36, 48, 0.14);
-  padding: 90px 58px 132px;
+  padding: 86px 58px 120px;
 }
 
 .infographic-card.is-exporting {
@@ -287,7 +287,7 @@ a {
 
 .info-header {
   display: grid;
-  gap: 16px;
+  gap: 10px;
   text-align: center;
 }
 
@@ -297,29 +297,30 @@ a {
   border-radius: 999px;
   background: var(--purple);
   color: #fff;
-  padding: 12px 36px;
-  font-size: 32px;
+  padding: 10px 36px;
+  font-size: 30px;
   font-weight: 900;
 }
 
 .info-header h2 {
   margin: 0;
   color: var(--purple);
-  font-size: 68px;
+  font-size: 70px;
   line-height: 0.98;
   text-transform: uppercase;
 }
 
 .hero-block {
-  margin-top: 20px;
+  margin-top: 16px;
   display: grid;
-  grid-template-columns: 540px minmax(0, 1fr);
+  grid-template-columns: 560px minmax(0, 1fr);
   gap: 28px;
   align-items: stretch;
 }
 
 .hero-image {
-  min-height: 380px;
+  min-height: 345px;
+  height: 345px;
   border-radius: 30px;
   background: var(--blue-soft);
   border: 2px solid #d8e3ff;
@@ -330,7 +331,7 @@ a {
 .hero-image__placeholder {
   width: 100%;
   height: 100%;
-  min-height: 380px;
+  min-height: 345px;
   display: block;
 }
 
@@ -346,34 +347,53 @@ a {
   font-weight: 900;
 }
 
-.hero-block p {
+.context-box {
+  position: relative;
   margin: 0;
   border-radius: 30px;
   background: #f8fbff;
   border: 2px solid #bfdbfe;
-  padding: 42px 28px 28px;
+  padding: 56px 28px 24px;
+}
+
+.context-box h3 {
+  position: absolute;
+  top: -18px;
+  left: 32px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--blue-dark);
+  color: #fff;
+  padding: 9px 26px;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.context-box p {
+  margin: 0;
   color: #1f2937;
-  font-size: 28px;
+  font-size: 25px;
   line-height: 1.22;
   font-weight: 700;
 }
 
 .yellow-strip {
-  margin-top: 26px;
+  margin-top: 22px;
   border-radius: 999px;
   background: var(--yellow);
   color: #422006;
-  padding: 16px 28px;
+  padding: 15px 28px;
   text-align: center;
-  font-size: 28px;
+  font-size: 27px;
   font-weight: 900;
 }
 
 .challenge-section {
-  margin-top: 36px;
+  margin-top: 34px;
   border: 2px solid #e8dcff;
   border-radius: 30px;
-  padding: 22px 14px 16px;
+  padding: 20px 14px 15px;
 }
 
 .challenge-section h3 {
@@ -394,22 +414,22 @@ a {
 }
 
 .challenge-card {
-  min-height: 190px;
+  min-height: 178px;
   border-radius: 22px;
   background: #fff;
   border: 2px solid #eef2f7;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
   padding: 12px 8px;
   display: grid;
-  grid-template-rows: 78px 1fr;
+  grid-template-rows: 72px 1fr;
   justify-items: center;
   align-items: center;
   text-align: center;
 }
 
 .challenge-icon {
-  width: 78px;
-  height: 78px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -417,8 +437,8 @@ a {
 }
 
 .challenge-icon svg {
-  width: 42px;
-  height: 42px;
+  width: 39px;
+  height: 39px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2.8;
@@ -428,15 +448,15 @@ a {
 
 .challenge-card strong {
   color: #111827;
-  font-size: 20px;
+  font-size: 19px;
   line-height: 1.06;
 }
 
 .reflection-block,
 .help-block {
-  margin-top: 22px;
+  margin-top: 20px;
   border-radius: 28px;
-  padding: 22px 28px;
+  padding: 20px 26px;
   background: #f8fbff;
   border: 2px solid #e2e8f0;
 }
@@ -445,16 +465,16 @@ a {
 .help-block h3 {
   margin: 0 0 14px;
   color: var(--blue-dark);
-  font-size: 28px;
+  font-size: 27px;
 }
 
 .reflection-block ul {
   margin: 0;
   padding-left: 28px;
   display: grid;
-  gap: 8px;
+  gap: 7px;
   color: #1f2937;
-  font-size: 24px;
+  font-size: 23px;
   line-height: 1.14;
   font-weight: 700;
 }
@@ -466,38 +486,38 @@ a {
 }
 
 .help-card {
-  min-height: 154px;
+  min-height: 142px;
   border-radius: 18px;
   background: #fff;
   border: 2px solid #e2e8f0;
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
   padding: 12px 8px;
   display: grid;
-  grid-template-rows: 58px 1fr;
+  grid-template-rows: 52px 1fr;
   justify-items: center;
   align-items: center;
   text-align: center;
 }
 
 .help-card span {
-  font-size: 44px;
+  font-size: 40px;
   line-height: 1;
 }
 
 .help-card strong {
   color: #111827;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.08;
 }
 
 .final-phrase {
-  margin: 22px 0 0;
+  margin: 20px 0 0;
   border-radius: 28px;
   background: var(--blue-dark);
   color: #fff;
-  padding: 22px 34px;
+  padding: 20px 34px;
   text-align: center;
-  font-size: 29px;
+  font-size: 28px;
   line-height: 1.18;
   font-weight: 900;
 }
