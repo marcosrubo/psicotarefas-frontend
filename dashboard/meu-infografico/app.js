@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const characterSelect = document.getElementById("characterSelect");
   const qualitySelect = document.getElementById("qualitySelect");
   const notesInput = document.getElementById("notesInput");
+  const complementaryTextInput = document.getElementById("complementaryTextInput");
   const uppercaseTextInput = document.getElementById("uppercaseTextInput");
   const notesHint = document.getElementById("notesHint");
   const screenMessage = document.getElementById("screenMessage");
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const reflectionList = document.getElementById("reflectionList");
   const helpList = document.getElementById("helpList");
   const finalPhrase = document.getElementById("finalPhrase");
+  const previewComplementaryText = document.getElementById("previewComplementaryText");
   const previewImage = document.getElementById("previewImage");
   const imagePlaceholder = document.getElementById("imagePlaceholder");
 
@@ -199,6 +201,11 @@ document.addEventListener("DOMContentLoaded", () => {
       previewChallengeTitle.textContent = `DESAFIOS ${lastTheme ? `DE ${lastTheme.toUpperCase()}` : ""}`;
     }
     if (finalPhrase) finalPhrase.textContent = conteudo?.frase_final || "Cada passo pequeno também conta.";
+    if (previewComplementaryText) {
+      const textoComplementar = String(conteudo?.texto_complementar || "").trim();
+      previewComplementaryText.textContent = textoComplementar;
+      previewComplementaryText.hidden = !textoComplementar;
+    }
 
     renderChallenges(desafios);
     renderList(reflectionList, perguntas);
@@ -329,6 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const personagem = characterSelect?.value || "";
     const qualidade = qualitySelect?.value || "low";
     const observacoes = notesInput?.value.trim() || "";
+    const textoComplementar = complementaryTextInput?.value.trim() || "";
     const caixaAlta = uppercaseTextInput?.checked !== false;
 
     if (!tema || !personagem) {
@@ -349,6 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
           tema,
           personagem,
           observacoes,
+          textoComplementar,
           qualidade,
           caixaAlta
         })

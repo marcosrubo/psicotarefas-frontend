@@ -87,6 +87,17 @@
 
           <p class="form-hint" id="notesHint">Máximo recomendado: 20 palavras ou até 3 frases curtas.</p>
 
+          <label class="form-field form-field--full" for="complementaryTextInput">
+            <span>TEXTO COMPLEMENTAR FINAL</span>
+            <textarea
+              id="complementaryTextInput"
+              name="textoComplementar"
+              maxlength="180"
+              rows="3"
+              placeholder="Texto que aparecerá no final do infográfico"
+            ></textarea>
+          </label>
+
           <label class="form-check" for="uppercaseTextInput">
             <input id="uppercaseTextInput" name="caixaAlta" type="checkbox" checked />
             <span>Trazer textos em caixa alta</span>
@@ -148,6 +159,7 @@
             </section>
 
             <p class="final-phrase" id="finalPhrase">Cada passo pequeno também conta.</p>
+            <p class="complementary-phrase" id="previewComplementaryText" hidden></p>
           </article>
         </div>
       </section>
