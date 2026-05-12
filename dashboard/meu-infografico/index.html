@@ -87,6 +87,11 @@
 
           <p class="form-hint" id="notesHint">Máximo recomendado: 20 palavras ou até 3 frases curtas.</p>
 
+          <label class="form-check" for="uppercaseTextInput">
+            <input id="uppercaseTextInput" name="caixaAlta" type="checkbox" checked />
+            <span>Trazer textos em caixa alta</span>
+          </label>
+
           <div class="form-actions">
             <button class="btn-primary" id="btnGenerate" type="submit">Gerar infográfico</button>
             <button class="btn-secondary" id="btnDownload" type="button" hidden>Baixar imagem</button>
@@ -98,7 +103,7 @@
 
       <section class="preview-panel">
         <div class="infographic-canvas-wrap">
-          <article class="infographic-card" id="infographicCard" aria-label="Prévia do infográfico terapêutico">
+          <article class="infographic-card is-uppercase" id="infographicCard" aria-label="Prévia do infográfico terapêutico">
             <div class="notebook-spiral" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
               <span></span><span></span><span></span><span></span><span></span><span></span>

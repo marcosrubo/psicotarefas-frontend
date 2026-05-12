@@ -180,6 +180,21 @@ a {
   text-transform: none;
 }
 
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.form-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+}
+
 .form-hint.is-warning {
   color: #b54708;
 }
@@ -324,6 +339,9 @@ a {
   color: var(--purple);
   font-size: 70px;
   line-height: 0.98;
+}
+
+.infographic-card.is-uppercase {
   text-transform: uppercase;
 }
 

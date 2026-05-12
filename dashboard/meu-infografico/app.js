@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const characterSelect = document.getElementById("characterSelect");
   const qualitySelect = document.getElementById("qualitySelect");
   const notesInput = document.getElementById("notesInput");
+  const uppercaseTextInput = document.getElementById("uppercaseTextInput");
   const notesHint = document.getElementById("notesHint");
   const screenMessage = document.getElementById("screenMessage");
   const btnGenerate = document.getElementById("btnGenerate");
@@ -165,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  function renderInfographic({ conteudo, imagemUrl }) {
+  function renderInfographic({ conteudo, imagemUrl, caixaAlta }) {
     const desafios = normalizarLista(conteudo?.desafios, 6, [
       "Perceber sinais",
       "Nomear emoção",
@@ -202,6 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderChallenges(desafios);
     renderList(reflectionList, perguntas);
     renderHelp(ajuda);
+    infographicCard?.classList.toggle("is-uppercase", Boolean(caixaAlta));
 
     if (previewImage && imagePlaceholder && imagemUrl) {
       const heroImageFrame = previewImage.closest(".hero-image");
@@ -325,8 +327,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tema = themeInput?.value.trim() || "";
     const personagem = characterSelect?.value || "";
-    const qualidade = qualitySelect?.value || "medium";
+    const qualidade = qualitySelect?.value || "low";
     const observacoes = notesInput?.value.trim() || "";
+    const caixaAlta = uppercaseTextInput?.checked !== false;
 
     if (!tema || !personagem) {
       showMessage("Informe tema e personagem para gerar o infográfico.", "error");
@@ -346,7 +349,8 @@ document.addEventListener("DOMContentLoaded", () => {
           tema,
           personagem,
           observacoes,
-          qualidade
+          qualidade,
+          caixaAlta
         })
       });
       const payload = await response.json();
