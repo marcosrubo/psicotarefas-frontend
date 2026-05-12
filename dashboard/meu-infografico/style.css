@@ -371,6 +371,10 @@ a {
   font-weight: 900;
 }
 
+.hero-image__placeholder[hidden] {
+  display: none;
+}
+
 .context-box {
   position: relative;
   margin: 0;
