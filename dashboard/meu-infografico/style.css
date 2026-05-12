@@ -550,6 +550,23 @@ a {
   font-weight: 900;
 }
 
+.infographic-brand {
+  margin: 18px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--blue-dark);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.infographic-brand img {
+  width: 42px;
+  height: 42px;
+  display: block;
+}
+
 .bottom-nav {
   position: fixed;
   left: 0;
