@@ -264,18 +264,20 @@ a {
 .infographic-card.is-exporting {
   transform: none;
   margin-bottom: 0;
+  background: #fff;
+  box-shadow: none;
 }
 
 .export-host {
   position: fixed;
-  left: -2000px;
+  left: -10000px;
   top: 0;
   width: 1080px;
   height: 1920px;
   overflow: hidden;
   background: #fff;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 .notebook-spiral {
@@ -565,6 +567,19 @@ a {
   width: 126px;
   height: 126px;
   display: block;
+}
+
+.infographic-card.is-exporting .challenge-section,
+.infographic-card.is-exporting .reflection-block,
+.infographic-card.is-exporting .help-block,
+.infographic-card.is-exporting .infographic-brand {
+  background: #fff;
+}
+
+.infographic-card.is-exporting .challenge-card,
+.infographic-card.is-exporting .help-card {
+  background: #fff;
+  box-shadow: none;
 }
 
 .bottom-nav {

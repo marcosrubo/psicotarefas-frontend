@@ -398,7 +398,12 @@ document.addEventListener("DOMContentLoaded", () => {
         width: 1080,
         height: 1920,
         windowWidth: 1080,
-        windowHeight: 1920
+        windowHeight: 1920,
+        onclone: (clonedDocument, clonedCard) => {
+          clonedDocument.documentElement.style.background = "#ffffff";
+          clonedDocument.body.style.background = "#ffffff";
+          clonedCard.style.background = "#ffffff";
+        }
       });
       const link = document.createElement("a");
       link.download = `${slugify(lastTheme)}-infografico-psicotarefas.png`;
