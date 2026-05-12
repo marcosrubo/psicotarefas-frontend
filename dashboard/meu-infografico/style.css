@@ -328,16 +328,20 @@ a {
 .hero-block {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 560px minmax(0, 1fr);
+  grid-template-columns: 540px minmax(0, 1fr);
   gap: 28px;
   align-items: stretch;
 }
 
 .hero-image {
-  min-height: 345px;
-  height: 345px;
+  min-height: 360px;
+  height: 360px;
+  aspect-ratio: 3 / 2;
   border-radius: 30px;
   background: linear-gradient(135deg, #f8fbff, #eef4ff);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
   border: 2px solid #d8e3ff;
   overflow: hidden;
 }
@@ -346,14 +350,17 @@ a {
 .hero-image__placeholder {
   width: 100%;
   height: 100%;
-  min-height: 345px;
+  min-height: 360px;
   display: block;
 }
 
 .hero-image img {
-  object-fit: contain;
-  object-position: center;
-  background: linear-gradient(135deg, #f8fbff, #eef4ff);
+  display: none;
+}
+
+.hero-image.has-image {
+  background-color: #f8fbff;
+  background-size: contain;
 }
 
 .hero-image__placeholder {

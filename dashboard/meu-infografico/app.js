@@ -204,8 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHelp(ajuda);
 
     if (previewImage && imagePlaceholder && imagemUrl) {
+      const heroImageFrame = previewImage.closest(".hero-image");
       previewImage.src = imagemUrl;
       previewImage.hidden = false;
+      heroImageFrame?.classList.add("has-image");
+      if (heroImageFrame) {
+        heroImageFrame.style.backgroundImage = `url("${imagemUrl.replace(/"/g, '\\"')}")`;
+      }
       imagePlaceholder.hidden = true;
     }
 
