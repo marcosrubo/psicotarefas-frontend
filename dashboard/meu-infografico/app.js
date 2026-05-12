@@ -58,6 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   ];
 
+  const helpIcons = ["🧘", "👟", "💬", "📝", "⏰", "❤"];
+
   function getInfographicEndpoint() {
     const isLocalhost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
     return isLocalhost
@@ -131,6 +133,20 @@ document.addEventListener("DOMContentLoaded", () => {
     element.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   }
 
+  function renderHelp(items) {
+    if (!helpList) return;
+    helpList.innerHTML = items
+      .map(
+        (item, index) => `
+          <article class="help-card">
+            <span aria-hidden="true">${helpIcons[index % helpIcons.length]}</span>
+            <strong>${escapeHtml(item)}</strong>
+          </article>
+        `
+      )
+      .join("");
+  }
+
   function renderChallenges(items) {
     if (!challengeGrid) return;
 
@@ -163,11 +179,13 @@ document.addEventListener("DOMContentLoaded", () => {
       "Que pequeno passo posso testar hoje?",
       "Que apoio posso buscar?"
     ]);
-    const ajuda = normalizarLista(conteudo?.o_que_pode_ajudar, 4, [
+    const ajuda = normalizarLista(conteudo?.o_que_pode_ajudar, 6, [
       "Respirar com calma",
       "Registrar pensamentos",
       "Fazer uma pausa",
-      "Conversar com alguém seguro"
+      "Conversar com alguém seguro",
+      "Manter rotina leve",
+      "Buscar ajuda"
     ]);
 
     if (previewTask) previewTask.textContent = conteudo?.tarefa || "TAREFA 5";
@@ -181,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderChallenges(desafios);
     renderList(reflectionList, perguntas);
-    renderList(helpList, ajuda);
+    renderHelp(ajuda);
 
     if (previewImage && imagePlaceholder && imagemUrl) {
       previewImage.src = imagemUrl;
@@ -396,11 +414,13 @@ document.addEventListener("DOMContentLoaded", () => {
       "Como meu corpo reage?",
       "Que apoio posso buscar?"
     ]);
-    renderList(helpList, [
+    renderHelp([
       "Respirar com calma",
       "Nomear a emoção",
       "Dar um passo pequeno",
-      "Conversar com alguém seguro"
+      "Conversar com alguém seguro",
+      "Manter rotina leve",
+      "Buscar ajuda"
     ]);
   }
 
