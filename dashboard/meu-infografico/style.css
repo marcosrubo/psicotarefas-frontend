@@ -337,7 +337,7 @@ a {
   min-height: 345px;
   height: 345px;
   border-radius: 30px;
-  background: var(--blue-soft);
+  background: linear-gradient(135deg, #f8fbff, #eef4ff);
   border: 2px solid #d8e3ff;
   overflow: hidden;
 }
@@ -351,7 +351,9 @@ a {
 }
 
 .hero-image img {
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  background: linear-gradient(135deg, #f8fbff, #eef4ff);
 }
 
 .hero-image__placeholder {
