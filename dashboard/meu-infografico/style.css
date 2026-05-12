@@ -266,6 +266,18 @@ a {
   margin-bottom: 0;
 }
 
+.export-host {
+  position: fixed;
+  left: -2000px;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background: #fff;
+  pointer-events: none;
+  z-index: -1;
+}
+
 .notebook-spiral {
   position: absolute;
   top: 0;
@@ -293,13 +305,16 @@ a {
 
 .info-header span {
   justify-self: center;
-  min-width: 220px;
+  max-width: 620px;
   border-radius: 999px;
   background: var(--purple);
   color: #fff;
   padding: 10px 36px;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .info-header h2 {

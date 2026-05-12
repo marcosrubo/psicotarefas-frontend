@@ -188,7 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
       "Buscar ajuda"
     ]);
 
-    if (previewTask) previewTask.textContent = conteudo?.tarefa || "TAREFA 5";
+    if (previewTask) {
+      previewTask.textContent = currentProfile?.nome || "PsicoTarefas";
+    }
     if (previewTitle) previewTitle.textContent = conteudo?.titulo || "Infográfico terapêutico";
     if (previewContext) previewContext.textContent = conteudo?.contexto || "";
     if (previewYellowStrip) previewYellowStrip.textContent = conteudo?.faixa_amarela || "Desafios do tema";
@@ -283,6 +285,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     currentProfile = perfil;
+    if (previewTask) {
+      previewTask.textContent = currentProfile?.nome || "PsicoTarefas";
+    }
     return true;
   }
 
@@ -367,15 +372,28 @@ document.addEventListener("DOMContentLoaded", () => {
   async function baixarImagem() {
     if (!infographicCard || !window.html2canvas) return;
 
+    let exportHost = null;
+
     try {
       if (btnDownload) btnDownload.disabled = true;
-      infographicCard.classList.add("is-exporting");
-      const canvas = await window.html2canvas(infographicCard, {
+      exportHost = document.createElement("div");
+      exportHost.className = "export-host";
+      const exportCard = infographicCard.cloneNode(true);
+      exportCard.classList.add("is-exporting");
+      exportCard.style.removeProperty("--preview-scale");
+      exportCard.style.transform = "none";
+      exportCard.style.margin = "0";
+      exportHost.appendChild(exportCard);
+      document.body.appendChild(exportHost);
+
+      const canvas = await window.html2canvas(exportCard, {
         backgroundColor: "#ffffff",
         scale: 1,
         useCORS: true,
         width: 1080,
-        height: 1920
+        height: 1920,
+        windowWidth: 1080,
+        windowHeight: 1920
       });
       const link = document.createElement("a");
       link.download = `${slugify(lastTheme)}-infografico-psicotarefas.png`;
@@ -385,7 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Erro ao baixar imagem:", error);
       showMessage("Não foi possível baixar a imagem agora.", "error");
     } finally {
-      infographicCard.classList.remove("is-exporting");
+      exportHost?.remove();
       if (btnDownload) btnDownload.disabled = false;
     }
   }
