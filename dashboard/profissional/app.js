@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnAvailableThemes = document.getElementById("btnAvailableThemes");
   const btnFeedTaskBank = document.getElementById("btnFeedTaskBank");
   const btnFeedVideoBank = document.getElementById("btnFeedVideoBank");
+  const btnMyInfographic = document.getElementById("btnMyInfographic");
   const btnBottomHome = document.getElementById("btnBottomHome");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -975,6 +976,19 @@ document.addEventListener("DOMContentLoaded", () => {
         email: currentProfile?.email || currentUser?.email || null
       });
       window.location.href = "../feed-banco-de-videos/index.html";
+    });
+  }
+
+  if (btnMyInfographic) {
+    btnMyInfographic.addEventListener("click", () => {
+      registrarEvento({
+        evento: "meu_infografico_aberto",
+        pagina: "dashboard_profissional",
+        perfil: "profissional",
+        userId: currentUser?.id || null,
+        email: currentProfile?.email || currentUser?.email || null
+      });
+      window.location.href = "../meu-infografico/index.html";
     });
   }
 
