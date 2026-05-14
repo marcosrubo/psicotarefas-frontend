@@ -162,107 +162,6 @@ function comTempoLimite(promise, timeoutMs, mensagemErro) {
   });
 }
 
-async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
-  const { error } = await supabaseClient
-    .from("perfis")
-    .update({
-      email_confirmed_at: confirmedAtIso
-    })
-    .eq("user_id", userId);
-
-  if (error) {
-    throw new Error("Não foi possível atualizar o status de confirmação do e-mail.");
-  }
-}
-
-async function ativarVinculoDoPacientePorConvite({
-  conviteToken,
-  patientUserId,
-  patientEmail,
-  confirmedAtIso
-}) {
-  if (!conviteToken || !patientUserId || !patientEmail) {
-    return;
-  }
-
-  const convite = await buscarConvitePublico(conviteToken);
-
-  if (!convite) {
-    return;
-  }
-
-  if (convite.status === "cancelado" || convite.status === "expirado") {
-    return;
-  }
-
-  const { data: vinculoExistente, error: erroBuscarVinculo } = await supabaseClient
-    .from("vinculos")
-    .select("id, respondeu_convite_at")
-    .eq("token_convite", conviteToken)
-    .maybeSingle();
-
-  if (erroBuscarVinculo || !vinculoExistente) {
-    throw new Error("Não foi possível localizar o vínculo do convite.");
-  }
-
-  const payloadAtualizacao = {
-    patient_user_id: patientUserId,
-    patient_email: patientEmail,
-    confirmed_at: confirmedAtIso,
-    status: "ativo"
-  };
-
-  if (!vinculoExistente.respondeu_convite_at) {
-    payloadAtualizacao.respondeu_convite_at = confirmedAtIso;
-  }
-
-  const { error: erroAtualizarVinculo } = await supabaseClient
-    .from("vinculos")
-    .update(payloadAtualizacao)
-    .eq("id", vinculoExistente.id);
-
-  if (erroAtualizarVinculo) {
-    throw new Error("Não foi possível ativar o vínculo com o profissional.");
-  }
-
-  const { error: erroAtualizarConvite } = await supabaseClient
-    .from("convites")
-    .update({
-      status: "aceito",
-      accepted_at: confirmedAtIso
-    })
-    .eq("token", conviteToken);
-
-  if (erroAtualizarConvite) {
-    throw new Error("Não foi possível marcar o convite como aceito.");
-  }
-}
-
-async function sincronizarConfirmacaoDeEmail(user, conviteToken = "") {
-  if (!user?.id || !user.email_confirmed_at) {
-    return;
-  }
-
-  await atualizarConfirmacaoEmailNoPerfil(user.id, user.email_confirmed_at);
-
-  const perfil = user.user_metadata?.perfil || "paciente";
-  const token =
-    conviteToken ||
-    user.user_metadata?.convite_token ||
-    "";
-
-  if (perfil !== "paciente" || !token) {
-    return;
-  }
-
-  await ativarVinculoDoPacientePorConvite({
-    conviteToken: token,
-    patientUserId: user.id,
-    patientEmail: user.email || "",
-    confirmedAtIso: user.email_confirmed_at
-  });
-}
-
 function obterTiposOtpConfirmacao(tipo) {
   if (tipo === "signup" || tipo === "email") {
     return [tipo];
@@ -271,7 +170,7 @@ function obterTiposOtpConfirmacao(tipo) {
   return ["signup", "email"];
 }
 
-async function obterUsuarioPorLinkConfirmacao({
+async function confirmarEmailPeloLink({
   codigo,
   accessToken,
   refreshToken,
@@ -290,7 +189,7 @@ async function obterUsuarioPorLinkConfirmacao({
       );
 
       if (!error && data?.session?.user) {
-        return data.session.user;
+        return true;
       }
 
       if (error) {
@@ -310,7 +209,7 @@ async function obterUsuarioPorLinkConfirmacao({
       );
 
       if (!error && data?.session?.user) {
-        return data.session.user;
+        return true;
       }
 
       if (error) {
@@ -334,7 +233,7 @@ async function obterUsuarioPorLinkConfirmacao({
         );
 
         if (!error && data?.user) {
-          return data.user;
+          return true;
         }
 
         if (error) {
@@ -346,15 +245,7 @@ async function obterUsuarioPorLinkConfirmacao({
     }
   }
 
-  const {
-    data: { user }
-  } = await comTempoLimite(
-    supabaseClient.auth.getUser(),
-    AUTH_LINK_TIMEOUT_MS,
-    "A busca do usuário confirmado demorou mais que o esperado."
-  );
-
-  return user || null;
+  return false;
 }
 
 async function buscarConvitePublico(token) {
@@ -377,62 +268,6 @@ async function buscarConvitePublico(token) {
   }
 
   return data[0];
-}
-
-async function buscarPerfilAutenticado(userId) {
-  const { data, error } = await supabaseClient
-    .from("perfis")
-    .select("perfil")
-    .eq("user_id", userId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data;
-}
-
-async function pacienteTemVinculoAtivo(userId) {
-  const { data, error } = await supabaseClient
-    .from("vinculos")
-    .select("id")
-    .eq("patient_user_id", userId)
-    .eq("status", "ativo")
-    .limit(1);
-
-  if (error) {
-    return false;
-  }
-
-  return Array.isArray(data) && data.length > 0;
-}
-
-async function obterDestinoDashboardPorSessao(user) {
-  if (!user) return "";
-
-  if ((user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-    return ADMIN_DASHBOARD_URL;
-  }
-
-  const perfil = await buscarPerfilAutenticado(user.id);
-
-  if (!perfil?.perfil) {
-    return "";
-  }
-
-  if (perfil.perfil === "profissional") {
-    return criarUrlDoApp("dashboard/profissional/index.html");
-  }
-
-  if (perfil.perfil === "paciente") {
-    const temVinculo = await pacienteTemVinculoAtivo(user.id);
-    return temVinculo
-      ? criarUrlDoApp("dashboard/paciente-com-vinculo/index.html")
-      : criarUrlDoApp("dashboard/paciente-sem-vinculo/index.html");
-  }
-
-  return "";
 }
 
 // ============================
@@ -608,6 +443,7 @@ async function tratarConfirmacaoDeEmail() {
     ((tipo === "email" || tipo === "signup") ? searchParams.get("token") : "") ||
     "";
   const tokenConvite = (searchParams.get("convite") || "").trim();
+  const perfil = searchParams.get("perfil") === "profissional" ? "profissional" : "paciente";
   const accessToken = hashParams.get("access_token") || "";
   const refreshToken = hashParams.get("refresh_token") || "";
   const hasAccessToken = Boolean(accessToken);
@@ -635,7 +471,7 @@ async function tratarConfirmacaoDeEmail() {
       "Estamos validando o link de confirmação."
     );
 
-    const user = await obterUsuarioPorLinkConfirmacao({
+    const confirmado = await confirmarEmailPeloLink({
       codigo,
       accessToken,
       refreshToken,
@@ -643,52 +479,14 @@ async function tratarConfirmacaoDeEmail() {
       tipo
     });
 
-    if (user) {
-      const perfil = user.user_metadata?.perfil || "paciente";
-      const conviteToken =
-        tokenConvite ||
-        user.user_metadata?.convite_token ||
-        "";
-
-      const loginUrl = obterLoginUrlPorPerfil(perfil, conviteToken);
-
-      if (user.email_confirmed_at) {
-        await sincronizarConfirmacaoDeEmail(user, conviteToken);
-      }
-
-      if ((tipo === "email" || tipo === "signup" || hasAccessToken || codigo) && user.email_confirmed_at) {
-        esconderStatusSessao();
-        const confirmou = window.confirm(
-          "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
-        );
-
-        if (confirmou) {
-          window.location.href = loginUrl;
-        }
-
-        return true;
-      }
-
-      if (tipo === "email" || tipo === "signup" || hasAccessToken || codigo) {
-        esconderStatusSessao();
-        window.confirm(
-          "Não foi possível confirmar este e-mail automaticamente.\nTente novamente pelo link mais recente enviado para sua caixa de entrada."
-        );
-        return true;
-      }
-
-      if (user.email_confirmed_at && tokenHash) {
-        esconderStatusSessao();
-        const confirmou = window.confirm(
-          "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
-        );
-
-        if (confirmou) {
-          window.location.href = loginUrl;
-        }
-
-        return true;
-      }
+    if (confirmado) {
+      await supabaseClient.auth.signOut();
+      esconderStatusSessao();
+      window.confirm(
+        "E-mail confirmado.\nAgora entre com seu e-mail e senha na próxima tela."
+      );
+      window.location.href = obterLoginUrlPorPerfil(perfil, tokenConvite);
+      return true;
     }
 
     if (errorCode || errorDescription) {
@@ -704,10 +502,7 @@ async function tratarConfirmacaoDeEmail() {
         );
 
         if (confirmou) {
-          window.location.href = montarUrlComConvite(
-            criarUrlDoApp("auth/paciente-login/index.html"),
-            tokenConvite
-          );
+          window.location.href = obterLoginUrlPorPerfil(perfil, tokenConvite);
         }
 
         return true;
@@ -903,13 +698,6 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-async function checkExistingAdminSession() {
-  // Temporariamente não verificamos sessão salva ao abrir a tela principal.
-  // Isso evita erros com tokens antigos após a base de dados ter sido limpa.
-  adminSessionActive = false;
-  esconderStatusSessao();
-}
-
 async function handleAdminLogin(event) {
   event.preventDefault();
 
@@ -999,7 +787,10 @@ async function handleTestLogin(perfil) {
       throw new Error("Não foi possível entrar com a conta de teste.");
     }
 
-    const destino = await obterDestinoDashboardPorSessao(data.user);
+    const destino =
+      perfil === "profissional"
+        ? criarUrlDoApp("dashboard/profissional/index.html")
+        : criarUrlDoApp("dashboard/paciente-com-vinculo/index.html");
 
     await registrarEvento({
       evento: perfil === "paciente" ? "login_teste_paciente_sucesso" : "login_teste_profissional_sucesso",
@@ -1048,7 +839,8 @@ async function inicializarTelaPrincipal() {
   const tratouConvite = await tratarEntradaPorLinkEmail();
   if (tratouConvite) return;
 
-  await checkExistingAdminSession();
+  adminSessionActive = false;
+  esconderStatusSessao();
 }
 
 inicializarTelaPrincipal();

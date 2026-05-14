@@ -418,10 +418,3 @@ authForm.addEventListener("submit", async (event) => {
     }
   }
 });
-
-async function inicializarLogin() {
-  // Temporariamente não restauramos sessões salvas ao abrir a tela de login.
-  // Depois da limpeza da base, tokens antigos podem apontar para usuários removidos.
-}
-
-inicializarLogin();

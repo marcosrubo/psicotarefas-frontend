@@ -367,7 +367,7 @@ async function cadastrarPaciente({ nome, email, senha }) {
     query.set("convite", conviteToken);
   }
 
-  const redirectUrl = `${window.location.origin}/?${query.toString()}`;
+  const redirectUrl = `${window.location.origin}/auth/paciente-login/index.html?${query.toString()}`;
 
   const metadata = {
     nome,
@@ -473,10 +473,9 @@ authForm.addEventListener("submit", async (event) => {
       }))
     });
 
-    const sessionResult = await supabase.auth.getSession();
-    const sessionUserId = sessionResult?.data?.session?.user?.id || resultadoCadastro?.user?.id || null;
+    const sessionUserId = resultadoCadastro?.session?.user?.id || null;
 
-    if (sessionResult?.data?.session?.user?.id) {
+    if (sessionUserId) {
       await registrarAceitesDocumentos(supabase, {
         userId: sessionUserId,
         documentos: consentimentosDisponiveis.map(({ documento, versao }) => ({
