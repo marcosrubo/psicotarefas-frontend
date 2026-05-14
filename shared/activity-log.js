@@ -26,20 +26,6 @@ function obterSessaoAnonima() {
   }
 }
 
-async function inferirUsuarioAutenticado() {
-  try {
-    const {
-      data: { session },
-      error
-    } = await supabase.auth.getSession();
-
-    if (error) return null;
-    return session?.user || null;
-  } catch (error) {
-    return null;
-  }
-}
-
 export async function registrarEvento({
   evento,
   pagina = window.location.pathname,
@@ -59,14 +45,6 @@ export async function registrarEvento({
 
   let resolvedUserId = userId;
   let resolvedEmail = email;
-
-  if (perfil !== "publico" && !resolvedUserId && !resolvedEmail) {
-    const user = await inferirUsuarioAutenticado();
-    if (user) {
-      resolvedUserId = user.id || null;
-      resolvedEmail = user.email || null;
-    }
-  }
 
   const payload = {
     user_id: resolvedUserId,

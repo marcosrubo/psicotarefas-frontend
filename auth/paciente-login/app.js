@@ -635,6 +635,10 @@ async function inicializarLogin() {
   configurarTelaBase();
   await validarConvite();
   aplicarContextoConviteNaTela();
+
+  if (params.get("confirmado") === "1") {
+    mostrarMensagem("E-mail confirmado. Agora entre com seu e-mail e senha.", "success");
+  }
 }
 
 inicializarLogin();

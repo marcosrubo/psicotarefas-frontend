@@ -21,6 +21,7 @@ const PERFIL_TIMEOUT_MS = 7000;
 const TAREFA_POS_LOGIN_TIMEOUT_MS = 4500;
 
 let usuarioLiberouCampo = false;
+const params = new URLSearchParams(window.location.search);
 
 registrarAcessoPagina({
   pagina: "login_profissional",
@@ -418,3 +419,11 @@ authForm.addEventListener("submit", async (event) => {
     }
   }
 });
+
+function mostrarConfirmacaoEmailSeNecessario() {
+  if (params.get("confirmado") !== "1") return;
+
+  mostrarMensagem("E-mail confirmado. Agora entre com seu e-mail e senha.", "success");
+}
+
+mostrarConfirmacaoEmailSeNecessario();
