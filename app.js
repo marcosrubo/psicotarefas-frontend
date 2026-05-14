@@ -496,6 +496,16 @@ async function tratarConfirmacaoDeEmail() {
   const tokenHash = searchParams.get("token_hash") || searchParams.get("token") || "";
   const tokenConvite = (searchParams.get("convite") || "").trim();
   const hasAccessToken = Boolean(hashParams.get("access_token"));
+  const deveTratarConfirmacao =
+    tipo === "email" ||
+    tipo === "signup" ||
+    hasAccessToken ||
+    Boolean(tokenHash) ||
+    Boolean(errorCode || errorDescription);
+
+  if (!deveTratarConfirmacao) {
+    return false;
+  }
 
   supabaseClient = supabaseClient || createSupabaseClient();
 
@@ -754,53 +764,10 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function checkExistingAdminSession() {
-  mostrarStatusSessao(
-    "Verificando acesso...",
-    "Estamos procurando uma sessão salva neste aparelho."
-  );
-
-  supabaseClient = createSupabaseClient();
-
-  if (!supabaseClient) {
-    adminSessionActive = false;
-    esconderStatusSessao();
-    return;
-  }
-
-  try {
-    const {
-      data: { session }
-    } = await supabaseClient.auth.getSession();
-
-    if (!session?.user) {
-      adminSessionActive = false;
-      esconderStatusSessao();
-      return;
-    }
-
-    mostrarStatusSessao(
-      "Conectando...",
-      "Encontramos seu acesso salvo. Abrindo sua área."
-    );
-
-    const destino = await obterDestinoDashboardPorSessao(session.user);
-
-    if (destino) {
-      mostrarStatusSessao(
-        "Tudo certo.",
-        "Redirecionando para sua área no PsicoTarefas."
-      );
-      window.location.href = destino;
-      return;
-    }
-
-    adminSessionActive = false;
-    esconderStatusSessao();
-  } catch (error) {
-    console.error("Erro ao verificar sessão existente na tela principal:", error);
-    adminSessionActive = false;
-    esconderStatusSessao();
-  }
+  // Temporariamente não verificamos sessão salva ao abrir a tela principal.
+  // Isso evita erros com tokens antigos após a base de dados ter sido limpa.
+  adminSessionActive = false;
+  esconderStatusSessao();
 }
 
 async function handleAdminLogin(event) {

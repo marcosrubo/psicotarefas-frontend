@@ -420,19 +420,8 @@ authForm.addEventListener("submit", async (event) => {
 });
 
 async function inicializarLogin() {
-  try {
-    const {
-      data: { session }
-    } = await supabase.auth.getSession();
-
-    if (session?.user) {
-      const perfilUsuario = await buscarPerfilUsuarioComFallback(session.user);
-      const destino = await obterDestinoPorPerfil(session.user.id, perfilUsuario.perfil);
-      window.location.href = destino;
-    }
-  } catch (error) {
-    console.error("Erro ao inicializar login de profissional:", error);
-  }
+  // Temporariamente não restauramos sessões salvas ao abrir a tela de login.
+  // Depois da limpeza da base, tokens antigos podem apontar para usuários removidos.
 }
 
 inicializarLogin();

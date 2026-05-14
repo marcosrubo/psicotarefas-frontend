@@ -635,20 +635,8 @@ async function inicializarLogin() {
   configurarTelaBase();
   await validarConvite();
   aplicarContextoConviteNaTela();
-
-  try {
-    const {
-      data: { session }
-    } = await supabase.auth.getSession();
-
-    if (session?.user) {
-      const perfilUsuario = await buscarPerfilUsuario(session.user.id);
-      const destino = await obterDestinoPorPerfil(session.user.id, perfilUsuario.perfil);
-      window.location.href = destino;
-    }
-  } catch (error) {
-    console.error("Erro ao inicializar login de paciente:", error);
-  }
+  // Temporariamente não restauramos sessões salvas ao abrir a tela de login.
+  // Depois da limpeza da base, tokens antigos podem apontar para usuários removidos.
 }
 
 inicializarLogin();
