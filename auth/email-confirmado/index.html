@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>E-mail confirmado - PsicoTarefas</title>
+  <meta name="theme-color" content="#1250e6" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: linear-gradient(180deg, #eaf4ff 0%, #f6f8fc 42%, #f6f8fc 100%);
+      color: #1f2430;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 520px;
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #1f2c63;
+      font-weight: 800;
+    }
+
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(26, 86, 232, 0.14);
+    }
+
+    section {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #dfe7f4;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(41, 47, 76, 0.1);
+      padding: 28px 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0;
+      color: #667085;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    a {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 52px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .primary {
+      background: #1250e6;
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(18, 80, 230, 0.2);
+    }
+
+    .secondary {
+      border: 1px solid #dfe7f4;
+      color: #1250e6;
+      background: #f8fbff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <img src="../../assets/icons/icon-192.png" alt="" aria-hidden="true" />
+      <span>PsicoTarefas</span>
+    </div>
+
+    <section>
+      <h1>E-mail confirmado</h1>
+      <p>Agora entre com seu e-mail e senha para acessar o PsicoTarefas.</p>
+      <div class="actions">
+        <a class="primary" id="primaryLogin" href="../paciente-login/index.html">
+          Entrar
+        </a>
+        <a class="secondary" href="../../index.html">
+          Voltar para o início
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search || "");
+      var perfil = params.get("perfil") === "profissional" ? "profissional" : "paciente";
+      var convite = (params.get("convite") || "").trim();
+      var login = document.getElementById("primaryLogin");
+      var destino = perfil === "profissional"
+        ? "../profissional-login/index.html?confirmado=1"
+        : "../paciente-login/index.html?confirmado=1";
+
+      if (convite && perfil === "paciente") {
+        destino += "&convite=" + encodeURIComponent(convite);
+      }
+
+      login.href = destino;
+      login.textContent = perfil === "profissional"
+        ? "Entrar como profissional"
+        : "Entrar como paciente";
+    })();
+  </script>
+</body>
+</html>

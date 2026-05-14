@@ -459,7 +459,7 @@ async function cadastrarUsuario({ nome, email, senha, perfil }) {
     query.set("convite", conviteToken);
   }
 
-  const redirectUrl = `${window.location.origin}/auth/index.html?${query.toString()}`;
+  const redirectUrl = `${window.location.origin}/auth/email-confirmado/index.html?${query.toString()}`;
 
   const metadata = {
     nome,
@@ -639,4 +639,3 @@ async function inicializarAuth() {
 }
 
 inicializarAuth();
-

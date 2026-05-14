@@ -306,7 +306,7 @@ function montarRedirectUrlConfirmacao() {
     query.set("convite", conviteToken);
   }
 
-  return `${window.location.origin}/?${query.toString()}`;
+  return `${window.location.origin}/auth/email-confirmado/index.html?${query.toString()}`;
 }
 
 function montarRedirectUrlRecuperacaoSenha() {

@@ -367,7 +367,7 @@ async function cadastrarPaciente({ nome, email, senha }) {
     query.set("convite", conviteToken);
   }
 
-  const redirectUrl = `${window.location.origin}/auth/paciente-login/index.html?${query.toString()}`;
+  const redirectUrl = `${window.location.origin}/auth/email-confirmado/index.html?${query.toString()}`;
 
   const metadata = {
     nome,
