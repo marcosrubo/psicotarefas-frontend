@@ -10,6 +10,7 @@ const erroEmail = document.getElementById("erroEmail");
 const erroSenha = document.getElementById("erroSenha");
 
 const formMessage = document.getElementById("formMessage");
+const btnResendConfirmation = document.getElementById("btnResendConfirmation");
 const btnSubmit = document.getElementById("btnSubmit");
 
 const toggleButtons = document.querySelectorAll(".toggle-password");
@@ -93,6 +94,7 @@ function limparErros() {
   erroEmail.textContent = "";
   erroSenha.textContent = "";
   esconderMensagem();
+  esconderAcaoReenviarConfirmacao();
 }
 
 function mostrarMensagem(texto, tipo = "error") {
@@ -105,6 +107,18 @@ function esconderMensagem() {
   formMessage.hidden = true;
   formMessage.textContent = "";
   formMessage.className = "form-message";
+}
+
+function mostrarAcaoReenviarConfirmacao() {
+  if (!btnResendConfirmation) return;
+  btnResendConfirmation.hidden = false;
+}
+
+function esconderAcaoReenviarConfirmacao() {
+  if (!btnResendConfirmation) return;
+  btnResendConfirmation.hidden = true;
+  btnResendConfirmation.disabled = false;
+  btnResendConfirmation.textContent = "Reenviar e-mail de confirmação";
 }
 
 function comTempoLimite(promise, timeoutMs, mensagemErro) {
@@ -150,6 +164,12 @@ function montarRedirectUrlRecuperacaoSenha() {
   return url.href;
 }
 
+function montarRedirectUrlConfirmacao() {
+  const url = new URL("../email-confirmado/index.html", window.location.href);
+  url.searchParams.set("perfil", "profissional");
+  return url.href;
+}
+
 async function enviarRecuperacaoSenha(email) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: montarRedirectUrlRecuperacaoSenha()
@@ -157,6 +177,20 @@ async function enviarRecuperacaoSenha(email) {
 
   if (error) {
     throw new Error(error.message || "Não foi possível enviar o e-mail de recuperação.");
+  }
+}
+
+async function reenviarEmailDeConfirmacao(email) {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: montarRedirectUrlConfirmacao()
+    }
+  });
+
+  if (error) {
+    throw new Error(error.message || "Não foi possível reenviar o e-mail de confirmação.");
   }
 }
 
@@ -369,6 +403,40 @@ if (linkEsqueciSenha) {
   });
 }
 
+if (btnResendConfirmation) {
+  btnResendConfirmation.addEventListener("click", async () => {
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!email) {
+      erroEmail.textContent = "Informe seu e-mail para reenviar a confirmação.";
+      mostrarMensagem("Preencha o e-mail antes de pedir um novo link.", "error");
+      return;
+    }
+
+    if (!email.includes("@") || !email.includes(".")) {
+      erroEmail.textContent = "Informe um e-mail válido.";
+      mostrarMensagem("Revise o e-mail antes de pedir um novo link.", "error");
+      return;
+    }
+
+    btnResendConfirmation.disabled = true;
+    btnResendConfirmation.textContent = "Reenviando...";
+
+    try {
+      await reenviarEmailDeConfirmacao(email);
+      mostrarMensagem(
+        "Enviamos um novo e-mail de confirmação. Abra a mensagem mais recente para concluir seu acesso.",
+        "success"
+      );
+    } catch (erro) {
+      mostrarMensagem(erro.message || "Não foi possível reenviar a confirmação.", "error");
+    } finally {
+      btnResendConfirmation.disabled = false;
+      btnResendConfirmation.textContent = "Reenviar e-mail de confirmação";
+    }
+  });
+}
+
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -411,7 +479,13 @@ authForm.addEventListener("submit", async (event) => {
       window.location.href = DASHBOARD_PROFISSIONAL_URL;
     }, 250);
   } catch (erro) {
-    mostrarMensagem(erro.message || "Ocorreu um erro inesperado.", "error");
+    const mensagem = erro.message || "Ocorreu um erro inesperado.";
+
+    if (mensagem.toLowerCase().includes("não foi confirmado")) {
+      mostrarAcaoReenviarConfirmacao();
+    }
+
+    mostrarMensagem(mensagem, "error");
   } finally {
     if (!loginConcluido) {
       btnSubmit.disabled = false;
