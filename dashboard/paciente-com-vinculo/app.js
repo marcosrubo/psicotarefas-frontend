@@ -1,5 +1,6 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import { listarTarefasDoPaciente } from "../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const userName = document.getElementById("userName");
@@ -597,17 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function carregarTarefas() {
     if (!currentUser) return;
 
-    const { data: tarefasData, error } = await supabase
-      .from("tarefas")
-      .select("*")
-      .eq("patient_user_id", currentUser.id)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      throw new Error(`Falha ao carregar tarefas: ${error.message}`);
-    }
-
-    tasks = tarefasData || [];
+    tasks = await listarTarefasDoPaciente();
     interactionsByTask = new Map();
 
     if (selectedTaskId && !tasks.some((task) => task.id === selectedTaskId)) {

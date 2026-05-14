@@ -1,5 +1,6 @@
 import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
+import { obterTarefa } from "../../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
@@ -598,20 +599,9 @@ function normalizeParecerList(value) {
       throw new Error("Nenhuma tarefa foi informada para o parecer IA.");
     }
 
-    const { data, error } = await supabase
-      .from("tarefas")
-      .select("*")
-      .eq("id", taskId)
-      .eq("professional_user_id", currentUser.id)
-      .single();
+    currentTask = await obterTarefa(taskId);
 
-    if (error) {
-      throw new Error(`Falha ao carregar a tarefa: ${error.message}`);
-    }
-
-    currentTask = data || null;
-
-    if (!currentTask) {
+    if (!currentTask || currentTask.professional_user_id !== currentUser.id) {
       throw new Error("A tarefa selecionada nao foi encontrada.");
     }
   }

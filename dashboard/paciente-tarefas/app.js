@@ -1,5 +1,6 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import { obterTarefa } from "../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
@@ -401,14 +402,9 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error("Nenhuma atividade foi informada.");
     }
 
-    const { data, error } = await supabase
-      .from("tarefas")
-      .select("*")
-      .eq("id", taskId)
-      .eq("patient_user_id", currentUser.id)
-      .single();
+    const data = await obterTarefa(taskId);
 
-    if (error || !data) {
+    if (!data || data.patient_user_id !== currentUser.id) {
       throw new Error("Não foi possível localizar esta atividade.");
     }
 

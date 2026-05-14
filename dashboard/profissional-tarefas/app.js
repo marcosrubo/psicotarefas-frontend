@@ -1,5 +1,10 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import {
+  atualizarTarefa,
+  criarTarefa,
+  listarTarefasDoProfissional
+} from "../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const professionalLine = document.getElementById("professionalLine");
@@ -1421,17 +1426,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarTarefas() {
-    const { data: tarefasData, error } = await supabase
-      .from("tarefas")
-      .select("*")
-      .eq("professional_user_id", currentUser.id)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      throw new Error(`Falha ao carregar tarefas: ${error.message}`);
-    }
-
-    tasks = tarefasData || [];
+    tasks = await listarTarefasDoProfissional();
     interactionsByTask = new Map();
 
     const taskIds = tasks.map((task) => task.id);
@@ -1832,13 +1827,9 @@ document.addEventListener("DOMContentLoaded", () => {
         payload.pdf_nome = linkedPdf.pdfName || null;
       }
 
-      const { data: novaTarefa, error } = await supabase
-        .from("tarefas")
-        .insert(payload)
-        .select()
-        .single();
+      const novaTarefa = await criarTarefa(payload);
 
-      if (error || !novaTarefa) {
+      if (!novaTarefa) {
         throw new Error("Não foi possível criar a tarefa.");
       }
 
@@ -1914,20 +1905,12 @@ document.addEventListener("DOMContentLoaded", () => {
     setTaskFormMessage();
 
     try {
-      const { error } = await supabase
-        .from("tarefas")
-        .update({
-          titulo,
-          descricao,
-          interacao_paciente_tipo: interacaoTipo,
-          interacao_paciente_limite: interacaoLimite
-        })
-        .eq("id", task.id)
-        .eq("professional_user_id", currentUser.id);
-
-      if (error) {
-        throw new Error(`Não foi possível alterar a tarefa: ${error.message}`);
-      }
+      await atualizarTarefa(task.id, {
+        titulo,
+        descricao,
+        interacao_paciente_tipo: interacaoTipo,
+        interacao_paciente_limite: interacaoLimite
+      });
 
       await carregarTarefas();
       renderAll();

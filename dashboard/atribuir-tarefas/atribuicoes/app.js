@@ -1,5 +1,6 @@
 import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
+import { listarTarefasDoProfissional } from "../../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
@@ -571,18 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarTarefas() {
-    const { data, error } = await supabase
-      .from("tarefas")
-      .select("*")
-      .eq("professional_user_id", currentUser.id)
-      .eq("patient_user_id", initialPatientId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      throw new Error(`Falha ao carregar tarefas: ${error.message}`);
-    }
-
-    tasks = data || [];
+    tasks = await listarTarefasDoProfissional({ patientUserId: initialPatientId });
   }
 
   async function carregarTarefasAteEncontrarNova() {

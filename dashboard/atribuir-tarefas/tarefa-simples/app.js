@@ -1,5 +1,6 @@
 import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
+import { criarTarefa } from "../../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -299,14 +300,10 @@ document.addEventListener("DOMContentLoaded", () => {
         interacao_paciente_limite: interactionLimit
       };
 
-      const { data: novaTarefa, error } = await supabase
-        .from("tarefas")
-        .insert(payload)
-        .select()
-        .single();
+      const novaTarefa = await criarTarefa(payload);
 
-      if (error || !novaTarefa) {
-        throw new Error(error?.message || "Não foi possível criar a tarefa.");
+      if (!novaTarefa) {
+        throw new Error("Não foi possível criar a tarefa.");
       }
 
       await registrarEvento({
