@@ -1,6 +1,6 @@
-import supabase from "../../shared/supabase.js";
+import supabase from "../../shared/supabase.js?v=20260514-sem-auto-detect";
 import { processarAceitesPendentesNoLogin } from "../../shared/legal-documents.js";
-import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js?v=20260514-sem-auto-detect";
 
 const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();

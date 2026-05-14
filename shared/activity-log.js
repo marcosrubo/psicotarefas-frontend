@@ -1,4 +1,4 @@
-import supabase from "./supabase.js";
+import supabase from "./supabase.js?v=20260514-sem-auto-detect";
 
 const ANON_SESSION_STORAGE_KEY = "psicotarefas_anon_session_id";
 
@@ -60,7 +60,7 @@ export async function registrarEvento({
   let resolvedUserId = userId;
   let resolvedEmail = email;
 
-  if (!resolvedUserId && !resolvedEmail) {
+  if (perfil !== "publico" && !resolvedUserId && !resolvedEmail) {
     const user = await inferirUsuarioAutenticado();
     if (user) {
       resolvedUserId = user.id || null;

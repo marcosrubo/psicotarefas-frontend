@@ -1,5 +1,5 @@
-import supabase from "../../shared/supabase.js";
-import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import supabase from "../../shared/supabase.js?v=20260514-sem-auto-detect";
+import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js?v=20260514-sem-auto-detect";
 import {
   carregarDocumentosPublicados,
   guardarAceitesPendentes,

@@ -1,4 +1,4 @@
-import { registrarAcessoPagina, registrarEvento } from "./shared/activity-log.js";
+import { registrarAcessoPagina, registrarEvento } from "./shared/activity-log.js?v=20260514-sem-auto-detect";
 
 const SUPABASE_URL = "https://haawjoesqdlccertgpqi.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsWcsI7pnPuUdW5Wz15YRQ_NbtgGABm";
