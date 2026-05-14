@@ -179,6 +179,29 @@
           </div>
         </section>
 
+        <section class="form-section payment-reminder-section">
+          <div class="form-section__header">
+            <h3>Lembrete de Pagamento</h3>
+          </div>
+
+          <label class="field payment-reminder-field" for="paymentReminderDay">
+            <span class="field__label">Paciente paga mensalmente e deseja ser lembrado dia:</span>
+            <input
+              class="field__input"
+              id="paymentReminderDay"
+              type="number"
+              min="0"
+              max="31"
+              inputmode="numeric"
+              value="0"
+            />
+          </label>
+
+          <p class="payment-reminder-section__note" id="paymentReminderPlanNote">
+            Use 0 para não enviar lembrete. Dias 1 a 31 enviam o aviso às 8h; se o mês não tiver o dia escolhido, o aviso será enviado no dia 01 do mês seguinte.
+          </p>
+        </section>
+
         <div class="screen-message" id="formMessage" hidden></div>
 
         <div class="form-actions">
@@ -249,6 +272,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../../../shared/professional-plan-label.js?v=20260508-2"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=20260513-payment-reminder"></script>
 </body>
 </html>

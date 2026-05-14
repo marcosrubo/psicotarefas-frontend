@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const firstReminder = document.getElementById("firstReminder");
   const secondReminder = document.getElementById("secondReminder");
   const professionalReminder = document.getElementById("professionalReminder");
+  const paymentReminderDay = document.getElementById("paymentReminderDay");
+  const paymentReminderPlanNote = document.getElementById("paymentReminderPlanNote");
   const btnSave = document.getElementById("btnSave");
   const btnBottomMenu = document.getElementById("btnBottomMenu");
   const bottomMenuPanel = document.getElementById("bottomMenuPanel");
@@ -106,7 +108,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function aplicarRegrasDoPlano() {
-    if (!firstReminder || !secondReminder || !professionalReminder) return;
+    if (!firstReminder || !secondReminder || !professionalReminder || !paymentReminderDay) return;
+
+    if (currentProfessionalPlan === "gratuito") {
+      paymentReminderDay.value = "0";
+      paymentReminderDay.disabled = true;
+      if (paymentReminderPlanNote) {
+        paymentReminderPlanNote.textContent =
+          "Disponível nos planos Standard e PRO. No plano Gratuito, o padrão é 0 e nenhum lembrete de pagamento é enviado.";
+      }
+    } else {
+      paymentReminderDay.disabled = false;
+      if (paymentReminderPlanNote) {
+        paymentReminderPlanNote.textContent =
+          "Use 0 para não enviar lembrete. Dias 1 a 31 enviam o aviso às 8h; se o mês não tiver o dia escolhido, o aviso será enviado no dia 01 do mês seguinte.";
+      }
+    }
 
     if (currentProfessionalPlan === "pro") {
       firstReminder.disabled = false;
@@ -228,7 +245,8 @@ document.addEventListener("DOMContentLoaded", () => {
         horario_sessao,
         primeiro_aviso_horas_antes,
         segundo_aviso_horas_antes,
-        aviso_profissional_horas_antes
+        aviso_profissional_horas_antes,
+        aviso_pagamento_dia
       `)
       .eq("id", vinculoId)
       .eq("professional_user_id", currentUser.id)
@@ -276,6 +294,10 @@ document.addEventListener("DOMContentLoaded", () => {
       data.aviso_profissional_horas_antes === null || data.aviso_profissional_horas_antes === undefined
         ? "0"
         : String(data.aviso_profissional_horas_antes);
+    paymentReminderDay.value =
+      data.aviso_pagamento_dia === null || data.aviso_pagamento_dia === undefined
+        ? "0"
+        : String(data.aviso_pagamento_dia);
 
     aplicarRegrasDoPlano();
   }
@@ -314,6 +336,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const primeiroAviso = parseNullableInt(firstReminder.value);
     const segundoAviso = parseNullableInt(secondReminder.value);
     const avisoProfissional = parseNullableInt(professionalReminder.value);
+    let avisoPagamentoDia = parseNullableInt(paymentReminderDay.value);
+
+    if (avisoPagamentoDia === null) {
+      avisoPagamentoDia = 0;
+    }
 
     if (!alias) {
       setFormMessage("Digite um apelido válido para o paciente.");
@@ -357,9 +384,22 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (Number.isNaN(avisoPagamentoDia) || avisoPagamentoDia < 0 || avisoPagamentoDia > 31) {
+      setFormMessage("Informe um dia de lembrete de pagamento entre 0 e 31.");
+      paymentReminderDay.focus();
+      return;
+    }
+
     if (currentProfessionalPlan === "gratuito" && primeiroAviso !== 0) {
       setFormMessage("Somente clientes Standard ou PRO podem ativar o 1o aviso.");
       firstReminder.focus();
+      return;
+    }
+
+    if (currentProfessionalPlan === "gratuito" && avisoPagamentoDia !== 0) {
+      setFormMessage("Somente clientes Standard ou PRO podem ativar o aviso de pagamento.");
+      paymentReminderDay.value = "0";
+      paymentReminderDay.focus();
       return;
     }
 
@@ -431,7 +471,8 @@ document.addEventListener("DOMContentLoaded", () => {
         horario_sessao: normalizedSessionTime || null,
         primeiro_aviso_horas_antes: primeiroAviso ?? 0,
         segundo_aviso_horas_antes: segundoAviso ?? 0,
-        aviso_profissional_horas_antes: avisoProfissional ?? 0
+        aviso_profissional_horas_antes: avisoProfissional ?? 0,
+        aviso_pagamento_dia: avisoPagamentoDia
       };
 
       const { error } = await supabase
@@ -459,7 +500,8 @@ document.addEventListener("DOMContentLoaded", () => {
           possui_horario_sessao: Boolean(payload.horario_sessao),
           primeiro_aviso_horas_antes: payload.primeiro_aviso_horas_antes,
           segundo_aviso_horas_antes: payload.segundo_aviso_horas_antes,
-          aviso_profissional_horas_antes: payload.aviso_profissional_horas_antes
+          aviso_profissional_horas_antes: payload.aviso_profissional_horas_antes,
+          aviso_pagamento_dia: payload.aviso_pagamento_dia
         }
       });
 
