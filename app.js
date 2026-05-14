@@ -4,6 +4,7 @@ const SUPABASE_URL = "https://haawjoesqdlccertgpqi.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsWcsI7pnPuUdW5Wz15YRQ_NbtgGABm";
 const ADMIN_EMAIL = "marcos@rubo.com.br";
 const ADMIN_DASHBOARD_URL = criarUrlDoApp("dashboard/admin/index.html");
+const AUTH_LINK_TIMEOUT_MS = 12000;
 
 let deferredPrompt = null;
 let supabaseClient = null;
@@ -57,7 +58,7 @@ function createSupabaseClient() {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: false
     }
   });
 }
@@ -145,6 +146,20 @@ function mostrarStatusSessao(titulo, texto) {
 function esconderStatusSessao() {
   if (!sessionStatus) return;
   sessionStatus.hidden = true;
+}
+
+function comTempoLimite(promise, timeoutMs, mensagemErro) {
+  let timeoutId;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      reject(new Error(mensagemErro));
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    window.clearTimeout(timeoutId);
+  });
 }
 
 async function atualizarConfirmacaoEmailNoPerfil(userId, confirmedAtIso) {
@@ -246,6 +261,100 @@ async function sincronizarConfirmacaoDeEmail(user, conviteToken = "") {
     patientEmail: user.email || "",
     confirmedAtIso: user.email_confirmed_at
   });
+}
+
+function obterTiposOtpConfirmacao(tipo) {
+  if (tipo === "signup" || tipo === "email") {
+    return [tipo];
+  }
+
+  return ["signup", "email"];
+}
+
+async function obterUsuarioPorLinkConfirmacao({
+  codigo,
+  accessToken,
+  refreshToken,
+  tokenHash,
+  tipo
+}) {
+  if (accessToken && refreshToken) {
+    try {
+      const { data, error } = await comTempoLimite(
+        supabaseClient.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        }),
+        AUTH_LINK_TIMEOUT_MS,
+        "A confirmação demorou mais que o esperado."
+      );
+
+      if (!error && data?.session?.user) {
+        return data.session.user;
+      }
+
+      if (error) {
+        console.warn("Falha ao restaurar sessão do link de confirmação:", error);
+      }
+    } catch (error) {
+      console.warn("Falha ao processar sessão do link de confirmação:", error);
+    }
+  }
+
+  if (codigo) {
+    try {
+      const { data, error } = await comTempoLimite(
+        supabaseClient.auth.exchangeCodeForSession(codigo),
+        AUTH_LINK_TIMEOUT_MS,
+        "A confirmação demorou mais que o esperado."
+      );
+
+      if (!error && data?.session?.user) {
+        return data.session.user;
+      }
+
+      if (error) {
+        console.warn("Falha ao trocar código de confirmação por sessão:", error);
+      }
+    } catch (error) {
+      console.warn("Falha ao processar código de confirmação:", error);
+    }
+  }
+
+  if (tokenHash) {
+    for (const otpType of obterTiposOtpConfirmacao(tipo)) {
+      try {
+        const { data, error } = await comTempoLimite(
+          supabaseClient.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: otpType
+          }),
+          AUTH_LINK_TIMEOUT_MS,
+          "A confirmação demorou mais que o esperado."
+        );
+
+        if (!error && data?.user) {
+          return data.user;
+        }
+
+        if (error) {
+          console.warn(`Falha ao validar token de confirmação (${otpType}):`, error);
+        }
+      } catch (error) {
+        console.warn(`Falha ao processar token de confirmação (${otpType}):`, error);
+      }
+    }
+  }
+
+  const {
+    data: { user }
+  } = await comTempoLimite(
+    supabaseClient.auth.getUser(),
+    AUTH_LINK_TIMEOUT_MS,
+    "A busca do usuário confirmado demorou mais que o esperado."
+  );
+
+  return user || null;
 }
 
 async function buscarConvitePublico(token) {
@@ -493,12 +602,19 @@ async function tratarConfirmacaoDeEmail() {
     searchParams.get("error_description") ||
     "";
 
-  const tokenHash = searchParams.get("token_hash") || searchParams.get("token") || "";
+  const codigo = searchParams.get("code") || "";
+  const tokenHash =
+    searchParams.get("token_hash") ||
+    ((tipo === "email" || tipo === "signup") ? searchParams.get("token") : "") ||
+    "";
   const tokenConvite = (searchParams.get("convite") || "").trim();
-  const hasAccessToken = Boolean(hashParams.get("access_token"));
+  const accessToken = hashParams.get("access_token") || "";
+  const refreshToken = hashParams.get("refresh_token") || "";
+  const hasAccessToken = Boolean(accessToken);
   const deveTratarConfirmacao =
     tipo === "email" ||
     tipo === "signup" ||
+    Boolean(codigo) ||
     hasAccessToken ||
     Boolean(tokenHash) ||
     Boolean(errorCode || errorDescription);
@@ -514,9 +630,18 @@ async function tratarConfirmacaoDeEmail() {
   }
 
   try {
-    const {
-      data: { user }
-    } = await supabaseClient.auth.getUser();
+    mostrarStatusSessao(
+      "Confirmando e-mail...",
+      "Estamos validando o link de confirmação."
+    );
+
+    const user = await obterUsuarioPorLinkConfirmacao({
+      codigo,
+      accessToken,
+      refreshToken,
+      tokenHash,
+      tipo
+    });
 
     if (user) {
       const perfil = user.user_metadata?.perfil || "paciente";
@@ -531,7 +656,8 @@ async function tratarConfirmacaoDeEmail() {
         await sincronizarConfirmacaoDeEmail(user, conviteToken);
       }
 
-      if ((tipo === "email" || tipo === "signup" || hasAccessToken) && user.email_confirmed_at) {
+      if ((tipo === "email" || tipo === "signup" || hasAccessToken || codigo) && user.email_confirmed_at) {
+        esconderStatusSessao();
         const confirmou = window.confirm(
           "Obrigado por confirmar o seu e-mail.\nAgora faça o acesso com seu e-mail e senha na próxima tela."
         );
@@ -543,7 +669,8 @@ async function tratarConfirmacaoDeEmail() {
         return true;
       }
 
-      if (tipo === "email" || tipo === "signup" || hasAccessToken) {
+      if (tipo === "email" || tipo === "signup" || hasAccessToken || codigo) {
+        esconderStatusSessao();
         window.confirm(
           "Não foi possível confirmar este e-mail automaticamente.\nTente novamente pelo link mais recente enviado para sua caixa de entrada."
         );
@@ -551,6 +678,7 @@ async function tratarConfirmacaoDeEmail() {
       }
 
       if (user.email_confirmed_at && tokenHash) {
+        esconderStatusSessao();
         const confirmou = window.confirm(
           "Esse E-mail já foi confirmado anteriormente.\nBasta acessar o sistema na próxima tela."
         );
@@ -564,6 +692,7 @@ async function tratarConfirmacaoDeEmail() {
     }
 
     if (errorCode || errorDescription) {
+      esconderStatusSessao();
       const textoErro = `${errorCode} ${errorDescription}`.toLowerCase();
 
       if (
@@ -597,6 +726,7 @@ async function tratarConfirmacaoDeEmail() {
     }
 
     if ((tipo === "email" || tipo === "signup") && tokenHash) {
+      esconderStatusSessao();
       window.confirm(
         "Não foi possível confirmar este e-mail automaticamente.\nTente abrir novamente o link mais recente enviado para sua caixa de entrada."
       );
@@ -604,11 +734,21 @@ async function tratarConfirmacaoDeEmail() {
       return true;
     }
 
+    if (tipo === "email" || tipo === "signup" || hasAccessToken || codigo || tokenHash) {
+      esconderStatusSessao();
+      window.confirm(
+        "Não foi possível confirmar este e-mail automaticamente.\nTente abrir novamente o link mais recente enviado para sua caixa de entrada."
+      );
+      return true;
+    }
+
+    esconderStatusSessao();
     return false;
   } catch (erro) {
     console.error("Erro ao tratar confirmação de e-mail:", erro);
+    esconderStatusSessao();
 
-    if ((tipo === "email" || tipo === "signup") && tokenHash) {
+    if ((tipo === "email" || tipo === "signup") && (tokenHash || codigo)) {
       window.confirm(
         "Não foi possível concluir a confirmação do e-mail agora.\nTente novamente pelo link mais recente enviado para sua caixa de entrada."
       );
