@@ -1134,7 +1134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await carregarProfissionalVinculado();
     await carregarTarefas();
     renderAll();
-    mostrarCaixaDepuracao("Entrando paciente com vínculo");
+    mostrarCaixaDepuracao("Entrando na tela do paciente com vínculo");
   }
 
   document.addEventListener("visibilitychange", () => {
