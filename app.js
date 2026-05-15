@@ -35,13 +35,15 @@ registrarAcessoPagina({
   perfil: "publico"
 });
 
-mostrarCaixaDepuracao(`Entrando no PsicoTarefas - ${obterOrigemDepuracaoEntrada()}`);
+if (!veioDaConfirmacaoEmail()) {
+  mostrarCaixaDepuracao(`Entrando no PsicoTarefas - ${obterOrigemDepuracaoEntrada()}`);
+}
 
 // ============================
 // HELPERS
 // ============================
 
-function mostrarCaixaDepuracao(texto) {
+function mostrarCaixaDepuracao(texto, aoConfirmar = null) {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
   overlay.style.inset = "0";
@@ -66,9 +68,11 @@ function mostrarCaixaDepuracao(texto) {
 
   const title = document.createElement("h2");
   title.textContent = texto;
+  title.style.whiteSpace = "pre-line";
+  title.style.wordBreak = "break-word";
   title.style.margin = "0";
-  title.style.fontSize = "24px";
-  title.style.lineHeight = "1.15";
+  title.style.fontSize = "20px";
+  title.style.lineHeight = "1.3";
   title.style.color = "#1f2430";
 
   const button = document.createElement("button");
@@ -82,7 +86,12 @@ function mostrarCaixaDepuracao(texto) {
   button.style.font = "inherit";
   button.style.fontWeight = "800";
   button.style.cursor = "pointer";
-  button.addEventListener("click", () => overlay.remove());
+  button.addEventListener("click", () => {
+    overlay.remove();
+    if (typeof aoConfirmar === "function") {
+      aoConfirmar();
+    }
+  });
 
   dialog.append(title, button);
   overlay.append(dialog);
@@ -431,12 +440,30 @@ function tratarConfirmacaoDeEmail() {
       textoErro.includes("expired") ||
       textoErro.includes("invalid")
     ) {
-      window.location.replace(obterLoginUrlPorPerfil(perfil, tokenConvite));
+      const destino = obterLoginUrlPorPerfil(perfil, tokenConvite);
+
+      mostrarCaixaDepuracao(
+        `Entrando no PsicoTarefas - vindo da confirmação do email\n` +
+          `URL atual: ${window.location.href}\n` +
+          `Destino: ${destino}`,
+        () => {
+          window.location.replace(destino);
+        }
+      );
       return true;
     }
   }
 
-  window.location.replace(montarUrlLoginConfirmado(perfil, tokenConvite));
+  const destino = montarUrlLoginConfirmado(perfil, tokenConvite);
+
+  mostrarCaixaDepuracao(
+    `Entrando no PsicoTarefas - vindo da confirmação do email\n` +
+      `URL atual: ${window.location.href}\n` +
+      `Destino: ${destino}`,
+    () => {
+      window.location.replace(destino);
+    }
+  );
   return true;
 }
 
