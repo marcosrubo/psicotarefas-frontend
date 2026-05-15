@@ -225,6 +225,27 @@
         }
       }
 
+      function linkConfirmacaoJaFoiUsado() {
+        var erro = [
+          params.get("error"),
+          params.get("error_code"),
+          params.get("error_description"),
+          hashParams.get("error"),
+          hashParams.get("error_code"),
+          hashParams.get("error_description")
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return (
+          erro.indexOf("expired") >= 0 ||
+          erro.indexOf("invalid") >= 0 ||
+          erro.indexOf("otp_expired") >= 0 ||
+          erro.indexOf("access_denied") >= 0
+        );
+      }
+
       var params = new URLSearchParams(window.location.search || "");
       var hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
       var perfilParam = params.get("perfil") || hashParams.get("perfil") || "";
@@ -235,6 +256,7 @@
         obterEmailDoAccessToken(hashParams.get("access_token") || "")
       ).trim();
       var code = (params.get("code") || hashParams.get("code") || "").trim();
+      var jaConfirmado = linkConfirmacaoJaFoiUsado();
 
       if (!email) {
         email = await obterEmailPorCodigo(code);
@@ -254,6 +276,10 @@
         ? "../profissional-login/index.html?confirmado=1"
         : "../paciente-login/index.html?confirmado=1";
 
+      if (jaConfirmado) {
+        destino += "&ja_confirmado=1";
+      }
+
       if (convite && perfil === "paciente") {
         destino += "&convite=" + encodeURIComponent(convite);
       }
@@ -271,6 +297,9 @@
         : "Entrar como paciente";
 
       var confirmOk = document.getElementById("confirmOk");
+      document.getElementById("confirmationTitle").textContent = jaConfirmado
+        ? "Este e-mail já foi confirmado."
+        : "Obrigado por confirmar seu E-mail.";
       confirmOk.disabled = false;
       confirmOk.textContent = "OK";
       confirmOk.addEventListener("click", function () {

@@ -87,6 +87,29 @@ function obterEmailDoAccessToken(token) {
   }
 }
 
+function linkConfirmacaoJaFoiUsado() {
+  const erro = [
+    params.get("error"),
+    params.get("error_code"),
+    params.get("error_description"),
+    hashParams.get("error"),
+    hashParams.get("error_code"),
+    hashParams.get("error_description")
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    params.get("ja_confirmado") === "1" ||
+    hashParams.get("ja_confirmado") === "1" ||
+    erro.includes("expired") ||
+    erro.includes("invalid") ||
+    erro.includes("otp_expired") ||
+    erro.includes("access_denied")
+  );
+}
+
 async function obterEmailPorCodigoConfirmacao() {
   const code = (params.get("code") || hashParams.get("code") || "").trim();
 
@@ -96,6 +119,17 @@ async function obterEmailPorCodigoConfirmacao() {
     const result = await supabase.auth.exchangeCodeForSession(code);
     const user = result?.data?.user || result?.data?.session?.user || null;
     return String(user?.email || "").trim().toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+async function obterEmailPeloConvite(token) {
+  if (!token) return "";
+
+  try {
+    const convite = await buscarConvitePublico(token);
+    return String(convite?.patient_email || convite?.email || "").trim().toLowerCase();
   } catch {
     return "";
   }
@@ -149,7 +183,7 @@ function aplicarEmailConfirmadoNaTela(email) {
   }
 }
 
-function mostrarCaixaConfirmacaoEmail() {
+function mostrarCaixaConfirmacaoEmail({ jaConfirmado = false } = {}) {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
   overlay.style.inset = "0";
@@ -173,14 +207,16 @@ function mostrarCaixaConfirmacaoEmail() {
   dialog.style.textAlign = "center";
 
   const title = document.createElement("h2");
-  title.textContent = "Obrigado por confirmar seu E-mail.";
+  title.textContent = jaConfirmado
+    ? "Este e-mail já foi confirmado."
+    : "Obrigado por confirmar seu E-mail.";
   title.style.margin = "0";
   title.style.fontSize = "24px";
   title.style.lineHeight = "1.15";
   title.style.color = "#1f2430";
 
   const text = document.createElement("p");
-  text.textContent = "Agora digite sua senha para entrar.";
+  text.textContent = "Agora digite somente sua senha para entrar.";
   text.style.margin = "0";
   text.style.color = "#667085";
   text.style.fontSize = "16px";
@@ -934,7 +970,10 @@ async function inicializarLogin() {
     guardarEmailConfirmadoParaLogin(emailParaPreencher);
   }
 
-  aplicarEmailConfirmadoNaTela(emailParaPreencher);
+  if (!emailParaPreencher) {
+    emailParaPreencher = await obterEmailPeloConvite(conviteToken);
+    guardarEmailConfirmadoParaLogin(emailParaPreencher);
+  }
 
   const temSinalConfirmacao =
     veioDeConfirmacaoEmail() ||
@@ -944,10 +983,15 @@ async function inicializarLogin() {
     hashParams.get("type") === "signup" ||
     hashParams.get("type") === "email" ||
     Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
-    Boolean(hashParams.get("access_token"));
+    Boolean(hashParams.get("access_token")) ||
+    linkConfirmacaoJaFoiUsado();
+
+  aplicarEmailConfirmadoNaTela(emailParaPreencher);
 
   if (temSinalConfirmacao) {
-    mostrarCaixaConfirmacaoEmail();
+    mostrarCaixaConfirmacaoEmail({
+      jaConfirmado: linkConfirmacaoJaFoiUsado()
+    });
   }
 
   try {
