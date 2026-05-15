@@ -36,7 +36,13 @@ let conviteBloqueado = false;
 let usuarioLiberouCampo = false;
 
 function obterEmailConfirmado() {
-  const emailDaUrl = (params.get("email") || hashParams.get("email") || "").trim().toLowerCase();
+  const emailDaUrl = (
+    params.get("email") ||
+    hashParams.get("email") ||
+    obterEmailDoAccessToken(hashParams.get("access_token") || "")
+  )
+    .trim()
+    .toLowerCase();
 
   if (emailDaUrl) return emailDaUrl;
 
@@ -54,6 +60,27 @@ function obterEmailConfirmado() {
     return (
       window.localStorage.getItem("psicotarefas_email_confirmacao_pendente") || ""
     ).trim().toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function decodeBase64Url(value) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = normalized.length % 4;
+  const padded = padding ? normalized + "=".repeat(4 - padding) : normalized;
+
+  return window.atob(padded);
+}
+
+function obterEmailDoAccessToken(token) {
+  try {
+    const payload = token.split(".")[1] || "";
+
+    if (!payload) return "";
+
+    const dados = JSON.parse(decodeBase64Url(payload));
+    return String(dados.email || "");
   } catch {
     return "";
   }
@@ -93,6 +120,66 @@ function aplicarEmailConfirmadoNaTela(email) {
   if (senhaInput) {
     senhaInput.focus();
   }
+}
+
+function mostrarCaixaConfirmacaoEmail() {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.inset = "0";
+  overlay.style.zIndex = "1000";
+  overlay.style.display = "grid";
+  overlay.style.placeItems = "center";
+  overlay.style.padding = "20px";
+  overlay.style.background = "rgba(31, 36, 48, 0.36)";
+
+  const dialog = document.createElement("div");
+  dialog.setAttribute("role", "dialog");
+  dialog.setAttribute("aria-modal", "true");
+  dialog.style.width = "100%";
+  dialog.style.maxWidth = "420px";
+  dialog.style.display = "grid";
+  dialog.style.gap = "14px";
+  dialog.style.padding = "24px 20px";
+  dialog.style.borderRadius = "18px";
+  dialog.style.background = "#fff";
+  dialog.style.boxShadow = "0 18px 42px rgba(31, 36, 48, 0.18)";
+  dialog.style.textAlign = "center";
+
+  const title = document.createElement("h2");
+  title.textContent = "Obrigado por confirmar seu E-mail.";
+  title.style.margin = "0";
+  title.style.fontSize = "24px";
+  title.style.lineHeight = "1.15";
+  title.style.color = "#1f2430";
+
+  const text = document.createElement("p");
+  text.textContent = "Agora digite sua senha para entrar.";
+  text.style.margin = "0";
+  text.style.color = "#667085";
+  text.style.fontSize = "16px";
+  text.style.lineHeight = "1.45";
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = "OK";
+  button.style.minHeight = "50px";
+  button.style.border = "none";
+  button.style.borderRadius = "14px";
+  button.style.background = "#1250e6";
+  button.style.color = "#fff";
+  button.style.font = "inherit";
+  button.style.fontWeight = "800";
+  button.style.cursor = "pointer";
+
+  button.addEventListener("click", () => {
+    overlay.remove();
+    if (senhaInput) senhaInput.focus();
+  });
+
+  dialog.append(title, text, button);
+  overlay.append(dialog);
+  document.body.append(overlay);
+  button.focus();
 }
 
 function obterConvitePendenteSalvo(email) {
@@ -832,7 +919,7 @@ async function inicializarLogin() {
     Boolean(hashParams.get("access_token"));
 
   if (temSinalConfirmacao) {
-    mostrarMensagem("Obrigado por confirmar seu e-mail. Agora digite sua senha para entrar.", "success");
+    mostrarCaixaConfirmacaoEmail();
   }
 }
 

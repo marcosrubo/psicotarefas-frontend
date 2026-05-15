@@ -67,6 +67,28 @@
       gap: 16px;
     }
 
+    .confirmation-box {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(31, 36, 48, 0.36);
+    }
+
+    .confirmation-box__dialog {
+      width: 100%;
+      max-width: 420px;
+      display: grid;
+      gap: 14px;
+      padding: 24px 20px;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 18px 42px rgba(31, 36, 48, 0.18);
+      text-align: center;
+    }
+
     h1 {
       margin: 0;
       font-size: 28px;
@@ -86,7 +108,8 @@
       margin-top: 4px;
     }
 
-    a {
+    a,
+    button {
       display: inline-flex;
       justify-content: center;
       align-items: center;
@@ -95,12 +118,16 @@
       border-radius: 14px;
       font-weight: 800;
       text-decoration: none;
+      font: inherit;
     }
 
-    .primary {
+    .primary,
+    button.primary {
+      border: none;
       background: #1250e6;
       color: #fff;
       box-shadow: 0 10px 22px rgba(18, 80, 230, 0.2);
+      cursor: pointer;
     }
 
     .secondary {
@@ -131,13 +158,49 @@
     </section>
   </main>
 
+  <div class="confirmation-box" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle">
+    <div class="confirmation-box__dialog">
+      <h1 id="confirmationTitle">Obrigado por confirmar seu E-mail.</h1>
+      <p>Toque em OK para entrar no PsicoTarefas.</p>
+      <button class="primary" id="confirmOk" type="button">OK</button>
+    </div>
+  </div>
+
   <script>
     (function () {
+      function decodeBase64Url(value) {
+        var normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+        var padding = normalized.length % 4;
+
+        if (padding) {
+          normalized += "=".repeat(4 - padding);
+        }
+
+        return atob(normalized);
+      }
+
+      function obterEmailDoAccessToken(token) {
+        try {
+          var payload = token.split(".")[1] || "";
+
+          if (!payload) return "";
+
+          var json = JSON.parse(decodeBase64Url(payload));
+          return String(json.email || "").trim();
+        } catch (error) {
+          return "";
+        }
+      }
+
       var params = new URLSearchParams(window.location.search || "");
       var hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
       var perfilParam = params.get("perfil") || hashParams.get("perfil") || "";
       var convite = (params.get("convite") || hashParams.get("convite") || "").trim();
-      var email = (params.get("email") || hashParams.get("email") || "").trim();
+      var email = (
+        params.get("email") ||
+        hashParams.get("email") ||
+        obterEmailDoAccessToken(hashParams.get("access_token") || "")
+      ).trim();
 
       if (!email) {
         try {
@@ -175,6 +238,10 @@
       login.textContent = perfil === "profissional"
         ? "Entrar como profissional"
         : "Entrar como paciente";
+
+      document.getElementById("confirmOk").addEventListener("click", function () {
+        window.location.href = destino;
+      });
     })();
   </script>
 </body>
