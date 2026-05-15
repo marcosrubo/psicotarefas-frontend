@@ -161,6 +161,16 @@
         destino += "&email=" + encodeURIComponent(email);
       }
 
+      try {
+        window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
+
+        if (email) {
+          window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email);
+        }
+      } catch (error) {
+        // Se o navegador bloquear sessionStorage, o login ainda recebe os dados pela URL.
+      }
+
       login.href = destino;
       login.textContent = perfil === "profissional"
         ? "Entrar como profissional"

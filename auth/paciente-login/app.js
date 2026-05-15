@@ -41,6 +41,16 @@ function obterEmailConfirmado() {
   if (emailDaUrl) return emailDaUrl;
 
   try {
+    const emailDaSessao = (
+      window.sessionStorage.getItem("psicotarefas_email_confirmado_valor") || ""
+    ).trim().toLowerCase();
+
+    if (emailDaSessao) return emailDaSessao;
+  } catch {
+    // Sem sessionStorage, tenta o armazenamento persistente abaixo.
+  }
+
+  try {
     return (
       window.localStorage.getItem("psicotarefas_email_confirmacao_pendente") || ""
     ).trim().toLowerCase();
@@ -52,8 +62,36 @@ function obterEmailConfirmado() {
 function removerEmailConfirmacaoPendente() {
   try {
     window.localStorage.removeItem("psicotarefas_email_confirmacao_pendente");
+    window.sessionStorage.removeItem("psicotarefas_email_confirmado_valor");
+    window.sessionStorage.removeItem("psicotarefas_email_confirmado_recentemente");
   } catch {
     // Nada a remover quando o armazenamento local não está disponível.
+  }
+}
+
+function veioDeConfirmacaoEmail() {
+  try {
+    if (window.sessionStorage.getItem("psicotarefas_email_confirmado_recentemente") === "1") {
+      return true;
+    }
+  } catch {
+    // Sem sessionStorage, usa somente os sinais da URL.
+  }
+
+  return false;
+}
+
+function aplicarEmailConfirmadoNaTela(email) {
+  if (!email || !emailInput) return;
+
+  emailInput.value = email;
+  usuarioLiberouCampo = true;
+  emailInput.dataset.userUnlocked = "true";
+  emailInput.removeAttribute("readonly");
+  emailInput.removeAttribute("inputmode");
+
+  if (senhaInput) {
+    senhaInput.focus();
   }
 }
 
@@ -777,19 +815,14 @@ async function inicializarLogin() {
   await validarConvite();
   aplicarContextoConviteNaTela();
 
-  if (emailConfirmado && emailInput) {
-    emailInput.value = emailConfirmado;
-    usuarioLiberouCampo = true;
-    emailInput.dataset.userUnlocked = "true";
-    emailInput.removeAttribute("readonly");
-    emailInput.removeAttribute("inputmode");
+  const emailDoConvite =
+    (conviteInfo?.patient_email || conviteInfo?.email || "").trim().toLowerCase();
+  const emailParaPreencher = emailConfirmado || emailDoConvite;
 
-    if (senhaInput) {
-      senhaInput.focus();
-    }
-  }
+  aplicarEmailConfirmadoNaTela(emailParaPreencher);
 
   const temSinalConfirmacao =
+    veioDeConfirmacaoEmail() ||
     params.get("confirmado") === "1" ||
     params.get("type") === "signup" ||
     params.get("type") === "email" ||
