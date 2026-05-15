@@ -80,17 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBottomMenu.setAttribute("aria-expanded", String(vaiAbrir));
   }
 
-  function mostrarDebugAcabeiDeEntrar() {
-    try {
-      if (window.sessionStorage.getItem("psicotarefas_debug_acabei_de_entrar") !== "1") {
-        return;
-      }
-
-      window.sessionStorage.removeItem("psicotarefas_debug_acabei_de_entrar");
-    } catch {
-      return;
-    }
-
+  function mostrarCaixaDepuracao(texto) {
     const overlay = document.createElement("div");
     overlay.style.position = "fixed";
     overlay.style.inset = "0";
@@ -114,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.style.textAlign = "center";
 
     const title = document.createElement("h2");
-    title.textContent = "Acabei de entrar.";
+    title.textContent = texto;
     title.style.margin = "0";
     title.style.fontSize = "24px";
     title.style.lineHeight = "1.15";
@@ -1144,7 +1134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await carregarProfissionalVinculado();
     await carregarTarefas();
     renderAll();
-    mostrarDebugAcabeiDeEntrar();
+    mostrarCaixaDepuracao("Entrando paciente com vínculo");
   }
 
   document.addEventListener("visibilitychange", () => {
