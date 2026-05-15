@@ -4,7 +4,8 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 
 const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();
-const emailConfirmado = (params.get("email") || "").trim().toLowerCase();
+const hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+const emailConfirmado = obterEmailConfirmado();
 
 const authTitle = document.getElementById("authTitle");
 const authSubtitle = document.getElementById("authSubtitle");
@@ -33,6 +34,28 @@ const delayedInputs = [emailInput, senhaInput].filter(Boolean);
 let conviteInfo = null;
 let conviteBloqueado = false;
 let usuarioLiberouCampo = false;
+
+function obterEmailConfirmado() {
+  const emailDaUrl = (params.get("email") || hashParams.get("email") || "").trim().toLowerCase();
+
+  if (emailDaUrl) return emailDaUrl;
+
+  try {
+    return (
+      window.localStorage.getItem("psicotarefas_email_confirmacao_pendente") || ""
+    ).trim().toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function removerEmailConfirmacaoPendente() {
+  try {
+    window.localStorage.removeItem("psicotarefas_email_confirmacao_pendente");
+  } catch {
+    // Nada a remover quando o armazenamento local não está disponível.
+  }
+}
 
 function obterConvitePendenteSalvo(email) {
   if (!email) return "";
@@ -342,6 +365,11 @@ function montarRedirectUrlConfirmacao() {
   const email = emailInput.value.trim().toLowerCase();
   if (email) {
     query.set("email", email);
+    try {
+      window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email);
+    } catch {
+      // Sem armazenamento local, o fluxo segue pelo e-mail da URL.
+    }
   }
 
   if (conviteToken) {
@@ -706,6 +734,8 @@ authForm.addEventListener("submit", async (event) => {
       removerConvitePendenteSalvo(email);
     }
 
+    removerEmailConfirmacaoPendente();
+
     const temVinculo = await pacienteTemVinculoAtivo(user.id);
     const destino = temVinculo
       ? "../../dashboard/paciente-com-vinculo/index.html"
@@ -759,7 +789,16 @@ async function inicializarLogin() {
     }
   }
 
-  if (params.get("confirmado") === "1") {
+  const temSinalConfirmacao =
+    params.get("confirmado") === "1" ||
+    params.get("type") === "signup" ||
+    params.get("type") === "email" ||
+    hashParams.get("type") === "signup" ||
+    hashParams.get("type") === "email" ||
+    Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
+    Boolean(hashParams.get("access_token"));
+
+  if (temSinalConfirmacao) {
     mostrarMensagem("Obrigado por confirmar seu e-mail. Agora digite sua senha para entrar.", "success");
   }
 }

@@ -60,6 +60,16 @@ function guardarConvitePendente(email, token) {
   }
 }
 
+function guardarEmailConfirmacaoPendente(email) {
+  if (!email) return;
+
+  try {
+    window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email.toLowerCase());
+  } catch {
+    // Sem armazenamento local, o fluxo segue pelo e-mail da URL.
+  }
+}
+
 registrarAcessoPagina({
   pagina: "cadastro_paciente",
   perfil: "publico",
@@ -473,6 +483,7 @@ authForm.addEventListener("submit", async (event) => {
 
   try {
     guardarConvitePendente(email, conviteToken);
+    guardarEmailConfirmacaoPendente(email);
 
     const resultadoCadastro = await cadastrarPaciente({
       nome,

@@ -138,6 +138,15 @@
       var perfilParam = params.get("perfil") || hashParams.get("perfil") || "";
       var convite = (params.get("convite") || hashParams.get("convite") || "").trim();
       var email = (params.get("email") || hashParams.get("email") || "").trim();
+
+      if (!email) {
+        try {
+          email = (window.localStorage.getItem("psicotarefas_email_confirmacao_pendente") || "").trim();
+        } catch (error) {
+          email = "";
+        }
+      }
+
       var perfil = perfilParam === "profissional" ? "profissional" : "paciente";
       var login = document.getElementById("primaryLogin");
       var destino = perfil === "profissional"
