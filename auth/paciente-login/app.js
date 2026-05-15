@@ -124,6 +124,12 @@ function veioDoFluxoConfirmacaoEmail() {
   );
 }
 
+function obterOrigemDepuracaoEntrada() {
+  return veioDoFluxoConfirmacaoEmail()
+    ? "vindo da confirmação do email"
+    : "Vindo do clique no ícone de paciente";
+}
+
 async function obterEmailPorCodigoConfirmacao() {
   const code = (params.get("code") || hashParams.get("code") || "").trim();
 
@@ -301,7 +307,9 @@ registrarAcessoPagina({
   contexto: conviteToken ? { convite: true } : {}
 });
 
-mostrarCaixaDepuracao("entrando no /auth/paciente-login/index.html");
+mostrarCaixaDepuracao(
+  `entrando no /auth/paciente-login/index.html - ${obterOrigemDepuracaoEntrada()}`
+);
 
 function mostrarCaixaDepuracao(texto) {
   const overlay = document.createElement("div");

@@ -35,7 +35,7 @@ registrarAcessoPagina({
   perfil: "publico"
 });
 
-mostrarCaixaDepuracao("Entrando no PsicoTarefas");
+mostrarCaixaDepuracao(`Entrando no PsicoTarefas - ${obterOrigemDepuracaoEntrada()}`);
 
 // ============================
 // HELPERS
@@ -118,6 +118,31 @@ function obterHashParams() {
 
 function obterSearchParams() {
   return new URLSearchParams(window.location.search || "");
+}
+
+function veioDaConfirmacaoEmail() {
+  const hashParams = obterHashParams();
+  const searchParams = obterSearchParams();
+  const tipo = hashParams.get("type") || searchParams.get("type") || "";
+
+  return (
+    tipo === "email" ||
+    tipo === "signup" ||
+    searchParams.get("confirmado") === "1" ||
+    searchParams.get("ja_confirmado") === "1" ||
+    Boolean(searchParams.get("code")) ||
+    Boolean(searchParams.get("token_hash")) ||
+    Boolean(searchParams.get("token")) ||
+    Boolean(searchParams.get("error_code") || searchParams.get("error_description")) ||
+    Boolean(hashParams.get("access_token")) ||
+    Boolean(hashParams.get("error_code") || hashParams.get("error_description"))
+  );
+}
+
+function obterOrigemDepuracaoEntrada() {
+  return veioDaConfirmacaoEmail()
+    ? "vindo da confirmação do email"
+    : "Vindo do clique no ícone de paciente";
 }
 
 function obterTokenConviteAtual() {
