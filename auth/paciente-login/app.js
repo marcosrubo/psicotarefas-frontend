@@ -110,6 +110,30 @@ function linkConfirmacaoJaFoiUsado() {
   );
 }
 
+function veioDoFluxoConfirmacaoEmail() {
+  return (
+    veioDeConfirmacaoEmail() ||
+    params.get("confirmado") === "1" ||
+    params.get("type") === "signup" ||
+    params.get("type") === "email" ||
+    hashParams.get("type") === "signup" ||
+    hashParams.get("type") === "email" ||
+    Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
+    Boolean(hashParams.get("access_token")) ||
+    linkConfirmacaoJaFoiUsado()
+  );
+}
+
+function marcarDebugEntradaConfirmacaoEmail() {
+  if (!veioDoFluxoConfirmacaoEmail()) return;
+
+  try {
+    window.sessionStorage.setItem("psicotarefas_debug_acabei_de_entrar", "1");
+  } catch {
+    // Sem sessionStorage, não há como transportar o ponto de depuração até o dashboard.
+  }
+}
+
 async function obterEmailPorCodigoConfirmacao() {
   const code = (params.get("code") || hashParams.get("code") || "").trim();
 
@@ -929,6 +953,8 @@ authForm.addEventListener("submit", async (event) => {
       ? "../../dashboard/paciente-com-vinculo/index.html"
       : "../../dashboard/paciente-sem-vinculo/index.html";
 
+    marcarDebugEntradaConfirmacaoEmail();
+
     await registrarEvento({
       evento: "login_paciente_sucesso",
       pagina: "login_paciente",
@@ -975,20 +1001,9 @@ async function inicializarLogin() {
     guardarEmailConfirmadoParaLogin(emailParaPreencher);
   }
 
-  const temSinalConfirmacao =
-    veioDeConfirmacaoEmail() ||
-    params.get("confirmado") === "1" ||
-    params.get("type") === "signup" ||
-    params.get("type") === "email" ||
-    hashParams.get("type") === "signup" ||
-    hashParams.get("type") === "email" ||
-    Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
-    Boolean(hashParams.get("access_token")) ||
-    linkConfirmacaoJaFoiUsado();
-
   aplicarEmailConfirmadoNaTela(emailParaPreencher);
 
-  if (temSinalConfirmacao) {
+  if (veioDoFluxoConfirmacaoEmail()) {
     mostrarCaixaConfirmacaoEmail({
       jaConfirmado: linkConfirmacaoJaFoiUsado()
     });

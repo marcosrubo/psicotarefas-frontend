@@ -77,6 +77,65 @@ document.addEventListener("DOMContentLoaded", () => {
     requestMessage.removeAttribute("aria-live");
   }
 
+  function mostrarDebugAcabeiDeEntrar() {
+    try {
+      if (window.sessionStorage.getItem("psicotarefas_debug_acabei_de_entrar") !== "1") {
+        return;
+      }
+
+      window.sessionStorage.removeItem("psicotarefas_debug_acabei_de_entrar");
+    } catch {
+      return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.zIndex = "1000";
+    overlay.style.display = "grid";
+    overlay.style.placeItems = "center";
+    overlay.style.padding = "20px";
+    overlay.style.background = "rgba(31, 36, 48, 0.36)";
+
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.style.width = "100%";
+    dialog.style.maxWidth = "380px";
+    dialog.style.display = "grid";
+    dialog.style.gap = "14px";
+    dialog.style.padding = "24px 20px";
+    dialog.style.borderRadius = "18px";
+    dialog.style.background = "#fff";
+    dialog.style.boxShadow = "0 18px 42px rgba(31, 36, 48, 0.18)";
+    dialog.style.textAlign = "center";
+
+    const title = document.createElement("h2");
+    title.textContent = "Acabei de entrar.";
+    title.style.margin = "0";
+    title.style.fontSize = "24px";
+    title.style.lineHeight = "1.15";
+    title.style.color = "#1f2430";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "OK";
+    button.style.minHeight = "50px";
+    button.style.border = "none";
+    button.style.borderRadius = "14px";
+    button.style.background = "#1250e6";
+    button.style.color = "#fff";
+    button.style.font = "inherit";
+    button.style.fontWeight = "800";
+    button.style.cursor = "pointer";
+    button.addEventListener("click", () => overlay.remove());
+
+    dialog.append(title, button);
+    overlay.append(dialog);
+    document.body.append(overlay);
+    button.focus();
+  }
+
   function abrirEdicaoNome() {
     if (!editNameBox || !editNameInput || !currentPatientProfile) return;
 
@@ -516,6 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await carregarVinculosDoPaciente();
       await carregarProfissionais();
+      mostrarDebugAcabeiDeEntrar();
     } catch (error) {
       console.error("Erro ao iniciar dashboard do paciente sem vínculo:", error);
       mostrarMensagem(
