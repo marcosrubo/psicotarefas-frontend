@@ -1,5 +1,6 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import { carregarAdminV2Dataset } from "../../shared/admin-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const ADMIN_EMAIL = "marcos@rubo.com.br";
@@ -258,11 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarDados() {
-    const { data, error } = await supabase.rpc("admin_v2_dataset");
-
-    if (error) {
-      throw new Error(`Falha ao carregar dados do admin-v2. ${error.message}`);
-    }
+    const data = await carregarAdminV2Dataset();
 
     return {
       perfis: data?.perfis || [],
