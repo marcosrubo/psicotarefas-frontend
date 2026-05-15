@@ -124,42 +124,6 @@ function veioDoFluxoConfirmacaoEmail() {
   );
 }
 
-function obterOrigemDepuracaoEntrada() {
-  return veioDoFluxoConfirmacaoEmail()
-    ? "vindo da confirmação do email"
-    : "Vindo do clique no ícone de paciente";
-}
-
-function obterResumoParametrosDepuracao() {
-  const valores = {
-    confirmado: params.get("confirmado") || "null",
-    ja_confirmado: params.get("ja_confirmado") || "null",
-    email: params.get("email") || "null",
-    convite: params.get("convite") || "null",
-    code: params.get("code") ? "presente" : "null",
-    token_hash: params.get("token_hash") ? "presente" : "null",
-    token: params.get("token") ? "presente" : "null",
-    type_query: params.get("type") || "null",
-    type_hash: hashParams.get("type") || "null",
-    access_token: hashParams.get("access_token") ? "presente" : "null",
-    error_code: params.get("error_code") || hashParams.get("error_code") || "null"
-  };
-
-  return (
-    `URL recebida: confirmado=${valores.confirmado}, ` +
-    `ja_confirmado=${valores.ja_confirmado}, ` +
-    `email=${valores.email}, ` +
-    `convite=${valores.convite}, ` +
-    `code=${valores.code}, ` +
-    `token_hash=${valores.token_hash}, ` +
-    `token=${valores.token}, ` +
-    `type_query=${valores.type_query}, ` +
-    `type_hash=${valores.type_hash}, ` +
-    `access_token=${valores.access_token}, ` +
-    `error_code=${valores.error_code}`
-  );
-}
-
 async function obterEmailPorCodigoConfirmacao() {
   const code = (params.get("code") || hashParams.get("code") || "").trim();
 
@@ -338,60 +302,6 @@ registrarAcessoPagina({
   perfil: "publico",
   contexto: conviteToken ? { convite: true } : {}
 });
-
-mostrarCaixaDepuracao(
-  `entrando no /auth/paciente-login/index.html - ${obterOrigemDepuracaoEntrada()}\n${obterResumoParametrosDepuracao()}`
-);
-
-function mostrarCaixaDepuracao(texto) {
-  const overlay = document.createElement("div");
-  overlay.style.position = "fixed";
-  overlay.style.inset = "0";
-  overlay.style.zIndex = "1000";
-  overlay.style.display = "grid";
-  overlay.style.placeItems = "center";
-  overlay.style.padding = "20px";
-  overlay.style.background = "rgba(31, 36, 48, 0.36)";
-
-  const dialog = document.createElement("div");
-  dialog.setAttribute("role", "dialog");
-  dialog.setAttribute("aria-modal", "true");
-  dialog.style.width = "100%";
-  dialog.style.maxWidth = "420px";
-  dialog.style.display = "grid";
-  dialog.style.gap = "14px";
-  dialog.style.padding = "24px 20px";
-  dialog.style.borderRadius = "18px";
-  dialog.style.background = "#fff";
-  dialog.style.boxShadow = "0 18px 42px rgba(31, 36, 48, 0.18)";
-  dialog.style.textAlign = "center";
-
-  const title = document.createElement("h2");
-  title.textContent = texto;
-  title.style.whiteSpace = "pre-line";
-  title.style.margin = "0";
-  title.style.fontSize = "20px";
-  title.style.lineHeight = "1.3";
-  title.style.color = "#1f2430";
-
-  const button = document.createElement("button");
-  button.type = "button";
-  button.textContent = "OK";
-  button.style.minHeight = "50px";
-  button.style.border = "none";
-  button.style.borderRadius = "14px";
-  button.style.background = "#1250e6";
-  button.style.color = "#fff";
-  button.style.font = "inherit";
-  button.style.fontWeight = "800";
-  button.style.cursor = "pointer";
-  button.addEventListener("click", () => overlay.remove());
-
-  dialog.append(title, button);
-  overlay.append(dialog);
-  document.body.append(overlay);
-  button.focus();
-}
 
 function bloquearEntradaInicial({ resetUnlock = true } = {}) {
   if (!resetUnlock && usuarioLiberouCampo) return;

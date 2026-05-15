@@ -35,15 +35,11 @@ registrarAcessoPagina({
   perfil: "publico"
 });
 
-if (!veioDaConfirmacaoEmail()) {
-  mostrarCaixaDepuracao(`Entrando no PsicoTarefas - ${obterOrigemDepuracaoEntrada()}`);
-}
-
 // ============================
 // HELPERS
 // ============================
 
-function mostrarCaixaDepuracao(texto, aoConfirmar = null) {
+function mostrarAvisoConfirmacao(texto, aoConfirmar = null) {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
   overlay.style.inset = "0";
@@ -127,31 +123,6 @@ function obterHashParams() {
 
 function obterSearchParams() {
   return new URLSearchParams(window.location.search || "");
-}
-
-function veioDaConfirmacaoEmail() {
-  const hashParams = obterHashParams();
-  const searchParams = obterSearchParams();
-  const tipo = hashParams.get("type") || searchParams.get("type") || "";
-
-  return (
-    tipo === "email" ||
-    tipo === "signup" ||
-    searchParams.get("confirmado") === "1" ||
-    searchParams.get("ja_confirmado") === "1" ||
-    Boolean(searchParams.get("code")) ||
-    Boolean(searchParams.get("token_hash")) ||
-    Boolean(searchParams.get("token")) ||
-    Boolean(searchParams.get("error_code") || searchParams.get("error_description")) ||
-    Boolean(hashParams.get("access_token")) ||
-    Boolean(hashParams.get("error_code") || hashParams.get("error_description"))
-  );
-}
-
-function obterOrigemDepuracaoEntrada() {
-  return veioDaConfirmacaoEmail()
-    ? "vindo da confirmação do email"
-    : "Vindo do acesso normal";
 }
 
 function obterTokenConviteAtual() {
@@ -445,11 +416,8 @@ function tratarConfirmacaoDeEmail() {
       destinoUrl.searchParams.set("erro_confirmacao", "link_usado_ou_expirado");
       const destino = destinoUrl.href;
 
-      mostrarCaixaDepuracao(
-        `Este link de confirmação já foi usado ou expirou.\n` +
-          `Use seu e-mail e senha para se conectar.\n` +
-          `URL atual: ${window.location.href}\n` +
-          `Destino: ${destino}`,
+      mostrarAvisoConfirmacao(
+        "Este link de confirmação já foi usado ou expirou.\nUse seu e-mail e senha para se conectar.",
         () => {
           window.location.replace(destino);
         }
@@ -460,14 +428,7 @@ function tratarConfirmacaoDeEmail() {
 
   const destino = montarUrlLoginConfirmado(perfil, tokenConvite);
 
-  mostrarCaixaDepuracao(
-    `Entrando no PsicoTarefas - vindo da confirmação do email\n` +
-      `URL atual: ${window.location.href}\n` +
-      `Destino: ${destino}`,
-    () => {
-      window.location.replace(destino);
-    }
-  );
+  window.location.replace(destino);
   return true;
 }
 
