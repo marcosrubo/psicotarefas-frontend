@@ -1,6 +1,11 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
-import { obterTarefa } from "../../shared/tasks-api.js";
+import {
+  atualizarInteracaoDaTarefa,
+  criarInteracaoDaTarefa,
+  listarInteracoesDaTarefa,
+  obterTarefa
+} from "../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
@@ -359,14 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentInteractions = [];
       return;
     }
-    const { data, error } = await supabase
-      .from("tarefa_interacoes")
-      .select("*")
-      .eq("tarefa_id", currentTask.id)
-      .order("created_at", { ascending: true });
-
-    if (error) throw new Error(`Falha ao carregar interações: ${error.message}`);
-    currentInteractions = data || [];
+    currentInteractions = await listarInteracoesDaTarefa(currentTask.id);
   }
 
   function getEditingInteraction() {
@@ -539,13 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCreateInteraction) btnCreateInteraction.disabled = true;
     setInteractionFormMessage();
     try {
-      const { error } = await supabase.from("tarefa_interacoes").insert({
-        tarefa_id: currentTask.id,
-        autor_tipo: "paciente",
-        autor_user_id: currentUser.id,
-        mensagem
-      });
-      if (error) throw new Error(`Não foi possível enviar sua interação: ${error.message}`);
+      await criarInteracaoDaTarefa(currentTask.id, { mensagem });
       if (interactionTextInput) interactionTextInput.value = "";
       await carregarInteracoes();
       closeInteractionEditCard();
@@ -576,14 +568,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnSaveEditInteraction) btnSaveEditInteraction.disabled = true;
     setInteractionEditMessage();
     try {
-      const { error } = await supabase
-        .from("tarefa_interacoes")
-        .update({ mensagem })
-        .eq("id", interaction.id)
-        .eq("autor_tipo", "paciente")
-        .eq("autor_user_id", currentUser.id);
-
-      if (error) throw new Error(`Não foi possível alterar sua interação: ${error.message}`);
+      await atualizarInteracaoDaTarefa(currentTask.id, interaction.id, { mensagem });
       await carregarInteracoes();
       closeInteractionEditCard();
       renderInteractions();

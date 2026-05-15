@@ -97,3 +97,35 @@ export async function atualizarTarefa(taskId, payload) {
 
   return response.task || null;
 }
+
+export async function listarInteracoesDaTarefa(taskId) {
+  const payload = await requestTasksApi(
+    `/api/tasks/${encodeURIComponent(taskId)}/interactions`
+  );
+
+  return payload.interactions || [];
+}
+
+export async function criarInteracaoDaTarefa(taskId, payload) {
+  const response = await requestTasksApi(
+    `/api/tasks/${encodeURIComponent(taskId)}/interactions`,
+    {
+      method: "POST",
+      body: payload
+    }
+  );
+
+  return response.interaction || null;
+}
+
+export async function atualizarInteracaoDaTarefa(taskId, interactionId, payload) {
+  const response = await requestTasksApi(
+    `/api/tasks/${encodeURIComponent(taskId)}/interactions/${encodeURIComponent(interactionId)}`,
+    {
+      method: "PATCH",
+      body: payload
+    }
+  );
+
+  return response.interaction || null;
+}

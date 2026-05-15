@@ -1,6 +1,11 @@
 import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
-import { obterTarefa } from "../../../shared/tasks-api.js";
+import {
+  atualizarInteracaoDaTarefa,
+  criarInteracaoDaTarefa,
+  listarInteracoesDaTarefa,
+  obterTarefa
+} from "../../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
@@ -311,17 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("tarefa_interacoes")
-      .select("*")
-      .eq("tarefa_id", currentTask.id)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Falha ao carregar interações: ${error.message}`);
-    }
-
-    currentInteractions = data || [];
+    currentInteractions = await listarInteracoesDaTarefa(currentTask.id);
   }
 
   function cancelEditingInteraction() {
@@ -453,16 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCreateInteraction.disabled = true;
 
     try {
-      const { error } = await supabase.from("tarefa_interacoes").insert({
-        tarefa_id: currentTask.id,
-        autor_tipo: "profissional",
-        autor_user_id: currentUser.id,
-        mensagem
-      });
-
-      if (error) {
-        throw new Error(`Falha ao registrar interação: ${error.message}`);
-      }
+      await criarInteracaoDaTarefa(currentTask.id, { mensagem });
 
       interactionTextInput.value = "";
       setInteractionFormMessage("Interação registrada com sucesso.", "success");
@@ -502,16 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnSaveEditInteraction.disabled = true;
 
     try {
-      const { error } = await supabase
-        .from("tarefa_interacoes")
-        .update({ mensagem })
-        .eq("id", editingInteractionId)
-        .eq("autor_tipo", "profissional")
-        .eq("autor_user_id", currentUser.id);
-
-      if (error) {
-        throw new Error(`Falha ao salvar alteração: ${error.message}`);
-      }
+      await atualizarInteracaoDaTarefa(currentTask.id, editingInteractionId, { mensagem });
 
       await registrarEvento({
         evento: "interacao_tarefa_atualizada",

@@ -1,7 +1,10 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
 import {
+  atualizarInteracaoDaTarefa,
   atualizarTarefa,
+  criarInteracaoDaTarefa,
+  listarInteracoesDaTarefa,
   criarTarefa,
   listarTarefasDoProfissional
 } from "../../shared/tasks-api.js";
@@ -1432,15 +1435,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskIds = tasks.map((task) => task.id);
     if (!taskIds.length) return;
 
-    const { data: interactions, error: interactionsError } = await supabase
-      .from("tarefa_interacoes")
-      .select("*")
-      .in("tarefa_id", taskIds)
-      .order("created_at", { ascending: true });
-
-    if (interactionsError) {
-      throw new Error(`Falha ao carregar interações das tarefas: ${interactionsError.message}`);
-    }
+    const interactions = (
+      await Promise.all(taskIds.map((taskId) => listarInteracoesDaTarefa(taskId)))
+    ).flat();
 
     (interactions || []).forEach((interaction) => {
       const current = interactionsByTask.get(interaction.tarefa_id) || [];
@@ -1961,18 +1958,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setInteractionFormMessage();
 
     try {
-      const { error } = await supabase
-        .from("tarefa_interacoes")
-        .insert({
-          tarefa_id: task.id,
-          autor_tipo: "profissional",
-          autor_user_id: currentUser.id,
-          mensagem
-        });
-
-      if (error) {
-        throw new Error(`Não foi possível registrar a interação: ${error.message}`);
-      }
+      await criarInteracaoDaTarefa(task.id, { mensagem });
 
       if (interactionTextInput) interactionTextInput.value = "";
 
@@ -2011,18 +1997,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setInteractionEditMessage();
 
     try {
-      const { error } = await supabase
-        .from("tarefa_interacoes")
-        .update({
-          mensagem
-        })
-        .eq("id", interaction.id)
-        .eq("autor_tipo", "profissional")
-        .eq("autor_user_id", currentUser.id);
-
-      if (error) {
-        throw new Error(`Não foi possível alterar a interação: ${error.message}`);
-      }
+      await atualizarInteracaoDaTarefa(interaction.tarefa_id, interaction.id, { mensagem });
 
       await carregarTarefas();
       renderTasksArea();

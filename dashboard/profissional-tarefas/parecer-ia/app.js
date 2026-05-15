@@ -1,6 +1,6 @@
 import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
-import { obterTarefa } from "../../../shared/tasks-api.js";
+import { listarInteracoesDaTarefa, obterTarefa } from "../../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const PDF_BUCKET = "banco-tarefas-pdf";
@@ -612,17 +612,7 @@ function normalizeParecerList(value) {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("tarefa_interacoes")
-      .select("*")
-      .eq("tarefa_id", currentTask.id)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      throw new Error(`Falha ao carregar interacoes: ${error.message}`);
-    }
-
-    currentInteractions = data || [];
+    currentInteractions = await listarInteracoesDaTarefa(currentTask.id);
   }
 
   function buildRelevantSnippets() {
