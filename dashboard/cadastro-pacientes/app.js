@@ -99,6 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return String(value || "").replace(/\D/g, "");
   }
 
+  function normalizarEmail(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
   function gerarTokenConvite() {
     if (window.crypto?.randomUUID) {
       return window.crypto.randomUUID();
@@ -595,7 +599,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .order("created_at", { ascending: false }),
         supabase
           .from("vinculos")
-          .select("token_convite, status, patient_name, patient_email, patient_whatsapp, patient_alias")
+          .select("token_convite, status, patient_user_id, patient_name, patient_email, patient_whatsapp, patient_alias")
           .eq("professional_user_id", currentUser.id)
       ]);
 
@@ -607,7 +611,35 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error(`Falha ao carregar vínculos: ${vinculosError.message}`);
     }
 
-    const vinculosPorToken = new Map((vinculos || []).map((item) => [item.token_convite, item]));
+    const vinculosPorToken = new Map();
+    const tokensComVinculoAtivo = new Set();
+    const emailsComVinculoAtivo = new Set(
+      patients
+        .map((patient) => normalizarEmail(patient.email))
+        .filter(Boolean)
+    );
+    const usuariosComVinculoAtivo = new Set(
+      patients
+        .map((patient) => patient.patient_user_id)
+        .filter(Boolean)
+    );
+
+    (vinculos || []).forEach((vinculo) => {
+      const token = vinculo.token_convite || "";
+      const emailNormalizado = normalizarEmail(vinculo.patient_email);
+      const usuarioId = vinculo.patient_user_id || "";
+      const vinculoAtual = vinculosPorToken.get(token);
+
+      if (token && (!vinculoAtual || vinculo.status === "ativo")) {
+        vinculosPorToken.set(token, vinculo);
+      }
+
+      if (vinculo.status === "ativo") {
+        if (token) tokensComVinculoAtivo.add(token);
+        if (emailNormalizado) emailsComVinculoAtivo.add(emailNormalizado);
+        if (usuarioId) usuariosComVinculoAtivo.add(usuarioId);
+      }
+    });
 
     const convitesClassificados = (convites || []).map((convite) => {
       const vinculo = vinculosPorToken.get(convite.token) || null;
@@ -618,10 +650,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const email = vinculo?.patient_email?.trim() || "";
       const whatsapp = vinculo?.patient_whatsapp?.trim() || convite.patient_whatsapp?.trim() || "";
+      const emailNormalizado = normalizarEmail(email);
+      const usuarioId = vinculo?.patient_user_id || "";
+      const jaTemVinculoAtivo =
+        vinculo?.status === "ativo" ||
+        convite.status === "aceito" ||
+        tokensComVinculoAtivo.has(convite.token) ||
+        (emailNormalizado && emailsComVinculoAtivo.has(emailNormalizado)) ||
+        (usuarioId && usuariosComVinculoAtivo.has(usuarioId));
 
       let categoria = "pendente";
 
-      if (convite.status === "cancelado") {
+      if (jaTemVinculoAtivo) {
+        categoria = "ignorar";
+      } else if (convite.status === "cancelado") {
         categoria = "cancelado";
       } else if (
         vinculo?.status === "aguardando_confirmacao_email" ||

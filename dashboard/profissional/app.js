@@ -105,6 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return (valor || "").replace(/\D/g, "");
   }
 
+  function normalizarEmail(valor) {
+    return String(valor || "").trim().toLowerCase();
+  }
+
   function formatarWhatsapp(valor) {
     const digits = normalizarWhatsapp(valor).slice(0, 13);
 
@@ -606,9 +610,30 @@ document.addEventListener("DOMContentLoaded", () => {
       const vinculosPorToken = new Map(
         (vinculos || []).map((item) => [item.token_convite, item])
       );
+      const tokensComVinculoAtivo = new Set();
+      const emailsComVinculoAtivo = new Set();
+
+      (vinculos || []).forEach((vinculo) => {
+        if (vinculo.status !== "ativo") return;
+
+        if (vinculo.token_convite) {
+          tokensComVinculoAtivo.add(vinculo.token_convite);
+        }
+
+        const emailNormalizado = normalizarEmail(vinculo.patient_email);
+        if (emailNormalizado) {
+          emailsComVinculoAtivo.add(emailNormalizado);
+        }
+      });
 
       const convitesComStatus = (convites || []).map((convite) => {
         const vinculo = vinculosPorToken.get(convite.token) || null;
+        const emailNormalizado = normalizarEmail(vinculo?.patient_email);
+        const jaTemVinculoAtivo =
+          vinculo?.status === "ativo" ||
+          convite.status === "aceito" ||
+          tokensComVinculoAtivo.has(convite.token) ||
+          (emailNormalizado && emailsComVinculoAtivo.has(emailNormalizado));
 
         let categoria = "pendente";
         let statusExibicao = "pendente";
@@ -626,12 +651,12 @@ document.addEventListener("DOMContentLoaded", () => {
           linhasMeta.push(`Confirmou em ${formatarDataHora(vinculo.confirmed_at)}`);
         }
 
-        if (convite.status === "cancelado") {
-          categoria = "cancelado";
-          statusExibicao = "cancelado";
-        } else if (vinculo?.status === "ativo" || convite.status === "aceito") {
+        if (jaTemVinculoAtivo) {
           categoria = "aceito";
           statusExibicao = "ativo";
+        } else if (convite.status === "cancelado") {
+          categoria = "cancelado";
+          statusExibicao = "cancelado";
         } else if (
           vinculo?.status === "aguardando_confirmacao_email" ||
           convite.status === "respondido"
