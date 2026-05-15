@@ -4,6 +4,7 @@ import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-lo
 
 const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();
+const emailConfirmado = (params.get("email") || "").trim().toLowerCase();
 
 const authTitle = document.getElementById("authTitle");
 const authSubtitle = document.getElementById("authSubtitle");
@@ -337,6 +338,11 @@ async function fazerLogin(email, senha) {
 function montarRedirectUrlConfirmacao() {
   const query = new URLSearchParams();
   query.set("perfil", "paciente");
+
+  const email = emailInput.value.trim().toLowerCase();
+  if (email) {
+    query.set("email", email);
+  }
 
   if (conviteToken) {
     query.set("convite", conviteToken);
@@ -741,8 +747,20 @@ async function inicializarLogin() {
   await validarConvite();
   aplicarContextoConviteNaTela();
 
+  if (emailConfirmado && emailInput) {
+    emailInput.value = emailConfirmado;
+    usuarioLiberouCampo = true;
+    emailInput.dataset.userUnlocked = "true";
+    emailInput.removeAttribute("readonly");
+    emailInput.removeAttribute("inputmode");
+
+    if (senhaInput) {
+      senhaInput.focus();
+    }
+  }
+
   if (params.get("confirmado") === "1") {
-    mostrarMensagem("E-mail confirmado. Agora entre com seu e-mail e senha.", "success");
+    mostrarMensagem("Obrigado por confirmar seu e-mail. Agora digite sua senha para entrar.", "success");
   }
 }
 

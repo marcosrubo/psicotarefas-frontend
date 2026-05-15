@@ -375,6 +375,7 @@ async function registrarRespostaAoConviteAposCadastro({
 async function cadastrarPaciente({ nome, email, senha }) {
   const query = new URLSearchParams();
   query.set("perfil", "paciente");
+  query.set("email", email);
 
   if (conviteToken) {
     query.set("convite", conviteToken);

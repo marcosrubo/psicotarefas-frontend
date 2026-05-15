@@ -137,6 +137,7 @@
       var hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
       var perfilParam = params.get("perfil") || hashParams.get("perfil") || "";
       var convite = (params.get("convite") || hashParams.get("convite") || "").trim();
+      var email = (params.get("email") || hashParams.get("email") || "").trim();
       var perfil = perfilParam === "profissional" ? "profissional" : "paciente";
       var login = document.getElementById("primaryLogin");
       var destino = perfil === "profissional"
@@ -145,6 +146,10 @@
 
       if (convite && perfil === "paciente") {
         destino += "&convite=" + encodeURIComponent(convite);
+      }
+
+      if (email) {
+        destino += "&email=" + encodeURIComponent(email);
       }
 
       login.href = destino;
