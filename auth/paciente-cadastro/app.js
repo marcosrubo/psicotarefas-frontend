@@ -65,6 +65,7 @@ function guardarEmailConfirmacaoPendente(email) {
 
   try {
     window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email.toLowerCase());
+    window.localStorage.setItem("psicotarefas_perfil_confirmacao_pendente", "paciente");
   } catch {
     // Sem armazenamento local, o fluxo segue pelo e-mail da URL.
   }

@@ -156,6 +156,7 @@ function guardarEmailConfirmadoParaLogin(email) {
     window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
     window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email.toLowerCase());
     window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email.toLowerCase());
+    window.localStorage.setItem("psicotarefas_perfil_confirmacao_pendente", "paciente");
   } catch {
     // Se storage estiver bloqueado, o e-mail da URL ainda é usado nesta tela.
   }
@@ -164,6 +165,7 @@ function guardarEmailConfirmadoParaLogin(email) {
 function removerEmailConfirmacaoPendente() {
   try {
     window.localStorage.removeItem("psicotarefas_email_confirmacao_pendente");
+    window.localStorage.removeItem("psicotarefas_perfil_confirmacao_pendente");
     window.sessionStorage.removeItem("psicotarefas_email_confirmado_valor");
     window.sessionStorage.removeItem("psicotarefas_email_confirmado_recentemente");
   } catch {
@@ -571,6 +573,7 @@ function montarRedirectUrlConfirmacao() {
     query.set("email", email);
     try {
       window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email);
+      window.localStorage.setItem("psicotarefas_perfil_confirmacao_pendente", "paciente");
     } catch {
       // Sem armazenamento local, o fluxo segue pelo e-mail da URL.
     }

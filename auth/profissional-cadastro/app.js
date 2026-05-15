@@ -184,6 +184,13 @@ async function cadastrarProfissional({ nome, email, senha }) {
   query.set("email", email);
   const redirectUrl = `${window.location.origin}/auth/email-confirmado/index.html?${query.toString()}`;
 
+  try {
+    window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email.toLowerCase());
+    window.localStorage.setItem("psicotarefas_perfil_confirmacao_pendente", "profissional");
+  } catch {
+    // Sem armazenamento local, o fluxo segue pelo e-mail da URL.
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password: senha,

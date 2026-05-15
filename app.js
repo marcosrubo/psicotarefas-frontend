@@ -159,10 +159,22 @@ function obterTipoLinkAutenticacao() {
   return hashParams.get("type") || searchParams.get("type") || "";
 }
 
+function obterPerfilConfirmacaoPendente() {
+  try {
+    const perfil = window.localStorage.getItem("psicotarefas_perfil_confirmacao_pendente");
+    return perfil === "profissional" ? "profissional" : "";
+  } catch {
+    return "";
+  }
+}
+
 function montarUrlRedefinicaoSenha() {
   const hashParams = obterHashParams();
   const searchParams = obterSearchParams();
-  const perfil = searchParams.get("perfil") === "profissional" ? "profissional" : "paciente";
+  const perfil =
+    searchParams.get("perfil") === "profissional"
+      ? "profissional"
+      : obterPerfilConfirmacaoPendente() || "paciente";
   const destino = new URL(criarUrlDoApp("auth/redefinir-senha/index.html"));
 
   destino.searchParams.set("perfil", perfil);
