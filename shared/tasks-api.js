@@ -129,3 +129,29 @@ export async function atualizarInteracaoDaTarefa(taskId, interactionId, payload)
 
   return response.interaction || null;
 }
+
+export async function listarResumosSessao({ patientUserId, vinculoId }) {
+  const payload = await requestTasksApi("/api/session-summaries", {
+    query: {
+      patient_user_id: patientUserId,
+      vinculo_id: vinculoId
+    }
+  });
+
+  return payload.summaries || [];
+}
+
+export async function gravarResumoSessao(payload) {
+  const response = await requestTasksApi("/api/session-summaries", {
+    method: "POST",
+    body: payload
+  });
+
+  return response.summary || null;
+}
+
+export async function excluirResumoSessao(summaryId) {
+  await requestTasksApi(`/api/session-summaries/${encodeURIComponent(summaryId)}`, {
+    method: "DELETE"
+  });
+}

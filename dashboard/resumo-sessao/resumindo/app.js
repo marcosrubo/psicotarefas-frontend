@@ -1,5 +1,10 @@
 import supabase from "../../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../../shared/activity-log.js";
+import {
+  excluirResumoSessao,
+  gravarResumoSessao,
+  listarResumosSessao
+} from "../../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
@@ -248,18 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
   async function carregarResumosSalvos() {
     if (!currentUser || !currentPatient?.vinculo_id) return;
 
-    const { data, error } = await supabase
-      .from("resumos_sessao")
-      .select("id, data_sessao, texto_transcrito, resumo_final, status, created_at, updated_at")
-      .eq("professional_user_id", currentUser.id)
-      .eq("vinculo_id", currentPatient.vinculo_id)
-      .order("data_sessao", { ascending: false });
-
-    if (error) {
-      throw new Error(`Falha ao carregar resumos salvos: ${error.message}`);
-    }
-
-    savedSummaries = data || [];
+    savedSummaries = await listarResumosSessao({
+      patientUserId: currentPatient.patient_user_id,
+      vinculoId: currentPatient.vinculo_id
+    });
     renderSavedSummaries();
   }
 
@@ -378,25 +375,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const { error } = await supabase
-        .from("resumos_sessao")
-        .upsert(
-          {
-            vinculo_id: currentPatient.vinculo_id,
-            professional_user_id: currentUser.id,
-            patient_user_id: currentPatient.patient_user_id,
-            data_sessao: dataSessao,
-            texto_transcrito: textoResumo,
-            resumo_final: textoResumo,
-            status: "rascunho",
-            origem_transcricao: "navegador"
-          },
-          { onConflict: "vinculo_id,data_sessao" }
-        );
-
-      if (error) {
-        throw error;
-      }
+      await gravarResumoSessao({
+        vinculo_id: currentPatient.vinculo_id,
+        patient_user_id: currentPatient.patient_user_id,
+        data_sessao: dataSessao,
+        texto_transcrito: textoResumo,
+        resumo_final: textoResumo,
+        status: "rascunho",
+        origem_transcricao: "navegador"
+      });
 
       await registrarEvento({
         evento: "resumo_sessao_gravado",
@@ -439,15 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const resumoId = selectedSummary.id;
-      const { error } = await supabase
-        .from("resumos_sessao")
-        .delete()
-        .eq("id", resumoId)
-        .eq("professional_user_id", currentUser.id);
-
-      if (error) {
-        throw error;
-      }
+      await excluirResumoSessao(resumoId);
 
       await registrarEvento({
         evento: "resumo_sessao_excluido",
