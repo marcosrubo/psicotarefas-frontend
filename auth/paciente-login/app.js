@@ -33,6 +33,42 @@ let conviteInfo = null;
 let conviteBloqueado = false;
 let usuarioLiberouCampo = false;
 
+function obterConvitePendenteSalvo(email) {
+  if (!email) return "";
+
+  try {
+    return (
+      window.localStorage.getItem(`psicotarefas_convite_pendente:${email.toLowerCase()}`) ||
+      ""
+    ).trim();
+  } catch {
+    return "";
+  }
+}
+
+function guardarConvitePendente(email, token) {
+  if (!email || !token) return;
+
+  try {
+    window.localStorage.setItem(
+      `psicotarefas_convite_pendente:${email.toLowerCase()}`,
+      token
+    );
+  } catch {
+    // Sem armazenamento local, o fluxo segue pelo token da URL.
+  }
+}
+
+function removerConvitePendenteSalvo(email) {
+  if (!email) return;
+
+  try {
+    window.localStorage.removeItem(`psicotarefas_convite_pendente:${email.toLowerCase()}`);
+  } catch {
+    // Nada a remover quando o armazenamento local não está disponível.
+  }
+}
+
 registrarAcessoPagina({
   pagina: "login_paciente",
   perfil: "publico",
@@ -394,12 +430,15 @@ async function obterDestinoPorPerfil(userId, perfil) {
     : "../../dashboard/paciente-sem-vinculo/index.html";
 }
 
-async function processarConviteParaPaciente(userId, patientEmail) {
-  if (!conviteToken) {
-    return;
+async function processarConviteParaPaciente(userId, patientEmail, token = conviteToken) {
+  if (!token) {
+    return false;
   }
 
-  const convite = conviteInfo || (await buscarConvitePublico(conviteToken));
+  const convite =
+    token === conviteToken && conviteInfo
+      ? conviteInfo
+      : await buscarConvitePublico(token);
 
   if (!convite) {
     throw new Error("Convite não encontrado.");
@@ -416,7 +455,7 @@ async function processarConviteParaPaciente(userId, patientEmail) {
   const { data: vinculoExistente, error: erroBuscarVinculo } = await supabase
     .from("vinculos")
     .select("id, status, patient_user_id, patient_email, respondeu_convite_at")
-    .eq("token_convite", conviteToken)
+    .eq("token_convite", token)
     .maybeSingle();
 
   if (erroBuscarVinculo || !vinculoExistente) {
@@ -449,16 +488,68 @@ async function processarConviteParaPaciente(userId, patientEmail) {
       status: "aceito",
       accepted_at: new Date().toISOString()
     })
-    .eq("token", conviteToken);
+    .eq("token", token);
 
   if (erroAtualizarConvite) {
     throw new Error("Não foi possível marcar o convite como aceito.");
   }
 
-  conviteInfo = {
-    ...convite,
-    status: "aceito"
-  };
+  if (token === conviteToken) {
+    conviteInfo = {
+      ...convite,
+      status: "aceito"
+    };
+  }
+
+  return true;
+}
+
+async function buscarVinculoPendenteDoPaciente(userId, patientEmail) {
+  const statusPendentes = [
+    "pendente_convite",
+    "aguardando_confirmacao_email",
+    "respondido"
+  ];
+
+  const consultarVinculo = (campo, valor) =>
+    supabase
+      .from("vinculos")
+      .select("id, token_convite, status, patient_user_id, patient_email, respondeu_convite_at, convite_created_at")
+      .in("status", statusPendentes)
+      .eq(campo, valor)
+      .order("convite_created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+  const { data: vinculoPorUsuario, error: erroUsuario } = await consultarVinculo(
+    "patient_user_id",
+    userId
+  );
+
+  if (!erroUsuario && vinculoPorUsuario?.token_convite) {
+    return vinculoPorUsuario;
+  }
+
+  const { data: vinculoPorEmail, error: erroEmail } = await consultarVinculo(
+    "patient_email",
+    patientEmail
+  );
+
+  if (!erroEmail && vinculoPorEmail?.token_convite) {
+    return vinculoPorEmail;
+  }
+
+  return null;
+}
+
+async function processarVinculoPendenteDoPaciente(userId, patientEmail) {
+  const vinculoPendente = await buscarVinculoPendenteDoPaciente(userId, patientEmail);
+
+  if (!vinculoPendente?.token_convite) {
+    return false;
+  }
+
+  return processarConviteParaPaciente(userId, patientEmail, vinculoPendente.token_convite);
 }
 
 toggleButtons.forEach((button) => {
@@ -534,6 +625,7 @@ if (btnResendConfirmation) {
     btnResendConfirmation.textContent = "Reenviando...";
 
     try {
+      guardarConvitePendente(email, conviteToken);
       await reenviarEmailDeConfirmacao(email);
       mostrarMensagem(
         "Enviamos um novo e-mail de confirmação. Abra a mensagem mais recente para concluir seu acesso.",
@@ -591,8 +683,21 @@ authForm.addEventListener("submit", async (event) => {
       userId: user.id
     });
 
-    if (conviteToken) {
-      await processarConviteParaPaciente(user.id, email);
+    let conviteProcessado = false;
+    const tokenConviteParaProcessar = conviteToken || obterConvitePendenteSalvo(email);
+
+    if (tokenConviteParaProcessar) {
+      conviteProcessado = await processarConviteParaPaciente(
+        user.id,
+        email,
+        tokenConviteParaProcessar
+      );
+    } else {
+      conviteProcessado = await processarVinculoPendenteDoPaciente(user.id, email);
+    }
+
+    if (conviteProcessado) {
+      removerConvitePendenteSalvo(email);
     }
 
     const temVinculo = await pacienteTemVinculoAtivo(user.id);
@@ -608,7 +713,7 @@ authForm.addEventListener("submit", async (event) => {
       email,
       contexto: {
         destino: temVinculo ? "paciente_com_vinculo" : "paciente_sem_vinculo",
-        convite: Boolean(conviteToken)
+        convite: Boolean(conviteToken || conviteProcessado)
       }
     });
 

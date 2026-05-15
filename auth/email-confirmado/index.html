@@ -134,8 +134,10 @@
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search || "");
-      var perfil = params.get("perfil") === "profissional" ? "profissional" : "paciente";
-      var convite = (params.get("convite") || "").trim();
+      var hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+      var perfilParam = params.get("perfil") || hashParams.get("perfil") || "";
+      var convite = (params.get("convite") || hashParams.get("convite") || "").trim();
+      var perfil = perfilParam === "profissional" ? "profissional" : "paciente";
       var login = document.getElementById("primaryLogin");
       var destino = perfil === "profissional"
         ? "../profissional-login/index.html?confirmado=1"

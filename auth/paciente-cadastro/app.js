@@ -47,6 +47,19 @@ let conviteBloqueado = false;
 let consentimentosDisponiveis = [];
 let consentimentosCarregados = false;
 
+function guardarConvitePendente(email, token) {
+  if (!email || !token) return;
+
+  try {
+    window.localStorage.setItem(
+      `psicotarefas_convite_pendente:${email.toLowerCase()}`,
+      token
+    );
+  } catch {
+    // Sem armazenamento local, o fluxo segue pelo token da URL.
+  }
+}
+
 registrarAcessoPagina({
   pagina: "cadastro_paciente",
   perfil: "publico",
@@ -458,6 +471,8 @@ authForm.addEventListener("submit", async (event) => {
   btnSubmit.textContent = "Criando conta...";
 
   try {
+    guardarConvitePendente(email, conviteToken);
+
     const resultadoCadastro = await cadastrarPaciente({
       nome,
       email,
