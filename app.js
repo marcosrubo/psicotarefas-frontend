@@ -362,9 +362,25 @@ function tratarRecuperacaoDeSenha() {
   return true;
 }
 
-function montarUrlLoginConfirmado(perfil, token = "") {
-  const destino = new URL(obterLoginUrlPorPerfil(perfil, token));
-  destino.searchParams.set("confirmado", "1");
+function montarUrlEmailConfirmado(perfil, token = "") {
+  const destino = new URL(criarUrlDoApp("auth/email-confirmado/index.html"));
+  const searchParams = obterSearchParams();
+  const hash = window.location.hash || "";
+
+  searchParams.forEach((value, key) => {
+    destino.searchParams.set(key, value);
+  });
+
+  destino.searchParams.set("perfil", perfil);
+
+  if (token) {
+    destino.searchParams.set("convite", token);
+  }
+
+  if (hash) {
+    destino.hash = hash;
+  }
+
   return destino.href;
 }
 
@@ -426,7 +442,7 @@ function tratarConfirmacaoDeEmail() {
     }
   }
 
-  const destino = montarUrlLoginConfirmado(perfil, tokenConvite);
+  const destino = montarUrlEmailConfirmado(perfil, tokenConvite);
 
   window.location.replace(destino);
   return true;
