@@ -258,7 +258,7 @@ function mostrarCaixaConfirmacaoEmail({ jaConfirmado = false } = {}) {
 
   const title = document.createElement("h2");
   title.textContent = jaConfirmado
-    ? "Este e-mail já foi confirmado."
+    ? "Este link de confirmação já foi usado ou expirou."
     : "Obrigado por confirmar seu E-mail.";
   title.style.margin = "0";
   title.style.fontSize = "24px";
@@ -266,7 +266,9 @@ function mostrarCaixaConfirmacaoEmail({ jaConfirmado = false } = {}) {
   title.style.color = "#1f2430";
 
   const text = document.createElement("p");
-  text.textContent = "Agora digite somente sua senha para entrar.";
+  text.textContent = jaConfirmado
+    ? "Use seu e-mail e senha para se conectar."
+    : "Agora digite somente sua senha para entrar.";
   text.style.margin = "0";
   text.style.color = "#667085";
   text.style.fontSize = "16px";

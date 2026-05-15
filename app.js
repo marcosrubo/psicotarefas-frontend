@@ -440,10 +440,14 @@ function tratarConfirmacaoDeEmail() {
       textoErro.includes("expired") ||
       textoErro.includes("invalid")
     ) {
-      const destino = obterLoginUrlPorPerfil(perfil, tokenConvite);
+      const destinoUrl = new URL(obterLoginUrlPorPerfil(perfil, tokenConvite));
+      destinoUrl.searchParams.set("ja_confirmado", "1");
+      destinoUrl.searchParams.set("erro_confirmacao", "link_usado_ou_expirado");
+      const destino = destinoUrl.href;
 
       mostrarCaixaDepuracao(
-        `Entrando no PsicoTarefas - vindo da confirmação do email\n` +
+        `Este link de confirmação já foi usado ou expirou.\n` +
+          `Use seu e-mail e senha para se conectar.\n` +
           `URL atual: ${window.location.href}\n` +
           `Destino: ${destino}`,
         () => {
