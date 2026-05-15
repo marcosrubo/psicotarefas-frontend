@@ -64,6 +64,8 @@ function obterEmailConfirmado() {
 
   if (emailDaUrl) return emailDaUrl;
 
+  if (!temSinalConfirmacaoNaUrl()) return "";
+
   try {
     const emailDaSessao = (
       window.sessionStorage.getItem("psicotarefas_email_confirmado_valor") || ""
@@ -81,6 +83,19 @@ function obterEmailConfirmado() {
   } catch {
     return "";
   }
+}
+
+function temSinalConfirmacaoNaUrl() {
+  return (
+    params.get("confirmado") === "1" ||
+    params.get("type") === "signup" ||
+    params.get("type") === "email" ||
+    hashParams.get("type") === "signup" ||
+    hashParams.get("type") === "email" ||
+    Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
+    Boolean(hashParams.get("access_token")) ||
+    linkConfirmacaoJaFoiUsado()
+  );
 }
 
 function guardarEmailConfirmadoParaLogin(email) {
@@ -129,6 +144,8 @@ function linkConfirmacaoJaFoiUsado() {
 }
 
 function veioDeConfirmacaoEmail() {
+  if (!temSinalConfirmacaoNaUrl()) return false;
+
   try {
     if (window.sessionStorage.getItem("psicotarefas_email_confirmado_recentemente") === "1") {
       return true;
@@ -143,14 +160,7 @@ function veioDeConfirmacaoEmail() {
 function veioDoFluxoConfirmacaoEmail() {
   return (
     veioDeConfirmacaoEmail() ||
-    params.get("confirmado") === "1" ||
-    params.get("type") === "signup" ||
-    params.get("type") === "email" ||
-    hashParams.get("type") === "signup" ||
-    hashParams.get("type") === "email" ||
-    Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
-    Boolean(hashParams.get("access_token")) ||
-    linkConfirmacaoJaFoiUsado()
+    temSinalConfirmacaoNaUrl()
   );
 }
 
