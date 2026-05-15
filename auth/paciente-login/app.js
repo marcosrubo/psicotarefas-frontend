@@ -130,6 +130,36 @@ function obterOrigemDepuracaoEntrada() {
     : "Vindo do clique no ícone de paciente";
 }
 
+function obterResumoParametrosDepuracao() {
+  const valores = {
+    confirmado: params.get("confirmado") || "null",
+    ja_confirmado: params.get("ja_confirmado") || "null",
+    email: params.get("email") || "null",
+    convite: params.get("convite") || "null",
+    code: params.get("code") ? "presente" : "null",
+    token_hash: params.get("token_hash") ? "presente" : "null",
+    token: params.get("token") ? "presente" : "null",
+    type_query: params.get("type") || "null",
+    type_hash: hashParams.get("type") || "null",
+    access_token: hashParams.get("access_token") ? "presente" : "null",
+    error_code: params.get("error_code") || hashParams.get("error_code") || "null"
+  };
+
+  return (
+    `URL recebida: confirmado=${valores.confirmado}, ` +
+    `ja_confirmado=${valores.ja_confirmado}, ` +
+    `email=${valores.email}, ` +
+    `convite=${valores.convite}, ` +
+    `code=${valores.code}, ` +
+    `token_hash=${valores.token_hash}, ` +
+    `token=${valores.token}, ` +
+    `type_query=${valores.type_query}, ` +
+    `type_hash=${valores.type_hash}, ` +
+    `access_token=${valores.access_token}, ` +
+    `error_code=${valores.error_code}`
+  );
+}
+
 async function obterEmailPorCodigoConfirmacao() {
   const code = (params.get("code") || hashParams.get("code") || "").trim();
 
@@ -308,7 +338,7 @@ registrarAcessoPagina({
 });
 
 mostrarCaixaDepuracao(
-  `entrando no /auth/paciente-login/index.html - ${obterOrigemDepuracaoEntrada()}`
+  `entrando no /auth/paciente-login/index.html - ${obterOrigemDepuracaoEntrada()}\n${obterResumoParametrosDepuracao()}`
 );
 
 function mostrarCaixaDepuracao(texto) {
@@ -336,9 +366,10 @@ function mostrarCaixaDepuracao(texto) {
 
   const title = document.createElement("h2");
   title.textContent = texto;
+  title.style.whiteSpace = "pre-line";
   title.style.margin = "0";
-  title.style.fontSize = "24px";
-  title.style.lineHeight = "1.15";
+  title.style.fontSize = "20px";
+  title.style.lineHeight = "1.3";
   title.style.color = "#1f2430";
 
   const button = document.createElement("button");
