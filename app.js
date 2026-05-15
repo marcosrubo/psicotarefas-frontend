@@ -142,7 +142,7 @@ function veioDaConfirmacaoEmail() {
 function obterOrigemDepuracaoEntrada() {
   return veioDaConfirmacaoEmail()
     ? "vindo da confirmação do email"
-    : "Vindo do clique no ícone de paciente";
+    : "Vindo do acesso normal";
 }
 
 function obterTokenConviteAtual() {
