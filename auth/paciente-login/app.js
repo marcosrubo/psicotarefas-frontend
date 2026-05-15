@@ -912,14 +912,12 @@ authForm.addEventListener("submit", async (event) => {
     const perfilUsuario = await buscarPerfilUsuario(user.id);
 
     if (perfilUsuario.perfil !== "paciente") {
-      const destino = await obterDestinoPorPerfil(user.id, perfilUsuario.perfil);
+      await supabase.auth.signOut();
+      removerEmailConfirmacaoPendente();
       mostrarMensagem(
-        "Esta conta já está ativa em outro painel. Redirecionando...",
-        "success"
+        "Este e-mail pertence a um profissional. Entre pela área do profissional.",
+        "error"
       );
-      window.setTimeout(() => {
-        window.location.href = destino;
-      }, 800);
       return;
     }
 

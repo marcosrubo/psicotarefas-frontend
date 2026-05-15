@@ -362,7 +362,7 @@ function tratarRecuperacaoDeSenha() {
   return true;
 }
 
-function montarUrlEmailConfirmado(perfil, token = "") {
+function montarUrlEmailConfirmado(perfil = "", token = "") {
   const destino = new URL(criarUrlDoApp("auth/email-confirmado/index.html"));
   const searchParams = obterSearchParams();
   const hash = window.location.hash || "";
@@ -371,7 +371,9 @@ function montarUrlEmailConfirmado(perfil, token = "") {
     destino.searchParams.set(key, value);
   });
 
-  destino.searchParams.set("perfil", perfil);
+  if (perfil) {
+    destino.searchParams.set("perfil", perfil);
+  }
 
   if (token) {
     destino.searchParams.set("convite", token);
@@ -404,7 +406,11 @@ function tratarConfirmacaoDeEmail() {
     ((tipo === "email" || tipo === "signup") ? searchParams.get("token") : "") ||
     "";
   const tokenConvite = (searchParams.get("convite") || "").trim();
-  const perfil = searchParams.get("perfil") === "profissional" ? "profissional" : "paciente";
+  const perfilParam = searchParams.get("perfil");
+  const perfil =
+    perfilParam === "profissional" || perfilParam === "paciente"
+      ? perfilParam
+      : "";
   const accessToken = hashParams.get("access_token") || "";
   const hasAccessToken = Boolean(accessToken);
   const deveTratarConfirmacao =
@@ -427,7 +433,7 @@ function tratarConfirmacaoDeEmail() {
       textoErro.includes("expired") ||
       textoErro.includes("invalid")
     ) {
-      const destinoUrl = new URL(obterLoginUrlPorPerfil(perfil, tokenConvite));
+      const destinoUrl = new URL(obterLoginUrlPorPerfil(perfil || "paciente", tokenConvite));
       destinoUrl.searchParams.set("ja_confirmado", "1");
       destinoUrl.searchParams.set("erro_confirmacao", "link_usado_ou_expirado");
       const destino = destinoUrl.href;

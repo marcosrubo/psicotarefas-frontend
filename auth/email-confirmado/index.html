@@ -176,6 +176,8 @@
     import supabase from "../../shared/supabase.js?v=20260515-confirmacao-email-code";
 
     (async function () {
+      var usuarioConfirmado = null;
+
       function decodeBase64Url(value) {
         var normalized = value.replace(/-/g, "+").replace(/_/g, "/");
         var padding = normalized.length % 4;
@@ -206,9 +208,63 @@
         try {
           var result = await supabase.auth.exchangeCodeForSession(code);
           var user = result?.data?.user || result?.data?.session?.user || null;
+          usuarioConfirmado = user;
           return String(user?.email || "").trim();
         } catch (error) {
           return "";
+        }
+      }
+
+      async function obterPerfilPorEmail(email) {
+        try {
+          if (usuarioConfirmado?.id) {
+            var perfilPorUsuario = await supabase
+              .from("perfis")
+              .select("perfil")
+              .eq("user_id", usuarioConfirmado.id)
+              .maybeSingle();
+
+            var perfilUsuario = perfilPorUsuario?.data?.perfil || "";
+            if (perfilUsuario === "profissional" || perfilUsuario === "paciente") {
+              return perfilUsuario;
+            }
+          }
+        } catch (error) {
+          // Se a sessão ainda não estiver pronta, tenta pelo e-mail abaixo.
+        }
+
+        if (!email) return "";
+
+        try {
+          var result = await supabase
+            .from("perfis")
+            .select("perfil")
+            .eq("email", email.toLowerCase())
+            .maybeSingle();
+
+          var perfil = result?.data?.perfil || "";
+          return perfil === "profissional" || perfil === "paciente" ? perfil : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      async function prepararSessaoPorHash() {
+        var accessToken = (hashParams.get("access_token") || "").trim();
+        var refreshToken = (hashParams.get("refresh_token") || "").trim();
+
+        if (!accessToken || !refreshToken) return;
+
+        try {
+          var result = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+
+          usuarioConfirmado =
+            result?.data?.user || result?.data?.session?.user || usuarioConfirmado;
+        } catch (error) {
+          // Se a sessão pelo hash falhar, o fluxo ainda tenta resolver pelo e-mail.
         }
       }
 
@@ -258,6 +314,8 @@
       var code = (params.get("code") || hashParams.get("code") || "").trim();
       var jaConfirmado = linkConfirmacaoJaFoiUsado();
 
+      await prepararSessaoPorHash();
+
       if (!email) {
         email = await obterEmailPorCodigo(code);
       }
@@ -270,7 +328,14 @@
         }
       }
 
-      var perfil = perfilParam === "profissional" ? "profissional" : "paciente";
+      var perfil = perfilParam === "profissional" || perfilParam === "paciente"
+        ? perfilParam
+        : await obterPerfilPorEmail(email);
+
+      if (!perfil) {
+        perfil = "paciente";
+      }
+
       var login = document.getElementById("primaryLogin");
       var destino = perfil === "profissional"
         ? "../profissional-login/index.html?confirmado=1"
