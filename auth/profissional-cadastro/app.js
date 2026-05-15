@@ -179,7 +179,10 @@ function fecharModalDocumento() {
 }
 
 async function cadastrarProfissional({ nome, email, senha }) {
-  const redirectUrl = `${window.location.origin}/auth/email-confirmado/index.html?perfil=profissional`;
+  const query = new URLSearchParams();
+  query.set("perfil", "profissional");
+  query.set("email", email);
+  const redirectUrl = `${window.location.origin}/auth/email-confirmado/index.html?${query.toString()}`;
 
   const { data, error } = await supabase.auth.signUp({
     email,

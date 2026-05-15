@@ -23,11 +23,228 @@ const TAREFA_POS_LOGIN_TIMEOUT_MS = 4500;
 
 let usuarioLiberouCampo = false;
 const params = new URLSearchParams(window.location.search);
+const hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+const emailConfirmado = obterEmailConfirmado();
+guardarEmailConfirmadoParaLogin(emailConfirmado);
 
 registrarAcessoPagina({
   pagina: "login_profissional",
   perfil: "publico"
 });
+
+function decodeBase64Url(value) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = normalized.length % 4;
+  const padded = padding ? normalized + "=".repeat(4 - padding) : normalized;
+
+  return window.atob(padded);
+}
+
+function obterEmailDoAccessToken(token) {
+  try {
+    const payload = token.split(".")[1] || "";
+
+    if (!payload) return "";
+
+    const dados = JSON.parse(decodeBase64Url(payload));
+    return String(dados.email || "");
+  } catch {
+    return "";
+  }
+}
+
+function obterEmailConfirmado() {
+  const emailDaUrl = (
+    params.get("email") ||
+    hashParams.get("email") ||
+    obterEmailDoAccessToken(hashParams.get("access_token") || "")
+  )
+    .trim()
+    .toLowerCase();
+
+  if (emailDaUrl) return emailDaUrl;
+
+  try {
+    const emailDaSessao = (
+      window.sessionStorage.getItem("psicotarefas_email_confirmado_valor") || ""
+    ).trim().toLowerCase();
+
+    if (emailDaSessao) return emailDaSessao;
+  } catch {
+    // Sem sessionStorage, tenta o armazenamento persistente abaixo.
+  }
+
+  try {
+    return (
+      window.localStorage.getItem("psicotarefas_email_confirmacao_pendente") || ""
+    ).trim().toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function guardarEmailConfirmadoParaLogin(email) {
+  if (!email) return;
+
+  try {
+    window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
+    window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email.toLowerCase());
+    window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email.toLowerCase());
+  } catch {
+    // Se storage estiver bloqueado, o e-mail da URL ainda é usado nesta tela.
+  }
+}
+
+function removerEmailConfirmacaoPendente() {
+  try {
+    window.localStorage.removeItem("psicotarefas_email_confirmacao_pendente");
+    window.sessionStorage.removeItem("psicotarefas_email_confirmado_valor");
+    window.sessionStorage.removeItem("psicotarefas_email_confirmado_recentemente");
+  } catch {
+    // Nada a remover quando o armazenamento local não está disponível.
+  }
+}
+
+function linkConfirmacaoJaFoiUsado() {
+  const erro = [
+    params.get("error"),
+    params.get("error_code"),
+    params.get("error_description"),
+    hashParams.get("error"),
+    hashParams.get("error_code"),
+    hashParams.get("error_description")
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    params.get("ja_confirmado") === "1" ||
+    hashParams.get("ja_confirmado") === "1" ||
+    erro.includes("expired") ||
+    erro.includes("invalid") ||
+    erro.includes("otp_expired") ||
+    erro.includes("access_denied")
+  );
+}
+
+function veioDeConfirmacaoEmail() {
+  try {
+    if (window.sessionStorage.getItem("psicotarefas_email_confirmado_recentemente") === "1") {
+      return true;
+    }
+  } catch {
+    // Sem sessionStorage, usa somente os sinais da URL.
+  }
+
+  return false;
+}
+
+function veioDoFluxoConfirmacaoEmail() {
+  return (
+    veioDeConfirmacaoEmail() ||
+    params.get("confirmado") === "1" ||
+    params.get("type") === "signup" ||
+    params.get("type") === "email" ||
+    hashParams.get("type") === "signup" ||
+    hashParams.get("type") === "email" ||
+    Boolean(params.get("code") || params.get("token_hash") || params.get("token")) ||
+    Boolean(hashParams.get("access_token")) ||
+    linkConfirmacaoJaFoiUsado()
+  );
+}
+
+async function obterEmailPorCodigoConfirmacao() {
+  const code = (params.get("code") || hashParams.get("code") || "").trim();
+
+  if (!code) return "";
+
+  try {
+    const result = await supabase.auth.exchangeCodeForSession(code);
+    const user = result?.data?.user || result?.data?.session?.user || null;
+    return String(user?.email || "").trim().toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function aplicarEmailConfirmadoNaTela(email) {
+  if (!email || !emailInput) return;
+
+  emailInput.value = email;
+  usuarioLiberouCampo = true;
+  emailInput.dataset.userUnlocked = "true";
+  emailInput.removeAttribute("readonly");
+  emailInput.removeAttribute("inputmode");
+
+  if (senhaInput) {
+    senhaInput.focus();
+  }
+}
+
+function mostrarCaixaConfirmacaoEmail({ jaConfirmado = false } = {}) {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.inset = "0";
+  overlay.style.zIndex = "1000";
+  overlay.style.display = "grid";
+  overlay.style.placeItems = "center";
+  overlay.style.padding = "20px";
+  overlay.style.background = "rgba(31, 36, 48, 0.36)";
+
+  const dialog = document.createElement("div");
+  dialog.setAttribute("role", "dialog");
+  dialog.setAttribute("aria-modal", "true");
+  dialog.style.width = "100%";
+  dialog.style.maxWidth = "420px";
+  dialog.style.display = "grid";
+  dialog.style.gap = "14px";
+  dialog.style.padding = "24px 20px";
+  dialog.style.borderRadius = "18px";
+  dialog.style.background = "#fff";
+  dialog.style.boxShadow = "0 18px 42px rgba(31, 36, 48, 0.18)";
+  dialog.style.textAlign = "center";
+
+  const title = document.createElement("h2");
+  title.textContent = jaConfirmado
+    ? "Este link de confirmação já foi usado ou expirou."
+    : "Obrigado por confirmar seu E-mail.";
+  title.style.margin = "0";
+  title.style.fontSize = "24px";
+  title.style.lineHeight = "1.15";
+  title.style.color = "#1f2430";
+
+  const text = document.createElement("p");
+  text.textContent = jaConfirmado
+    ? "Use seu e-mail e senha para se conectar."
+    : "Agora digite somente sua senha para entrar.";
+  text.style.margin = "0";
+  text.style.color = "#667085";
+  text.style.fontSize = "16px";
+  text.style.lineHeight = "1.45";
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = "OK";
+  button.style.minHeight = "50px";
+  button.style.border = "none";
+  button.style.borderRadius = "14px";
+  button.style.background = "#1250e6";
+  button.style.color = "#fff";
+  button.style.font = "inherit";
+  button.style.fontWeight = "800";
+  button.style.cursor = "pointer";
+
+  button.addEventListener("click", () => {
+    overlay.remove();
+    if (senhaInput) senhaInput.focus();
+  });
+
+  dialog.append(title, text, button);
+  overlay.append(dialog);
+  document.body.append(overlay);
+  button.focus();
+}
 
 function bloquearEntradaInicial({ resetUnlock = true } = {}) {
   if (!resetUnlock && usuarioLiberouCampo) return;
@@ -167,6 +384,17 @@ function montarRedirectUrlRecuperacaoSenha() {
 function montarRedirectUrlConfirmacao() {
   const url = new URL("../email-confirmado/index.html", window.location.href);
   url.searchParams.set("perfil", "profissional");
+
+  const email = emailInput.value.trim().toLowerCase();
+  if (email) {
+    url.searchParams.set("email", email);
+    try {
+      window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email);
+    } catch {
+      // Sem armazenamento local, o fluxo segue pelo e-mail da URL.
+    }
+  }
+
   return url.href;
 }
 
@@ -470,6 +698,7 @@ authForm.addEventListener("submit", async (event) => {
     }
 
     await executarTarefasPosLogin({ user, email });
+    removerEmailConfirmacaoPendente();
 
     mostrarMensagem("Login realizado com sucesso! Redirecionando...", "success");
     btnSubmit.textContent = "Redirecionando...";
@@ -494,10 +723,23 @@ authForm.addEventListener("submit", async (event) => {
   }
 });
 
-function mostrarConfirmacaoEmailSeNecessario() {
-  if (params.get("confirmado") !== "1") return;
+async function inicializarLoginProfissional() {
+  let emailParaPreencher = emailConfirmado;
 
-  mostrarMensagem("E-mail confirmado. Agora entre com seu e-mail e senha.", "success");
+  if (!emailParaPreencher) {
+    emailParaPreencher = await obterEmailPorCodigoConfirmacao();
+    guardarEmailConfirmadoParaLogin(emailParaPreencher);
+  }
+
+  aplicarEmailConfirmadoNaTela(emailParaPreencher);
+
+  if (veioDoFluxoConfirmacaoEmail()) {
+    mostrarCaixaConfirmacaoEmail({
+      jaConfirmado: linkConfirmacaoJaFoiUsado()
+    });
+  }
 }
 
-mostrarConfirmacaoEmailSeNecessario();
+inicializarLoginProfissional().catch((erro) => {
+  mostrarMensagem(erro.message || "Não foi possível preparar a tela de login.", "error");
+});
