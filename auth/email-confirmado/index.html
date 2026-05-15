@@ -212,17 +212,13 @@
         }
       }
 
-      function guardarConfirmacao(email, perfil) {
+      function guardarConfirmacao(email) {
         try {
           window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
 
           if (email) {
             window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email);
             window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email);
-          }
-
-          if (perfil) {
-            window.localStorage.setItem("psicotarefas_perfil_confirmacao_pendente", perfil);
           }
         } catch (error) {
           // Se o navegador bloquear storage, o login ainda recebe os dados pela URL.
@@ -292,7 +288,7 @@
         destino += "&email=" + encodeURIComponent(email);
       }
 
-      guardarConfirmacao(email, perfil);
+      guardarConfirmacao(email);
 
       login.href = destino;
       login.removeAttribute("aria-disabled");
