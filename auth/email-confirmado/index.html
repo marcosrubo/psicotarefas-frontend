@@ -130,6 +130,11 @@
       cursor: pointer;
     }
 
+    button.primary:disabled {
+      cursor: wait;
+      opacity: 0.72;
+    }
+
     .secondary {
       border: 1px solid #dfe7f4;
       color: #1250e6;
@@ -148,7 +153,7 @@
       <h1>E-mail confirmado</h1>
       <p>Agora entre com seu e-mail e senha para acessar o PsicoTarefas.</p>
       <div class="actions">
-        <a class="primary" id="primaryLogin" href="../paciente-login/index.html">
+        <a class="primary" id="primaryLogin" href="../paciente-login/index.html" aria-disabled="true">
           Entrar
         </a>
         <a class="secondary" href="../../index.html">
@@ -162,12 +167,15 @@
     <div class="confirmation-box__dialog">
       <h1 id="confirmationTitle">Obrigado por confirmar seu E-mail.</h1>
       <p>Toque em OK para entrar no PsicoTarefas.</p>
-      <button class="primary" id="confirmOk" type="button">OK</button>
+      <button class="primary" id="confirmOk" type="button" disabled>Preparando...</button>
     </div>
   </div>
 
-  <script>
-    (function () {
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import supabase from "../../shared/supabase.js?v=20260515-confirmacao-email-code";
+
+    (async function () {
       function decodeBase64Url(value) {
         var normalized = value.replace(/-/g, "+").replace(/_/g, "/");
         var padding = normalized.length % 4;
@@ -192,6 +200,31 @@
         }
       }
 
+      async function obterEmailPorCodigo(code) {
+        if (!code) return "";
+
+        try {
+          var result = await supabase.auth.exchangeCodeForSession(code);
+          var user = result?.data?.user || result?.data?.session?.user || null;
+          return String(user?.email || "").trim();
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function guardarConfirmacao(email) {
+        try {
+          window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
+
+          if (email) {
+            window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email);
+            window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email);
+          }
+        } catch (error) {
+          // Se o navegador bloquear storage, o login ainda recebe os dados pela URL.
+        }
+      }
+
       var params = new URLSearchParams(window.location.search || "");
       var hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
       var perfilParam = params.get("perfil") || hashParams.get("perfil") || "";
@@ -201,6 +234,11 @@
         hashParams.get("email") ||
         obterEmailDoAccessToken(hashParams.get("access_token") || "")
       ).trim();
+      var code = (params.get("code") || hashParams.get("code") || "").trim();
+
+      if (!email) {
+        email = await obterEmailPorCodigo(code);
+      }
 
       if (!email) {
         try {
@@ -224,22 +262,18 @@
         destino += "&email=" + encodeURIComponent(email);
       }
 
-      try {
-        window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
-
-        if (email) {
-          window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email);
-        }
-      } catch (error) {
-        // Se o navegador bloquear sessionStorage, o login ainda recebe os dados pela URL.
-      }
+      guardarConfirmacao(email);
 
       login.href = destino;
+      login.removeAttribute("aria-disabled");
       login.textContent = perfil === "profissional"
         ? "Entrar como profissional"
         : "Entrar como paciente";
 
-      document.getElementById("confirmOk").addEventListener("click", function () {
+      var confirmOk = document.getElementById("confirmOk");
+      confirmOk.disabled = false;
+      confirmOk.textContent = "OK";
+      confirmOk.addEventListener("click", function () {
         window.location.href = destino;
       });
     })();

@@ -6,6 +6,7 @@ const params = new URLSearchParams(window.location.search);
 const conviteToken = (params.get("convite") || "").trim();
 const hashParams = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
 const emailConfirmado = obterEmailConfirmado();
+guardarEmailConfirmadoParaLogin(emailConfirmado);
 
 const authTitle = document.getElementById("authTitle");
 const authSubtitle = document.getElementById("authSubtitle");
@@ -83,6 +84,32 @@ function obterEmailDoAccessToken(token) {
     return String(dados.email || "");
   } catch {
     return "";
+  }
+}
+
+async function obterEmailPorCodigoConfirmacao() {
+  const code = (params.get("code") || hashParams.get("code") || "").trim();
+
+  if (!code) return "";
+
+  try {
+    const result = await supabase.auth.exchangeCodeForSession(code);
+    const user = result?.data?.user || result?.data?.session?.user || null;
+    return String(user?.email || "").trim().toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function guardarEmailConfirmadoParaLogin(email) {
+  if (!email) return;
+
+  try {
+    window.sessionStorage.setItem("psicotarefas_email_confirmado_recentemente", "1");
+    window.sessionStorage.setItem("psicotarefas_email_confirmado_valor", email.toLowerCase());
+    window.localStorage.setItem("psicotarefas_email_confirmacao_pendente", email.toLowerCase());
+  } catch {
+    // Se storage estiver bloqueado, o e-mail da URL ainda é usado nesta tela.
   }
 }
 
@@ -899,12 +926,13 @@ authForm.addEventListener("submit", async (event) => {
 
 async function inicializarLogin() {
   configurarTelaBase();
-  await validarConvite();
-  aplicarContextoConviteNaTela();
 
-  const emailDoConvite =
-    (conviteInfo?.patient_email || conviteInfo?.email || "").trim().toLowerCase();
-  const emailParaPreencher = emailConfirmado || emailDoConvite;
+  let emailParaPreencher = emailConfirmado;
+
+  if (!emailParaPreencher) {
+    emailParaPreencher = await obterEmailPorCodigoConfirmacao();
+    guardarEmailConfirmadoParaLogin(emailParaPreencher);
+  }
 
   aplicarEmailConfirmadoNaTela(emailParaPreencher);
 
@@ -921,6 +949,26 @@ async function inicializarLogin() {
   if (temSinalConfirmacao) {
     mostrarCaixaConfirmacaoEmail();
   }
+
+  try {
+    await validarConvite();
+    aplicarContextoConviteNaTela();
+  } catch (erro) {
+    mostrarAvisoConvite(
+      "Não foi possível validar o convite agora",
+      "Digite sua senha e tente entrar. Se o vínculo ainda não aparecer, peça um novo convite ao profissional.",
+      "error"
+    );
+  }
+
+  const emailDoConvite =
+    (conviteInfo?.patient_email || conviteInfo?.email || "").trim().toLowerCase();
+
+  if (!emailParaPreencher && emailDoConvite) {
+    aplicarEmailConfirmadoNaTela(emailDoConvite);
+  }
 }
 
-inicializarLogin();
+inicializarLogin().catch((erro) => {
+  mostrarMensagem(erro.message || "Não foi possível preparar a tela de login.", "error");
+});
