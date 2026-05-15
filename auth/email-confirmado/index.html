@@ -314,6 +314,26 @@
       var code = (params.get("code") || hashParams.get("code") || "").trim();
       var jaConfirmado = linkConfirmacaoJaFoiUsado();
 
+      if (jaConfirmado) {
+        var inicio = new URL("../../index.html", window.location.href).href;
+        var confirmOkExpirado = document.getElementById("confirmOk");
+        var primaryLoginExpirado = document.getElementById("primaryLogin");
+
+        document.getElementById("confirmationTitle").textContent =
+          "Este link de confirmação já foi usado ou expirou.";
+        document.querySelector(".confirmation-box__dialog p").textContent =
+          "Entre pela tela principal e escolha se você é paciente ou profissional.";
+        primaryLoginExpirado.href = inicio;
+        primaryLoginExpirado.removeAttribute("aria-disabled");
+        primaryLoginExpirado.textContent = "Ir para a tela principal";
+        confirmOkExpirado.disabled = false;
+        confirmOkExpirado.textContent = "OK";
+        confirmOkExpirado.addEventListener("click", function () {
+          window.location.href = inicio;
+        });
+        return;
+      }
+
       await prepararSessaoPorHash();
 
       if (!email) {
@@ -340,10 +360,6 @@
       var destino = perfil === "profissional"
         ? "../profissional-login/index.html?confirmado=1"
         : "../paciente-login/index.html?confirmado=1";
-
-      if (jaConfirmado) {
-        destino += "&ja_confirmado=1";
-      }
 
       if (convite && perfil === "paciente") {
         destino += "&convite=" + encodeURIComponent(convite);

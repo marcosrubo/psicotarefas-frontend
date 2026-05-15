@@ -433,13 +433,10 @@ function tratarConfirmacaoDeEmail() {
       textoErro.includes("expired") ||
       textoErro.includes("invalid")
     ) {
-      const destinoUrl = new URL(obterLoginUrlPorPerfil(perfil || "paciente", tokenConvite));
-      destinoUrl.searchParams.set("ja_confirmado", "1");
-      destinoUrl.searchParams.set("erro_confirmacao", "link_usado_ou_expirado");
-      const destino = destinoUrl.href;
+      const destino = criarUrlDoApp("index.html");
 
       mostrarAvisoConfirmacao(
-        "Este link de confirmação já foi usado ou expirou.\nUse seu e-mail e senha para se conectar.",
+        "Este link de confirmação já foi usado ou expirou.\nEntre pela tela principal e escolha se você é paciente ou profissional.",
         () => {
           window.location.replace(destino);
         }
