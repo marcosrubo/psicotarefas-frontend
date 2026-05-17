@@ -68,6 +68,20 @@ export async function listarTarefasDoProfissional({ patientUserId } = {}) {
   return payload.tasks || [];
 }
 
+export async function contarTarefasDoProfissionalPorPaciente(patientUserIds = []) {
+  const ids = patientUserIds.filter(Boolean);
+
+  if (!ids.length) {
+    return {};
+  }
+
+  const payload = await requestTasksApi("/api/tasks/professional/counts", {
+    query: { patient_user_ids: ids.join(",") }
+  });
+
+  return payload.counts || {};
+}
+
 export async function listarTarefasDoPaciente() {
   const payload = await requestTasksApi("/api/tasks/patient");
 

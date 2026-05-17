@@ -1,5 +1,6 @@
 import supabase from "../../shared/supabase.js";
 import { registrarAcessoPagina, registrarEvento } from "../../shared/activity-log.js";
+import { contarTarefasDoProfissionalPorPaciente } from "../../shared/tasks-api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const patientsGrid = document.getElementById("patientsGrid");
@@ -173,22 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const { data: tarefas, error: tarefasError } = await supabase
-      .from("tarefas")
-      .select("patient_user_id")
-      .eq("professional_user_id", currentUser.id)
-      .in("patient_user_id", patientIds);
-
-    if (tarefasError) {
-      throw new Error(`Falha ao carregar quantidade de tarefas por paciente: ${tarefasError.message}`);
-    }
-
-    const tarefasPorPaciente = (tarefas || []).reduce((acc, tarefa) => {
-      const patientId = tarefa.patient_user_id;
-      if (!patientId) return acc;
-      acc[patientId] = (acc[patientId] || 0) + 1;
-      return acc;
-    }, {});
+    const tarefasPorPaciente = await contarTarefasDoProfissionalPorPaciente(patientIds);
 
     patients = patients.map((patient) => ({
       ...patient,
