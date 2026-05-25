@@ -248,7 +248,7 @@ ul {
   border: none;
   border-radius: 18px;
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  color: var(--primary-dark);
+  color: var(--danger);
   border: 1px solid rgba(18, 80, 230, 0.22);
   box-shadow: var(--shadow-soft);
   font-size: 17px;
