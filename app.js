@@ -22,6 +22,11 @@ const adminEmailInput = document.getElementById("adminEmail");
 const adminPasswordInput = document.getElementById("adminPassword");
 const adminLoginMessage = document.getElementById("adminLoginMessage");
 const btnSubmitAdminLogin = document.getElementById("btnSubmitAdminLogin");
+const developmentModal = document.getElementById("developmentModal");
+const developmentModalBackdrop = document.getElementById("developmentModalBackdrop");
+const btnOpenDevelopmentModal = document.getElementById("btnOpenDevelopmentModal");
+const btnCloseDevelopmentModal = document.getElementById("btnCloseDevelopmentModal");
+const btnReturnDevelopmentModal = document.getElementById("btnReturnDevelopmentModal");
 const iosInstallModal = document.getElementById("iosInstallModal");
 const iosInstallModalBackdrop = document.getElementById("iosInstallModalBackdrop");
 const btnCloseIosInstallModal = document.getElementById("btnCloseIosInstallModal");
@@ -499,6 +504,26 @@ function closeAdminModal() {
   adminEmailInput.value = ADMIN_EMAIL;
 }
 
+function openDevelopmentModal() {
+  if (!developmentModal) return;
+
+  developmentModal.classList.add("is-open");
+  developmentModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+
+  window.setTimeout(() => {
+    btnReturnDevelopmentModal?.focus();
+  }, 50);
+}
+
+function closeDevelopmentModal() {
+  if (!developmentModal) return;
+
+  developmentModal.classList.remove("is-open");
+  developmentModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
 function openIosInstallModal() {
   if (!iosInstallModal) return;
 
@@ -551,6 +576,22 @@ if (btnOpenAdminModal) {
   btnOpenAdminModal.addEventListener("click", openAdminModal);
 }
 
+if (btnOpenDevelopmentModal) {
+  btnOpenDevelopmentModal.addEventListener("click", openDevelopmentModal);
+}
+
+if (btnCloseDevelopmentModal) {
+  btnCloseDevelopmentModal.addEventListener("click", closeDevelopmentModal);
+}
+
+if (btnReturnDevelopmentModal) {
+  btnReturnDevelopmentModal.addEventListener("click", closeDevelopmentModal);
+}
+
+if (developmentModalBackdrop) {
+  developmentModalBackdrop.addEventListener("click", closeDevelopmentModal);
+}
+
 if (btnCloseAdminModal) {
   btnCloseAdminModal.addEventListener("click", closeAdminModal);
 }
@@ -578,6 +619,10 @@ if (btnConfirmIosInstallModal) {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && adminModal?.classList.contains("is-open")) {
     closeAdminModal();
+  }
+
+  if (event.key === "Escape" && developmentModal?.classList.contains("is-open")) {
+    closeDevelopmentModal();
   }
 
   if (event.key === "Escape" && iosInstallModal?.classList.contains("is-open")) {

@@ -90,7 +90,7 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="/style.css?v=20260510-temas-institucional" />
+  <link rel="stylesheet" href="/style.css?v=20260525-em-desenvolvimento" />
   <link rel="stylesheet" href="/shared/support.css?v=20260509-confirmation-paths" />
 </head>
 <body>
@@ -147,6 +147,14 @@
               <strong>PROFISSIONAL</strong>
             </a>
           </div>
+
+          <button
+            id="btnOpenDevelopmentModal"
+            class="home-selector__development"
+            type="button"
+          >
+            em desenvolvimento
+          </button>
         </div>
 
         <div class="home-hero-image">
@@ -367,6 +375,53 @@
   </div>
 
   <div
+    id="developmentModal"
+    class="modal"
+    aria-hidden="true"
+    role="dialog"
+    aria-labelledby="developmentModalTitle"
+  >
+    <div class="modal__backdrop" id="developmentModalBackdrop"></div>
+
+    <div class="modal__dialog">
+      <button
+        id="btnCloseDevelopmentModal"
+        class="modal__close"
+        type="button"
+        aria-label="Fechar"
+      >
+        ×
+      </button>
+
+      <div class="modal__header modal__header--development">
+        <p class="modal__eyebrow">Em desenvolvimento</p>
+        <h2 id="developmentModalTitle">PsicoTarefas</h2>
+      </div>
+
+      <div class="development-message">
+        <p>O PsicoTarefas encontra-se em desenvolvimento.</p>
+        <p>Você pode se cadastrar e utilizá-lo normalmente na modalidade GRATUÍTO.</p>
+        <p>Porém, todas as funcionalidades estarão disponíveis.</p>
+        <p>Caso tenha interesse em fazer parte do GRUPO DE PROFISSIONAIS COLABORADORES neste processo de desenvolvimento, entre em contado com o suporte.</p>
+      </div>
+
+      <div class="modal__actions">
+        <button type="button" id="btnReturnDevelopmentModal" class="btn-secondary">
+          Retornar
+        </button>
+        <a
+          class="btn-primary"
+          href="https://wa.me/5543999525060?text=Oi%20PsicoTarefas%2C%20desejo%20fazer%20parte%20do%20GRUPO%20DE%20PROFISSIONAIS%20COLABORADORES."
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Suporte
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div
     id="adminModal"
     class="modal"
     aria-hidden="true"
@@ -516,6 +571,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="/app.js?v=20260515-link-expirado-volta-inicio"></script>
+  <script type="module" src="/app.js?v=20260525-em-desenvolvimento"></script>
 </body>
 </html>
