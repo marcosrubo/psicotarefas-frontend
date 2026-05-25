@@ -23,6 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalsAdminList = document.getElementById("professionalsAdminList");
   const professionalsEmpty = document.getElementById("professionalsEmpty");
 
+  const recentProfilesTableBody = document.getElementById("recentProfilesTableBody");
+  const recentProfilesEmpty = document.getElementById("recentProfilesEmpty");
+
   const patientsWithoutLinkList = document.getElementById("patientsWithoutLinkList");
   const patientsWithoutLinkEmpty = document.getElementById("patientsWithoutLinkEmpty");
 
@@ -156,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       { data: convites }
     ] = await Promise.all([
       supabase.rpc("admin_total_users"),
-      supabase.from("perfis").select("*"),
+      supabase.from("perfis").select("*").order("updated_at", { ascending: false, nullsFirst: false }),
       supabase.from("vinculos").select("*"),
       supabase.from("convites").select("*").order("created_at", { ascending: false })
     ]);
@@ -187,6 +190,24 @@ document.addEventListener("DOMContentLoaded", () => {
     statInvitesAccepted.textContent = convitesAceitos.length;
     statInvitesPending.textContent = convitesPendentes.length;
     statInvitesCanceled.textContent = convitesCancelados.length;
+
+    if (!perfis.length) {
+      recentProfilesEmpty.hidden = false;
+      recentProfilesTableBody.innerHTML = "";
+    } else {
+      recentProfilesEmpty.hidden = true;
+      recentProfilesTableBody.innerHTML = perfis
+        .map(
+          (perfil) => `
+            <tr>
+              <td>${escapeHtml(perfil.nome || "")}</td>
+              <td>${escapeHtml(perfil.email || "")}</td>
+              <td>${escapeHtml(perfil.updated_at ? formatarData(perfil.updated_at) : "")}</td>
+            </tr>
+          `
+        )
+        .join("");
+    }
 
     if (!professionals.length) {
       professionalsEmpty.hidden = false;

@@ -257,6 +257,53 @@ input {
   gap: 12px;
 }
 
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: var(--muted-text);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  color: var(--text);
+}
+
+.admin-table td:nth-child(2),
+.admin-table td:nth-child(3) {
+  color: var(--muted);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .admin-card {
   padding: 16px;
 }

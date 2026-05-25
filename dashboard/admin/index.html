@@ -64,6 +64,30 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Cadastros recentes</h3>
+          <p>Perfis cadastrados no sistema, ordenados pela última atualização.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>updated_at</th>
+              </tr>
+            </thead>
+            <tbody id="recentProfilesTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" id="recentProfilesEmpty" hidden>
+          Nenhum perfil encontrado.
+        </div>
+      </section>
+
       <section class="stats-grid">
         <article class="stat-card">
           <span class="stat-card__label">Total de registros no USERS</span>
