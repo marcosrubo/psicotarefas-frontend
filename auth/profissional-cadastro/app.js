@@ -8,6 +8,7 @@ import {
 
 const authForm = document.getElementById("authForm");
 const nomeInput = document.getElementById("nome");
+const telefoneInput = document.getElementById("telefone");
 const emailInput = document.getElementById("email");
 const senhaInput = document.getElementById("senha");
 const confirmarSenhaInput = document.getElementById("confirmarSenha");
@@ -65,6 +66,23 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function normalizarTelefone(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function formatarTelefone(value) {
+  const digits = normalizarTelefone(value).slice(0, 13);
+
+  if (!digits) return "";
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+
+  return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
 }
 
 function validarFormulario() {
@@ -178,7 +196,7 @@ function fecharModalDocumento() {
   legalModal.hidden = true;
 }
 
-async function cadastrarProfissional({ nome, email, senha }) {
+async function cadastrarProfissional({ nome, telefone, email, senha }) {
   const query = new URLSearchParams();
   query.set("perfil", "profissional");
   query.set("email", email);
@@ -191,7 +209,8 @@ async function cadastrarProfissional({ nome, email, senha }) {
       emailRedirectTo: redirectUrl,
       data: {
         nome,
-        perfil: "profissional"
+        perfil: "profissional",
+        telefone
       }
     }
   });
@@ -201,6 +220,19 @@ async function cadastrarProfissional({ nome, email, senha }) {
   }
 
   return data;
+}
+
+async function registrarTelefoneNoPerfil(userId, telefone) {
+  if (!userId) return;
+
+  const { error } = await supabase
+    .from("perfis")
+    .update({ telefone })
+    .eq("user_id", userId);
+
+  if (error) {
+    console.warn("Não foi possível atualizar o WhatsApp do profissional no perfil:", error);
+  }
 }
 
 async function carregarConsentimentos() {
@@ -224,6 +256,12 @@ toggleButtons.forEach((button) => {
     }
   });
 });
+
+if (telefoneInput) {
+  telefoneInput.addEventListener("input", () => {
+    telefoneInput.value = formatarTelefone(telefoneInput.value);
+  });
+}
 
 if (consentList) {
   consentList.addEventListener("click", (event) => {
@@ -255,6 +293,8 @@ authForm.addEventListener("submit", async (event) => {
   }
 
   const nome = nomeInput.value.trim();
+  const telefoneFormatado = telefoneInput?.value.trim() || "";
+  const telefone = telefoneFormatado ? formatarTelefone(telefoneFormatado) : null;
   const email = emailInput.value.trim().toLowerCase();
   const senha = senhaInput.value;
 
@@ -264,6 +304,7 @@ authForm.addEventListener("submit", async (event) => {
   try {
     const resultadoCadastro = await cadastrarProfissional({
       nome,
+      telefone,
       email,
       senha
     });
@@ -278,6 +319,10 @@ authForm.addEventListener("submit", async (event) => {
     });
 
     const sessionUserId = resultadoCadastro?.session?.user?.id || null;
+
+    if (sessionUserId) {
+      await registrarTelefoneNoPerfil(sessionUserId, telefone);
+    }
 
     if (sessionUserId) {
       await registrarAceitesDocumentos(supabase, {
