@@ -690,6 +690,34 @@ ul {
   margin: 0;
 }
 
+.modal__dialog--security {
+  width: min(92vw, 560px);
+}
+
+.security-message {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: #344054;
+  font-size: 15px;
+  line-height: 1.58;
+}
+
+.security-message p {
+  margin: 0;
+}
+
+.security-message__list {
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.security-message__list li::marker {
+  color: var(--primary-dark);
+}
+
 .modal__form {
   display: grid;
   gap: 14px;
