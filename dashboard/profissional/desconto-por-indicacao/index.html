@@ -13,7 +13,7 @@
 
   <link rel="icon" type="image/png" sizes="192x192" href="../../../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../../../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=20260510-indicacao" />
+  <link rel="stylesheet" href="./style.css?v=20260604-nao-indicado" />
   <link rel="stylesheet" href="../../../shared/support.css" />
 </head>
 <body>
@@ -49,17 +49,23 @@
         <h2>REGRAS</h2>
         <ol>
           <li>Aponte qual foi o profissional que te indicou para o PsicoTarefas.</li>
+          <li>
+            <label class="no-referral-check" for="noReferralDiscount">
+              <input id="noReferralDiscount" type="checkbox" />
+              <span>Não fui indicado mas, QUERO O DESCONTO!</span>
+            </label>
+          </li>
           <li>Ao apontar o profissional, você passa a ter automaticamente, 10% de desconto na sua mensalidade.</li>
-          <li>O profissional que te indicou passa a receber em dinheiro, um valor correspondente a 10% do valor bruto da sua mensalidade.</li>
-          <li>O profissional que te indicou só é beneficiado com o valor correspondente a 10% do valor do seu plano nos meses em que você realiza o pagamento.</li>
-          <li>O profissional que te indicou não necessariamente precisa estar em algum plano pago, ele pode estar no plano Gratuíto. Só precisa estar cadastrado no sistema para ser indicado.</li>
-          <li>Você também pode indicar profissionais e ganhar 10% sobre o valor da mensalidade que seus indicados pagarem.</li>
+          <li>O profissional que te indicou passa a receber como BÔNUS, um desconto correspondente a 10% do valor bruto da sua mensalidade.</li>
+          <li>O profissional que te indicou só é beneficiado com o bônes de 10% do valor do seu plano nos meses em que você realiza o pagamento.</li>
+          <li>O profissional que te indicou, necessariamente precisa estar em algum plano pago para receber o bônus na forma de desconto da sua mensalidade. O valor total de bônus recebido pelo profissional que indicou, será limitado ao valor do seu plano mensal.</li>
+          <li>Você também pode indicar profissionais e ganhar BÔNUS sobre o valor da mensalidade que seus indicados pagarem.</li>
           <li>O profissional não pode indicar a si mesmo.</li>
         </ol>
       </section>
 
       <section class="current-referral-card" id="currentReferralCard">
-        <span>Profissional que você indicou:</span>
+        <span>Profissional que te indicou:</span>
         <strong id="currentReferralName">Carregando...</strong>
         <p>Caso queira trocar, selecione outro profissional.</p>
       </section>
@@ -100,6 +106,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../../../shared/professional-plan-label.js?v=20260508-2"></script>
-  <script type="module" src="./app.js?v=20260510-indicacao"></script>
+  <script type="module" src="./app.js?v=20260604-nao-indicado"></script>
 </body>
 </html>

@@ -12,6 +12,8 @@
   --theme-text: #166534;
   --error-bg: #fef2f2;
   --error-text: #b42318;
+  --success-bg: #ecfdf3;
+  --success-text: #027a48;
 }
 
 * { box-sizing: border-box; }
@@ -141,6 +143,32 @@ a { text-decoration: none; }
   line-height: 1.55;
 }
 
+.no-referral-check {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  color: var(--primary-dark);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.no-referral-check input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.no-referral-check input:disabled {
+  cursor: wait;
+}
+
+.no-referral-check span {
+  overflow-wrap: anywhere;
+}
+
 .current-referral-card {
   display: grid;
   gap: 6px;
@@ -177,6 +205,12 @@ a { text-decoration: none; }
   background: var(--error-bg);
   color: var(--error-text);
   border: 1px solid rgba(180, 35, 24, 0.12);
+}
+
+.screen-message--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid rgba(2, 122, 72, 0.14);
 }
 
 .search-field {

@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const professionalsList = document.getElementById("professionalsList");
   const professionalsEmptyState = document.getElementById("professionalsEmptyState");
   const currentReferralName = document.getElementById("currentReferralName");
+  const noReferralDiscount = document.getElementById("noReferralDiscount");
   const confirmOverlay = document.getElementById("confirmOverlay");
   const selectedProfessionalName = document.getElementById("selectedProfessionalName");
   const btnCancelSelection = document.getElementById("btnCancelSelection");
@@ -31,6 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
     screenMessage.hidden = false;
     screenMessage.textContent = text;
     screenMessage.className = `screen-message screen-message--${type}`;
+  }
+
+  function setReferralControlsLoading(isLoading) {
+    if (noReferralDiscount) {
+      noReferralDiscount.disabled = isLoading;
+    }
   }
 
   function escapeHtml(value) {
@@ -95,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { data: perfil, error } = await supabase
       .from("perfis")
-      .select("nome, email, perfil, indicado_por_profissional_user_id")
+      .select("nome, email, perfil, indicado_por_profissional_user_id, nao_indicado")
       .eq("user_id", currentUser.id)
       .single();
 
@@ -173,6 +180,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderIndicacaoAtual() {
     if (!currentReferralName) return;
 
+    if (noReferralDiscount) {
+      noReferralDiscount.checked = Boolean(currentProfile?.nao_indicado);
+    }
+
+    if (currentProfile?.nao_indicado) {
+      currentReferralName.textContent = "Você informou que não foi indicado.";
+      return;
+    }
+
     const professionalId = currentProfile?.indicado_por_profissional_user_id;
 
     if (!professionalId) {
@@ -217,7 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .from("perfis")
         .update({
           indicado_por_profissional_user_id: selectedProfessional.user_id,
-          indicado_por_profissional_at: new Date().toISOString()
+          indicado_por_profissional_at: new Date().toISOString(),
+          nao_indicado: false
         })
         .eq("user_id", currentUser.id);
 
@@ -227,7 +244,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentProfile = {
         ...currentProfile,
-        indicado_por_profissional_user_id: selectedProfessional.user_id
+        indicado_por_profissional_user_id: selectedProfessional.user_id,
+        nao_indicado: false
       };
       renderIndicacaoAtual();
 
@@ -255,6 +273,68 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function alternarNaoIndicado() {
+    if (!currentUser || !noReferralDiscount) return;
+
+    const marcado = noReferralDiscount.checked;
+    setReferralControlsLoading(true);
+    setScreenMessage();
+
+    try {
+      const updateData = {
+        nao_indicado: marcado
+      };
+
+      if (marcado) {
+        updateData.indicado_por_profissional_user_id = null;
+        updateData.indicado_por_profissional_at = null;
+      }
+
+      const { error } = await supabase
+        .from("perfis")
+        .update(updateData)
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        throw new Error(`Não foi possível gravar essa opção: ${error.message}`);
+      }
+
+      currentProfile = {
+        ...currentProfile,
+        nao_indicado: marcado,
+        indicado_por_profissional_user_id: marcado
+          ? null
+          : currentProfile?.indicado_por_profissional_user_id || null
+      };
+
+      renderIndicacaoAtual();
+
+      await registrarEvento({
+        evento: marcado ? "desconto_indicacao_nao_indicado" : "desconto_indicacao_nao_indicado_desmarcado",
+        pagina: "desconto_por_indicacao",
+        perfil: "profissional",
+        userId: currentUser.id,
+        email: currentProfile?.email || currentUser.email || null,
+        contexto: {
+          nao_indicado: marcado
+        }
+      });
+
+      setScreenMessage(
+        marcado
+          ? "Opção salva. A indicação anterior foi removida."
+          : "Opção atualizada. Você pode selecionar o profissional que te indicou.",
+        "success"
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar opção de não indicado:", error);
+      noReferralDiscount.checked = !marcado;
+      setScreenMessage(error.message || "Não foi possível gravar essa opção.");
+    } finally {
+      setReferralControlsLoading(false);
+    }
+  }
+
   if (btnBack) {
     btnBack.addEventListener("click", () => {
       window.location.href = "../index.html";
@@ -263,6 +343,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (professionalSearch) {
     professionalSearch.addEventListener("input", renderProfissionais);
+  }
+
+  if (noReferralDiscount) {
+    noReferralDiscount.addEventListener("change", alternarNaoIndicado);
   }
 
   if (professionalsList) {
