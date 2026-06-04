@@ -102,6 +102,18 @@
         </div>
       </section>
     </div>
+
+    <div class="confirm-overlay" id="noReferralConfirmOverlay" hidden>
+      <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="noReferralConfirmTitle">
+        <h3 id="noReferralConfirmTitle">Confirmar desconto</h3>
+        <p>Você está informando que não foi indicado por nenhum profissional.</p>
+        <p>Mas, fique TRANQUILO, mesmo assim VOCÊ TERÁ O DESCONTO na sua mensalidade por ter nos dado a informação.</p>
+        <div class="confirm-dialog__actions">
+          <button class="btn-secondary" id="btnCancelNoReferral" type="button">cancelar</button>
+          <button class="btn-primary" id="btnConfirmNoReferral" type="button">confirmar</button>
+        </div>
+      </section>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

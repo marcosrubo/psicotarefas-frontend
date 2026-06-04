@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedProfessionalName = document.getElementById("selectedProfessionalName");
   const btnCancelSelection = document.getElementById("btnCancelSelection");
   const btnConfirmSelection = document.getElementById("btnConfirmSelection");
+  const noReferralConfirmOverlay = document.getElementById("noReferralConfirmOverlay");
+  const btnCancelNoReferral = document.getElementById("btnCancelNoReferral");
+  const btnConfirmNoReferral = document.getElementById("btnConfirmNoReferral");
 
   let currentUser = null;
   let currentProfile = null;
@@ -185,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (currentProfile?.nao_indicado) {
-      currentReferralName.textContent = "Você informou que não foi indicado.";
+      currentReferralName.textContent = "Você informou que não foi indicado mas, mesmo assim TERÁ O DESCONTO";
       return;
     }
 
@@ -212,6 +215,22 @@ document.addEventListener("DOMContentLoaded", () => {
   function fecharConfirmacao() {
     selectedProfessional = null;
     if (confirmOverlay) confirmOverlay.hidden = true;
+  }
+
+  function abrirConfirmacaoNaoIndicado() {
+    setScreenMessage();
+    if (noReferralConfirmOverlay) noReferralConfirmOverlay.hidden = false;
+  }
+
+  function fecharConfirmacaoNaoIndicado() {
+    if (noReferralConfirmOverlay) noReferralConfirmOverlay.hidden = true;
+  }
+
+  function cancelarNaoIndicado() {
+    if (noReferralDiscount) {
+      noReferralDiscount.checked = Boolean(currentProfile?.nao_indicado);
+    }
+    fecharConfirmacaoNaoIndicado();
   }
 
   async function confirmarIndicacao() {
@@ -273,12 +292,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function alternarNaoIndicado() {
+  async function salvarNaoIndicado(marcado, { redirectAfterSave = false } = {}) {
     if (!currentUser || !noReferralDiscount) return;
 
-    const marcado = noReferralDiscount.checked;
     setReferralControlsLoading(true);
     setScreenMessage();
+
+    if (btnConfirmNoReferral) {
+      btnConfirmNoReferral.disabled = true;
+      btnConfirmNoReferral.textContent = "Gravando...";
+    }
 
     try {
       const updateData = {
@@ -308,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       renderIndicacaoAtual();
+      fecharConfirmacaoNaoIndicado();
 
       await registrarEvento({
         evento: marcado ? "desconto_indicacao_nao_indicado" : "desconto_indicacao_nao_indicado_desmarcado",
@@ -326,13 +350,32 @@ document.addEventListener("DOMContentLoaded", () => {
           : "Opção atualizada. Você pode selecionar o profissional que te indicou.",
         "success"
       );
+
+      if (redirectAfterSave) {
+        window.location.href = "../index.html";
+      }
     } catch (error) {
       console.error("Erro ao atualizar opção de não indicado:", error);
       noReferralDiscount.checked = !marcado;
       setScreenMessage(error.message || "Não foi possível gravar essa opção.");
     } finally {
       setReferralControlsLoading(false);
+      if (btnConfirmNoReferral) {
+        btnConfirmNoReferral.disabled = false;
+        btnConfirmNoReferral.textContent = "confirmar";
+      }
     }
+  }
+
+  function alternarNaoIndicado() {
+    if (!noReferralDiscount) return;
+
+    if (noReferralDiscount.checked) {
+      abrirConfirmacaoNaoIndicado();
+      return;
+    }
+
+    salvarNaoIndicado(false);
   }
 
   if (btnBack) {
@@ -368,14 +411,33 @@ document.addEventListener("DOMContentLoaded", () => {
     btnConfirmSelection.addEventListener("click", confirmarIndicacao);
   }
 
+  if (btnCancelNoReferral) {
+    btnCancelNoReferral.addEventListener("click", cancelarNaoIndicado);
+  }
+
+  if (btnConfirmNoReferral) {
+    btnConfirmNoReferral.addEventListener("click", () => {
+      salvarNaoIndicado(true, { redirectAfterSave: true });
+    });
+  }
+
   if (confirmOverlay) {
     confirmOverlay.addEventListener("click", (event) => {
       if (event.target === confirmOverlay) fecharConfirmacao();
     });
   }
 
+  if (noReferralConfirmOverlay) {
+    noReferralConfirmOverlay.addEventListener("click", (event) => {
+      if (event.target === noReferralConfirmOverlay) cancelarNaoIndicado();
+    });
+  }
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") fecharConfirmacao();
+    if (event.key === "Escape") {
+      fecharConfirmacao();
+      cancelarNaoIndicado();
+    }
   });
 
   async function iniciar() {
