@@ -228,6 +228,75 @@ a {
   font-size: 13px;
 }
 
+.paid-plans-modal[hidden] {
+  display: none;
+}
+
+.paid-plans-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.paid-plans-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.paid-plans-modal__card {
+  position: relative;
+  width: min(100%, 520px);
+  border: 1px solid rgba(232, 234, 242, 0.96);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.22);
+  padding: 22px;
+  display: grid;
+  gap: 16px;
+}
+
+.paid-plans-modal__card h2 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.paid-plans-modal__message {
+  display: grid;
+  gap: 10px;
+}
+
+.paid-plans-modal__message p {
+  margin: 0;
+  color: #344054;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.paid-plans-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.paid-plans-modal__ok {
+  appearance: none;
+  border: none;
+  border-radius: 14px;
+  min-width: 120px;
+  min-height: 44px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .intro-panel {
   background: linear-gradient(135deg, rgba(18, 80, 230, 0.1), rgba(18, 80, 230, 0.04));
   display: grid;
@@ -546,6 +615,30 @@ a {
 
   .plan-summary-card strong {
     font-size: 26px;
+  }
+
+  .paid-plans-modal {
+    align-items: end;
+    padding: 12px 12px calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .paid-plans-modal__card {
+    border-radius: 20px;
+    padding: 18px;
+  }
+
+  .paid-plans-modal__card h2 {
+    font-size: 22px;
+  }
+
+  .paid-plans-modal__message p {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .paid-plans-modal__actions,
+  .paid-plans-modal__ok {
+    width: 100%;
   }
 }
 
