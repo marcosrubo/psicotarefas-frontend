@@ -219,6 +219,10 @@ async function cadastrarProfissional({ nome, telefone, email, senha }) {
     throw new Error(error.message || "Erro ao criar conta de profissional.");
   }
 
+  if (!data.user?.identities?.length) {
+    throw new Error("Não conseguimos criar a conta com este e-mail. Se já tem cadastro, faça login. Caso contrário, use outro e-mail.");
+  }
+
   return data;
 }
 
