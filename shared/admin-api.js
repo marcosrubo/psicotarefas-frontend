@@ -1,11 +1,11 @@
 import supabase from "./supabase.js";
 
-const ADMIN_API_BASE_URL = isLocalBackend()
-  ? "http://localhost:3000"
-  : "https://psicotarefas-backend.onrender.com";
+const ADMIN_API_BASE_URL = isProdAmbiente()
+  ? "https://psicotarefas-backend.onrender.com"
+  : "https://psicotarefas-backend-dev.onrender.com";
 
-function isLocalBackend() {
-  return ["localhost", "127.0.0.1"].includes(window.location.hostname);
+function isProdAmbiente() {
+  return window.location.hostname === "www.psicotarefas.com.br";
 }
 
 async function getAuthHeaders() {
