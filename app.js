@@ -1,7 +1,14 @@
 import { registrarAcessoPagina, registrarEvento } from "./shared/activity-log.js?v=20260514-sem-auto-detect";
 
-const SUPABASE_URL = "https://haawjoesqdlccertgpqi.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_GsWcsI7pnPuUdW5Wz15YRQ_NbtgGABm";
+const isProd = window.location.hostname === "www.psicotarefas.com.br";
+
+const SUPABASE_URL = isProd
+  ? "https://haawjoesqdlccertgpqi.supabase.co"
+  : "https://jejrlonadetfetlrqxer.supabase.co";
+
+const SUPABASE_ANON_KEY = isProd
+  ? "sb_publishable_GsWcsI7pnPuUdW5Wz15YRQ_NbtgGABm"
+  : "sb_publishable_MFFMOtnTNy0c1rhu3wmHqg_9zvfDSQA";
 const ADMIN_EMAIL = "marcos@rubo.com.br";
 const ADMIN_DASHBOARD_URL = criarUrlDoApp("dashboard/admin/index.html");
 
